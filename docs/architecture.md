@@ -1,4 +1,4 @@
-# Architecture 0.1 — public data, local calculations
+# Architecture 0.2 — public data, local calculations
 
 ```mermaid
 flowchart LR
@@ -14,7 +14,7 @@ flowchart LR
   C -. майбутній прямий handoff .-> B[Банк / брокер / Дія]
 ```
 
-Implemented: static Next.js application, in-memory inputs, three synthetic quotes, local pricing package. Dashed/future elements are not implemented.
+Implemented: static Next.js application, direct browser-to-NBU refresh, validated committed public snapshot, local catalog filters and schedules. Separate /demo contains three synthetic quotes and local pricing. Public snapshot preparation is a CLI, not a runtime relay. Personal data storage and partner connections remain unimplemented.
 
 ## Logical data model
 
@@ -47,9 +47,9 @@ erDiagram
 - Compare integer lots within liquidity and budget; show idle cash independently.
 - All demo amounts are UAH, exemption is a scenario assumption, no recurring fees or reinvestment.
 
-## Public feed contract (planned)
+## Public feed contract
 
-Versioned JSON snapshots: schemaVersion, generatedAt, sourceURL, sourceObservedAt, qualityStatus, assets, quotes and feeVersions. Imported quotations are indicative unless a source explicitly supports execution; phase one never executes them. A published yield is not a executable offer.
+Implemented NBU snapshot: schemaVersion, source, sourcePage, retrievedAt, sourceAsOf=null, assets, excludedCount, rejected. See nbu-source.md. Quotes and fee schedules are future extensions. Nominal rates are not executable yields.
 
 ## Security boundary
 

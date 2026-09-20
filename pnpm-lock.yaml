@@ -10,6 +10,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@ovdp/market-data':
+        specifier: workspace:*
+        version: link:../../packages/market-data
       '@ovdp/pricing':
         specifier: workspace:*
         version: link:../../packages/pricing
@@ -35,6 +38,8 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+
+  packages/market-data: {}
 
   packages/pricing:
     dependencies:

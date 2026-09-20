@@ -8,7 +8,9 @@
   "scripts": {
     "dev": "pnpm --filter @ovdp/web dev",
     "build": "pnpm --filter @ovdp/web build",
-    "test": "node --test packages/pricing/src/*.test.ts",
-    "typecheck": "pnpm --filter @ovdp/web typecheck"
-  }
+    "test": "node --test packages/pricing/src/*.test.ts packages/market-data/src/*.test.ts",
+    "typecheck": "pnpm --filter @ovdp/web typecheck",
+    "data:refresh": "node scripts/refresh-nbu.ts"
+  },
+  "type": "module"
 }

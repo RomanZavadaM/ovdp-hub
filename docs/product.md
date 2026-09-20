@@ -4,7 +4,11 @@
 
 Help users understand public OVDP information and compare net economics without collecting their investment budgets or portfolios centrally.
 
-## Current journey
+## Implemented catalog journey
+
+Open committed NBU snapshot → filter locally → inspect source and retrieval time → expand future payments → optionally refresh directly from NBU. Error retains prior snapshot. No purchase or accounts.
+
+## Separate demo journey
 
 Open app → see SYNTHETIC label → enter UAH budget → calculate locally → compare quantity, price with fee, profit, annualized return and idle cash. No registration, recommendation, account opening or purchase.
 
@@ -20,7 +24,7 @@ Load public snapshots → filter currency/ISIN/maturity/source → inspect fresh
 - Ministry primary purchase explanation: https://www.mof.gov.ua/uk/domestic_government_bonds_for_population-360
 - Tax reference: https://www.tax.gov.ua/deklaratsiyna-kampaniya-2026/stavki-podatku-na-dohodi-fizichnih-osib-ta-viyskovogo-zboru
 
-These are reference pages, not claims that a connector is implemented. Confirm payload/schema, CORS, attribution, terms and refresh frequency before each integration. No scraping of authenticated client accounts.
+The NBU securities adapter is implemented; other entries remain reference pages, not claims that a connector is implemented. Confirm payload/schema, CORS, attribution, terms and refresh frequency before each integration. No scraping of authenticated client accounts.
 
 ## Acceptance criteria
 

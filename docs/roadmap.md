@@ -7,11 +7,11 @@
 - [x] Build/typecheck/test CI definition.
 
 ## 0.2 — public information
-- [ ] Validate NBU instrument and payment data API.
-- [ ] Source adapters and provenance-aware public snapshot schema.
+- [x] Validate NBU instrument and payment data API.
+- [x] NBU source adapter and provenance-aware public snapshot schema.
 - [ ] Ministry auction calendar/results ingestion with corrections.
-- [ ] Freshness, quarantine and stale-source UX.
-- [ ] Tests against versioned public fixtures; no network in unit tests.
+- [x] NBU retrieval freshness, quarantine and stale-source UX.
+- [x] Tests against versioned public fixtures; no network in unit tests.
 
 ## 0.3 — comparison quality
 - [ ] Authorized public bank/broker quotes and versioned tariffs.
