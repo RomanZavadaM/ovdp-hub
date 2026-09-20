@@ -26,7 +26,6 @@
   },
   "bundle": {
     "active": true,
-    "icon": [],
     "targets": ["nsis", "dmg"],
     "category": "Finance",
     "shortDescription": "Публічний каталог ОВДП і локальні розрахунки",
@@ -35,4 +34,3 @@
     "macOS": { "minimumSystemVersion": "11.0" }
   }
 }
-
