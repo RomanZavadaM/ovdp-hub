@@ -4,6 +4,15 @@ import { fetchNbu, filterAssets, freshness, SOURCE_PAGE, type Snapshot } from '@
 import initial from '../data/nbu-snapshot.json';
 const labels = { COUPON:'Купон', REDEMPTION:'Погашення', EARLY_REDEMPTION:'Дострокове погашення' };
 const formatDate = (value: string) => value.split('-').reverse().join('.');
+function download(name: string, content: string, type: string) {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const link = document.createElement('a'); link.href = url; link.download = name; link.click();
+  URL.revokeObjectURL(url);
+}
+function csvCell(value: string | number | null) {
+  const text = value === null ? '' : String(value);
+  return /[",\n]/.test(text) ? '"' + text.replaceAll('"', '""') + '"' : text;
+}
 export default function Catalog() {
   const [snapshot,setSnapshot] = useState(initial as Snapshot);
   const [query,setQuery] = useState('');
@@ -17,6 +26,15 @@ export default function Catalog() {
   const today = now === null ? initial.retrievedAt.slice(0,10) : new Date(now).toLocaleDateString('en-CA',{timeZone:'Europe/Kyiv'});
   const rows = filterAssets(snapshot.assets,{query,currency,activeOnly,today});
   const state = now === null ? 'UNKNOWN' : freshness(snapshot.retrievedAt,now);
+  function exportJson() {
+    download('ovdp-nbu-snapshot.json', JSON.stringify(snapshot, null, 2) + '\n', 'application/json;charset=utf-8');
+  }
+  function exportCsv() {
+    const csvRows = [['ISIN','Тип','Валюта','Номінал','Номінальна ставка','Дата погашення','Дата виплати','Тип виплати','Сума виплати']];
+    for (const asset of snapshot.assets) for (const payment of asset.payments)
+      csvRows.push([asset.isin, asset.description, asset.currency, asset.nominal, asset.nominalRate ?? '', asset.maturityDate, payment.date, labels[payment.kind], payment.amount]);
+    download('ovdp-nbu-payments.csv', '\uFEFF' + csvRows.map(row => row.map(csvCell).join(',')).join('\n') + '\n', 'text/csv;charset=utf-8');
+  }
   async function refresh() {
     setBusy(true); setError('');
     try { setSnapshot(await fetchNbu(AbortSignal.timeout(20000))); setNow(Date.now()); setLimit(25); }
@@ -28,7 +46,7 @@ export default function Catalog() {
     <section className="hero"><p className="eyebrow">ПУБЛІЧНІ ДАНІ. ВАШ ПРИВАТНИЙ ПРОСТІР.</p><h1>Державні облігації.<br/><em>Відкрито про головне.</em></h1><p className="intro">Довідник ОВДП Національного банку України: валюта, номінал, строки та графіки виплат. Пошук і фільтри працюють на вашому пристрої.</p></section>
     <section className="workspace" aria-labelledby="catalog-title">
       <div className="section-heading"><div><p className="eyebrow">01 / ДОВІДНИК НБУ</p><h2 id="catalog-title">Оберіть випуск</h2></div><span className="badge">Офіційне джерело · {snapshot.assets.length} випусків</span></div>
-      <div className="source-panel"><div><a href={SOURCE_PAGE} target="_blank" rel="noreferrer">Джерело: Національний банк України ↗</a><p>Отримано: <time dateTime={snapshot.retrievedAt}>{snapshot.retrievedAt.replace('T',' ').slice(0,19)} UTC</time></p><p>{state === 'STALE' ? 'Знімок старший за 24 години — оновіть дані.' : state === 'RECENT' ? 'Знімок отримано протягом останніх 24 годин.' : 'Актуальність часу отримання не визначена.'} Дату актуальності самого набору API не надає.</p></div><button type="button" onClick={refresh} disabled={busy}>{busy ? 'Завантажуємо…' : 'Оновити з НБУ'}</button></div>
+      <div className="source-panel"><div><a href={SOURCE_PAGE} target="_blank" rel="noreferrer">Джерело: Національний банк України ↗</a><p>Отримано: <time dateTime={snapshot.retrievedAt}>{snapshot.retrievedAt.replace('T',' ').slice(0,19)} UTC</time></p><p>{state === 'STALE' ? 'Знімок старший за 24 години — оновіть дані.' : state === 'RECENT' ? 'Знімок отримано протягом останніх 24 годин.' : 'Актуальність часу отримання не визначена.'} Дату актуальності самого набору API не надає.</p></div><div className="source-actions"><button type="button" onClick={refresh} disabled={busy}>{busy ? 'Завантажуємо…' : 'Оновити з НБУ'}</button><button type="button" className="secondary" onClick={exportJson}>JSON</button><button type="button" className="secondary" onClick={exportCsv}>CSV виплат</button></div></div>
       <p className="notice">Оновлення звертається безпосередньо до НБУ. Ваші фільтри та бюджет не передаються. НБУ бачить звичайні мережеві дані запиту, зокрема IP-адресу.</p>
       {error && <p role="alert" className="error">{error}</p>}
       {snapshot.rejected.length > 0 && <p role="alert" className="error">Не показано {snapshot.rejected.length} некоректних записів джерела. Дані можуть бути неповними.</p>}
