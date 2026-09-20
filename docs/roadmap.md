@@ -16,7 +16,8 @@
 
 ## 0.3 — comparison quality
 - [ ] Authorized public bank/broker quotes and versioned tariffs.
-- [ ] ISIN, currency, maturity, source and quote-age filters.
+- [x] ISIN, currency, maturity and source filters.
+- [x] Local comparison of up to three issues and short/long-horizon scenario packages.
 - [ ] Day-count-aware accrued interest and coupon schedules.
 - [ ] Effective-dated tax scenarios, recurring fees and deposit comparison.
 - [ ] Bid/Ask early-sale simulation, FX and budget-level return.
@@ -26,6 +27,12 @@
 - [ ] Holdings import, coupon calendar, local ICS export.
 - [ ] Local maturity ladder and scenario calculator.
 - [ ] Offline asset caching and installable PWA after security review.
+
+## 0.35 — multiplatform clients
+- [x] Installable Web/PWA shell.
+- [x] Expo Router catalog shell for iOS and Android.
+- [x] Tauri desktop shell for Windows and macOS.
+- [ ] Platform secure storage and release signing for private local vaults.
 
 ## Later, separately scoped
 - [ ] React Native iOS/Android with platform secure storage.

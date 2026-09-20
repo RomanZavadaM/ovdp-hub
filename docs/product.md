@@ -6,7 +6,9 @@ Help users understand public OVDP information and compare net economics without 
 
 ## Implemented catalog journey
 
-Open committed NBU snapshot → filter locally → inspect source and retrieval time → expand future payments → optionally refresh directly from NBU. Error retains prior snapshot. No purchase or accounts.
+Open committed NBU snapshot → filter locally → inspect source and retrieval time → expand future payments → compare up to three issues → build a short- or long-horizon scenario package → optionally refresh directly from NBU. Error retains prior snapshot. No purchase or accounts.
+
+Scenario packages use transparent maturity windows (up to 12 months or from 24 months), allow up to five locally selected issues, and show currency composition with equal technical preview shares. These shares are a comparison aid, not a personalized recommendation.
 
 ## Separate demo journey
 
