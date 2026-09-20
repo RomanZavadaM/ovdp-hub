@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ОВДП Hub",
+  "version": "0.1.0",
+  "identifier": "ua.ovdphub.desktop",
+  "build": {
+    "beforeDevCommand": "pnpm --filter @ovdp/web dev",
+    "devUrl": "http://127.0.0.1:3000",
+    "beforeBuildCommand": "pnpm --filter @ovdp/web build",
+    "frontendDist": "../../web/out"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "ОВДП Hub",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 960,
+        "minHeight": 640,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' https://bank.gov.ua https://www.mof.gov.ua; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "dmg"],
+    "category": "Finance",
+    "shortDescription": "Публічний каталог ОВДП і локальні розрахунки",
+    "longDescription": "Локально орієнтований застосунок для перегляду публічних даних ОВДП.",
+    "windows": { "nsis": { "installMode": "currentUser" } },
+    "macOS": { "minimumSystemVersion": "11.0" }
+  }
+}

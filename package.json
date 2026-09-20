@@ -10,7 +10,12 @@
     "build": "pnpm --filter @ovdp/web build",
     "test": "node --test packages/pricing/src/*.test.ts packages/market-data/src/*.test.ts",
     "typecheck": "pnpm --filter @ovdp/web typecheck",
-    "data:refresh": "node scripts/refresh-nbu.ts"
+    "data:refresh": "node scripts/refresh-nbu.ts",
+    "mobile": "pnpm --filter @ovdp/mobile start",
+    "mobile:typecheck": "pnpm --filter @ovdp/mobile typecheck",
+    "desktop": "pnpm --filter @ovdp/desktop tauri",
+    "desktop:dev": "pnpm --filter @ovdp/desktop dev",
+    "desktop:build": "pnpm --filter @ovdp/desktop build"
   },
   "type": "module"
 }

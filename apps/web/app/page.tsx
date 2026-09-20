@@ -1,9 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { fetchNbu, filterAssets, freshness, SOURCE_PAGE, type Snapshot } from '@ovdp/market-data';
 import initial from '../data/nbu-snapshot.json';
 const labels = { COUPON:'Купон', REDEMPTION:'Погашення', EARLY_REDEMPTION:'Дострокове погашення' };
 const formatDate = (value: string) => value.split('-').reverse().join('.');
+const formatNumber = (value: number, maximumFractionDigits = 2) => new Intl.NumberFormat('uk-UA', { maximumFractionDigits }).format(value);
+const daysUntil = (date: string, today: string) => Math.max(0, Math.ceil((Date.parse(date) - Date.parse(today)) / 86400000));
 const mofCalendar = {
   publishedAt: '2026-09-17',
   documentUrl: 'https://www.mof.gov.ua/storage/files/%D0%93%D1%80%D0%B0%D1%84%D1%96%D0%BA%20%D0%BD%D0%B0%20%D0%B2%D0%B5%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D1%8C%202026%20%2817_09_2026%29%20%E2%80%93%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82.docx',
@@ -31,11 +33,20 @@ export default function Catalog() {
   const [activeOnly,setActiveOnly] = useState(true);
   const [limit,setLimit] = useState(25);
   const [now,setNow] = useState<number | null>(null);
+  const [selectedIsin,setSelectedIsin] = useState<string | null>(null);
   const [busy,setBusy] = useState(false);
   const [error,setError] = useState('');
   useEffect(() => { setNow(Date.now()); const timer = setInterval(() => setNow(Date.now()),60000); return () => clearInterval(timer); },[]);
   const today = now === null ? initial.retrievedAt.slice(0,10) : new Date(now).toLocaleDateString('en-CA',{timeZone:'Europe/Kyiv'});
   const rows = filterAssets(snapshot.assets,{query,currency,activeOnly,today});
+  const selected = rows.find(asset => asset.isin === selectedIsin) ?? null;
+  const analysis = useMemo(() => {
+    const currencies = ['UAH','USD','EUR'].map(value => ({ value, count: rows.filter(asset => asset.currency === value).length }));
+    const rates = rows.map(asset => asset.nominalRate === null ? null : Number(asset.nominalRate)).filter((rate): rate is number => rate !== null && Number.isFinite(rate));
+    const payments = rows.flatMap(asset => asset.payments.filter(payment => payment.date >= today).map(payment => ({ ...payment, isin: asset.isin, currency: asset.currency })));
+    const nextMaturity = rows[0] ?? null;
+    return { currencies, minRate: rates.length ? Math.min(...rates) : null, maxRate: rates.length ? Math.max(...rates) : null, nextMaturity, nextPayment: payments.sort((a,b) => a.date.localeCompare(b.date))[0] ?? null };
+  }, [rows, today]);
   const state = now === null ? 'UNKNOWN' : freshness(snapshot.retrievedAt,now);
   function exportJson() {
     download('ovdp-nbu-snapshot.json', JSON.stringify(snapshot, null, 2) + '\n', 'application/json;charset=utf-8');
@@ -64,7 +75,14 @@ export default function Catalog() {
       <div className="filters"><label htmlFor="search">ISIN<input id="search" value={query} onChange={e=>{setQuery(e.target.value);setLimit(25);}} placeholder="Наприклад, UA400…" autoComplete="off"/></label><label htmlFor="currency">Валюта<select id="currency" value={currency} onChange={e=>{setCurrency(e.target.value);setLimit(25);}}><option value="">Усі валюти</option><option>UAH</option><option>USD</option><option>EUR</option></select></label><label className="checkbox"><input type="checkbox" checked={activeOnly} onChange={e=>{setActiveOnly(e.target.checked);setLimit(25);}}/>Термін погашення ще не минув</label></div>
       <p className="notice">Номінальна ставка — параметр випуску, не дохідність купівлі. Тут немає цін брокерів або пропозицій придбання. Відсортовано за датою погашення.</p>
       <p role="status" aria-live="polite">Знайдено {rows.length} · показано {Math.min(limit,rows.length)}</p>
-      <div className="table-wrap"><table><caption>ОВДП за даними депозитарію НБУ</caption><thead><tr><th>ISIN / тип</th><th>Валюта</th><th>Номінал</th><th>Номінальна ставка</th><th>Погашення</th><th>Графік на 1 папір</th></tr></thead><tbody>{rows.slice(0,limit).map(a=><tr key={a.isin}><td><strong>{a.isin}</strong><small>{a.description}</small></td><td>{a.currency}</td><td>{a.nominal}</td><td>{a.nominalRate === null ? 'Немає даних' : a.nominalRate+'%'}</td><td>{formatDate(a.maturityDate)}</td><td><details><summary>Виплати</summary><p>Дані джерела; без податків і комісій. Майбутні дати не означають фактичне зарахування.</p><ul className="payments">{a.payments.filter(p=>p.date>=today).map((p,i)=><li key={i}>{formatDate(p.date)} · {labels[p.kind]} · {p.amount} {a.currency}</li>)}</ul>{!a.payments.some(p=>p.date>=today) && <p>Майбутніх виплат у наборі немає.</p>}</details></td></tr>)}</tbody></table></div>
+      <div className="analysis-grid" aria-label="Локальний аналіз вибірки">
+        <article className="analysis-card analysis-main"><span className="analysis-label">ШВИДКИЙ АНАЛІЗ ВИБІРКИ</span><strong>{rows.length} <small>випусків після фільтрів</small></strong><p>{analysis.nextMaturity ? <>Найближче погашення: <b>{formatDate(analysis.nextMaturity.maturityDate)}</b> · {analysis.nextMaturity.isin} ({daysUntil(analysis.nextMaturity.maturityDate, today)} днів)</> : 'Змініть фільтри, щоб отримати зріз.'}</p></article>
+        <article className="analysis-card"><span className="analysis-label">ВАЛЮТИ</span><div className="metric-list">{analysis.currencies.map(item=><span key={item.value}><b>{item.value}</b>{item.count}</span>)}</div></article>
+        <article className="analysis-card"><span className="analysis-label">НОМІНАЛЬНА СТАВКА</span><strong>{analysis.minRate === null ? '—' : `${formatNumber(analysis.minRate)}–${formatNumber(analysis.maxRate ?? analysis.minRate)}%`}</strong><p>Діапазон параметрів випуску; не YTM і не ціна угоди.</p></article>
+        <article className="analysis-card"><span className="analysis-label">НАСТУПНА ВИПЛАТА</span><strong>{analysis.nextPayment ? formatDate(analysis.nextPayment.date) : '—'}</strong><p>{analysis.nextPayment ? `${analysis.nextPayment.isin} · ${analysis.nextPayment.amount} ${analysis.nextPayment.currency}` : 'У вибірці немає майбутніх виплат.'}</p></article>
+      </div>
+      {selected && <aside className="selected-analysis"><div className="selected-heading"><div><span className="analysis-label">ДЕТАЛЬНИЙ ОГЛЯД</span><h3>{selected.isin}</h3><p>{selected.description || 'Державна облігація'}</p></div><button type="button" className="secondary" onClick={()=>setSelectedIsin(null)}>Закрити</button></div><div className="selected-facts"><span><b>Валюта</b>{selected.currency}</span><span><b>Номінал</b>{selected.nominal} {selected.currency}</span><span><b>Ставка</b>{selected.nominalRate === null ? 'Немає даних' : `${selected.nominalRate}%`}</span><span><b>До погашення</b>{daysUntil(selected.maturityDate, today)} днів</span></div><h4>Графік виплат на 1 папір</h4><ul className="selected-payments">{selected.payments.map((payment,index)=><li key={`${payment.date}-${index}`}><time dateTime={payment.date}>{formatDate(payment.date)}</time><span>{labels[payment.kind]}</span><b>{payment.amount} {selected.currency}</b></li>)}</ul><p className="notice">Показано джерельні суми без податків, комісій, ціни купівлі та гарантії фактичного зарахування.</p></aside>}
+      <div className="table-wrap"><table><caption>ОВДП за даними депозитарію НБУ</caption><thead><tr><th>ISIN / тип</th><th>Валюта</th><th>Номінал</th><th>Номінальна ставка</th><th>Погашення</th><th>Графік на 1 папір</th><th>Аналіз</th></tr></thead><tbody>{rows.slice(0,limit).map(a=><tr key={a.isin}><td><strong>{a.isin}</strong><small>{a.description}</small></td><td>{a.currency}</td><td>{a.nominal}</td><td>{a.nominalRate === null ? 'Немає даних' : a.nominalRate+'%'}</td><td>{formatDate(a.maturityDate)}</td><td><details><summary>Виплати</summary><p>Дані джерела; без податків і комісій. Майбутні дати не означають фактичне зарахування.</p><ul className="payments">{a.payments.filter(p=>p.date>=today).map((p,i)=><li key={i}>{formatDate(p.date)} · {labels[p.kind]} · {p.amount} {a.currency}</li>)}</ul>{!a.payments.some(p=>p.date>=today) && <p>Майбутніх виплат у наборі немає.</p>}</details></td><td><button type="button" className="row-action" onClick={()=>setSelectedIsin(a.isin)} aria-label={`Деталі ${a.isin}`}>Деталі</button></td></tr>)}</tbody></table></div>
       {!rows.length && <p className="empty">Нічого не знайдено. Змініть ISIN або фільтри.</p>}
       {rows.length>limit && <button className="load-more" onClick={()=>setLimit(v=>v+25)}>Показати ще 25</button>}
     </section>
