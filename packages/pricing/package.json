@@ -1,0 +1,7 @@
+{
+  "name": "@ovdp/pricing",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts", "./demo": "./src/demo.ts" },
+  "dependencies": { "decimal.js": "10.6.0" }
+}

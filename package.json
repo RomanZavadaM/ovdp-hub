@@ -1,0 +1,14 @@
+{
+  "name": "ovdp-hub",
+  "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @ovdp/web dev",
+    "build": "pnpm --filter @ovdp/web build",
+    "test": "node --test packages/pricing/src/*.test.ts",
+    "typecheck": "pnpm --filter @ovdp/web typecheck"
+  }
+}
