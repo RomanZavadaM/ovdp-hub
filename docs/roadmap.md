@@ -9,6 +9,7 @@
 ## 0.2 — public information
 - [x] Validate NBU instrument and payment data API.
 - [x] NBU source adapter and provenance-aware public snapshot schema.
+- [x] Initial Ministry calendar view with source document and planned-status warning.
 - [ ] Ministry auction calendar/results ingestion with corrections.
 - [x] NBU retrieval freshness, quarantine and stale-source UX.
 - [x] Tests against versioned public fixtures; no network in unit tests.

@@ -4,6 +4,17 @@ import { fetchNbu, filterAssets, freshness, SOURCE_PAGE, type Snapshot } from '@
 import initial from '../data/nbu-snapshot.json';
 const labels = { COUPON:'Купон', REDEMPTION:'Погашення', EARLY_REDEMPTION:'Дострокове погашення' };
 const formatDate = (value: string) => value.split('-').reverse().join('.');
+const mofCalendar = {
+  publishedAt: '2026-09-17',
+  documentUrl: 'https://www.mof.gov.ua/storage/files/%D0%93%D1%80%D0%B0%D1%84%D1%96%D0%BA%20%D0%BD%D0%B0%20%D0%B2%D0%B5%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D1%8C%202026%20%2817_09_2026%29%20%E2%80%93%20%D0%BD%D0%B0%20%D1%81%D0%B0%D0%B9%D1%82.docx',
+  events: [
+    { date: '2026-09-01', label: 'Аукціон з розміщення' },
+    { date: '2026-09-08', label: 'Аукціон з розміщення' },
+    { date: '2026-09-15', label: 'Аукціон з розміщення' },
+    { date: '2026-09-22', label: 'Аукціон з розміщення' },
+    { date: '2026-09-29', label: 'Аукціон з розміщення' }
+  ]
+};
 function download(name: string, content: string, type: string) {
   const url = URL.createObjectURL(new Blob([content], { type }));
   const link = document.createElement('a'); link.href = url; link.download = name; link.click();
@@ -57,6 +68,7 @@ export default function Catalog() {
       {!rows.length && <p className="empty">Нічого не знайдено. Змініть ISIN або фільтри.</p>}
       {rows.length>limit && <button className="load-more" onClick={()=>setLimit(v=>v+25)}>Показати ще 25</button>}
     </section>
+    <section className="workspace calendar" aria-labelledby="calendar-title"><div className="section-heading"><div><p className="eyebrow">02 / КАЛЕНДАР МІНФІНУ</p><h2 id="calendar-title">Заплановані аукціони</h2></div><span className="badge">Редакція {formatDate(mofCalendar.publishedAt)}</span></div><p className="notice">Це план розміщень, опублікований Міністерством фінансів. Остаточний перелік випусків може змінюватися після оцінки попиту. Календар не є заявкою, ціною або гарантією проведення.</p><div className="auction-grid">{mofCalendar.events.map(event=><article key={event.date}><time dateTime={event.date}>{formatDate(event.date)}</time><strong>{event.label}</strong><small>Параметри — в офіційному оголошенні</small></article>)}</div><p className="source-line"><a href="https://www.mof.gov.ua/uk/kalendar-aukcioniv" target="_blank" rel="noreferrer">Сторінка календарів Мінфіну ↗</a> · <a href={mofCalendar.documentUrl} target="_blank" rel="noreferrer">Поточний документ ↗</a></p></section>
     <section className="principles"><article><span>01</span><h3>Відкрите джерело</h3><p>Офіційний довідник НБУ з атрибуцією та часом отримання.</p></article><article><span>02</span><h3>Локальний пошук</h3><p>Без акаунтів, збору портфелів та передачі інвестиційних планів.</p></article><article><span>03</span><h3>Прозорі межі</h3><p>Довідкові ставки відокремлені від цін і дохідності конкретної угоди.</p></article></section>
     <footer>ОВДП Hub · Агрегатор публічної інформації <a href="/demo">Навчальний калькулятор на синтетичних даних</a></footer>
   </main>;
