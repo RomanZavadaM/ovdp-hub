@@ -1,8 +1,6 @@
-name: Desktop builds
+name: Legacy Tauri build (manual reference only)
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:

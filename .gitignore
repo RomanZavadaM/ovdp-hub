@@ -10,3 +10,12 @@ coverage/
 *.log
 
 next-env.d.ts
+
+.dart_tool/
+build/
+.flutter-plugins-dependencies
+**/ephemeral/
+**/local.properties
+**/key.properties
+*.jks
+*.keystore

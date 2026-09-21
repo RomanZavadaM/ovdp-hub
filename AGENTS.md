@@ -5,8 +5,10 @@
 - Keep calculations on-device. No analytics, session replay, remote fonts or third-party scripts.
 - Public ingestion may process public market data only; never attach user identifiers or portfolios.
 - Demo quotes must be clearly marked SYNTHETIC and never executable.
-- Money uses decimal arithmetic. Number is acceptable only for UI formatting and final yield sorting.
-- Use pnpm. Run pnpm test, pnpm typecheck and pnpm build before committing functional changes.
+- Money uses decimal arithmetic. Floating point is restricted to presentation and the separately tested numerical yield solver; never use it for stored monetary values.
+- The active product is apps/native (Flutter/Dart), targeting Windows, macOS, Android and iOS only. Run flutter analyze, flutter test and the target release build for native changes. The pnpm prototype remains a migration reference only.
+- User-selected network or cloud-synced workspaces are authorized. Explain that the selected provider stores/syncs those files. Never place signing keys in portable workspaces.
+- Monetary arithmetic uses Decimal. Double is permitted only inside the bounded numerical XIRR solver and presentation; test reference tolerances explicitly.
 - Do not claim a broker API is available without verified documentation and permission to use it.
 - Never store signing keys in browser localStorage; do not implement crypto primitives yourself.
 - Discuss any change to these trust boundaries with the user before implementing it.

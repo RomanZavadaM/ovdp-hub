@@ -1,0 +1,59 @@
+name: Flutter verification and packages
+on:
+  push:
+    branches: [main]
+    paths: ['apps/native/**', '.github/workflows/native.yml']
+  pull_request:
+    paths: ['apps/native/**', '.github/workflows/native.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+  desktop:
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+            artifact: apps/native/build/windows/x64/runner/Release/
+          - os: macos-latest
+            platform: macos
+            artifact: apps/native/build/ovdp-hub-macos.zip
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: apps/native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build ${{ matrix.platform }} --release
+      - name: Preserve macOS bundle permissions
+        if: runner.os == 'macOS'
+        run: ditto -c -k --sequesterRsrc --keepParent build/macos/Build/Products/Release/ovdp_hub.app build/ovdp-hub-macos.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ovdp-hub-${{ matrix.platform }}-unsigned
+          path: ${{ matrix.artifact }}
+          if-no-files-found: error
+
