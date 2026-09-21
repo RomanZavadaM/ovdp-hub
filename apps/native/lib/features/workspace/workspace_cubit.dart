@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/hub_repository.dart';
 import '../collections/editor_cubit.dart';
+import '../planner/planner_cubit.dart';
 
 @immutable
 class WorkspaceState {
@@ -30,19 +31,23 @@ class WorkspaceState {
 class WorkspaceCubit extends Cubit<WorkspaceState> {
   final HubRepository repository;
   final CollectionEditorCubit editor;
-  WorkspaceCubit(this.repository, this.editor)
+  final PlannerCubit? planner;
+  WorkspaceCubit(this.repository, this.editor, {this.planner})
     : super(
         WorkspaceState(
           path: repository.current?.path,
           externalFolders: repository.supportsExternalFolders,
         ),
       );
-  bool get needsDraftDecision => editor.state.dirty;
+  bool get needsDraftDecision =>
+      editor.state.dirty || (planner?.state.dirty ?? false);
   Future<void> initialize() => _run(() async {
     await repository.initialize();
   });
   Future<void> choose({bool copy = false, bool discardDraft = false}) async {
-    if (state.busy || editor.state.busy) return;
+    if (state.busy || editor.state.busy || (planner?.state.busy ?? false)) {
+      return;
+    }
     if (needsDraftDecision && !discardDraft) {
       emit(
         state.copyWith(
@@ -52,14 +57,20 @@ class WorkspaceCubit extends Cubit<WorkspaceState> {
       return;
     }
     await _run(() async {
-      if (await repository.chooseWorkspace(copy: copy)) editor.reset();
+      if (await repository.chooseWorkspace(copy: copy)) {
+        editor.reset();
+        planner?.reset();
+      }
     });
   }
 
   Future<void> _run(Future<void> Function() action) async {
-    if (state.busy || editor.state.busy) return;
+    if (state.busy || editor.state.busy || (planner?.state.busy ?? false)) {
+      return;
+    }
     emit(state.copyWith(busy: true, clearError: true));
     editor.lock(true);
+    planner?.lock(true);
     try {
       await action();
       if (!isClosed) {
@@ -69,6 +80,7 @@ class WorkspaceCubit extends Cubit<WorkspaceState> {
       if (!isClosed) emit(state.copyWith(busy: false, error: e.toString()));
     } finally {
       editor.lock(false);
+      planner?.lock(false);
     }
   }
 

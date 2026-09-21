@@ -143,18 +143,29 @@ class Catalog {
 class SavedSet {
   final String name, note, savedAt;
   final List<Bond> bonds;
-  SavedSet(this.name, this.note, this.savedAt, Iterable<Bond> bonds)
-    : bonds = List.unmodifiable(bonds);
+  final Map<String, dynamic>? scenario;
+  SavedSet(
+    this.name,
+    this.note,
+    this.savedAt,
+    Iterable<Bond> bonds, {
+    Map<String, dynamic>? scenario,
+  }) : bonds = List.unmodifiable(bonds),
+       scenario = scenario == null
+           ? null
+           : freezeJson(scenario) as Map<String, dynamic>;
   Map<String, dynamic> toJson() => {
-    'schemaVersion': 1,
+    'schemaVersion': scenario == null ? 1 : 2,
     'name': name,
     'note': note,
     'savedAt': savedAt,
     'assets': bonds.map((e) => e.json).toList(),
+    if (scenario != null) 'scenario': scenario,
   };
   factory SavedSet.parse(String content) {
     final j = jsonDecode(content) as Map<String, dynamic>;
-    if (j['schemaVersion'] != 1 ||
+    if (!const [1, 2].contains(j['schemaVersion']) ||
+        (j['schemaVersion'] == 2 && j['scenario'] is! Map) ||
         (j['name'] as String).trim().isEmpty ||
         DateTime.tryParse(j['savedAt'] as String) == null) {
       throw const FormatException('Некоректна добірка');
@@ -170,6 +181,9 @@ class SavedSet {
       j['note'] as String,
       j['savedAt'] as String,
       bonds,
+      scenario: j['scenario'] == null
+          ? null
+          : Map<String, dynamic>.from(j['scenario'] as Map),
     );
   }
 }

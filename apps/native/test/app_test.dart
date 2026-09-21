@@ -15,6 +15,51 @@ void main() {
     json['assets'] = [(json['assets'] as List).last];
     catalog = Catalog.parse(jsonEncode(json));
   });
+  testWidgets('planner generates and reopens a saved cashflow scenario', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final now = DateTime.now();
+    final maturity = DateTime(
+      now.year + 1,
+      now.month,
+      now.day,
+    ).toIso8601String().substring(0, 10);
+    final json = jsonDecode(jsonEncode(catalog.json)) as Map<String, dynamic>;
+    final asset = (json['assets'] as List).single as Map<String, dynamic>;
+    asset['maturityDate'] = maturity;
+    asset['currency'] = 'UAH';
+    asset['payments'] = [
+      {'date': maturity, 'kind': 'REDEMPTION', 'amount': '1000'},
+    ];
+    final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
+    await tester.pumpWidget(OvdpApp(repository: repository));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Планування'));
+    await tester.pumpAndSettle();
+    final generate = find.text('Розподілити за строками');
+    await tester.ensureVisible(generate);
+    await tester.tap(generate);
+    await tester.pumpAndSettle();
+    final save = find.text('Зберегти сценарій із кількістю та цінами');
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(repository.current!.sets.single.scenario, isNotNull);
+    await tester.tap(find.text('Мій план'));
+    await tester.pumpAndSettle();
+    final open = find.text('Відкрити план і календар коштів');
+    await tester.ensureVisible(open);
+    await tester.tap(open);
+    await tester.pumpAndSettle();
+    expect(find.text('Підбір і календар коштів'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
   testWidgets('phone layout saves a collection through Cubit and reopens it', (
     tester,
   ) async {

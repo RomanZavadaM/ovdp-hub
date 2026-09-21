@@ -12,6 +12,6 @@ class NavigationState {
 class NavigationCubit extends Cubit<NavigationState> {
   NavigationCubit() : super(const NavigationState());
   void select(int index) {
-    if (index >= 0 && index < 4) emit(state.copyWith(index: index));
+    if (index >= 0 && index < 5) emit(state.copyWith(index: index));
   }
 }

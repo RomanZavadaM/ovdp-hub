@@ -2,9 +2,9 @@ name: Flutter verification and packages
 on:
   push:
     branches: [main]
-    paths: ['apps/native/**', '.github/workflows/native.yml']
+    paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1']
   pull_request:
-    paths: ['apps/native/**', '.github/workflows/native.yml']
+    paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1']
   workflow_dispatch:
 permissions:
   contents: read
@@ -48,12 +48,12 @@ jobs:
           channel: stable
       - run: flutter pub get
       - run: flutter build ${{ matrix.platform }} --release
-      - name: Preserve macOS bundle permissions
-        if: runner.os == 'macOS'
-        run: ditto -c -k --sequesterRsrc --keepParent build/macos/Build/Products/Release/ovdp_hub.app build/ovdp-hub-macos.zip
+      - name: Package versioned test folder
+        id: package
+        shell: pwsh
+        run: ../../scripts/package-desktop.ps1 -Platform ${{ matrix.platform }}
       - uses: actions/upload-artifact@v4
         with:
-          name: ovdp-hub-${{ matrix.platform }}-unsigned
-          path: ${{ matrix.artifact }}
+          name: ${{ steps.package.outputs.package_name }}
+          path: ${{ steps.package.outputs.package_path }}
           if-no-files-found: error
-

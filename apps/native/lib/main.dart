@@ -12,6 +12,8 @@ import 'features/workspace/workspace_cubit.dart';
 import 'features/workspace/workspace_view.dart';
 import 'features/navigation/navigation_cubit.dart';
 import 'ui/components.dart';
+import 'features/planner/planner_cubit.dart';
+import 'features/planner/planner_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,9 +45,14 @@ class OvdpApp extends StatelessWidget {
         BlocProvider(create: (_) => CalculatorCubit()),
         BlocProvider(create: (_) => NavigationCubit()),
         BlocProvider(
+          create: (context) => PlannerCubit(context.read<HubRepository>()),
+          lazy: false,
+        ),
+        BlocProvider(
           create: (context) => WorkspaceCubit(
             context.read<HubRepository>(),
             context.read<CollectionEditorCubit>(),
+            planner: context.read<PlannerCubit>(),
           )..initialize(),
           lazy: false,
         ),
@@ -91,6 +98,10 @@ class Home extends StatelessWidget {
         icon: Icon(Icons.folder_outlined),
         label: 'Сховище',
       ),
+      NavigationDestination(
+        icon: Icon(Icons.event_available_outlined),
+        label: 'Планування',
+      ),
     ];
     final content = Column(
       children: [
@@ -107,6 +118,7 @@ class Home extends StatelessWidget {
               0 => const CatalogView(),
               1 => const CollectionsView(),
               2 => const CalculatorView(),
+              4 => const PlannerView(),
               _ => const WorkspaceView(),
             },
           ),

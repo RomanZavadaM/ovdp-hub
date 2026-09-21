@@ -5,6 +5,7 @@ import '../navigation/navigation_cubit.dart';
 import '../workspace/workspace_cubit.dart';
 import 'collections_cubit.dart';
 import 'editor_cubit.dart';
+import '../planner/planner_cubit.dart';
 
 class CollectionsView extends StatelessWidget {
   const CollectionsView({super.key});
@@ -53,21 +54,39 @@ class CollectionsView extends StatelessWidget {
                     onTap: () => showBondDetails(context, b),
                   ),
                 ),
-                TextButton(
-                  onPressed: busy
-                      ? null
-                      : () async {
-                          final navigation = context.read<NavigationCubit>();
-                          if (editor.state.dirty &&
-                              !await confirmDiscard(context)) {
-                            return;
-                          }
-                          if (!context.mounted) return;
-                          editor.variant(s);
-                          navigation.select(0);
-                        },
-                  child: const Text('Створити новий варіант'),
-                ),
+                if (s.scenario != null)
+                  TextButton(
+                    onPressed: busy
+                        ? null
+                        : () async {
+                            final planner = context.read<PlannerCubit>(),
+                                navigation = context.read<NavigationCubit>();
+                            if (planner.state.dirty &&
+                                !await confirmDiscard(context)) {
+                              return;
+                            }
+                            if (!context.mounted) return;
+                            planner.load(s);
+                            navigation.select(4);
+                          },
+                    child: const Text('Відкрити план і календар коштів'),
+                  ),
+                if (s.scenario == null)
+                  TextButton(
+                    onPressed: busy
+                        ? null
+                        : () async {
+                            final navigation = context.read<NavigationCubit>();
+                            if (editor.state.dirty &&
+                                !await confirmDiscard(context)) {
+                              return;
+                            }
+                            if (!context.mounted) return;
+                            editor.variant(s);
+                            navigation.select(0);
+                          },
+                    child: const Text('Створити новий варіант'),
+                  ),
               ],
             ),
           ),
