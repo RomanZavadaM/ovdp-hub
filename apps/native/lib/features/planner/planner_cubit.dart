@@ -215,6 +215,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           .where(
             (b) =>
                 c['pricedOnly'] != 'true' ||
+                c.containsKey('unitPrice:${b.isin}') ||
                 state.inputs[b.isin]?.nominalEstimate == false,
           )
           .map((b) {
@@ -222,8 +223,14 @@ class PlannerCubit extends Cubit<PlannerState> {
             return PlanPosition(
               b,
               1,
-              money(old?.price ?? b.json['nominal'].toString()).round(scale: 2),
-              nominalEstimate: old?.nominalEstimate ?? true,
+              money(
+                c['unitPrice:${b.isin}'] ??
+                    old?.price ??
+                    b.json['nominal'].toString(),
+              ).round(scale: 2),
+              nominalEstimate: c.containsKey('unitPrice:${b.isin}')
+                  ? false
+                  : old?.nominalEstimate ?? true,
             );
           })
           .toList();
@@ -329,7 +336,9 @@ class PlannerCubit extends Cubit<PlannerState> {
       inputs[bond.isin] = PositionInput(
         bond,
         '1',
-        bond.json['nominal'].toString(),
+        state.criteria['unitPrice:${bond.isin}'] ??
+            bond.json['nominal'].toString(),
+        nominalEstimate: !state.criteria.containsKey('unitPrice:${bond.isin}'),
       );
     } else {
       inputs.remove(bond.isin);
@@ -343,6 +352,9 @@ class PlannerCubit extends Cubit<PlannerState> {
     if (old == null) return;
     _recalculate(
       state.copyWith(
+        criteria: price == null
+            ? null
+            : {...state.criteria, 'unitPrice:$isin': price},
         inputs: {
           ...state.inputs,
           isin: old.copyWith(
@@ -384,6 +396,9 @@ class PlannerCubit extends Cubit<PlannerState> {
       };
       final inputs = <String, PositionInput>{};
       for (final raw in plan['positions'] as List) {
+        if (raw['nominalEstimate'] == false) {
+          criteria['unitPrice:${raw['isin']}'] = raw['unitCost'] as String;
+        }
         final bond = saved.bonds.firstWhere((b) => b.isin == raw['isin']);
         inputs[bond.isin] = PositionInput(
           bond,

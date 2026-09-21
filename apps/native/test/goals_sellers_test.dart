@@ -131,6 +131,27 @@ void main() {
       await repo.dispose();
     },
   );
+  test(
+    'repeated optimization retains prices of previously rejected candidates',
+    () async {
+      final other = fixture.bond('UA4000236541', '2027-01-01');
+      final repo = FakeRepository(fixture.catalog([bond, other]));
+      final cubit = PlannerCubit(repo, clock: () => DateTime(2026, 9, 21));
+      cubit.edit('strategy', 'profit');
+      cubit.toggle(bond, true);
+      cubit.position(bond.isin, price: '1150');
+      cubit.toggle(other, true);
+      cubit.position(other.isin, price: '900');
+      cubit.generate();
+      expect(cubit.state.inputs.containsKey(bond.isin), false);
+      cubit.generate();
+      expect(cubit.state.inputs.containsKey(bond.isin), false);
+      cubit.toggle(bond, true);
+      expect(cubit.state.inputs[bond.isin]!.price, '1150');
+      await cubit.close();
+      await repo.dispose();
+    },
+  );
   final html = File('test/fixtures/privat-quotes.html').readAsStringSync();
   test(
     'seller adapter preserves currencies and missing ASK from observed HTML',
