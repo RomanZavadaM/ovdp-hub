@@ -5,6 +5,7 @@ import '../../data/hub_repository.dart';
 import '../../models.dart';
 import '../../pricing.dart';
 import 'planner_engine.dart';
+import 'planner_goals.dart';
 
 @immutable
 class PositionInput {
@@ -41,28 +42,36 @@ class PlannerState {
   final Map<String, PositionInput> inputs;
   final List<Bond> candidates;
   final PlanSummary? summary;
+  final List<ExpenseBalance> expenseBalances;
+  final String profit;
   final String? error;
-  final bool busy, locked, saved;
+  final bool busy, locked, saved, changed;
   final int revision;
   PlannerState({
     required Map<String, String> criteria,
     Map<String, PositionInput> inputs = const {},
     Iterable<Bond> candidates = const [],
     this.summary,
+    Iterable<ExpenseBalance> expenseBalances = const [],
+    this.profit = '0',
     this.error,
     this.busy = false,
     this.locked = false,
     this.saved = false,
+    this.changed = false,
     this.revision = 0,
-  }) : criteria = Map.unmodifiable(criteria),
+  }) : expenseBalances = List.unmodifiable(expenseBalances),
+       criteria = Map.unmodifiable(criteria),
        inputs = Map.unmodifiable(inputs),
        candidates = List.unmodifiable(candidates);
-  bool get dirty => inputs.isNotEmpty && !saved;
+  bool get dirty => (changed || inputs.isNotEmpty) && !saved;
   PlannerState copyWith({
     Map<String, String>? criteria,
     Map<String, PositionInput>? inputs,
     Iterable<Bond>? candidates,
     PlanSummary? summary,
+    Iterable<ExpenseBalance>? expenseBalances,
+    String? profit,
     String? error,
     bool clearSummary = false,
     bool clearError = false,
@@ -75,10 +84,15 @@ class PlannerState {
     inputs: inputs ?? this.inputs,
     candidates: candidates ?? this.candidates,
     summary: clearSummary ? null : summary ?? this.summary,
+    expenseBalances: clearSummary
+        ? []
+        : expenseBalances ?? this.expenseBalances,
+    profit: clearSummary ? '0' : profit ?? this.profit,
     error: clearError ? null : error ?? this.error,
     busy: busy ?? this.busy,
     locked: locked ?? this.locked,
     saved: saved ?? this.saved,
+    changed: saved == false ? true : changed,
     revision: revision ?? this.revision,
   );
 }
@@ -99,6 +113,10 @@ class PlannerCubit extends Cubit<PlannerState> {
       'needDate': date(DateTime(now.year, now.month + 6, now.day)),
       'needAmount': '10000',
       'name': 'Мій план',
+      'strategy': 'ladder',
+      'expenseCount': '0',
+      'delay': '2',
+      'pricedOnly': 'false',
     };
   }
 
@@ -143,6 +161,12 @@ class PlannerCubit extends Cubit<PlannerState> {
       if (reserve > budget) {
         throw const FormatException('Резерв перевищує бюджет');
       }
+      final expenses = readExpenses(c);
+      final delay = int.parse(c['delay'] ?? '2');
+      if (delay < 0 || delay > 30) {
+        throw const FormatException('Затримка: від 0 до 30 календарних днів');
+      }
+      final positions = next.inputs.values.map((i) => i.parse()).toList();
       final summary = summarizePlan(
         positions: next.inputs.values.map((i) => i.parse()).toList(),
         currency: c['currency']!,
@@ -158,6 +182,14 @@ class PlannerCubit extends Cubit<PlannerState> {
         next.copyWith(
           candidates: candidates,
           summary: summary,
+          expenseBalances: expenseCalendar(
+            positions,
+            budget,
+            c['start']!,
+            expenses,
+            delay,
+          ),
+          profit: totalProfit(positions, c['start']!).toStringAsFixed(2),
           clearError: true,
         ),
       );
@@ -178,11 +210,33 @@ class PlannerCubit extends Cubit<PlannerState> {
         c['minDate']!,
         c['maxDate']!,
       );
-      final positions = makeLadder(
-        candidates,
-        money(c['budget']!),
-        money(c['reserve']!),
-      );
+      final strategy = c['strategy'] ?? 'ladder';
+      final offers = candidates
+          .where(
+            (b) =>
+                c['pricedOnly'] != 'true' ||
+                state.inputs[b.isin]?.nominalEstimate == false,
+          )
+          .map((b) {
+            final old = state.inputs[b.isin];
+            return PlanPosition(
+              b,
+              1,
+              money(old?.price ?? b.json['nominal'].toString()).round(scale: 2),
+              nominalEstimate: old?.nominalEstimate ?? true,
+            );
+          })
+          .toList();
+      final positions = strategy == 'ladder'
+          ? makeLadder(candidates, money(c['budget']!), money(c['reserve']!))
+          : suggestProfitablePlan(
+              offers: offers,
+              budget: money(c['budget']!),
+              reserve: money(c['reserve']!),
+              start: c['start']!,
+              expenses: strategy == 'expenses' ? readExpenses(c) : [],
+              delay: int.parse(c['delay'] ?? '2'),
+            );
       _recalculate(
         state.copyWith(
           inputs: {
@@ -191,6 +245,7 @@ class PlannerCubit extends Cubit<PlannerState> {
                 p.bond,
                 p.quantity.toString(),
                 p.unitCost.toString(),
+                nominalEstimate: p.nominalEstimate,
               ),
           },
           saved: false,
@@ -200,6 +255,71 @@ class PlannerCubit extends Cubit<PlannerState> {
     } catch (e) {
       emit(state.copyWith(error: e.toString(), clearSummary: true));
     }
+  }
+
+  void addExpense() {
+    if (state.busy || state.locked) return;
+    final n = int.parse(state.criteria['expenseCount'] ?? '0');
+    if (n >= 50) return;
+    _recalculate(
+      state.copyWith(
+        criteria: {
+          ...state.criteria,
+          'expenseCount': '${n + 1}',
+          'expenseName$n': 'Витрата ${n + 2}',
+          'expenseDate$n': state.criteria['needDate']!,
+          'expenseAmount$n': '0',
+        },
+        saved: false,
+      ),
+    );
+  }
+
+  void repeatMonthly() {
+    if (state.busy || state.locked) return;
+    try {
+      final c = {...state.criteria};
+      final base = isoDate(c['needDate']!);
+      money(c['needAmount']!);
+      final n = int.parse(c['expenseCount'] ?? '0');
+      if (n > 45) throw const FormatException('Не більше 50 додаткових витрат');
+      for (var j = 1; j <= 5; j++) {
+        final month = DateTime.utc(base.year, base.month + j);
+        final lastDay = DateTime.utc(month.year, month.month + 1, 0).day;
+        final date = DateTime.utc(
+          month.year,
+          month.month,
+          base.day > lastDay ? lastDay : base.day,
+        );
+        final i = n + j - 1;
+        c['expenseName$i'] = 'Щомісячна потреба ${j + 1}';
+        c['expenseDate$i'] = date.toIso8601String().substring(0, 10);
+        c['expenseAmount$i'] = c['needAmount']!;
+      }
+      c['expenseCount'] = '${n + 5}';
+      _recalculate(state.copyWith(criteria: c, saved: false));
+    } catch (e) {
+      emit(state.copyWith(error: e.toString()));
+    }
+  }
+
+  void removeExpense(int index) {
+    if (state.busy || state.locked) return;
+    final c = {...state.criteria};
+    final n = int.parse(c['expenseCount'] ?? '0');
+    if (index < 0 || index >= n) return;
+    for (var i = index; i < n - 1; i++) {
+      for (final key in ['expenseName', 'expenseDate', 'expenseAmount']) {
+        c['$key$i'] = c['$key${i + 1}']!;
+      }
+    }
+    for (final key in ['expenseName', 'expenseDate', 'expenseAmount']) {
+      c.remove('$key${n - 1}');
+    }
+    c['expenseCount'] = '${n - 1}';
+    _recalculate(
+      state.copyWith(criteria: c, saved: false, revision: state.revision + 1),
+    );
   }
 
   void toggle(Bond bond, bool selected) {
@@ -255,10 +375,13 @@ class PlannerCubit extends Cubit<PlannerState> {
     if (state.busy || state.locked) return;
     try {
       final plan = saved.scenario!;
-      if (plan['schemaVersion'] != 1) {
+      if (![1, 2].contains(plan['schemaVersion'])) {
         throw const FormatException('Невідома версія сценарію');
       }
-      final criteria = Map<String, String>.from(plan['criteria'] as Map);
+      final criteria = {
+        ...defaults(clock()),
+        ...Map<String, String>.from(plan['criteria'] as Map),
+      };
       final inputs = <String, PositionInput>{};
       for (final raw in plan['positions'] as List) {
         final bond = saved.bonds.firstWhere((b) => b.isin == raw['isin']);
@@ -308,7 +431,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           clock().toUtc().toIso8601String(),
           draft.inputs.values.map((i) => i.bond),
           scenario: {
-            'schemaVersion': 1,
+            'schemaVersion': 2,
             'criteria': draft.criteria,
             'positions': draft.inputs.values
                 .map((i) => i.parse().toJson())

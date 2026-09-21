@@ -55,7 +55,7 @@ void main() {
     await tester.ensureVisible(open);
     await tester.tap(open);
     await tester.pumpAndSettle();
-    expect(find.text('Підбір і календар коштів'), findsOneWidget);
+    expect(find.text('Планувальник цілей і доходу'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();

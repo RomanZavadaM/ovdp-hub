@@ -14,6 +14,9 @@ import 'features/navigation/navigation_cubit.dart';
 import 'ui/components.dart';
 import 'features/planner/planner_cubit.dart';
 import 'features/planner/planner_view.dart';
+import 'features/sellers/seller_repository.dart';
+import 'features/sellers/sellers_cubit.dart';
+import 'features/sellers/sellers_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +46,7 @@ class OvdpApp extends StatelessWidget {
           lazy: false,
         ),
         BlocProvider(create: (_) => CalculatorCubit()),
+        BlocProvider(create: (_) => SellersCubit(SellerRepository())),
         BlocProvider(create: (_) => NavigationCubit()),
         BlocProvider(
           create: (context) => PlannerCubit(context.read<HubRepository>()),
@@ -102,6 +106,10 @@ class Home extends StatelessWidget {
         icon: Icon(Icons.event_available_outlined),
         label: 'Планування',
       ),
+      NavigationDestination(
+        icon: Icon(Icons.storefront_outlined),
+        label: 'Продавці',
+      ),
     ];
     final content = Column(
       children: [
@@ -119,6 +127,7 @@ class Home extends StatelessWidget {
               1 => const CollectionsView(),
               2 => const CalculatorView(),
               4 => const PlannerView(),
+              5 => const SellersView(),
               _ => const WorkspaceView(),
             },
           ),
@@ -162,6 +171,8 @@ class Home extends StatelessWidget {
       bottomNavigationBar: wide
           ? null
           : NavigationBar(
+              labelBehavior:
+                  NavigationDestinationLabelBehavior.onlyShowSelected,
               selectedIndex: screen,
               destinations: destinations,
               onDestinationSelected: context.read<NavigationCubit>().select,
