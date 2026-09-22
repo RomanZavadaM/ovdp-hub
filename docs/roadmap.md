@@ -6,13 +6,13 @@
 
 - [x] Формальний proprietary release 0.8.1.
 - [x] Захист `main`: PR + `verify` + squash + up-to-date.
-- [ ] Прибрати завершені Web/Expo/Tauri/TypeScript прототипи з активного дерева.
-- [ ] Переписати архітектуру й product docs під Flutter.
-- [ ] Dart tool для оновлення початкового snapshot НБУ.
-- [ ] Retention старих публічних каталогів у workspace.
-- [ ] Єдина модель provenance/freshness для джерел.
-- [ ] Threat model для encrypted vault і backup/recovery.
-- [ ] Основа локалізації: UK за замовчуванням; EN/FR/DE/ES/KO/JA selectable.
+- [x] Прибрати завершені Web/Expo/Tauri/TypeScript прототипи з активного дерева.
+- [x] Переписати архітектуру й product docs під Flutter.
+- [x] Dart tool для оновлення початкового snapshot НБУ.
+- [x] Retention старих публічних каталогів у workspace.
+- [x] Єдина модель provenance/freshness для джерел.
+- [x] Threat model для encrypted vault і backup/recovery.
+- [x] Основа локалізації: UK за замовчуванням; EN/FR/DE/ES/KO/JA selectable.
 
 ## 0.9.0 — Ринок
 
