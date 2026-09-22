@@ -51,7 +51,7 @@ class FileHubRepository implements HubRepository {
   // different workspace, and switching never publishes a half-loaded session.
   Future<T> _exclusive<T>(Future<T> Function() operation) {
     final result = _tail.then((_) {
-      if (_disposed) throw StateError('Сховище закрито');
+      if (_disposed) throw StateError('workspace.closed');
       return operation();
     });
     _tail = result.then<void>((_) {}, onError: (Object _, StackTrace _) {});
@@ -65,7 +65,7 @@ class FileHubRepository implements HubRepository {
     ),
   );
   Workspace get _opened =>
-      _workspace ?? (throw StateError('Відкрийте робочу папку'));
+      _workspace ?? (throw StateError('workspace.not_open'));
   void _publish(WorkspaceSnapshot snapshot) {
     _current = snapshot;
     if (!_disposed) _changes.add(snapshot);
@@ -113,7 +113,7 @@ class FileHubRepository implements HubRepository {
   Future<bool> chooseWorkspace({bool copy = false}) => _exclusive(() async {
     if (!supportsExternalFolders) {
       throw UnsupportedError(
-        'Зовнішні папки ще не підтримуються на цій платформі',
+        'workspace.external_unsupported',
       );
     }
     final path = await getDirectoryPath(
@@ -134,7 +134,7 @@ class FileHubRepository implements HubRepository {
         .timeout(const Duration(seconds: 30));
     if (response.statusCode != 200 ||
         response.bodyBytes.length > 20 * 1024 * 1024) {
-      throw const FormatException('Не вдалося отримати каталог НБУ');
+      throw const FormatException('nbu.catalog_fetch_failed');
     }
     final catalog = Catalog.fromNbu(utf8.decode(response.bodyBytes));
     await workspace.saveCatalog(catalog);
