@@ -11,7 +11,7 @@ class CalculatorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CalculatorCubit>().state;
-    final strings = HubStrings.of(context);
+    final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     final cubit = context.read<CalculatorCubit>();
     final result = state.result;
     return Column(
