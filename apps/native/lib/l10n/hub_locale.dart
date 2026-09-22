@@ -262,7 +262,7 @@ class HubStrings {
       'primaryUnavailable':'Дані Мінфіну зараз недоступні або формат джерела змінився.',
       'sellerQuote':'Завантажене публічне котирування','bidYield':'BID дохідність','askYield':'ASK дохідність',
       'noSellerForIsin':'Для цього ISIN немає завантаженого котирування продавця.',
-      'sourceAsOf':'Дата джерела','retrievedAt':'Отримано','notAvailable':'немає',
+      'sourceAsOf':'Дата джерела','retrievedAt':'Отримано','notAvailable':'немає','dataSource':'Джерело','freshnessLabel':'Актуальність','confidenceLabel':'Статус даних','evidenceUrl':'Посилання на джерело','freshnessCurrent':'Дата джерела — сьогодні','freshnessStale':'Дата джерела раніше за сьогодні','freshnessFuture':'Дата джерела в майбутньому','freshnessUnknown':'Дата джерела невідома','confidenceOfficial':'Офіційно опубліковані дані','confidencePublicIndicative':'Публічні індикативні дані','confidenceAuthenticatedIndicative':'Авторизовані індикативні дані','confidenceExecutableConfirmed':'Підтверджено для виконання','confidenceUserAssumption':'Припущення користувача','sourceNbu':'НБУ','sourceMinfin':'Мінфін','sourceSeller':'Продавець','sourceMetadataUnavailable':'Метадані джерела недоступні',
     },
     'en': {
       'close':'Close','back':'Go back','discardDraft':'Discard draft',
@@ -288,7 +288,7 @@ class HubStrings {
       'primaryUnavailable':'Ministry of Finance data are currently unavailable or the source format changed.',
       'sellerQuote':'Loaded public quote','bidYield':'BID yield','askYield':'ASK yield',
       'noSellerForIsin':'No seller quote has been loaded for this ISIN.',
-      'sourceAsOf':'Source date','retrievedAt':'Retrieved','notAvailable':'not available',
+      'sourceAsOf':'Source date','retrievedAt':'Retrieved','notAvailable':'not available','dataSource':'Source','freshnessLabel':'Freshness','confidenceLabel':'Data status','evidenceUrl':'Source evidence','freshnessCurrent':'Source date is today','freshnessStale':'Source date is earlier than today','freshnessFuture':'Source date is in the future','freshnessUnknown':'Source date is unknown','confidenceOfficial':'Officially published data','confidencePublicIndicative':'Public indicative data','confidenceAuthenticatedIndicative':'Authenticated indicative data','confidenceExecutableConfirmed':'Confirmed for execution','confidenceUserAssumption':'User assumption','sourceNbu':'NBU','sourceMinfin':'Ministry of Finance','sourceSeller':'Seller','sourceMetadataUnavailable':'Source metadata are unavailable',
     },
     'fr': {
       'close':'Fermer','back':'Retour','discardDraft':'Supprimer le brouillon',
@@ -314,7 +314,7 @@ class HubStrings {
       'primaryUnavailable':'Les données du ministère sont indisponibles ou le format de la source a changé.',
       'sellerQuote':'Cotation publique chargée','bidYield':'Rendement BID','askYield':'Rendement ASK',
       'noSellerForIsin':'Aucune cotation vendeur n’a été chargée pour cet ISIN.',
-      'sourceAsOf':'Date de la source','retrievedAt':'Récupéré','notAvailable':'indisponible',
+      'sourceAsOf':'Date de la source','retrievedAt':'Récupéré','notAvailable':'indisponible','dataSource':'Source','freshnessLabel':'Actualité','confidenceLabel':'Statut des données','evidenceUrl':'Preuve de la source','freshnessCurrent':'La date de la source est aujourd’hui','freshnessStale':'La date de la source est antérieure à aujourd’hui','freshnessFuture':'La date de la source est future','freshnessUnknown':'La date de la source est inconnue','confidenceOfficial':'Données publiées officiellement','confidencePublicIndicative':'Données publiques indicatives','confidenceAuthenticatedIndicative':'Données indicatives authentifiées','confidenceExecutableConfirmed':'Confirmé pour exécution','confidenceUserAssumption':'Hypothèse utilisateur','sourceNbu':'NBU','sourceMinfin':'Ministère des Finances','sourceSeller':'Vendeur','sourceMetadataUnavailable':'Métadonnées de source indisponibles',
     },
     'de': {
       'close':'Schließen','back':'Zurück','discardDraft':'Entwurf verwerfen',
@@ -340,7 +340,7 @@ class HubStrings {
       'primaryUnavailable':'Daten des Finanzministeriums sind derzeit nicht verfügbar oder das Quellenformat hat sich geändert.',
       'sellerQuote':'Geladene öffentliche Notierung','bidYield':'BID-Rendite','askYield':'ASK-Rendite',
       'noSellerForIsin':'Für diese ISIN wurde keine Anbieter-Notierung geladen.',
-      'sourceAsOf':'Quelldatum','retrievedAt':'Abgerufen','notAvailable':'nicht verfügbar',
+      'sourceAsOf':'Quelldatum','retrievedAt':'Abgerufen','notAvailable':'nicht verfügbar','dataSource':'Quelle','freshnessLabel':'Aktualität','confidenceLabel':'Datenstatus','evidenceUrl':'Quellennachweis','freshnessCurrent':'Quelldatum ist heute','freshnessStale':'Quelldatum liegt vor heute','freshnessFuture':'Quelldatum liegt in der Zukunft','freshnessUnknown':'Quelldatum ist unbekannt','confidenceOfficial':'Offiziell veröffentlichte Daten','confidencePublicIndicative':'Öffentliche indikative Daten','confidenceAuthenticatedIndicative':'Authentifizierte indikative Daten','confidenceExecutableConfirmed':'Zur Ausführung bestätigt','confidenceUserAssumption':'Nutzerannahme','sourceNbu':'NBU','sourceMinfin':'Finanzministerium','sourceSeller':'Anbieter','sourceMetadataUnavailable':'Quellenmetadaten sind nicht verfügbar',
     },
     'es': {
       'close':'Cerrar','back':'Volver','discardDraft':'Descartar borrador',
@@ -366,7 +366,7 @@ class HubStrings {
       'primaryUnavailable':'Los datos del Ministerio no están disponibles o cambió el formato de la fuente.',
       'sellerQuote':'Cotización pública cargada','bidYield':'Rendimiento BID','askYield':'Rendimiento ASK',
       'noSellerForIsin':'No se ha cargado una cotización de vendedor para este ISIN.',
-      'sourceAsOf':'Fecha de la fuente','retrievedAt':'Obtenido','notAvailable':'no disponible',
+      'sourceAsOf':'Fecha de la fuente','retrievedAt':'Obtenido','notAvailable':'no disponible','dataSource':'Fuente','freshnessLabel':'Actualidad','confidenceLabel':'Estado de los datos','evidenceUrl':'Evidencia de la fuente','freshnessCurrent':'La fecha de la fuente es hoy','freshnessStale':'La fecha de la fuente es anterior a hoy','freshnessFuture':'La fecha de la fuente está en el futuro','freshnessUnknown':'La fecha de la fuente es desconocida','confidenceOfficial':'Datos publicados oficialmente','confidencePublicIndicative':'Datos públicos indicativos','confidenceAuthenticatedIndicative':'Datos indicativos autenticados','confidenceExecutableConfirmed':'Confirmado para ejecución','confidenceUserAssumption':'Supuesto del usuario','sourceNbu':'NBU','sourceMinfin':'Ministerio de Finanzas','sourceSeller':'Vendedor','sourceMetadataUnavailable':'Los metadatos de la fuente no están disponibles',
     },
     'ko': {
       'close':'닫기','back':'돌아가기','discardDraft':'초안 버리기',
@@ -392,7 +392,7 @@ class HubStrings {
       'primaryUnavailable':'재무부 데이터를 사용할 수 없거나 출처 형식이 변경되었습니다.',
       'sellerQuote':'불러온 공개 호가','bidYield':'BID 수익률','askYield':'ASK 수익률',
       'noSellerForIsin':'이 ISIN에 대해 불러온 판매자 호가가 없습니다.',
-      'sourceAsOf':'출처 날짜','retrievedAt':'가져온 시각','notAvailable':'없음',
+      'sourceAsOf':'출처 날짜','retrievedAt':'가져온 시각','notAvailable':'없음','dataSource':'출처','freshnessLabel':'최신성','confidenceLabel':'데이터 상태','evidenceUrl':'출처 근거','freshnessCurrent':'출처 날짜가 오늘입니다','freshnessStale':'출처 날짜가 오늘보다 이전입니다','freshnessFuture':'출처 날짜가 미래입니다','freshnessUnknown':'출처 날짜를 알 수 없습니다','confidenceOfficial':'공식 게시 데이터','confidencePublicIndicative':'공개 참고 데이터','confidenceAuthenticatedIndicative':'인증된 참고 데이터','confidenceExecutableConfirmed':'실행 가능 확인됨','confidenceUserAssumption':'사용자 가정','sourceNbu':'NBU','sourceMinfin':'재무부','sourceSeller':'판매자','sourceMetadataUnavailable':'출처 메타데이터를 사용할 수 없습니다',
     },
     'ja': {
       'close':'閉じる','back':'戻る','discardDraft':'下書きを破棄',
@@ -418,7 +418,7 @@ class HubStrings {
       'primaryUnavailable':'財務省データを取得できないか、出典の形式が変更されました。',
       'sellerQuote':'取得済み公開クォート','bidYield':'BID 利回り','askYield':'ASK 利回り',
       'noSellerForIsin':'この ISIN の販売者クォートは読み込まれていません。',
-      'sourceAsOf':'出典日','retrievedAt':'取得日時','notAvailable':'なし',
+      'sourceAsOf':'出典日','retrievedAt':'取得日時','notAvailable':'なし','dataSource':'出典','freshnessLabel':'鮮度','confidenceLabel':'データ状態','evidenceUrl':'出典根拠','freshnessCurrent':'出典日は今日です','freshnessStale':'出典日は今日より前です','freshnessFuture':'出典日は未来です','freshnessUnknown':'出典日は不明です','confidenceOfficial':'公式公開データ','confidencePublicIndicative':'公開参考データ','confidenceAuthenticatedIndicative':'認証済み参考データ','confidenceExecutableConfirmed':'実行可能として確認済み','confidenceUserAssumption':'利用者の仮定','sourceNbu':'NBU','sourceMinfin':'財務省','sourceSeller':'販売者','sourceMetadataUnavailable':'出典メタデータを利用できません',
     },
   };
 
