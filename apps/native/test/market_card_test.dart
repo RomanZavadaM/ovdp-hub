@@ -22,7 +22,7 @@ void main() {
         sourceDate: '2026-09-15',
         retrievedAt: '2026-09-22T12:00:00Z',
         kind: ObservationKind.primaryAuction,
-        confidence: ObservationConfidence.publicIndicative,
+        confidence: ObservationConfidence.officialPublished,
       ),
       [
         MinfinAuctionRate(
