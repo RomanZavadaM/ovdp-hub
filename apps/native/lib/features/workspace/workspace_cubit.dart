@@ -7,7 +7,8 @@ import '../planner/planner_cubit.dart';
 
 @immutable
 class WorkspaceState {
-  final String? path, error;
+  final String? path;
+  final AppError? error;
   final bool busy, externalFolders;
   const WorkspaceState({
     this.path,
