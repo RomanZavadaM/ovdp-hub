@@ -78,6 +78,7 @@ Windows-пакет повинен містити весь каталог `build/
 
 ## Стан і правила проєкту
 
+- [START_HERE.md](START_HERE.md) — **перша точка входу для нового чату/сесії та відновлення після обриву**.
 - [PROJECT_STATE.md](PROJECT_STATE.md) — поточний checkpoint і наступний крок.
 - [PROJECT_RULES.md](PROJECT_RULES.md) — постійні правила розробки й релізів.
 - [CHANGELOG.md](CHANGELOG.md) — історія помітних змін.
