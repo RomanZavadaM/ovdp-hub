@@ -32,6 +32,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - базовий `main`: `719e6bfe005c85e2ea6d6c868da22bbfe5f77d12`
 - активна гілка: `feat/minfin-calendar-pdf-schedule-r2`
 - source PR: #21, head `1853d2a90fd136fa11376285901f81aa02da8227`
+- replacement PR: **#24** `Parse structured MinFin auction schedules from official PDFs`
 - source verify: **Flutter checks and START run #70 — success**
 - причина replacement: після v0.8.4 `main` просунувся вперед, а PR #21 став non-mergeable; релізний стан не переписуємо
 - актуальна опублікована контрольна точка: **v0.8.4 / 0.8.4+12**
@@ -60,7 +61,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-Перенести тільки перевірені зміни PR #21 на цю гілку поверх v0.8.4 state, відкрити replacement PR і повторно прогнати verify.
+Прогнати verify на фінальному head PR #24; при success закрити stale PR #21 без merge та squash-merge #24.
 
 ## Черга робіт
 
