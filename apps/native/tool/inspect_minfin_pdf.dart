@@ -23,7 +23,7 @@ Future<void> main() async {
     final document = PdfDocument.open(bytes);
     print('===MINFIN_PDF_BEGIN|${entry.key}|pages=${document.pageCount}===');
     for (var page = 0; page < document.pageCount; page++) {
-      final extracted = PdfPageText.extract(document, page);
+      final extracted = PdfTextExtractor.extract(document, page);
       for (final run in extracted.runs) {
         final text = run.text.replaceAll(RegExp(r'\s+'), ' ').trim();
         if (text.isEmpty) continue;
