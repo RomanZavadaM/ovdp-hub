@@ -142,6 +142,26 @@ class Home extends StatelessWidget {
         title: Text(studio ? 'Аналітичний кабінет' : '◈ ОВДП Hub'),
         actions: [
           IconButton(
+            tooltip: 'Про програму',
+            onPressed: () {
+              showAboutDialog(
+                context: context,
+                applicationName: 'ОВДП Hub',
+                applicationLegalese:
+                    'Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.',
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Text(
+                      'ОВДП Hub є proprietary software. Публічна видимість вихідного коду не є open-source ліцензією. Повні умови використання містяться у LICENSE.md у комплекті програми та репозиторії.',
+                    ),
+                  ),
+                ],
+              );
+            },
+            icon: const Icon(Icons.info_outline),
+          ),
+          IconButton(
             tooltip: studio ? 'Класичний дизайн' : 'Дизайн «Робочий кабінет»',
             onPressed: context.read<AppearanceCubit>().toggle,
             icon: Icon(
