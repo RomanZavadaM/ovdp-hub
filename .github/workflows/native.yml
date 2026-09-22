@@ -4,7 +4,6 @@ on:
     branches: [main]
     paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1', 'scripts/package-start.py', 'LICENSE.md', 'COPYRIGHT.md', 'THIRD_PARTY_NOTICES.md', 'docs/LEGAL_AND_COPYRIGHT.md']
   pull_request:
-    paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1', 'scripts/package-start.py', 'LICENSE.md', 'COPYRIGHT.md', 'THIRD_PARTY_NOTICES.md', 'docs/LEGAL_AND_COPYRIGHT.md']
   workflow_dispatch:
     inputs:
       packages:
