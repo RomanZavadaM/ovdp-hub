@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'data/hub_repository.dart';
 import 'features/catalog/catalog_cubit.dart';
 import 'features/catalog/catalog_view.dart';
@@ -19,6 +20,7 @@ import 'features/planner/planner_view.dart';
 import 'features/sellers/seller_repository.dart';
 import 'features/sellers/sellers_cubit.dart';
 import 'features/sellers/sellers_view.dart';
+import 'l10n/hub_locale.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +51,7 @@ class OvdpApp extends StatelessWidget {
         ),
         BlocProvider(create: (_) => CalculatorCubit()),
         BlocProvider(create: (_) => AppearanceCubit()),
+        BlocProvider(create: (_) => LocaleCubit()),
         BlocProvider(create: (_) => SellersCubit(SellerRepository())),
         BlocProvider(create: (_) => NavigationCubit()),
         BlocProvider(
@@ -88,30 +91,30 @@ class Home extends StatelessWidget {
     final workspace = context.watch<WorkspaceCubit>().state;
     final studio = context.watch<AppearanceCubit>().state.studio;
     final wide = MediaQuery.sizeOf(context).width >= 1000;
-    const destinations = [
+    final destinations = [
       NavigationDestination(
         icon: Icon(Icons.analytics_outlined),
-        label: 'Каталог',
+        label: strings.text('catalog'),
       ),
       NavigationDestination(
         icon: Icon(Icons.bookmarks_outlined),
-        label: 'Добірки',
+        label: strings.text('collections'),
       ),
       NavigationDestination(
         icon: Icon(Icons.calculate_outlined),
-        label: 'Калькулятор',
+        label: strings.text('calculator'),
       ),
       NavigationDestination(
         icon: Icon(Icons.folder_outlined),
-        label: 'Сховище',
+        label: strings.text('workspace'),
       ),
       NavigationDestination(
         icon: Icon(Icons.event_available_outlined),
-        label: 'Планування',
+        label: strings.text('planning'),
       ),
       NavigationDestination(
         icon: Icon(Icons.storefront_outlined),
-        label: 'Продавці',
+        label: strings.text('sellers'),
       ),
     ];
     final content = Column(
@@ -139,10 +142,10 @@ class Home extends StatelessWidget {
     );
     return Scaffold(
       appBar: AppBar(
-        title: Text(studio ? 'Аналітичний кабінет' : '◈ ОВДП Hub'),
+        title: Text(studio ? strings.text('studioTitle') : '◈ ОВДП Hub'),
         actions: [
           IconButton(
-            tooltip: 'Про програму',
+            tooltip: strings.text('about'),
             onPressed: () {
               showAboutDialog(
                 context: context,
@@ -175,8 +178,8 @@ class Home extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Text(
                 workspace.path == null
-                    ? 'Сховище не відкрито'
-                    : 'Дані на вашому пристрої',
+                    ? strings.text('workspaceClosed')
+                    : strings.text('localData'),
               ),
             ),
         ],
