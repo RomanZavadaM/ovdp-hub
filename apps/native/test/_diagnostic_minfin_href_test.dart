@@ -11,9 +11,9 @@ void main() {
     final response = await http.get(indexUri);
     expect(response.statusCode, 200);
 
-    final rowPattern = RegExp(r'<tr\\b[^>]*>(.*?)</tr>', dotAll: true);
+    final rowPattern = RegExp(r'<tr\b[^>]*>(.*?)</tr>', dotAll: true);
     final anchorPattern = RegExp(
-      r'''<a\\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>''',
+      r'''<a\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>''',
       dotAll: true,
     );
 
@@ -28,7 +28,7 @@ void main() {
 
       final compact = html
           .replaceAll(RegExp(r'<[^>]+>'), ' ')
-          .replaceAll(RegExp(r'\\s+'), ' ')
+          .replaceAll(RegExp(r'\s+'), ' ')
           .trim();
       debugPrint('MINFIN_ROW: $compact');
 
@@ -36,7 +36,7 @@ void main() {
         final label = a
             .group(2)!
             .replaceAll(RegExp(r'<[^>]+>'), ' ')
-            .replaceAll(RegExp(r'\\s+'), ' ')
+            .replaceAll(RegExp(r'\s+'), ' ')
             .trim();
         final href = a.group(1)!;
         debugPrint('MINFIN_LINK: $href | $label');
@@ -48,6 +48,8 @@ void main() {
         }
       }
     }
+
+    expect(targets, isNotEmpty, reason: 'No MinFin result targets discovered');
 
     for (final target in targets) {
       final result = await http.get(target);
@@ -70,7 +72,7 @@ void main() {
           contentType.contains('json')) {
         final preview = utf8
             .decode(result.bodyBytes, allowMalformed: true)
-            .replaceAll(RegExp(r'\\s+'), ' ')
+            .replaceAll(RegExp(r'\s+'), ' ')
             .trim();
         final previewLength = preview.length > 1200 ? 1200 : preview.length;
         final clipped = preview.substring(0, previewLength);
