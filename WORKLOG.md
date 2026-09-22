@@ -31,21 +31,24 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - базовий `main`: `2f3360d0d8f6d72fabff1489a8cb0d3bc5885c82`
 - активна гілка: `feat/minfin-calendar-documents`
-- PR: ще не відкритий
+- PR: **#19 — Add typed MinFin auction calendar documents**
+- head перед цим оновленням журналу: `ee4e53a5e6e1000785cacef57c6924cc17ba72b8`
+- офіційне джерело перевірено 22.09.2026: `https://mof.gov.ua/uk/kalendar-aukcioniv`; сторінка публікує monthly / quarterly / switch PDF-документи та дати їх публікації
 - останній завершений slice: PR #17, merge `2f3360d0d8f6d72fabff1489a8cb0d3bc5885c82`
 - verify PR #17: run #53 — success
 
-### Що треба зробити в цьому slice
+### Що вже зроблено в цьому slice
 
-- перевірити актуальну офіційну структуру Мінфіну у web до написання parser-а;
-- визначити окрему typed-модель для календарних/документних записів;
-- зберігати source date / retrievedAt / evidence URL;
-- використовувати лише офіційні URL Мінфіну;
-- parser має fail closed при зміні структури або невідомому типі документа;
-- не парсити detailed auction results у цьому slice;
-- додати deterministic tests без live-network залежності;
-- локалізувати нові user-facing error codes для UK/EN/FR/DE/ES/KO/JA;
-- оновити `PROJECT_STATE.md` / `docs/roadmap.md`, якщо slice змінює підтверджений статус.
+- [x] актуальну офіційну структуру Мінфіну перевірено у web до написання parser-а;
+- [x] окрема typed-модель: monthly placement / quarterly placement / monthly switch;
+- [x] source date / retrievedAt / evidence URL;
+- [x] лише офіційні PDF URL `mof.gov.ua/storage/files`;
+- [x] fail closed при зміні структури, невідомому типі, відсутній даті або дублікаті;
+- [x] detailed auction results у цьому slice не парсяться;
+- [x] deterministic tests без live-network залежності;
+- [x] нові user-facing error codes локалізовані UK/EN/FR/DE/ES/KO/JA;
+- [x] `PROJECT_STATE.md` / `docs/roadmap.md` уточнюють межу: PDF-документи індексуються, але їх таблиці ще не є структурованим future schedule;
+- [ ] актуальний head PR #19 має пройти GitHub `verify`.
 
 ### Критерій готовності slice
 
@@ -57,13 +60,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Черга робіт
 
-1. **DOING** — окремий slice: календар документів/подій Мінфіну.
-2. **NEXT** — детальний parser результатів аукціонів Мінфіну, з fail-closed поведінкою та provenance.
-5. **TODO** — нормалізований freshness/status UX у картці ISIN.
-6. **TODO** — підключити typed fee/tax/FX/exit assumptions до реальних розрахунків і UI; локалізувати generated planner copy/preset labels.
-7. **TODO** — кілька `PriceObservation` на ISIN + явний user-selected source priority.
-8. **TODO** — повне порівняння сценаріїв A/B/C.
-9. **TODO** — лише після цього оцінювати готовність формального prerelease checkpoint 0.9.0.
+1. **DOING** — завершити PR #19: verify → squash merge.
+2. **NEXT** — окремий slice: структурований розклад майбутніх аукціонів із офіційних календарних PDF; перед parser-ом візуально перевірити актуальні PDF-макети, не вгадувати дані.
+3. **TODO** — детальний parser результатів аукціонів Мінфіну, з fail-closed поведінкою та provenance.
+4. **TODO** — нормалізований freshness/status UX у картці ISIN.
+5. **TODO** — підключити typed fee/tax/FX/exit assumptions до реальних розрахунків і UI; локалізувати generated planner copy/preset labels.
+6. **TODO** — кілька `PriceObservation` на ISIN + явний user-selected source priority.
+7. **TODO** — повне порівняння сценаріїв A/B/C.
+8. **TODO** — лише після цього оцінювати готовність формального prerelease checkpoint 0.9.0.
 
 ## Нещодавно завершено
 
