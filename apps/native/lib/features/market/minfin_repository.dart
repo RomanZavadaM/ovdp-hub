@@ -221,7 +221,7 @@ MinfinSnapshot parseMinfinAuctionRates(String html, DateTime retrievedAt) {
       sourceDate: latest,
       retrievedAt: retrievedAt.toUtc().toIso8601String(),
       kind: ObservationKind.primaryAuction,
-      confidence: ObservationConfidence.publicIndicative,
+      confidence: ObservationConfidence.officialPublished,
     ),
     rows,
   );
@@ -318,7 +318,7 @@ MinfinAuctionEventsSnapshot parseMinfinAuctionEvents(
       sourceDate: latest,
       retrievedAt: retrievedAt.toUtc().toIso8601String(),
       kind: ObservationKind.primaryAuction,
-      confidence: ObservationConfidence.publicIndicative,
+      confidence: ObservationConfidence.officialPublished,
     ),
     events,
   );
@@ -416,7 +416,7 @@ MinfinCalendarDocumentsSnapshot parseMinfinCalendarDocuments(
       sourceDate: latest,
       retrievedAt: retrievedAt.toUtc().toIso8601String(),
       kind: ObservationKind.primaryAuction,
-      confidence: ObservationConfidence.publicIndicative,
+      confidence: ObservationConfidence.officialPublished,
     ),
     documents,
   );

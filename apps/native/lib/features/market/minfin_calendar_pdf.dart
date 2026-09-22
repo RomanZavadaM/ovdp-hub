@@ -196,7 +196,7 @@ MinfinCalendarScheduleSnapshot parseMinfinCalendarScheduleRuns({
       sourceDate: document.publishedDate,
       retrievedAt: retrievedAt.toUtc().toIso8601String(),
       kind: ObservationKind.primaryAuction,
-      confidence: ObservationConfidence.publicIndicative,
+      confidence: ObservationConfidence.officialPublished,
     ),
     documentKind: document.kind,
     entries: entries,

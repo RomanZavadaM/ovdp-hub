@@ -11,6 +11,7 @@ enum ObservationKind {
 }
 
 enum ObservationConfidence {
+  officialPublished,
   publicIndicative,
   authenticatedIndicative,
   executableConfirmed,
