@@ -62,7 +62,7 @@ List<Bond> eligibleBonds(
   if (!['UAH', 'USD', 'EUR'].contains(currency) ||
       min.isAfter(max) ||
       !max.isAfter(after)) {
-    throw const FormatException('Перевірте валюту та діапазон погашення');
+    throw const FormatException('planner.invalid_range');
   }
   return catalog.bonds.where((b) {
     final maturity = isoDate(b.maturity);
@@ -84,7 +84,7 @@ List<PlanPosition> makeLadder(
   if (budget <= Decimal.zero ||
       desiredReserve < Decimal.zero ||
       desiredReserve >= budget) {
-    throw const FormatException('Бюджет має перевищувати резерв');
+    throw const FormatException('planner.budget_must_exceed_reserve');
   }
   final investable = budget - desiredReserve;
   final byDate = <String, Bond>{};
@@ -97,7 +97,7 @@ List<PlanPosition> makeLadder(
     ..sort((a, b) => a.maturity.compareTo(b.maturity));
   if (ordered.isEmpty) {
     throw const FormatException(
-      'Немає випусків, які відповідають строкам і бюджету за номіналом',
+      'planner.no_candidates',
     );
   }
   final slots = {
@@ -135,7 +135,7 @@ PlanSummary summarizePlan({
   if (budget <= Decimal.zero ||
       needAmount < Decimal.zero ||
       need.isBefore(startDate)) {
-    throw const FormatException('Перевірте бюджет, дату та суму потреби');
+    throw const FormatException('planner.invalid_budget_need');
   }
   final unique = <String>{};
   var cost = Decimal.zero,
@@ -152,7 +152,7 @@ PlanSummary summarizePlan({
         position.quantity > 1000000 ||
         position.unitCost <= Decimal.zero ||
         !isoDate(b.maturity).isAfter(startDate)) {
-      throw const FormatException('Некоректна позиція або змішані валюти');
+      throw const FormatException('planner.invalid_positions');
     }
     cost += position.cost;
     if (isoDate(b.maturity).isAfter(last)) last = isoDate(b.maturity);
@@ -187,11 +187,11 @@ PlanSummary summarizePlan({
   }
   if (cost > budget) {
     throw const FormatException(
-      'Вартість позицій перевищує бюджет — зменште кількість або змініть бюджет',
+      'planner.positions_over_budget',
     );
   }
   if (last.year - startDate.year > 100) {
-    throw const FormatException('Горизонт календаря перевищує 100 років');
+    throw const FormatException('planner.horizon_too_long');
   }
   final months = <MonthlyFlow>[];
   for (
