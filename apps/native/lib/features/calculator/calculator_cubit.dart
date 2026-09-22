@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../errors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../pricing.dart';
 
@@ -6,7 +7,7 @@ import '../../pricing.dart';
 class CalculatorState {
   final String quantity, price, fee;
   final BondResult? result;
-  final String? error;
+  final AppError? error;
   const CalculatorState({
     this.quantity = '117',
     this.price = '850',
@@ -19,7 +20,7 @@ class CalculatorState {
     String? price,
     String? fee,
     BondResult? result,
-    String? error,
+    AppError? error,
     bool clearResult = false,
     bool clearError = false,
   }) => CalculatorState(
@@ -56,7 +57,7 @@ class CalculatorCubit extends Cubit<CalculatorState> {
       );
       emit(state.copyWith(result: result, clearError: true));
     } catch (e) {
-      emit(state.copyWith(error: e.toString(), clearResult: true));
+      emit(state.copyWith(error: AppError.from(e), clearResult: true));
     }
   }
 }
