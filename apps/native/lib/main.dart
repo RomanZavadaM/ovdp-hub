@@ -142,6 +142,11 @@ class Home extends StatelessWidget {
           workspace.error,
           context.read<WorkspaceCubit>().dismissError,
         ),
+        if (!strings.screenIsFullyLocalized(screen))
+          MaterialBanner(
+            content: Text(strings.text('translationIncomplete')),
+            actions: const [SizedBox.shrink()],
+          ),
         Expanded(
           child: SingleChildScrollView(
             key: ValueKey(screen),
@@ -171,12 +176,10 @@ class Home extends StatelessWidget {
                 applicationName: 'ОВДП Hub',
                 applicationLegalese:
                     'Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.',
-                children: const [
+                children: [
                   Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Text(
-                      'ОВДП Hub є proprietary software. Публічна видимість вихідного коду не є open-source ліцензією. Повні умови використання містяться у LICENSE.md у комплекті програми та репозиторії.',
-                    ),
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text(strings.text('aboutBody')),
                   ),
                 ],
               );
@@ -207,7 +210,7 @@ class Home extends StatelessWidget {
                 .toList(),
           ),
           IconButton(
-            tooltip: studio ? 'Класичний дизайн' : 'Дизайн «Робочий кабінет»',
+            tooltip: studio ? strings.text('classicDesign') : strings.text('studioDesign'),
             onPressed: context.read<AppearanceCubit>().toggle,
             icon: Icon(
               studio
