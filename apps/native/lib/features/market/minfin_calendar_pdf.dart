@@ -580,17 +580,20 @@ List<MinfinCalendarScheduleEntry> _parseQuarterlyPlacement(
   final entries = <MinfinCalendarScheduleEntry>[];
   for (var row = 0; row < headers.length; row++) {
     final header = headers[row];
-    final dateClusters = _dateClusters(header, year);
+    final slots = _clusters(header);
     final bottomY = row + 1 < headers.length ? headers[row + 1].y : footnoteY;
 
-    for (var index = 0; index < dateClusters.length; index++) {
-      final cluster = dateClusters[index];
-      final left = index == 0
+    for (var slotIndex = 0; slotIndex < slots.length; slotIndex++) {
+      final cluster = slots[slotIndex];
+      final auctionDate = _headerDate(cluster.text, year);
+      if (auctionDate == null) continue;
+
+      final left = slotIndex == 0
           ? double.negativeInfinity
-          : (dateClusters[index - 1].center + cluster.center) / 2;
-      final right = index == dateClusters.length - 1
+          : (slots[slotIndex - 1].center + cluster.center) / 2;
+      final right = slotIndex == slots.length - 1
           ? double.infinity
-          : (cluster.center + dateClusters[index + 1].center) / 2;
+          : (cluster.center + slots[slotIndex + 1].center) / 2;
       final texts = _cellLines(
         lines: lines,
         topY: header.y,
@@ -602,7 +605,7 @@ List<MinfinCalendarScheduleEntry> _parseQuarterlyPlacement(
       if (plans.isNotEmpty) {
         entries.add(
           MinfinQuarterlyPlacementScheduleEntry(
-            _headerDate(cluster.text, year)!,
+            auctionDate,
             plans,
           ),
         );
