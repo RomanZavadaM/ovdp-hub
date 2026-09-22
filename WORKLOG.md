@@ -25,55 +25,34 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **NEXT**
 
-Мета: **structured future auction schedule з офіційних календарних PDF Мінфіну**.
+Мета: **detailed MinFin auction results parser**.
 
-- базовий `main`: `719e6bfe005c85e2ea6d6c868da22bbfe5f77d12`
-- активна гілка: `feat/minfin-calendar-pdf-schedule-r2`
-- source PR: #21, head `1853d2a90fd136fa11376285901f81aa02da8227`
-- replacement PR: **#24** `Parse structured MinFin auction schedules from official PDFs`
-- source verify: **Flutter checks and START run #70 — success**
-- причина replacement: після v0.8.4 `main` просунувся вперед, а PR #21 став non-mergeable; релізний стан не переписуємо
-- актуальна опублікована контрольна точка: **v0.8.4 / 0.8.4+12**
-- фактичні макети перевірені до переносу коду: monthly placement і switch — офіційні PDF 2026 візуально; quarterly — офіційна таблична структура з окремими currency/tenor cells підтверджена візуальним PDF reference і поточним 2026 document content
-- офіційна сторінка джерела: `https://mof.gov.ua/uk/kalendar-aukcioniv`
-
-### Що переносимо з перевіреного PR #21
-
-- typed future-auction schedule model, окремий від historical auction results;
-- pure-Dart PDF text extraction через `pdf_document` + `pdf_graphics`;
-- monthly / quarterly / switch parsers за різними фактичними layout;
-- provenance: URL конкретного PDF, publication/source date, retrievedAt;
-- fail-closed behavior на unknown/changed layout;
-- deterministic tests без live-network залежності;
-- локалізовані parser errors UK/EN/FR/DE/ES/KO/JA;
-- dependency/legal notices без регресії версії `0.8.4+12`.
-
-### Критерій готовності slice
-
-1. PDF-макети перевірені й структура parser-а не базується на припущеннях.
-2. Typed schedule model відповідає лише полям, які реально публікує Мінфін.
-3. Parser fail closed і має deterministic normal/changed-shape coverage.
-4. `flutter pub get --enforce-lockfile`, `flutter analyze`, `flutter test` проходять у GitHub verify.
-5. Replacement PR squash-merged у `main`.
-6. `PROJECT_STATE.md`, `WORKLOG.md` та Issue #18 синхронізовані з merge SHA і рівно однією наступною дією.
+- базовий `main`: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
+- попередній slice: structured future auction schedule from official calendar PDFs
+- merged PR: **#24** `Parse structured MinFin auction schedules from official PDFs`
+- merge SHA: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
+- stale source PR #21 закрито без merge
+- final verify before merge: **Flutter checks and START run #75 — success**
+- версія/checkpoint лишається **v0.8.4 / 0.8.4+12**
 
 ### Поточна наступна дія
 
-Прогнати verify на фінальному head PR #24; при success закрити stale PR #21 без merge та squash-merge #24.
+Почати окремий slice для **detailed MinFin auction results parser**: спочатку перевірити фактичні офіційні сторінки/документи результатів аукціонів і зафіксувати реальні поля та layout до написання parser-а.
 
 ## Черга робіт
 
-1. **DOING** — MinFin structured future auction schedule from official calendar PDFs.
-2. **TODO** — detailed MinFin auction results parser.
-3. **TODO** — freshness/status UX у картці ISIN.
-4. **TODO** — typed fee/tax/FX/exit assumptions → calculations + UI.
-5. **TODO** — multiple `PriceObservation` + explicit user source priority.
-6. **TODO** — A/B/C comparison.
-7. **TODO** — оцінка готовності formal prerelease 0.9.0.
+1. **NEXT** — detailed MinFin auction results parser.
+2. **TODO** — freshness/status UX у картці ISIN.
+3. **TODO** — typed fee/tax/FX/exit assumptions → calculations + UI.
+4. **TODO** — multiple `PriceObservation` + explicit user source priority.
+5. **TODO** — A/B/C comparison.
+6. **TODO** — оцінка готовності formal prerelease 0.9.0.
 
 ## Нещодавно завершено
+
+- **DONE — MinFin structured future auction schedule**: PR #24 squash-merged у `main` як `1313339ac0241dc2ea50db3ea14494ea07871f3c`; stale PR #21 закрито без merge; final verify run #75 success; parser підтримує окремі monthly / quarterly / switch layouts, provenance, deterministic tests і fail-closed behavior.
 
 - **DONE — v0.8.4**: prerelease published from commit `1cb857e2ac3850a830c4bdde4e78559e50f03985`; release workflow run #21 success; 56/56 tests passed; Windows/macOS/Android/iOS/START published with SHA256SUMS + legal notices.
 - **DONE — PR #22**: release checkpoint 0.8.4.
