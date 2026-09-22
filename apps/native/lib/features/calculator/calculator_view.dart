@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../ui/components.dart';
+
 import '../../l10n/hub_locale.dart';
+import '../../ui/components.dart';
 import 'calculator_cubit.dart';
 
 class CalculatorView extends StatelessWidget {
   const CalculatorView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CalculatorCubit>().state;
@@ -47,7 +49,10 @@ class CalculatorView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: SelectableText(
-              strings.text('costs') + ': ' + result.cost.toStringAsFixed(2) + ' грн\n' + strings.text('receipts') + ': ' + result.receipts.toStringAsFixed(2) + ' грн\n' + strings.text('result') + ': ' + result.profit.toStringAsFixed(2) + ' грн\n' + strings.text('approxXirr') + ': ' + (result.yield * 100).toStringAsFixed(4) + '%',
+              '${strings.text('costs')}: ${result.cost.toStringAsFixed(2)} грн\n'
+              '${strings.text('receipts')}: ${result.receipts.toStringAsFixed(2)} грн\n'
+              '${strings.text('result')}: ${result.profit.toStringAsFixed(2)} грн\n'
+              '${strings.text('approxXirr')}: ${(result.yield * 100).toStringAsFixed(4)}%',
             ),
           ),
       ],
