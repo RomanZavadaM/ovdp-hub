@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../errors.dart';
 import '../features/market/market_isin.dart';
 import '../features/market/minfin_repository.dart';
 import '../features/sellers/seller_repository.dart';
@@ -19,7 +20,7 @@ class SectionHeading extends StatelessWidget {
 }
 
 class ErrorNotice extends StatelessWidget {
-  final String? message;
+  final AppError? message;
   final VoidCallback onDismiss;
   const ErrorNotice(this.message, this.onDismiss, {super.key});
 
@@ -28,7 +29,7 @@ class ErrorNotice extends StatelessWidget {
     if (message == null) return const SizedBox.shrink();
     final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     return MaterialBanner(
-      content: Text(message!),
+      content: Text(strings.error(message!)),
       actions: [
         TextButton(onPressed: onDismiss, child: Text(strings.text('close'))),
       ],
