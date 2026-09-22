@@ -58,7 +58,7 @@ class SourceObservationMeta {
         sourceUrl.trim().isEmpty ||
         retrievedAt is! String ||
         DateTime.tryParse(retrievedAt) == null) {
-      throw const FormatException('Некоректні метадані джерела');
+      throw const FormatException('source.invalid_metadata');
     }
 
     final sourceDate = json['sourceDate'];
@@ -66,13 +66,13 @@ class SourceObservationMeta {
         (sourceDate is! String ||
             !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(sourceDate) ||
             DateTime.tryParse('${sourceDate}T00:00:00Z') == null)) {
-      throw const FormatException('Некоректна дата джерела');
+      throw const FormatException('source.invalid_date');
     }
 
     final validUntil = json['validUntil'];
     if (validUntil != null &&
         (validUntil is! String || DateTime.tryParse(validUntil) == null)) {
-      throw const FormatException('Некоректний строк дії джерела');
+      throw const FormatException('source.invalid_validity');
     }
 
     ObservationKind kind;
@@ -83,7 +83,7 @@ class SourceObservationMeta {
         json['confidence'] as String,
       );
     } catch (_) {
-      throw const FormatException('Невідомий тип метаданих джерела');
+      throw const FormatException('source.unknown_kind');
     }
 
     return SourceObservationMeta(

@@ -77,6 +77,10 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('The reserve exceeds the budget.'), findsOneWidget);
+    expect(
+      HubStrings(AppLanguage.en).error(const AppError('model.invalid_date')),
+      'The instrument data are invalid.',
+    );
     await locale.close();
   });
 

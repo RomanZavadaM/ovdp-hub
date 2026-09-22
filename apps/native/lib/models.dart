@@ -15,7 +15,7 @@ DateTime isoDate(String value) {
   if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value) ||
       date == null ||
       date.toIso8601String().substring(0, 10) != value) {
-    throw const FormatException('Некоректна дата');
+    throw const FormatException('model.invalid_date');
   }
   return date;
 }
@@ -23,7 +23,7 @@ DateTime isoDate(String value) {
 String decimalText(Object? value) {
   final text = value.toString();
   if (!RegExp(r'^\d{1,15}(\.\d{1,10})?$').hasMatch(text)) {
-    throw const FormatException('Некоректна сума');
+    throw const FormatException('model.invalid_amount');
   }
   return text;
 }
@@ -34,13 +34,13 @@ class Bond {
     : json = freezeJson(source) as Map<String, dynamic> {
     if (!RegExp(r'^UA[A-Z0-9]{9}\d$').hasMatch(isin) ||
         !['UAH', 'USD', 'EUR'].contains(currency)) {
-      throw const FormatException('Некоректний випуск');
+      throw const FormatException('model.invalid_bond');
     }
     if (!isoDate(json['issueDate'] as String).isBefore(isoDate(maturity))) {
-      throw const FormatException('Некоректні строки випуску');
+      throw const FormatException('model.invalid_terms');
     }
     if (RegExp(r'^0+(\.0+)?$').hasMatch(decimalText(json['nominal']))) {
-      throw const FormatException('Нульовий номінал');
+      throw const FormatException('model.zero_nominal');
     }
     if (json['nominalRate'] != null) decimalText(json['nominalRate']);
     for (final payment in payments) {
@@ -51,7 +51,7 @@ class Bond {
         'REDEMPTION',
         'EARLY_REDEMPTION',
       ].contains(payment['kind'])) {
-        throw const FormatException('Невідомий тип виплати');
+        throw const FormatException('model.unknown_payment_type');
       }
     }
   }
@@ -74,31 +74,31 @@ class Catalog {
     final json = jsonDecode(content) as Map<String, dynamic>;
     if (json['schemaVersion'] != 1 ||
         DateTime.tryParse(json['retrievedAt'] as String) == null) {
-      throw const FormatException('Непідтримуваний каталог');
+      throw const FormatException('catalog.unsupported');
     }
     final items = json['assets'] as List;
     if (items.isEmpty || items.length > 10000) {
-      throw const FormatException('Порожній або завеликий каталог');
+      throw const FormatException('catalog.invalid_size');
     }
     final bonds = items
         .map((e) => Bond(Map<String, dynamic>.from(e as Map)))
         .toList();
     if (bonds.map((e) => e.isin).toSet().length != bonds.length) {
-      throw const FormatException('Повторний ISIN');
+      throw const FormatException('catalog.duplicate_isin');
     }
     return Catalog._(json, bonds);
   }
   factory Catalog.fromNbu(String content) {
     final rows = jsonDecode(content) as List;
     if (rows.isEmpty || rows.length > 10000) {
-      throw const FormatException('Некоректна відповідь НБУ');
+      throw const FormatException('nbu.invalid_response');
     }
     final assets = <Map<String, dynamic>>[];
     for (final r in rows) {
       if (r['cptype'] == 'OZDP' || r['cptype'] == 'OMP') continue;
       if (r['cptype'] != 'DCP' || r['emit_okpo'] != '00013480') {
         throw const FormatException(
-          'Невідомий інструмент: попередній каталог збережено',
+          'nbu.unknown_instrument',
         );
       }
       assets.add({
@@ -168,13 +168,13 @@ class SavedSet {
         (j['schemaVersion'] == 2 && j['scenario'] is! Map) ||
         (j['name'] as String).trim().isEmpty ||
         DateTime.tryParse(j['savedAt'] as String) == null) {
-      throw const FormatException('Некоректна добірка');
+      throw const FormatException('collection.invalid');
     }
     final bonds = (j['assets'] as List)
         .map((e) => Bond(Map<String, dynamic>.from(e as Map)))
         .toList();
     if (bonds.isEmpty || bonds.length > 10000) {
-      throw const FormatException('Некоректний розмір добірки');
+      throw const FormatException('collection.invalid_size');
     }
     return SavedSet(
       j['name'] as String,

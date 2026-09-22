@@ -6,34 +6,34 @@ import '../../models.dart';
 import '../../pricing.dart';
 import 'planner_engine.dart';
 
-T _readEnum<T extends Enum>(List<T> values, Object? raw, String label) {
+T _readEnum<T extends Enum>(List<T> values, Object? raw) {
   if (raw is String) {
     for (final value in values) {
       if (value.name == raw) return value;
     }
   }
-  throw FormatException('Невідоме значення $label');
+  throw const FormatException('planner.invalid_enum');
 }
 
-Decimal _decimal(Object? raw, String label, {bool positive = false}) {
+Decimal _decimal(Object? raw, {bool positive = false}) {
   try {
     final value = Decimal.parse(decimalText(raw));
     if (positive ? value <= Decimal.zero : value < Decimal.zero) {
-      throw FormatException('Некоректне значення $label');
+      throw const FormatException('planner.invalid_number');
     }
     return value;
   } catch (_) {
-    throw FormatException('Некоректне значення $label');
+    throw const FormatException('planner.invalid_number');
   }
 }
 
-String _date(Object? raw, String label) {
-  if (raw is! String) throw FormatException('Некоректна дата $label');
+String _date(Object? raw) {
+  if (raw is! String) throw const FormatException('planner.invalid_date');
   try {
     isoDate(raw);
     return raw;
   } catch (_) {
-    throw FormatException('Некоректна дата $label');
+    throw const FormatException('planner.invalid_date');
   }
 }
 
@@ -59,7 +59,7 @@ class PlannerNeed {
     this.occurrences,
   }) {
     if (id.trim().isEmpty || name.trim().isEmpty || amount < Decimal.zero) {
-      throw const FormatException('Некоректна потреба');
+      throw const FormatException('planner.invalid_need');
     }
     isoDate(date);
     if (type == PlannerNeedType.recurring) {
@@ -69,10 +69,10 @@ class PlannerNeed {
           everyMonths! > 120 ||
           occurrences! < 2 ||
           occurrences! > 600) {
-        throw const FormatException('Некоректне повторення потреби');
+        throw const FormatException('planner.invalid_repeat');
       }
     } else if (everyMonths != null || occurrences != null) {
-      throw const FormatException('Повторення дозволене лише регулярній потребі');
+      throw const FormatException('planner.repeat_requires_recurring');
     }
   }
 
@@ -89,9 +89,9 @@ class PlannerNeed {
   factory PlannerNeed.fromJson(Map<String, dynamic> json) => PlannerNeed(
     id: json['id'] as String? ?? '',
     name: json['name'] as String? ?? '',
-    type: _readEnum(PlannerNeedType.values, json['type'], 'типу потреби'),
-    date: _date(json['date'], 'потреби'),
-    amount: _decimal(json['amount'], 'суми потреби'),
+    type: _readEnum(PlannerNeedType.values, json['type']),
+    date: _date(json['date']),
+    amount: _decimal(json['amount']),
     everyMonths: json['everyMonths'] as int?,
     occurrences: json['occurrences'] as int?,
   );
@@ -123,26 +123,26 @@ class PriceObservation {
   }) {
     if (!RegExp(r'^UA[A-Z0-9]{9}\d$').hasMatch(isin) ||
         !['UAH', 'USD', 'EUR'].contains(currency)) {
-      throw const FormatException('Некоректне цінове спостереження');
+      throw const FormatException('planner.invalid_price_observation');
     }
     if (kind == PriceValueKind.fullPrice ||
         kind == PriceValueKind.nominalEstimate) {
       if (price == null || price! <= Decimal.zero || accruedInterest != null) {
-        throw const FormatException('Потрібна повна додатна ціна');
+        throw const FormatException('planner.full_price_required');
       }
     } else if (kind == PriceValueKind.cleanPrice) {
       if (price == null ||
           price! <= Decimal.zero ||
           accruedInterest == null ||
           accruedInterest! < Decimal.zero) {
-        throw const FormatException('Потрібні clean price та НКД');
+        throw const FormatException('planner.clean_price_required');
       }
     } else if (kind == PriceValueKind.yieldOnly) {
       if (price != null ||
           accruedInterest != null ||
           yieldPercent == null ||
           yieldPercent! < Decimal.zero) {
-        throw const FormatException('Yield-only не є ціною');
+        throw const FormatException('planner.yield_not_price');
       }
     }
   }
@@ -166,12 +166,12 @@ class PriceObservation {
 
   factory PriceObservation.fromJson(Map<String, dynamic> json) {
     Decimal? optionalDecimal(String key) =>
-        json[key] == null ? null : _decimal(json[key], key);
+        json[key] == null ? null : _decimal(json[key]);
     return PriceObservation(
       isin: json['isin'] as String? ?? '',
       currency: json['currency'] as String? ?? '',
-      kind: _readEnum(PriceValueKind.values, json['kind'], 'типу ціни'),
-      side: _readEnum(PriceSide.values, json['side'], 'сторони котирування'),
+      kind: _readEnum(PriceValueKind.values, json['kind']),
+      side: _readEnum(PriceSide.values, json['side']),
       price: optionalDecimal('price'),
       accruedInterest: optionalDecimal('accruedInterest'),
       yieldPercent: optionalDecimal('yieldPercent'),
@@ -226,7 +226,7 @@ class PlannerPositionDraft {
         quantity > 1000000 ||
         price.effectiveUnitCost == null) {
       throw const FormatException(
-        'Позиція плану потребує кількість та явну/оцінену ціну',
+        'planner.invalid_position',
       );
     }
   }
@@ -289,21 +289,21 @@ class FeeRule {
     this.sourceUrl,
   }) {
     if (id.trim().isEmpty || name.trim().isEmpty || value < Decimal.zero) {
-      throw const FormatException('Некоректна комісія');
+      throw const FormatException('planner.invalid_fee');
     }
     if (kind == FeeKind.percentOfTrade && value > Decimal.fromInt(100)) {
-      throw const FormatException('Комісія не може перевищувати 100%');
+      throw const FormatException('planner.fee_over_100');
     }
     if (kind == FeeKind.recurring) {
       if (everyMonths == null || everyMonths! < 1 || everyMonths! > 120) {
-        throw const FormatException('Некоректна періодична комісія');
+        throw const FormatException('planner.invalid_recurring_fee');
       }
     } else if (everyMonths != null) {
-      throw const FormatException('Період заданий не для recurring fee');
+      throw const FormatException('planner.fee_period_mismatch');
     }
     if (kind != FeeKind.percentOfTrade &&
         (currency == null || !RegExp(r'^[A-Z]{3}$').hasMatch(currency!))) {
-      throw const FormatException('Для фіксованої комісії потрібна валюта');
+      throw const FormatException('planner.fee_currency_required');
     }
   }
 
@@ -321,9 +321,9 @@ class FeeRule {
   factory FeeRule.fromJson(Map<String, dynamic> json) => FeeRule(
     id: json['id'] as String? ?? '',
     name: json['name'] as String? ?? '',
-    kind: _readEnum(FeeKind.values, json['kind'], 'типу комісії'),
-    event: _readEnum(FeeEvent.values, json['event'], 'події комісії'),
-    value: _decimal(json['value'], 'комісії'),
+    kind: _readEnum(FeeKind.values, json['kind']),
+    event: _readEnum(FeeEvent.values, json['event']),
+    value: _decimal(json['value']),
     currency: json['currency'] as String?,
     everyMonths: json['everyMonths'] as int?,
     sourceUrl: json['sourceUrl'] as String?,
@@ -340,7 +340,7 @@ class FeeAssumptions {
     Iterable<FeeRule> rules = const [],
   }) : rules = List.unmodifiable(rules) {
     if (status == FeeAssumptionStatus.unknown && this.rules.isNotEmpty) {
-      throw const FormatException('Невідомі комісії не можуть мати правил');
+      throw const FormatException('planner.unknown_fee_has_rules');
     }
   }
 
@@ -356,11 +356,7 @@ class FeeAssumptions {
   };
 
   factory FeeAssumptions.fromJson(Map<String, dynamic> json) => FeeAssumptions(
-    status: _readEnum(
-      FeeAssumptionStatus.values,
-      json['status'],
-      'статусу комісій',
-    ),
+    status: _readEnum(FeeAssumptionStatus.values, json['status']),
     rules: (json['rules'] as List? ?? const [])
         .map((e) => FeeRule.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList(),
@@ -396,13 +392,13 @@ class TaxRule {
         sourceUrl.trim().isEmpty ||
         ratePercent < Decimal.zero ||
         ratePercent > Decimal.fromInt(100)) {
-      throw const FormatException('Некоректне податкове правило');
+      throw const FormatException('planner.invalid_tax_rule');
     }
     final from = isoDate(scopeFrom);
     final to = isoDate(scopeTo);
     isoDate(verifiedOn);
     if (from.isAfter(to)) {
-      throw const FormatException('Некоректний строк податкового правила');
+      throw const FormatException('planner.invalid_tax_period');
     }
   }
 
@@ -419,12 +415,12 @@ class TaxRule {
 
   factory TaxRule.fromJson(Map<String, dynamic> json) => TaxRule(
     id: json['id'] as String? ?? '',
-    tax: _readEnum(TaxKind.values, json['tax'], 'виду податку'),
-    income: _readEnum(TaxIncomeKind.values, json['income'], 'виду доходу'),
-    ratePercent: _decimal(json['ratePercent'], 'ставки податку'),
-    scopeFrom: _date(json['scopeFrom'], 'початку податкового правила'),
-    scopeTo: _date(json['scopeTo'], 'кінця податкового правила'),
-    verifiedOn: _date(json['verifiedOn'], 'перевірки податкового правила'),
+    tax: _readEnum(TaxKind.values, json['tax']),
+    income: _readEnum(TaxIncomeKind.values, json['income']),
+    ratePercent: _decimal(json['ratePercent']),
+    scopeFrom: _date(json['scopeFrom']),
+    scopeTo: _date(json['scopeTo']),
+    verifiedOn: _date(json['verifiedOn']),
     sourceUrl: json['sourceUrl'] as String? ?? '',
   );
 }
@@ -442,7 +438,7 @@ class TaxScenario {
   }) : rules = List.unmodifiable(rules) {
     if (label.trim().isEmpty ||
         (status == TaxAssumptionStatus.unknown && this.rules.isNotEmpty)) {
-      throw const FormatException('Некоректний податковий сценарій');
+      throw const FormatException('planner.invalid_tax_scenario');
     }
   }
 
@@ -505,11 +501,7 @@ class TaxScenario {
   };
 
   factory TaxScenario.fromJson(Map<String, dynamic> json) => TaxScenario(
-    status: _readEnum(
-      TaxAssumptionStatus.values,
-      json['status'],
-      'статусу податків',
-    ),
+    status: _readEnum(TaxAssumptionStatus.values, json['status']),
     label: json['label'] as String? ?? '',
     rules: (json['rules'] as List? ?? const [])
         .map((e) => TaxRule.fromJson(Map<String, dynamic>.from(e as Map)))
@@ -536,7 +528,7 @@ class FxAssumption {
         !RegExp(r'^[A-Z]{3}$').hasMatch(toCurrency) ||
         fromCurrency == toCurrency ||
         rate <= Decimal.zero) {
-      throw const FormatException('Некоректне FX припущення');
+      throw const FormatException('planner.invalid_fx');
     }
     isoDate(asOf);
   }
@@ -552,8 +544,8 @@ class FxAssumption {
   factory FxAssumption.fromJson(Map<String, dynamic> json) => FxAssumption(
     fromCurrency: json['from'] as String? ?? '',
     toCurrency: json['to'] as String? ?? '',
-    rate: _decimal(json['rate'], 'FX курсу', positive: true),
-    asOf: _date(json['asOf'], 'FX курсу'),
+    rate: _decimal(json['rate'], positive: true),
+    asOf: _date(json['asOf']),
     source: json['source'] == null
         ? null
         : SourceObservationMeta.fromJson(
@@ -573,7 +565,7 @@ class ExitAssumption {
   ExitAssumption._(this.mode, this.date, this.price) {
     if (mode == ExitMode.holdToMaturity) {
       if (date != null || price != null) {
-        throw const FormatException('Hold-to-maturity не має ціни продажу');
+        throw const FormatException('planner.hold_has_no_sale_price');
       }
       return;
     }
@@ -582,7 +574,7 @@ class ExitAssumption {
         price!.effectiveUnitCost == null ||
         ![PriceSide.bid, PriceSide.manual].contains(price!.side)) {
       throw const FormatException(
-        'Достроковий продаж потребує дату та BID/ручну ціну',
+        'planner.early_sale_requires_bid',
       );
     }
     isoDate(date!);
@@ -601,12 +593,12 @@ class ExitAssumption {
   };
 
   factory ExitAssumption.fromJson(Map<String, dynamic> json) {
-    final mode = _readEnum(ExitMode.values, json['mode'], 'режиму виходу');
+    final mode = _readEnum(ExitMode.values, json['mode']);
     if (mode == ExitMode.holdToMaturity) {
       return ExitAssumption.holdToMaturity();
     }
     return ExitAssumption.earlySale(
-      _date(json['date'], 'дострокового продажу'),
+      _date(json['date']),
       PriceObservation.fromJson(
         Map<String, dynamic>.from(json['price'] as Map),
       ),
@@ -674,18 +666,18 @@ class PlannerScenario {
         this.needs.isEmpty ||
         settlementDelayDays < 0 ||
         settlementDelayDays > 30) {
-      throw const FormatException('Некоректний сценарій планувальника');
+      throw const FormatException('planner.invalid_scenario');
     }
     final start = isoDate(startDate);
     final min = isoDate(minMaturity);
     final max = isoDate(maxMaturity);
     if (min.isAfter(max) || !max.isAfter(start)) {
-      throw const FormatException('Некоректний горизонт сценарію');
+      throw const FormatException('planner.invalid_horizon');
     }
     if (this.needs.map((e) => e.id).toSet().length != this.needs.length ||
         this.positions.map((e) => e.isin).toSet().length !=
             this.positions.length) {
-      throw const FormatException('Повторні потреби або позиції');
+      throw const FormatException('planner.duplicate_items');
     }
   }
 
@@ -713,7 +705,7 @@ class PlannerScenario {
 
   factory PlannerScenario.fromJson(Map<String, dynamic> json) {
     if (json['schemaVersion'] != schemaVersion) {
-      throw const FormatException('Непідтримувана версія сценарію');
+      throw const FormatException('planner.unsupported_schema');
     }
     final range = Map<String, dynamic>.from(json['maturityRange'] as Map);
     return PlannerScenario(
@@ -722,16 +714,12 @@ class PlannerScenario {
       groupId: json['groupId'] as String?,
       variantLabel: json['variantLabel'] as String? ?? 'A',
       currency: json['currency'] as String? ?? '',
-      budget: _decimal(json['budget'], 'бюджету', positive: true),
-      reserve: _decimal(json['reserve'], 'резерву'),
-      startDate: _date(json['startDate'], 'початку сценарію'),
-      minMaturity: _date(range['min'], 'мінімального погашення'),
-      maxMaturity: _date(range['max'], 'максимального погашення'),
-      strategy: _readEnum(
-        PlannerStrategy.values,
-        json['strategy'],
-        'стратегії',
-      ),
+      budget: _decimal(json['budget'], positive: true),
+      reserve: _decimal(json['reserve']),
+      startDate: _date(json['startDate']),
+      minMaturity: _date(range['min']),
+      maxMaturity: _date(range['max']),
+      strategy: _readEnum(PlannerStrategy.values, json['strategy']),
       needs: (json['needs'] as List)
           .map(
             (e) => PlannerNeed.fromJson(
@@ -780,7 +768,7 @@ class PlannerScenario {
   }) {
     final count = int.parse(criteria['expenseCount'] ?? '0');
     if (count < 0 || count > 50) {
-      throw const FormatException('Некоректна кількість потреб');
+      throw const FormatException('planner.invalid_need_count');
     }
     final needs = <PlannerNeed>[
       PlannerNeed(
@@ -843,13 +831,13 @@ class PlannerScenario {
   }) {
     final raw = saved.scenario;
     if (raw == null) {
-      throw const FormatException('Добірка не містить сценарію');
+      throw const FormatException('planner.collection_has_no_scenario');
     }
     if (raw['schemaVersion'] == schemaVersion) {
       return PlannerScenario.fromJson(Map<String, dynamic>.from(raw));
     }
     if (![1, 2].contains(raw['schemaVersion'])) {
-      throw const FormatException('Невідома версія сценарію');
+      throw const FormatException('planner.unknown_scenario_version');
     }
     final criteria = <String, String>{
       ..._defaultLegacyCriteria(now),
@@ -880,7 +868,7 @@ class PlannerScenario {
   Map<String, String> toCurrentUiCriteria() {
     if (needs.any((need) => need.type != PlannerNeedType.oneOff)) {
       throw UnsupportedError(
-        'Поточний UI ще не редагує typed recurring/reserve needs',
+        'planner.typed_need_ui_unsupported',
       );
     }
     final primary = needs.first;

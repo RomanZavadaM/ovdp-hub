@@ -19,14 +19,14 @@ class Workspace {
     bool create = false,
   }) async {
     if (!await directory.exists()) {
-      if (!create) throw const FileSystemException('Робоча папка недоступна');
+      if (!create) throw const FileSystemException('workspace.unavailable');
       await directory.create(recursive: true);
     }
     final markerFile = File(p.join(directory.path, marker));
     if (!await markerFile.exists()) {
       if (!create || await directory.list().isEmpty == false) {
         throw const FileSystemException(
-          'Оберіть порожню папку або папку ОВДП Hub',
+          'workspace.empty_or_hub_required',
         );
       }
       await markerFile.writeAsString(
@@ -37,7 +37,7 @@ class Workspace {
     final metadata = jsonDecode(await markerFile.readAsString());
     if (metadata['schemaVersion'] != 1 ||
         metadata['application'] != 'ovdp-hub') {
-      throw const FormatException('Невідома версія робочої папки');
+      throw const FormatException('workspace.unknown_version');
     }
     return Workspace(directory);
   }
@@ -89,7 +89,7 @@ class Workspace {
 
   static Future<String> readLimited(File file) async {
     if (await file.length() > 20 * 1024 * 1024) {
-      throw const FormatException('Файл більший за 20 МБ');
+      throw const FormatException('workspace.file_too_large');
     }
     return file.readAsString();
   }
@@ -114,10 +114,10 @@ class Workspace {
     final targetPath = p.normalize(p.absolute(destination.path));
     if (p.equals(sourcePath, targetPath) ||
         p.isWithin(sourcePath, targetPath)) {
-      throw const FileSystemException('Нова папка має бути поза поточною');
+      throw const FileSystemException('workspace.destination_outside');
     }
     if (await destination.exists() && !await destination.list().isEmpty) {
-      throw const FileSystemException('Для копіювання потрібна порожня папка');
+      throw const FileSystemException('workspace.destination_empty');
     }
     final catalogs = <Catalog>[];
     for (final file in await records('catalogs')) {

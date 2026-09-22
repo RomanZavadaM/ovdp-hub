@@ -116,9 +116,7 @@ class FileHubRepository implements HubRepository {
         'workspace.external_unsupported',
       );
     }
-    final path = await getDirectoryPath(
-      confirmButtonText: copy ? 'Копіювати сюди' : 'Відкрити папку',
-    );
+    final path = await getDirectoryPath();
     if (path == null) return false;
     final candidate = copy
         ? await _opened.copyTo(Directory(path))

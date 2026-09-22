@@ -77,7 +77,7 @@ Release pipeline успішно пройшов dependency resolution, `flutter a
 - contract/widget tests для market-source parser та картки ISIN;
 - функціональна локалізація shell, Каталогу, Калькулятора, Продавців, Сховища, Добірок і редактора Добірки для UK/EN/FR/DE/ES/KO/JA;
 - повна статична UI-локалізація Планувальника;
-- розпочато domain/error localization: введено typed `AppError` (code + parameters), локалізацію помилок UK/EN/FR/DE/ES/KO/JA та переведено основні Cubit/market/pricing потоки з готових текстів на коди;
+- domain/error localization завершено для активних user-facing error flows: typed `AppError` (code + parameters), локалізація UK/EN/FR/DE/ES/KO/JA, Cubit/Repository/parser/domain validation без готових українських error-текстів;
 - нові та перероблені екрани не повинні мати hard-coded користувацьких рядків.
 
 ## Наступний етап — 0.9.0 «Ринок»
@@ -87,6 +87,6 @@ Release pipeline успішно пройшов dependency resolution, `flutter a
 3. підключення typed fee/tax/FX/exit assumptions до розрахунків і UI;
 4. кілька джерел цін і явний пріоритет користувача;
 5. порівняння альтернативних сценаріїв A/B/C;
-6. аудит і локалізація domain/error повідомлень, що приходять із Cubit/Repository.
+6. ~~аудит і локалізація domain/error повідомлень із Cubit/Repository/parser/domain validation~~ — виконано; наступний localization debt: generated planner copy/preset labels під час підключення typed fee/tax/FX UI.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел на відповідну дату.
