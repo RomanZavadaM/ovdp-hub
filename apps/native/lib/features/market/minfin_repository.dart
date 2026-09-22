@@ -22,6 +22,23 @@ class MinfinAuctionRate {
   });
 }
 
+enum MinfinAuctionEventKind { placement, switchAuction }
+
+@immutable
+class MinfinAuctionEvent {
+  final String auctionDate;
+  final MinfinAuctionEventKind kind;
+  final String announcementUrl;
+  final String? resultUrl;
+
+  const MinfinAuctionEvent({
+    required this.auctionDate,
+    required this.kind,
+    required this.announcementUrl,
+    this.resultUrl,
+  });
+}
+
 @immutable
 class MinfinSnapshot {
   final SourceObservationMeta meta;
@@ -36,6 +53,17 @@ class MinfinSnapshot {
     }
     return null;
   }
+}
+
+@immutable
+class MinfinAuctionEventsSnapshot {
+  final SourceObservationMeta meta;
+  final List<MinfinAuctionEvent> events;
+
+  MinfinAuctionEventsSnapshot(
+    this.meta,
+    Iterable<MinfinAuctionEvent> events,
+  ) : events = List.unmodifiable(events);
 }
 
 String _plain(String html) => html
@@ -56,6 +84,55 @@ String _isoFromUaDate(String value) {
   final result = '${parts[2]}-${parts[1]}-${parts[0]}';
   isoDate(result);
   return result;
+}
+
+const _uaMonths = <String, int>{
+  'Січня': 1,
+  'Лютого': 2,
+  'Березня': 3,
+  'Квітня': 4,
+  'Травня': 5,
+  'Червня': 6,
+  'Липня': 7,
+  'Серпня': 8,
+  'Вересня': 9,
+  'Жовтня': 10,
+  'Листопада': 11,
+  'Грудня': 12,
+};
+
+String _isoFromUaLongDate(String value) {
+  final match = RegExp(
+    r'^(\d{1,2})\s+([А-ЯІЇЄҐа-яіїєґ]+)\s+(\d{4})$',
+  ).firstMatch(value.trim());
+  if (match == null) {
+    throw const FormatException('minfin.unknown_auction_date');
+  }
+  final month = _uaMonths[match.group(2)!];
+  if (month == null) {
+    throw const FormatException('minfin.unknown_auction_date');
+  }
+  final day = int.parse(match.group(1)!);
+  final year = int.parse(match.group(3)!);
+  final date = DateTime.utc(year, month, day);
+  if (date.day != day || date.month != month || date.year != year) {
+    throw const FormatException('minfin.unknown_auction_date');
+  }
+  return '${year.toString().padLeft(4, '0')}-'
+      '${month.toString().padLeft(2, '0')}-'
+      '${day.toString().padLeft(2, '0')}';
+}
+
+String _absoluteMinfinUrl(String href) {
+  final uri = Uri.tryParse(href);
+  if (uri == null) {
+    throw const FormatException('minfin.invalid_source_url');
+  }
+  final absolute = Uri.parse(MinfinRepository.auctionEventsUrl).resolveUri(uri);
+  if (absolute.scheme != 'https' || absolute.host != 'mof.gov.ua') {
+    throw const FormatException('minfin.invalid_source_url');
+  }
+  return absolute.toString();
 }
 
 MinfinSnapshot parseMinfinAuctionRates(String html, DateTime retrievedAt) {
@@ -118,8 +195,107 @@ MinfinSnapshot parseMinfinAuctionRates(String html, DateTime retrievedAt) {
   );
 }
 
+MinfinAuctionEventsSnapshot parseMinfinAuctionEvents(
+  String html,
+  DateTime retrievedAt,
+) {
+  if (!html.contains('Оголошення та результати аукціонів')) {
+    throw const FormatException('minfin.events_section_missing');
+  }
+
+  final rowPattern = RegExp(r'<tr\b[^>]*>(.*?)</tr>', dotAll: true);
+  final anchorPattern = RegExp(
+    r'''<a\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>''',
+    dotAll: true,
+  );
+  final datePattern = RegExp(
+    r'\b\d{1,2}\s+[А-ЯІЇЄҐа-яіїєґ]+\s+\d{4}\b',
+  );
+
+  final events = <MinfinAuctionEvent>[];
+  final seen = <String>{};
+
+  for (final rowMatch in rowPattern.allMatches(html)) {
+    final rowHtml = rowMatch.group(1)!;
+    final rowText = _plain(rowHtml);
+    final dateMatch = datePattern.firstMatch(rowText);
+    if (dateMatch == null) continue;
+
+    String? announcementUrl;
+    String? resultUrl;
+    String? announcementLabel;
+
+    for (final anchor in anchorPattern.allMatches(rowHtml)) {
+      final href = anchor.group(1)!;
+      final label = _plain(anchor.group(2)!);
+      if (label.startsWith('Оголошення про проведення')) {
+        if (announcementUrl != null) {
+          throw const FormatException('minfin.duplicate_announcement_link');
+        }
+        announcementUrl = _absoluteMinfinUrl(href);
+        announcementLabel = label;
+      } else if (label.startsWith('Результати проведення')) {
+        if (resultUrl != null) {
+          throw const FormatException('minfin.duplicate_result_link');
+        }
+        resultUrl = _absoluteMinfinUrl(href);
+      }
+    }
+
+    if (announcementUrl == null || announcementLabel == null) continue;
+
+    final kind = announcementLabel.contains('обміну державних облігацій')
+        ? MinfinAuctionEventKind.switchAuction
+        : announcementLabel.contains(
+            'розміщення облігацій внутрішньої державної позики',
+          )
+        ? MinfinAuctionEventKind.placement
+        : null;
+
+    if (kind == null) {
+      throw const FormatException('minfin.unknown_event_type');
+    }
+
+    final auctionDate = _isoFromUaLongDate(dateMatch.group(0)!);
+    final key = '$auctionDate|${kind.name}|$announcementUrl';
+    if (!seen.add(key)) {
+      throw const FormatException('minfin.duplicate_event');
+    }
+
+    events.add(
+      MinfinAuctionEvent(
+        auctionDate: auctionDate,
+        kind: kind,
+        announcementUrl: announcementUrl,
+        resultUrl: resultUrl,
+      ),
+    );
+  }
+
+  if (events.isEmpty) {
+    throw const FormatException('minfin.events_empty');
+  }
+
+  events.sort((a, b) => b.auctionDate.compareTo(a.auctionDate));
+  final latest = events.first.auctionDate;
+
+  return MinfinAuctionEventsSnapshot(
+    SourceObservationMeta(
+      sourceId: 'minfin-auction-events',
+      sourceUrl: MinfinRepository.auctionEventsUrl,
+      sourceDate: latest,
+      retrievedAt: retrievedAt.toUtc().toIso8601String(),
+      kind: ObservationKind.primaryAuction,
+      confidence: ObservationConfidence.publicIndicative,
+    ),
+    events,
+  );
+}
+
 class MinfinRepository {
   static const url = 'https://mof.gov.ua/uk/borgova-politika';
+  static const auctionEventsUrl =
+      'https://mof.gov.ua/uk/ogoloshennja-ta-rezultati-aukcioniv';
 
   final http.Client client;
   final DateTime Function() clock;
@@ -128,9 +304,9 @@ class MinfinRepository {
       : client = client ?? http.Client(),
         clock = clock ?? DateTime.now;
 
-  Future<MinfinSnapshot> fetch() async {
+  Future<String> _fetchPage(String sourceUrl) async {
     final response = await client
-        .get(Uri.parse(url))
+        .get(Uri.parse(sourceUrl))
         .timeout(const Duration(seconds: 25));
     if (response.statusCode != 200) {
       throw FormatException('minfin.http_status', {'status': response.statusCode});
@@ -138,8 +314,19 @@ class MinfinRepository {
     if (response.bodyBytes.length > 4 * 1024 * 1024) {
       throw const FormatException('minfin.page_too_large');
     }
+    return utf8.decode(response.bodyBytes);
+  }
+
+  Future<MinfinSnapshot> fetch() async {
     return parseMinfinAuctionRates(
-      utf8.decode(response.bodyBytes),
+      await _fetchPage(url),
+      clock(),
+    );
+  }
+
+  Future<MinfinAuctionEventsSnapshot> fetchAuctionEvents() async {
+    return parseMinfinAuctionEvents(
+      await _fetchPage(auctionEventsUrl),
       clock(),
     );
   }
