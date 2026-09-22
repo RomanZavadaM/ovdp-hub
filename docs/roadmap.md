@@ -67,4 +67,5 @@
 - [x] Сховище — UK/EN/FR/DE/ES/KO/JA.
 - [x] Добірки + редактор — UK/EN/FR/DE/ES/KO/JA.
 - [x] Планувальник — статичний UI UK/EN/FR/DE/ES/KO/JA.
-- [ ] Domain/error повідомлення з Cubit/Repository перевести з текстів на локалізовані коди.
+- [x] Domain/error повідомлення з Cubit/Repository/parser/domain validation переведені на typed коди й локалізоване відображення UK/EN/FR/DE/ES/KO/JA.
+- [ ] Generated planner copy / preset labels локалізувати під час підключення typed fee/tax/FX/exit UI.
