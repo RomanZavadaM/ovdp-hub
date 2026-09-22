@@ -146,5 +146,98 @@ class HubStrings {
     },
   };
 
-  String text(String key) => _translations[language.code]?[key] ?? _translations['uk']?[key] ?? key;
+
+  static const Map<String, Map<String, String>> _calculatorTranslations = {
+    'uk': {
+      'calcTitle': 'Навчальний калькулятор',
+      'calcExample': 'СИНТЕТИЧНИЙ ПРИКЛАД · Купівля 22.09.2026, єдина виплата 1000 грн 22.09.2027 на облігацію. НКД, податки й регулярні витрати — 0. Це не ринкова пропозиція.',
+      'quantity': 'Кількість облігацій',
+      'cleanPrice': 'Чиста ціна, грн',
+      'oneTimeFee': 'Разова комісія, грн',
+      'calculateLocal': 'Розрахувати локально',
+      'costs': 'Витрати',
+      'receipts': 'Надходження',
+      'result': 'Результат',
+      'approxXirr': 'Орієнтовна XIRR ACT/365F',
+    },
+    'en': {
+      'calcTitle': 'Educational calculator',
+      'calcExample': 'SYNTHETIC EXAMPLE · Purchase 22.09.2026, one payment of UAH 1000 on 22.09.2027 per bond. Accrued interest, taxes and recurring costs are 0. This is not a market offer.',
+      'quantity': 'Number of bonds',
+      'cleanPrice': 'Clean price, UAH',
+      'oneTimeFee': 'One-time fee, UAH',
+      'calculateLocal': 'Calculate locally',
+      'costs': 'Costs',
+      'receipts': 'Receipts',
+      'result': 'Result',
+      'approxXirr': 'Approximate XIRR ACT/365F',
+    },
+    'fr': {
+      'calcTitle': 'Calculateur pédagogique',
+      'calcExample': 'EXEMPLE SYNTHÉTIQUE · Achat le 22.09.2026, paiement unique de 1000 UAH le 22.09.2027 par obligation. Intérêts courus, impôts et coûts récurrents : 0. Ce n’est pas une offre de marché.',
+      'quantity': 'Nombre d’obligations',
+      'cleanPrice': 'Prix net, UAH',
+      'oneTimeFee': 'Commission unique, UAH',
+      'calculateLocal': 'Calculer localement',
+      'costs': 'Coûts',
+      'receipts': 'Encaissements',
+      'result': 'Résultat',
+      'approxXirr': 'XIRR ACT/365F approximatif',
+    },
+    'de': {
+      'calcTitle': 'Lernrechner',
+      'calcExample': 'SYNTHETISCHES BEISPIEL · Kauf am 22.09.2026, eine Zahlung von 1000 UAH je Anleihe am 22.09.2027. Stückzinsen, Steuern und laufende Kosten sind 0. Dies ist kein Marktangebot.',
+      'quantity': 'Anzahl der Anleihen',
+      'cleanPrice': 'Clean Price, UAH',
+      'oneTimeFee': 'Einmalige Gebühr, UAH',
+      'calculateLocal': 'Lokal berechnen',
+      'costs': 'Kosten',
+      'receipts': 'Einnahmen',
+      'result': 'Ergebnis',
+      'approxXirr': 'Ungefähre XIRR ACT/365F',
+    },
+    'es': {
+      'calcTitle': 'Calculadora educativa',
+      'calcExample': 'EJEMPLO SINTÉTICO · Compra el 22.09.2026 y un único pago de 1000 UAH por bono el 22.09.2027. Interés acumulado, impuestos y costes recurrentes: 0. No es una oferta de mercado.',
+      'quantity': 'Número de bonos',
+      'cleanPrice': 'Precio limpio, UAH',
+      'oneTimeFee': 'Comisión única, UAH',
+      'calculateLocal': 'Calcular localmente',
+      'costs': 'Costes',
+      'receipts': 'Ingresos',
+      'result': 'Resultado',
+      'approxXirr': 'XIRR ACT/365F aproximada',
+    },
+    'ko': {
+      'calcTitle': '학습용 계산기',
+      'calcExample': '합성 예시 · 2026-09-22 매수, 채권 1개당 2027-09-22에 1000 UAH 1회 지급. 경과이자, 세금, 정기 비용은 0입니다. 시장 제안이 아닙니다.',
+      'quantity': '채권 수량',
+      'cleanPrice': '클린 가격, UAH',
+      'oneTimeFee': '일회성 수수료, UAH',
+      'calculateLocal': '로컬 계산',
+      'costs': '비용',
+      'receipts': '수입',
+      'result': '결과',
+      'approxXirr': '예상 XIRR ACT/365F',
+    },
+    'ja': {
+      'calcTitle': '学習用計算機',
+      'calcExample': '合成例 · 2026-09-22 に購入し、債券1口あたり 2027-09-22 に 1000 UAH を1回受け取る想定です。経過利息、税金、継続費用は 0。市場のオファーではありません。',
+      'quantity': '債券数',
+      'cleanPrice': 'クリーン価格、UAH',
+      'oneTimeFee': '一回限りの手数料、UAH',
+      'calculateLocal': '端末内で計算',
+      'costs': '費用',
+      'receipts': '受取額',
+      'result': '結果',
+      'approxXirr': '概算 XIRR ACT/365F',
+    },
+  };
+
+  String text(String key) =>
+      _translations[language.code]?[key] ??
+      _calculatorTranslations[language.code]?[key] ??
+      _translations['uk']?[key] ??
+      _calculatorTranslations['uk']?[key] ??
+      key;
 }
