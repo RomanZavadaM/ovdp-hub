@@ -25,11 +25,12 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **NEXT**
+Статус: **DOING**
 
 Мета: **freshness/status UX у картці ISIN**.
 
-- поточний `main` release baseline: `6e8ce5c7ccfd4217330e59fe96fd6a83ac531d59`
+- base `main`: `1b00ab2ba396176e31baabb98b991abeaa14ff39`
+- active branch: `feat/isin-freshness-status-ux-v2`
 - опублікований checkpoint: **v0.8.5 / 0.8.5+13**
 - release workflow: **Publish native prerelease run #32 — success**
 - release assets перевірені: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
@@ -37,7 +38,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-Відновити branch для **freshness/status UX** поверх актуального `main` і уніфікувати для NBU / MinFin / seller: **source → sourceDate/retrievedAt → freshness → confidence/status → evidence URL**, без змішування шарів.
+Реалізувати typed `officialPublished` confidence для офіційних NBU/MinFin observations та reusable provenance/status block у картці ISIN для NBU / MinFin / seller: **source → sourceDate/retrievedAt → freshness → confidence/status → evidence URL**.
 
 ## Черга робіт
 
