@@ -30,6 +30,8 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get --enforce-lockfile
+      - name: Inspect official MinFin PDF geometry (temporary)
+        run: dart run tool/inspect_minfin_pdf.dart
       - run: flutter analyze
       - run: flutter test
   source:
