@@ -37,7 +37,7 @@ String _plain(String s) => s
     .trim();
 String _date(String s) {
   final parts = s.split('.');
-  if (parts.length != 3) throw const FormatException('Невідома дата джерела');
+  if (parts.length != 3) throw const FormatException('seller.unknown_source_date');
   final date = '${parts[2]}-${parts[1]}-${parts[0]}';
   isoDate(date);
   return date;
@@ -48,7 +48,7 @@ String? _yield(String s) {
   final v = s.replaceAll(',', '.');
   money(v);
   if (double.parse(v) > 100) {
-    throw const FormatException('Невідомий формат котирування');
+    throw const FormatException('seller.unknown_quote_format');
   }
   return v;
 }
@@ -59,12 +59,12 @@ SellerSnapshot parsePrivatQuotes(String html, DateTime now) {
   ).firstMatch(html);
   if (dateMatch == null) {
     throw const FormatException(
-      'Дату котирувань не знайдено. Формат сайту міг змінитися.',
+      'seller.date_missing',
     );
   }
   final sourceDate = _date(dateMatch.group(1)!.trim());
   final end = html.indexOf('</article>', dateMatch.end);
-  if (end < 0) throw const FormatException('Неповна таблиця продавця');
+  if (end < 0) throw const FormatException('seller.incomplete_table');
   final section = html.substring(dateMatch.end, end);
   final currencies = RegExp(
     r'''class=["']tab-table[^"']*["'][^>]*>\s*<span>(USD|EUR|UAH)</span>''',
@@ -77,7 +77,7 @@ SellerSnapshot parsePrivatQuotes(String html, DateTime now) {
       tables.length != 3 ||
       currencies.toSet().length != 3) {
     throw const FormatException(
-      'Структура валют або таблиць змінилася; дані не завантажено',
+      'seller.structure_changed',
     );
   }
   final quotes = <SellerQuote>[];
@@ -95,7 +95,7 @@ SellerSnapshot parsePrivatQuotes(String html, DateTime now) {
         !headers[3].contains('ASK Yield') ||
         headers[4] != 'Yield') {
       throw const FormatException(
-        'Колонки продавця змінилися; потрібне оновлення адаптера',
+        'seller.columns_changed',
       );
     }
     for (final row in RegExp(
@@ -111,7 +111,7 @@ SellerSnapshot parsePrivatQuotes(String html, DateTime now) {
           !RegExp(r'^UA\d{10}$').hasMatch(cells[0]) ||
           !['SIM', 'YTM'].contains(cells[4]) ||
           !seen.add(cells[0])) {
-        throw const FormatException('Невідомий або повторний рядок котирувань');
+        throw const FormatException('seller.invalid_row');
       }
       quotes.add(
         SellerQuote(
@@ -126,7 +126,7 @@ SellerSnapshot parsePrivatQuotes(String html, DateTime now) {
     }
   }
   if (quotes.isEmpty) {
-    throw const FormatException('Продавець не повернув котирувань');
+    throw const FormatException('seller.empty');
   }
   return SellerSnapshot(
     SourceObservationMeta(
@@ -153,10 +153,10 @@ class SellerRepository {
         .get(Uri.parse(url))
         .timeout(const Duration(seconds: 25));
     if (response.statusCode != 200) {
-      throw StateError('Продавець відповів HTTP ${response.statusCode}');
+      throw FormatException('seller.http_status', {'status': response.statusCode});
     }
     if (response.bodyBytes.length > 4000000) {
-      throw const FormatException('Неочікуваний розмір сторінки');
+      throw const FormatException('seller.page_too_large');
     }
     return parsePrivatQuotes(utf8.decode(response.bodyBytes), clock());
   }
