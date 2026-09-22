@@ -341,12 +341,19 @@ MinfinCalendarDocumentsSnapshot parseMinfinCalendarDocuments(
     r'\b\d{1,2}\s+[А-ЯІЇЄҐа-яіїєґ]+\s+\d{4}\b',
   );
 
+  final documentAnchors = anchorPattern
+      .allMatches(html)
+      .where(
+        (anchor) =>
+            _plain(anchor.group(2)!).startsWith('Графік розміщення ОВДП'),
+      )
+      .toList();
   final documents = <MinfinCalendarDocument>[];
   final seen = <String>{};
 
-  for (final anchor in anchorPattern.allMatches(html)) {
+  for (var index = 0; index < documentAnchors.length; index++) {
+    final anchor = documentAnchors[index];
     final title = _plain(anchor.group(2)!);
-    if (!title.startsWith('Графік розміщення ОВДП')) continue;
 
     final kind = title.contains('з обміну')
         ? MinfinCalendarDocumentKind.monthlySwitch
@@ -418,9 +425,9 @@ MinfinCalendarDocumentsSnapshot parseMinfinCalendarDocuments(
       throw const FormatException('minfin.invalid_source_url');
     }
 
-    final candidateTailEnd = anchor.end + 800;
-    final tailEnd =
-        candidateTailEnd < html.length ? candidateTailEnd : html.length;
+    final tailEnd = index + 1 < documentAnchors.length
+        ? documentAnchors[index + 1].start
+        : html.length;
     final tail = html.substring(anchor.end, tailEnd);
     final dateMatch = datePattern.firstMatch(_plain(tail));
     if (dateMatch == null) {
