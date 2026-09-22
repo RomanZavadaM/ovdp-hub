@@ -13,6 +13,8 @@ Direct Flutter/Dart dependencies currently declared by the active native applica
 - decimal
 - http
 - flutter_bloc
+- pdf_document — Apache-2.0, pure-Dart PDF document model used by the calendar PDF reader
+- pdf_graphics — Apache-2.0, pure-Dart PDF text extraction used by the calendar PDF reader
 - flutter_lints (development dependency)
 
 Platform runtimes, operating-system libraries, build tools, transitive dependencies and packaging/signing tools may have separate copyright and licensing terms. The authoritative dependency versions for a source/build checkpoint are recorded in `apps/native/pubspec.yaml` and `apps/native/pubspec.lock`.
