@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../ui/components.dart';
+import '../../l10n/hub_locale.dart';
+import '../../data/source_observation.dart';
 import 'seller_repository.dart';
 import 'sellers_cubit.dart';
 
@@ -9,24 +11,23 @@ class SellersView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.watch<SellersCubit>();
+    final strings = HubStrings.of(context);
     final state = cubit.state;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionHeading('Продавці · публічні котирування'),
-        const Text(
-          'НБУ описує випуски та виплати. Тут — окремі дані продавця, отримані безпосередньо з його сайту. Ваші плани й портфель не передаються.',
-        ),
+        SectionHeading(strings.text('sellersTitle')),
+        Text(strings.text('sellersIntro')),
         const SizedBox(height: 12),
-        const Text(
-          'ПриватБанк',
+        Text(
+          strings.text('privatbank'),
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         const SelectableText(SellerRepository.url),
         FilledButton.icon(
           onPressed: state.busy ? null : cubit.refresh,
           icon: const Icon(Icons.refresh),
-          label: const Text('Завантажити котирування ПриватБанку'),
+          label: Text(strings.text('loadPrivat')),
         ),
         if (state.busy) const LinearProgressIndicator(),
         if (state.error != null)
@@ -35,17 +36,18 @@ class SellersView extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
         if (state.snapshot != null)
+          Text(strings.fmt('sourceDate', {'date': state.snapshot!.sourceDate}) + ' · ' + strings.fmt('loadedAt', {'date': state.snapshot!.retrievedAt})),
+        if (cubit.freshness != null && cubit.freshness != DataFreshness.current)
           Text(
-            'Дата на сайті: ${state.snapshot!.sourceDate} · Завантажено: ${state.snapshot!.retrievedAt}',
-          ),
-        if (cubit.dateWarning != null)
-          Text(
-            cubit.dateWarning!,
+            strings.text(switch (cubit.freshness!) {
+              DataFreshness.futureDated => 'futureWarning',
+              DataFreshness.stale => 'staleWarning',
+              DataFreshness.unknown => 'unknownWarning',
+              DataFreshness.current => 'staleWarning',
+            }),
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
-        const Text(
-          'ASK — дохідність продажу банком клієнту; BID — купівлі банком. Це не ціна за облігацію. SIM і YTM — різні методи розрахунку, їх не слід прямо порівнювати. Обсяг, остаточна ціна з НКД та комісії потребують підтвердження. Автоматично в ціни планувальника ці котирування не переносяться.',
-        ),
+        Text(strings.text('sellerExplanation')),
         Wrap(
           spacing: 8,
           children: [
@@ -58,16 +60,14 @@ class SellersView extends StatelessWidget {
           ],
         ),
         SwitchListTile(
-          title: const Text('Лише з котируванням продажу (ASK)'),
+          title: Text(strings.text('askOnly')),
           value: state.askOnly,
           onChanged: cubit.askOnly,
         ),
         if (state.snapshot == null)
-          const Text(
-            'Натисніть завантаження. Вбудованих або вигаданих котирувань немає.',
-          ),
+          Text(strings.text('pressLoad')),
         if (state.snapshot != null && cubit.visible.isEmpty)
-          const Text('Немає непогашених випусків за цим фільтром.'),
+          Text(strings.text('noSellerIssues')),
         for (final q in cubit.visible)
           Card(
             child: Padding(
@@ -81,26 +81,20 @@ class SellersView extends StatelessWidget {
                   Text(
                     'ASK: ${q.askYield ?? 'немає'}${q.askYield == null ? '' : '%'} · BID: ${q.bidYield ?? 'немає'}${q.bidYield == null ? '' : '%'} · ${q.method}',
                   ),
-                  const Text('Наявність і кількість не підтверджені'),
+                  Text(strings.text('notConfirmed')),
                 ],
               ),
             ),
           ),
-        const SectionHeading('Інші продавці'),
-        const Text(
-          'ICU Trade — торгівля в сервісі брокера. Автоматичне джерело котирувань ще не підключене.',
-        ),
+        SectionHeading(strings.text('otherSellers')),
+        Text(strings.text('icuText')),
         const SelectableText('https://icu.ua/investments'),
-        const Text(
-          'Sense Bank — пропозиції в Sense SuperApp. Автоматичне джерело котирувань ще не підключене.',
-        ),
+        Text(strings.text('senseText')),
         const SelectableText(
           'https://help.sensebank.com.ua/uk_UA/4879522845714',
         ),
         const SizedBox(height: 12),
-        const Text(
-          'Для сценарію: скопіюйте ISIN, знайдіть випуск у каталозі та введіть у планувальнику повну ціну продавця. Завантажені тут котирування зберігаються лише до закриття застосунку.',
-        ),
+        Text(strings.text('sellerPlanHint')),
       ],
     );
   }
