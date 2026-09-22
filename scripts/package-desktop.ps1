@@ -1,6 +1,7 @@
 param([Parameter(Mandatory=$true)][ValidateSet('windows','macos')][string]$Platform)
 $ErrorActionPreference = 'Stop'
-$project = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../apps/native'))
+$repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+$project = [IO.Path]::GetFullPath((Join-Path $repoRoot 'apps/native'))
 $versionLine = Get-Content (Join-Path $project 'pubspec.yaml') | Where-Object { $_ -match '^version:' }
 if ($versionLine -notmatch '^version:\s*(\d+\.\d+\.\d+)\+(\d+)\s*$') { throw 'Invalid app version' }
 $version = $Matches[1]
@@ -33,6 +34,16 @@ Your workspace is stored separately; changing this program folder does not delet
 Planner defaults to nominal-value estimates, NOT executable broker prices.
 Test: save a scenario, restart, reopen it; copy your workspace to an empty folder.
 "@ | Set-Content -LiteralPath (Join-Path $folder 'TESTING.txt') -Encoding utf8
+$legalFiles = @(
+  @{ Source = (Join-Path $repoRoot 'LICENSE.md'); Target = 'LICENSE.md' },
+  @{ Source = (Join-Path $repoRoot 'COPYRIGHT.md'); Target = 'COPYRIGHT.md' },
+  @{ Source = (Join-Path $repoRoot 'THIRD_PARTY_NOTICES.md'); Target = 'THIRD_PARTY_NOTICES.md' },
+  @{ Source = (Join-Path $repoRoot 'docs/LEGAL_AND_COPYRIGHT.md'); Target = 'LEGAL_AND_COPYRIGHT.md' }
+)
+foreach ($legal in $legalFiles) {
+  if (!(Test-Path -LiteralPath $legal.Source)) { throw "Missing legal notice: $($legal.Source)" }
+  Copy-Item -LiteralPath $legal.Source -Destination (Join-Path $folder $legal.Target)
+}
 @{version=$version; build=$build; platform=$Platform; revision=$revision; run=$run} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $folder 'build-info.json') -Encoding utf8
 $archive = Join-Path $packageRoot "$name.zip"
 if ($Platform -eq 'macos') {

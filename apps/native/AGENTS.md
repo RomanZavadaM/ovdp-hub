@@ -8,3 +8,6 @@
 - Serialize workspace switches and writes. Failed/cancelled switches preserve current data and drafts. Save failure preserves the draft.
 - Test error paths, race conditions, restoration and reference financial examples. Run flutter analyze, flutter test and attempt the target release build.
 - SDK and dependency versions are fixed via documented SDK version and committed pubspec.lock. No unreviewed automatic upgrades.
+
+- Preserve the cross-platform “Про програму” copyright notice for Roman Zavada and keep platform build metadata consistent with the repository legal files.
+- Test/source packages must retain the repository legal notices; do not remove or replace third-party license obligations.

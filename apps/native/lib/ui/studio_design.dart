@@ -164,7 +164,7 @@ class StudioSidebar extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.all(12),
                 child: Text(
-                  'Без облікового запису\nСценарії у вашій робочій папці\n\nТестова версія 0.8',
+                  'Без облікового запису\nСценарії у вашій робочій папці\n\nТестова версія 0.8.1',
                   style: TextStyle(
                     color: Color(0xffb5c5dc),
                     height: 1.7,
