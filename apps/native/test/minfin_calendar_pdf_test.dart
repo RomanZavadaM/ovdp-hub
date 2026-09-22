@@ -53,7 +53,7 @@ void main() {
 
     expect(snapshot.meta.sourceDate, '2026-03-27');
     expect(snapshot.meta.sourceUrl, document.documentUrl);
-    expect(snapshot.entries.length, 2);
+    expect(snapshot.entries.length, 3);
 
     final first = snapshot.entries.first as MinfinMonthlyPlacementScheduleEntry;
     expect(first.auctionDate, '2026-04-07');
@@ -83,12 +83,19 @@ void main() {
       run('07 липня', 100, 160, 439),
       run('14 липня', 260, 320, 439),
       run('21 липня', 420, 480, 439),
+      run('28 липня', 525, 582, 439),
+      run('-', 687, 692, 439),
       run('Гривня: 1 рік;', 60, 155, 416),
       run('2 роки; 3,5 року', 60, 155, 400),
       run('ЄВРО: 1,4 року', 60, 155, 384),
+      run('Гривня: 1 рік;', 490, 579, 408),
+      run('2 роки; 3 роки', 490, 575, 392),
+      run('-', 687, 692, 400),
       run('04 серпня', 100, 160, 362),
       run('11 серпня', 260, 320, 362),
       run('18 серпня', 420, 480, 362),
+      run('25 серпня', 523, 584, 362),
+      run('-', 687, 692, 362),
       run('Гривня: 1 рік;', 220, 315, 331),
       run('2 роки; 3 роки', 220, 315, 315),
       run('* - За результатами оцінки попиту', 30, 260, 140),
@@ -110,6 +117,11 @@ void main() {
     expect(july.plans.first.tenorLabels, ['1 рік', '2 роки', '3,5 року']);
     expect(july.plans.last.currencyCode, 'EUR');
     expect(july.plans.last.tenorLabels, ['1,4 року']);
+
+    final july28 =
+        snapshot.entries[1] as MinfinQuarterlyPlacementScheduleEntry;
+    expect(july28.auctionDate, '2026-07-28');
+    expect(july28.plans.single.currencyCode, 'UAH');
 
     final august =
         snapshot.entries.last as MinfinQuarterlyPlacementScheduleEntry;
