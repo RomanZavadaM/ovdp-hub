@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../data/source_observation.dart';
 import '../errors.dart';
 import '../features/market/market_isin.dart';
 import '../features/market/minfin_repository.dart';
 import '../features/sellers/seller_repository.dart';
 import '../l10n/hub_locale.dart';
 import '../models.dart';
+import 'source_status_block.dart';
 
 class SectionHeading extends StatelessWidget {
   final String text;
@@ -37,6 +39,28 @@ class ErrorNotice extends StatelessWidget {
   }
 }
 
+SourceObservationMeta? _catalogObservation(Catalog? catalog) {
+  if (catalog == null) return null;
+  final sourcePage = catalog.json['sourcePage'];
+  final source = catalog.json['source'];
+  final retrievedAt = catalog.json['retrievedAt'];
+  final sourceDate = catalog.json['sourceAsOf'];
+  final sourceUrl = sourcePage is String && sourcePage.trim().isNotEmpty
+      ? sourcePage
+      : source is String && source.trim().isNotEmpty
+          ? source
+          : null;
+  if (sourceUrl == null || retrievedAt is! String) return null;
+  return SourceObservationMeta(
+    sourceId: 'nbu-ovdp-catalog',
+    sourceUrl: sourceUrl,
+    sourceDate: sourceDate is String ? sourceDate : null,
+    retrievedAt: retrievedAt,
+    kind: ObservationKind.instrument,
+    confidence: ObservationConfidence.officialPublished,
+  );
+}
+
 Future<bool> confirmDiscard(BuildContext context) async {
   final strings = HubStrings(context.read<LocaleCubit>().state.language);
   return await showDialog<bool>(
@@ -62,6 +86,7 @@ Future<bool> confirmDiscard(BuildContext context) async {
 void showBondDetails(
   BuildContext context,
   Bond bond, {
+  Catalog? catalog,
   SellerSnapshot? seller,
   Future<MinfinSnapshot>? primaryFuture,
 }) {
@@ -79,6 +104,7 @@ void showBondDetails(
         seller: seller,
       );
       final quote = sellerFacts.secondaryQuote;
+      final instrumentMeta = _catalogObservation(catalog);
 
       String paymentLabel(Object? kind) => switch (kind) {
         'COUPON' => strings.text('coupon'),
@@ -116,6 +142,14 @@ void showBondDetails(
                     subtitle: Text(paymentLabel(v['kind'])),
                   ),
                 ),
+                if (instrumentMeta != null)
+                  SourceStatusBlock(
+                    meta: instrumentMeta,
+                    strings: strings,
+                    sourceName: strings.text('sourceNbu'),
+                  )
+                else
+                  Text(strings.text('sourceMetadataUnavailable')),
                 const Divider(height: 32),
                 SectionHeading(strings.text('primaryLayer')),
                 FutureBuilder<MinfinSnapshot>(
@@ -137,11 +171,10 @@ void showBondDetails(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(strings.text('noAuctionForIsin')),
-                          const SizedBox(height: 8),
-                          SelectableText(snapshot.data!.meta.sourceUrl),
-                          Text(
-                            '${strings.text('sourceAsOf')}: '
-                            '${snapshot.data!.meta.sourceDate ?? strings.text('notAvailable')}',
+                          SourceStatusBlock(
+                            meta: snapshot.data!.meta,
+                            strings: strings,
+                            sourceName: strings.text('sourceMinfin'),
                           ),
                         ],
                       );
@@ -162,15 +195,10 @@ void showBondDetails(
                           '${auction.rate.toString()}%',
                         ),
                         Text(auction.termLabel),
-                        const SizedBox(height: 8),
-                        SelectableText(snapshot.data!.meta.sourceUrl),
-                        Text(
-                          '${strings.text('sourceAsOf')}: '
-                          '${snapshot.data!.meta.sourceDate ?? strings.text('notAvailable')}',
-                        ),
-                        Text(
-                          '${strings.text('retrievedAt')}: '
-                          '${snapshot.data!.meta.retrievedAt}',
+                        SourceStatusBlock(
+                          meta: snapshot.data!.meta,
+                          strings: strings,
+                          sourceName: strings.text('sourceMinfin'),
                         ),
                       ],
                     );
@@ -178,9 +206,15 @@ void showBondDetails(
                 ),
                 const Divider(height: 32),
                 SectionHeading(strings.text('secondaryLayer')),
-                if (quote == null)
-                  Text(strings.text('noSellerForIsin'))
-                else ...[
+                if (quote == null) ...[
+                  Text(strings.text('noSellerForIsin')),
+                  if (seller != null)
+                    SourceStatusBlock(
+                      meta: seller.meta,
+                      strings: strings,
+                      sourceName: strings.text('sourceSeller'),
+                    ),
+                ] else ...[
                   Text(
                     strings.text('sellerQuote'),
                     style: Theme.of(dialogContext).textTheme.titleMedium,
@@ -193,18 +227,12 @@ void showBondDetails(
                     '${strings.text('askYield')}: '
                     '${quote.askYield ?? strings.text('notAvailable')}',
                   ),
-                  if (seller != null) ...[
-                    const SizedBox(height: 8),
-                    SelectableText(seller.meta.sourceUrl),
-                    Text(
-                      '${strings.text('sourceAsOf')}: '
-                      '${seller.meta.sourceDate ?? strings.text('notAvailable')}',
+                  if (seller != null)
+                    SourceStatusBlock(
+                      meta: seller.meta,
+                      strings: strings,
+                      sourceName: strings.text('sourceSeller'),
                     ),
-                    Text(
-                      '${strings.text('retrievedAt')}: '
-                      '${seller.meta.retrievedAt}',
-                    ),
-                  ],
                 ],
               ],
             ),
