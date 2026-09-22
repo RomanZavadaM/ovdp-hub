@@ -14,13 +14,11 @@ String _escape(String value) => value
 String _xml(List<List<String>> rows) {
   final body = rows.map((row) {
     final cells = row.map((cell) {
-      return '<w:tc><w:p><w:r><w:t>' +
-          _escape(cell) +
-          '</w:t></w:r></w:p></w:tc>';
+      return '<w:tc><w:p><w:r><w:t>${_escape(cell)}</w:t></w:r></w:p></w:tc>';
     }).join();
-    return '<w:tr>' + cells + '</w:tr>';
+    return '<w:tr>$cells</w:tr>';
   }).join();
-  return '<w:document><w:body><w:tbl>' + body + '</w:tbl></w:body></w:document>';
+  return '<w:document><w:body><w:tbl>$body</w:tbl></w:body></w:document>';
 }
 
 List<List<String>> _placementRows() => [
