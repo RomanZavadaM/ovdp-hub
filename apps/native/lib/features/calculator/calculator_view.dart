@@ -49,9 +49,9 @@ class CalculatorView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: SelectableText(
-              '${strings.text('costs')}: ${result.cost.toStringAsFixed(2)} грн\n'
-              '${strings.text('receipts')}: ${result.receipts.toStringAsFixed(2)} грн\n'
-              '${strings.text('result')}: ${result.profit.toStringAsFixed(2)} грн\n'
+              '${strings.text('costs')}: ${result.cost.toStringAsFixed(2)} UAH\n'
+              '${strings.text('receipts')}: ${result.receipts.toStringAsFixed(2)} UAH\n'
+              '${strings.text('result')}: ${result.profit.toStringAsFixed(2)} UAH\n'
               '${strings.text('approxXirr')}: ${(result.yield * 100).toStringAsFixed(4)}%',
             ),
           ),
