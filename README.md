@@ -2,11 +2,11 @@
 
 Встановлюваний Flutter/Dart-застосунок для огляду ОВДП та власних інвестиційних сценаріїв. Цільові платформи: Windows, macOS, Android, iOS. Web/PWA виключено з продукту.
 
-> **Current prerelease:** [OVDP Hub 0.8.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.1) — перший формалізований GitHub checkpoint.
+> **Current prerelease:** [OVDP Hub 0.8.2](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.2) — стабілізований Flutter checkpoint перед етапом «Ринок».
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.1/OVDP-Hub-0.8.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.1/OVDP-Hub-0.8.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.1/OVDP-Hub-0.8.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.1/OVDP-Hub-0.8.1-iOS-unsigned.zip) · [START](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.1/OVDP-Hub-0.8.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.1/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/OVDP-Hub-0.8.2-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/OVDP-Hub-0.8.2-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/OVDP-Hub-0.8.2-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/OVDP-Hub-0.8.2-iOS-unsigned.zip) · [START](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/OVDP-Hub-0.8.2-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/SHA256SUMS.txt)
 
-## Поточний prerelease 0.8.1
+## Поточний prerelease 0.8.2
 
 Активний код — `apps/native`. Перенесено каталог НБУ, пошук і фільтри, графіки виплат, порівняння випусків, короткий/довгий горизонт, збережені добірки з нотатками та навчальний калькулятор. Каталог постачається всередині застосунку й оновлюється напряму з НБУ. Номінальні ставки не є ринковою дохідністю; виконання купівлі немає. Калькулятор явно використовує синтетичний приклад.
 
@@ -81,7 +81,7 @@ Windows-пакет повинен містити весь каталог `build/
 - [PROJECT_STATE.md](PROJECT_STATE.md) — поточний checkpoint і наступний крок.
 - [PROJECT_RULES.md](PROJECT_RULES.md) — постійні правила розробки й релізів.
 - [CHANGELOG.md](CHANGELOG.md) — історія помітних змін.
-- [Release notes 0.8.1](docs/releases/RELEASE_NOTES_v0_8_1.md) — незмінний опис поточного prerelease.
+- [Release notes 0.8.2](docs/releases/RELEASE_NOTES_v0_8_2.md) — опис поточного prerelease.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — правила зовнішніх внесків у proprietary-проєкт.
 
 ## Структура
