@@ -32,6 +32,74 @@ void main() {
     expect(snapshot.rates.first.rate, Decimal.parse('15.17'));
   });
 
+  test('MinFin auction events keep placement and switch auctions typed', () {
+    const eventsHtml = '''
+      <html><body>
+      <h1>Оголошення та результати аукціонів</h1>
+      <table>
+        <tr><th>ДАТА</th><th>ОГОЛОШЕННЯ АУКЦІОНІВ</th><th>РЕЗУЛЬТАТИ АУКЦІОНІВ</th></tr>
+        <tr>
+          <td>23 Вересня 2026</td>
+          <td><a href="/uk/test-switch-announcement">Оголошення про проведення аукціону з обміну державних облігацій</a></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>22 Вересня 2026</td>
+          <td><a href="/uk/test-placement-announcement">Оголошення про проведення розміщення облігацій внутрішньої державної позики</a></td>
+          <td><a href="/uk/test-placement-result">Результати проведення розміщення облігацій внутрішньої державної позики</a></td>
+        </tr>
+      </table>
+      </body></html>
+    ''';
+
+    final snapshot = parseMinfinAuctionEvents(
+      eventsHtml,
+      DateTime.utc(2026, 9, 22, 12),
+    );
+
+    expect(snapshot.meta.sourceDate, '2026-09-23');
+    expect(snapshot.events.length, 2);
+    expect(
+      snapshot.events.first.kind,
+      MinfinAuctionEventKind.switchAuction,
+    );
+    expect(snapshot.events.first.resultUrl, isNull);
+    expect(
+      snapshot.events.last.kind,
+      MinfinAuctionEventKind.placement,
+    );
+    expect(
+      snapshot.events.last.announcementUrl,
+      'https://mof.gov.ua/uk/test-placement-announcement',
+    );
+    expect(
+      snapshot.events.last.resultUrl,
+      'https://mof.gov.ua/uk/test-placement-result',
+    );
+  });
+
+  test('MinFin auction events parser fails closed on changed source shape', () {
+    expect(
+      () => parseMinfinAuctionEvents(
+        '<html><body>Оголошення та результати аукціонів</body></html>',
+        DateTime.utc(2026, 9, 22),
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => parseMinfinAuctionEvents(
+        '''
+        <html><body><h1>Оголошення та результати аукціонів</h1><table><tr>
+          <td>22 Вересня 2026</td>
+          <td><a href="https://example.test/a">Оголошення про проведення розміщення облігацій внутрішньої державної позики</a></td>
+        </tr></table></body></html>
+        ''',
+        DateTime.utc(2026, 9, 22),
+      ),
+      throwsFormatException,
+    );
+  });
+
   test('MinFin parser fails closed on duplicate ISIN or missing section', () {
     expect(
       () => parseMinfinAuctionRates(
