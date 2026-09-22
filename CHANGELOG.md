@@ -4,13 +4,33 @@
 
 ## [Unreleased] — 0.9.0 «Ринок» development
 
+- Наступний slice: freshness/status UX у картці ISIN.
+- Далі: multiple price sources, fee/tax/FX/exit UI та A/B/C comparison.
+
+## [0.8.5] — 2026-09-22
+
 ### MinFin structured future auction schedule
 - Додано typed structured future auction schedule з офіційних календарних PDF Мінфіну.
 - Monthly / quarterly / switch документи розбираються окремими parser-ами відповідно до фактичних layout.
 - Збережено provenance конкретного PDF, publication/source date та retrievedAt.
 - Parser fail closed при невідомій або зміненій структурі й покритий deterministic tests без live-network залежності.
 - Додано pure-Dart PDF stack `pdf_document` + `pdf_graphics`, localized parser errors UK/EN/FR/DE/ES/KO/JA та legal notices.
-- Зміна інтегрована після v0.8.4 і не є частиною незмінного GitHub Release `v0.8.4`.
+- Додано окремі monthly / quarterly / switch parser-и з provenance та fail-closed validation.
+
+### MinFin detailed auction results
+- Підтверджено фактичний формат 2026: результати Мінфіну публікуються як офіційні DOCX.
+- Додано typed parser для звичайного розміщення: observed layout 21 rows × N instruments.
+- Додано typed parser для аукціону з обміну: observed layout 26 fields × 1 result.
+- Нормалізується лише Word-run fragmentation у датах, числах та ISIN; відсутні поля не домислюються.
+- Збережено official result URL, sourceDate, retrievedAt і primary-auction classification.
+- Parser fail closed на invalid DOCX, неофіційний URL, зміну layout, дублікати/відсутні поля та невідповідність дат.
+- Додано deterministic tests без live-network залежності та локалізовані result-DOCX errors UK/EN/FR/DE/ES/KO/JA.
+- Додано direct MIT dependency `archive` для ZIP/DOCX контейнера та оновлено legal notices.
+
+### Release checkpoint
+- Версія застосунку: `0.8.5+13`.
+- Повний prerelease checkpoint для Windows, macOS, Android, iOS і START/source.
+- `freshness/status UX` навмисно не включено: це наступний окремий slice.
 
 ## [0.8.4] — 2026-09-22
 
