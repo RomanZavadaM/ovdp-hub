@@ -20,6 +20,9 @@ class AppError {
     if (error is StateError) {
       return _fromParts(error.message.toString(), null);
     }
+    if (error is UnsupportedError) {
+      return _fromParts(error.message, null);
+    }
     if (error is FileSystemException) {
       return _fromParts(error.message, null);
     }
