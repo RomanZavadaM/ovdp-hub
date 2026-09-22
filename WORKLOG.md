@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **freshness/status UX у картці ISIN**.
 
@@ -38,7 +38,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-Реалізувати typed `officialPublished` confidence для офіційних NBU/MinFin observations та reusable provenance/status block у картці ISIN для NBU / MinFin / seller: **source → sourceDate/retrievedAt → freshness → confidence/status → evidence URL**.
+PR **#35** готовий до інтеграції: typed `officialPublished`, reusable provenance/status block, NBU/MinFin/seller status separation, 7 мов і wiring tests реалізовані. Final functional verify: **Flutter checks and START run #103 — success**.
 
 ## Черга робіт
 
