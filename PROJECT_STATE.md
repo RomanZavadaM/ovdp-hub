@@ -14,7 +14,7 @@
 - Release commit: **1cb857e2ac3850a830c4bdde4e78559e50f03985**
 - GitHub Release: **v0.8.4**, опублікований 22.09.2026
 
-## Що реалізовано й входить до 0.8.4
+## Що реалізовано й входить до опублікованого 0.8.4
 
 - локальний каталог ОВДП на базі публічних даних НБУ;
 - пошук, фільтри, графіки виплат та порівняння випусків;
@@ -28,11 +28,22 @@
 - MinFin latest-auction adapter + ISIN join;
 - typed MinFin auction event index: placement / switch + announcement/result URLs;
 - typed MinFin auction calendar document index: monthly / quarterly / switch PDF + publication date + provenance;
-- structured future auction schedule parser from official MinFin calendar PDFs with separate monthly / quarterly / switch layouts, provenance and fail-closed validation;
 - функціональна локалізація активного UI для UK/EN/FR/DE/ES/KO/JA;
 - typed `AppError` / domain/repository/parser error localization;
 - START_HERE / WORKLOG / Issue #18 recovery protocol;
 - proprietary copyright/licensing на Roman Zavada.
+
+## Що вже інтегровано в `main` після v0.8.4, але ще не опубліковано окремим релізом
+
+- structured future auction schedule parser з офіційних calendar PDF Мінфіну;
+- окремі parser-и для monthly / quarterly / switch layout;
+- provenance конкретного PDF, publication/source date і retrievedAt;
+- fail-closed validation для невідомої/зміненої структури;
+- deterministic tests без live-network залежності;
+- локалізовані parser errors для UK/EN/FR/DE/ES/KO/JA;
+- audited pure-Dart PDF dependencies та оновлені legal notices.
+
+Це development state на шляху до **0.9.0 «Ринок»**. Git tag/release `v0.8.4` не переписувався.
 
 ## Інваріанти
 
@@ -76,13 +87,12 @@ Tag/release не пересуваємо й не переписуємо.
 ## Чому 0.8.4, а не 0.9.0
 
 0.8.4 уже містить значну частину етапу «Ринок», але **ще не завершені**:
-- структурований future auction schedule із вмісту PDF Мінфіну;
 - detailed auction results parser;
 - повне підключення typed fee/tax/FX/exit assumptions до всіх розрахунків та UI;
 - multiple price sources з explicit user priority;
 - повне A/B/C comparison.
 
-Тому 0.8.4 — завершений тестовий checkpoint, а 0.9.0 лишається активною ціллю.
+Тому 0.8.4 — завершений тестовий checkpoint. Structured future auction schedule уже інтегрований у `main` після цього релізу, але 0.9.0 лишається активною ціллю до завершення решти market-slice.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
