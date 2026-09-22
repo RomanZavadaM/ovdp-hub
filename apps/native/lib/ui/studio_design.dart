@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../l10n/hub_locale.dart';
 
 ThemeData hubTheme(bool studio) {
   if (!studio) {
@@ -77,7 +79,9 @@ class StudioSidebar extends StatelessWidget {
     required this.onSelected,
   });
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) {
+    final strings = HubStrings(context.watch<LocaleCubit>().state.language);
+    return Container(
     width: 220,
     color: const Color(0xff142338),
     child: SafeArea(
@@ -87,7 +91,7 @@ class StudioSidebar extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(left: 12),
                 child: Row(
                   children: [
@@ -114,10 +118,10 @@ class StudioSidebar extends StatelessWidget {
                   ],
                 ),
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.fromLTRB(12, 10, 0, 38),
                 child: Text(
-                  'ПРОСТІР ДЛЯ РІШЕНЬ',
+                  strings.text('spaceForDecisions'),
                   style: TextStyle(
                     color: Color(0xffaabbd3),
                     fontSize: 10,
@@ -125,10 +129,10 @@ class StudioSidebar extends StatelessWidget {
                   ),
                 ),
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.fromLTRB(12, 0, 0, 12),
                 child: Text(
-                  'ДОСЛІДИТИ',
+                  strings.text('explore'),
                   style: TextStyle(
                     color: Color(0xffaabbd3),
                     fontSize: 11,
@@ -137,14 +141,14 @@ class StudioSidebar extends StatelessWidget {
                 ),
               ),
               for (final item in const [
-                (0, Icons.analytics_outlined, 'Каталог'),
-                (5, Icons.storefront_outlined, 'Продавці'),
+                (0, Icons.analytics_outlined, strings.text('catalog')),
+                (5, Icons.storefront_outlined, strings.text('sellers')),
               ])
                 _destination(item.$1, item.$2, item.$3),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.fromLTRB(12, 28, 0, 12),
                 child: Text(
-                  'МОЇ РІШЕННЯ',
+                  strings.text('myDecisions'),
                   style: TextStyle(
                     color: Color(0xffaabbd3),
                     fontSize: 11,
@@ -153,18 +157,18 @@ class StudioSidebar extends StatelessWidget {
                 ),
               ),
               for (final item in const [
-                (4, Icons.event_available_outlined, 'Планування'),
-                (1, Icons.bookmarks_outlined, 'Добірки'),
-                (2, Icons.calculate_outlined, 'Калькулятор'),
-                (3, Icons.folder_outlined, 'Сховище'),
+                (4, Icons.event_available_outlined, strings.text('planning')),
+                (1, Icons.bookmarks_outlined, strings.text('collections')),
+                (2, Icons.calculate_outlined, strings.text('calculator')),
+                (3, Icons.folder_outlined, strings.text('workspace')),
               ])
                 _destination(item.$1, item.$2, item.$3),
               const SizedBox(height: 42),
               const Divider(color: Color(0xff35445a)),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(12),
                 child: Text(
-                  'Без облікового запису\nСценарії у вашій робочій папці\n\nТестова версія 0.8.1',
+                  '${strings.text('noAccount')}\n${strings.text('scenariosLocal')}\n\n${strings.text('testVersion')} 0.8.3',
                   style: TextStyle(
                     color: Color(0xffb5c5dc),
                     height: 1.7,
@@ -176,8 +180,8 @@ class StudioSidebar extends StatelessWidget {
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
   Widget _destination(int index, IconData icon, String text) => Padding(
     padding: const EdgeInsets.only(bottom: 6),
     child: Material(
@@ -201,7 +205,9 @@ class StudioHero extends StatelessWidget {
   final VoidCallback plan, sellers;
   const StudioHero({super.key, required this.plan, required this.sellers});
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) {
+    final strings = HubStrings(context.watch<LocaleCubit>().state.language);
+    return Container(
     width: double.infinity,
     padding: const EdgeInsets.all(24),
     decoration: BoxDecoration(
@@ -214,7 +220,7 @@ class StudioHero extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'ДОСЛІДЖУЙТЕ. ПОРІВНЮЙТЕ. ПЛАНУЙТЕ.',
+          strings.text('heroEyebrow'),
           style: TextStyle(
             color: Color(0xffb6cef5),
             letterSpacing: 1.3,
@@ -223,7 +229,7 @@ class StudioHero extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         const Text(
-          'Облігації під ваші плани',
+          strings.text('heroTitle'),
           style: TextStyle(
             color: Colors.white,
             fontSize: 28,
@@ -232,7 +238,7 @@ class StudioHero extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         const Text(
-          'Від випуску ОВДП — до календаря ваших коштів.\nПорівнюйте строки та перевіряйте майбутні витрати.',
+          strings.text('heroBody'),
           style: TextStyle(color: Color(0xffd3e0f3), height: 1.6),
         ),
         const SizedBox(height: 20),
@@ -247,7 +253,7 @@ class StudioHero extends StatelessWidget {
               ),
               onPressed: plan,
               icon: const Icon(Icons.arrow_forward, size: 18),
-              label: const Text('Планувати кошти'),
+              label: Text(strings.text('planFunds')),
             ),
             OutlinedButton(
               style: OutlinedButton.styleFrom(
@@ -259,13 +265,14 @@ class StudioHero extends StatelessWidget {
                 ),
               ),
               onPressed: sellers,
-              child: const Text('Переглянути продавців'),
+              child: Text(strings.text('viewSellers')),
             ),
           ],
         ),
       ],
     ),
-  );
+    );
+  }
 }
 
 class MetricTile extends StatelessWidget {
