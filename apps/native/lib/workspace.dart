@@ -98,7 +98,12 @@ class Workspace {
     await writeRecord('catalogs', catalog.json);
     final files = await records('catalogs');
     for (final file in files.skip(catalogRetention)) {
-      await file.delete();
+      try {
+        await file.delete();
+      } on FileSystemException {
+        // Retention is best-effort: a durable new public snapshot must not be
+        // reported as a failed refresh only because an old cache file is locked.
+      }
     }
   }
   Future<void> saveSet(SavedSet set) => writeRecord('sets', set.toJson());
