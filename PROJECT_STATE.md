@@ -4,8 +4,9 @@
 
 ## Поточний checkpoint
 
-- Активна версія: **0.8.4+12**
-- Опублікований GitHub tag: **v0.8.4**
+- Активна версія в release candidate: **0.8.5+13**
+- Поточний опублікований GitHub tag: **v0.8.4**
+- Release candidate target: **v0.8.5**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
@@ -49,7 +50,7 @@
 - fail-closed DOCX/URL/layout/date validation, provenance та deterministic tests;
 - direct MIT `archive` dependency і локалізовані result-DOCX errors UK/EN/FR/DE/ES/KO/JA.
 
-Це development state на шляху до **0.9.0 «Ринок»**. Git tag/release `v0.8.4` не переписувався.
+Ці інтегровані зміни формують release candidate **v0.8.5 / 0.8.5+13** на шляху до **0.9.0 «Ринок»**. Git tag/release `v0.8.4` не переписується.
 
 ## Інваріанти
 

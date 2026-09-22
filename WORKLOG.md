@@ -21,24 +21,25 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 **0.9.0 «Ринок»**.
 
-Поточний опублікований checkpoint: **v0.8.4 / 0.8.4+12**.
+Поточний опублікований checkpoint: **v0.8.4 / 0.8.4+12**. Release candidate: **v0.8.5 / 0.8.5+13**.
 
 ## Поточний slice
 
-Статус: **NEXT**
+Статус: **DOING**
 
-Мета: **freshness/status UX у картці ISIN**.
+Мета: **повний prerelease checkpoint v0.8.5 / 0.8.5+13** за командою власника «зливай у main».
 
-- base `main`: `3f8ff04d1bddb221b5180384b547c6bd544a22d8`
-- попередній slice: detailed MinFin auction results parser
-- merged PR: **#31** `Market: parse detailed MinFin auction results from official DOCX`
-- merge SHA: `3f8ff04d1bddb221b5180384b547c6bd544a22d8`
-- final clean verify: **Flutter checks and START run #95 — success**
-- version/checkpoint лишається **v0.8.4 / 0.8.4+12**
+- base `main`: `e5c04453dab3f926fa9fa0906a8bc70b3caf4fab`
+- release branch: `release/v0.8.5`
+- target tag: `v0.8.5`
+- включено: structured MinFin schedule PDF parser + detailed MinFin result DOCX parser
+- не включено: незавершений freshness/status UX slice
+- обов'язкові outputs: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
+- після publication: перевірити assets, зафіксувати release SHA/run, оновити README / PROJECT_STATE / START_HERE / WORKLOG
 
 ### Поточна наступна дія
 
-Окремим slice перевірити поточну картку ISIN і уніфікувати відображення для кожного шару даних: **джерело → sourceDate/retrievedAt → freshness → confidence/status → evidence URL**, без змішування NBU / MinFin / seller.
+Підготувати release notes + version/build, відкрити release PR, пройти green checks, merge у `main` і дочекатися повного release workflow з публікацією `v0.8.5`.
 
 ## Черга робіт
 
