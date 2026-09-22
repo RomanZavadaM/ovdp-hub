@@ -12,3 +12,7 @@
 - Do not claim a broker API is available without verified documentation and permission to use it.
 - Never store signing keys in browser localStorage; do not implement crypto primitives yourself.
 - Discuss any change to these trust boundaries with the user before implementing it.
+
+- Original OVDP Hub project materials are proprietary and owned by Roman Zavada (Роман Завада). Public repository visibility is not an open-source license.
+- Preserve LICENSE.md, COPYRIGHT.md, THIRD_PARTY_NOTICES.md, visible copyright notices and platform metadata. Do not relicense the project or change the named copyright owner without the owner's explicit instruction.
+- Third-party software and public market data retain their own licenses, terms, attribution and rights; never claim them as original OVDP Hub property.
