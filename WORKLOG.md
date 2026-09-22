@@ -25,9 +25,28 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **NEXT**
+Статус: **VERIFIED**
 
 Мета: **detailed MinFin auction results parser**.
+
+- base `main`: `9b5e6130411fb45528dfaf310db5c78c058a8252`
+- active branch: `feat/minfin-detailed-auction-results`
+- критерії готовності:
+  - перевірені фактичні офіційні сторінки/документи Мінфіну та зафіксовані реальні поля/layout;
+  - typed detailed auction result model/parser без вигаданих полів;
+  - provenance/sourceDate/retrievedAt збережені;
+  - fail-closed для невідомого або зміненого layout;
+  - deterministic tests без live-network залежності;
+  - локалізовані user-facing parser errors;
+  - PR + green `flutter pub get --enforce-lockfile` / `flutter analyze` / `flutter test`.
+
+- draft PR: **#31** `Market: parse detailed MinFin auction results`
+- real source verified: 2026 MinFin result links are official `.docx` files under `mof.gov.ua/storage/files/`
+- observed placement layout: **21 rows × N placement columns**
+- observed switch layout: **26 fields × 1 result column**
+- deterministic parser/tests implemented; temporary live-network diagnostic removed
+- verify before diagnostic removal: **run #94 — success**
+
 
 - функціональний baseline після завершеного PDF schedule slice: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
 - post-merge documentation checkpoint: `d38189e24f1bec12c70991bb6c6df15957b1d8fe`
@@ -43,11 +62,11 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-Почати окремий slice для **detailed MinFin auction results parser**: спочатку перевірити фактичні офіційні сторінки/документи результатів аукціонів і зафіксувати реальні поля та layout до написання parser-а.
+Прогнати фінальний verify на гілці **без live-network diagnostic**; при success перевести PR #31 у ready і інтегрувати PR у `main`.
 
 ## Черга робіт
 
-1. **NEXT** — detailed MinFin auction results parser.
+1. **VERIFIED** — detailed MinFin auction results parser.
 2. **TODO** — freshness/status UX у картці ISIN.
 3. **TODO** — multiple `PriceObservation` + explicit user source priority.
 4. **TODO** — typed fee/tax/FX/exit assumptions → calculations + UI.
