@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../../errors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/hub_repository.dart';
 import '../../models.dart';
@@ -45,7 +46,7 @@ class PlannerState {
   final PlanSummary? summary;
   final List<ExpenseBalance> expenseBalances;
   final String profit;
-  final String? error;
+  final AppError? error;
   final bool busy, locked, saved, changed;
   final int revision;
   PlannerState({
@@ -73,7 +74,7 @@ class PlannerState {
     PlanSummary? summary,
     Iterable<ExpenseBalance>? expenseBalances,
     String? profit,
-    String? error,
+    AppError? error,
     bool clearSummary = false,
     bool clearError = false,
     bool? busy,
@@ -160,12 +161,12 @@ class PlannerCubit extends Cubit<PlannerState> {
             );
       final budget = money(c['budget']!), reserve = money(c['reserve']!);
       if (reserve > budget) {
-        throw const FormatException('Резерв перевищує бюджет');
+        throw const FormatException('planner.reserve_exceeds_budget');
       }
       final expenses = readExpenses(c);
       final delay = int.parse(c['delay'] ?? '2');
       if (delay < 0 || delay > 30) {
-        throw const FormatException('Затримка: від 0 до 30 календарних днів');
+        throw const FormatException('planner.delay_range');
       }
       final positions = next.inputs.values.map((i) => i.parse()).toList();
       final summary = summarizePlan(
@@ -177,7 +178,7 @@ class PlannerCubit extends Cubit<PlannerState> {
         needAmount: money(c['needAmount']!),
       );
       if (summary.reserve < reserve) {
-        throw const FormatException('Позиції витрачають запланований резерв');
+        throw const FormatException('planner.reserve_spent');
       }
       emit(
         next.copyWith(
@@ -195,7 +196,7 @@ class PlannerCubit extends Cubit<PlannerState> {
         ),
       );
     } catch (e) {
-      emit(next.copyWith(error: e.toString(), clearSummary: true));
+      emit(next.copyWith(error: AppError.from(e), clearSummary: true));
     }
   }
 
@@ -203,7 +204,7 @@ class PlannerCubit extends Cubit<PlannerState> {
     if (state.busy || state.locked) return;
     try {
       final c = state.criteria, catalog = repository.current?.catalog;
-      if (catalog == null) throw StateError('Спочатку відкрийте робочу папку');
+      if (catalog == null) throw StateError('planner.workspace_required');
       final candidates = eligibleBonds(
         catalog,
         c['currency']!,
@@ -261,7 +262,7 @@ class PlannerCubit extends Cubit<PlannerState> {
         ),
       );
     } catch (e) {
-      emit(state.copyWith(error: e.toString(), clearSummary: true));
+      emit(state.copyWith(error: AppError.from(e), clearSummary: true));
     }
   }
 
@@ -290,7 +291,7 @@ class PlannerCubit extends Cubit<PlannerState> {
       final base = isoDate(c['needDate']!);
       money(c['needAmount']!);
       final n = int.parse(c['expenseCount'] ?? '0');
-      if (n > 45) throw const FormatException('Не більше 50 додаткових витрат');
+      if (n > 45) throw const FormatException('planner.too_many_expenses');
       for (var j = 1; j <= 5; j++) {
         final month = DateTime.utc(base.year, base.month + j);
         final lastDay = DateTime.utc(month.year, month.month + 1, 0).day;
@@ -307,7 +308,7 @@ class PlannerCubit extends Cubit<PlannerState> {
       c['expenseCount'] = '${n + 5}';
       _recalculate(state.copyWith(criteria: c, saved: false));
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(state.copyWith(error: AppError.from(e)));
     }
   }
 
@@ -415,7 +416,7 @@ class PlannerCubit extends Cubit<PlannerState> {
     } catch (e) {
       emit(
         state.copyWith(
-          error: 'Не вдалося відкрити план: $e',
+          error: const AppError('planner.open_failed'),
           clearSummary: true,
         ),
       );
@@ -430,7 +431,7 @@ class PlannerCubit extends Cubit<PlannerState> {
       return false;
     }
     if (state.criteria['name']!.trim().isEmpty) {
-      emit(state.copyWith(error: 'Введіть назву плану'));
+      emit(state.copyWith(error: const AppError('planner.name_required')));
       return false;
     }
     final draft = state;
@@ -454,7 +455,7 @@ class PlannerCubit extends Cubit<PlannerState> {
       if (!isClosed) emit(state.copyWith(busy: false, saved: true));
       return true;
     } catch (e) {
-      if (!isClosed) emit(state.copyWith(busy: false, error: e.toString()));
+      if (!isClosed) emit(state.copyWith(busy: false, error: AppError.from(e)));
       return false;
     }
   }
