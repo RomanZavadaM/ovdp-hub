@@ -25,52 +25,53 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED / очікує оновленого verify після додавання worklog-протоколу**
+Статус: **DOING**
 
-Мета: **MinFin typed auction event index**.
+Мета: **MinFin calendar/documents layer** — окремо типізувати офіційний календар/документи Мінфіну навколо аукціонів, не змішуючи їх із already-typed auction event index або detailed results parser.
 
-- базовий `main`: `9abab51af155fc7c482b9bbe9c74fd4efa0b242b`
-- активна гілка: `feat/minfin-auction-events`
-- PR: **#17 — Expand MinFin with typed auction event index**
-- head до додавання цього журналу: `90d279225d8d8ea99236d21586e4c9932d5ecc66`
-- останній підтверджений CI перед зміною журналу: **Flutter checks and START, run #48 — success**
+- базовий `main`: `2f3360d0d8f6d72fabff1489a8cb0d3bc5885c82`
+- активна гілка: `feat/minfin-calendar-documents`
+- PR #19 **закритий без merge** через розсинхронізацію GitHub PR head (PR залишився на `f0918ac…`, тоді як гілка вже була на `29be2c…`)
+- replacement branch: `feat/minfin-calendar-documents-r2`; replacement PR створюється з актуального checkpoint
+- офіційне джерело перевірено 22.09.2026: `https://mof.gov.ua/uk/kalendar-aukcioniv`; сторінка публікує monthly / quarterly / switch PDF-документи та дати їх публікації
+- останній завершений slice: PR #17, merge `2f3360d0d8f6d72fabff1489a8cb0d3bc5885c82`
+- verify PR #17: run #53 — success
 
-### Що вже реалізовано в цьому slice
+### Що вже зроблено в цьому slice
 
-- typed `MinfinAuctionEvent`;
-- `placement` і `switchAuction` як різні типи подій;
-- auction date;
-- official announcement URL;
-- optional result URL;
-- provenance/source metadata;
-- перевірка, що source URL лишається на `https://mof.gov.ua`;
-- fail-closed при зміні/невідомому форматі;
-- duplicate event/link detection;
-- локалізовані MinFin error codes для UK/EN/FR/DE/ES/KO/JA;
-- deterministic parser tests;
-- оновлення roadmap і `PROJECT_STATE.md` у PR.
+- [x] актуальну офіційну структуру Мінфіну перевірено у web до написання parser-а;
+- [x] окрема typed-модель: monthly placement / quarterly placement / monthly switch;
+- [x] source date / retrievedAt / evidence URL;
+- [x] лише офіційні PDF URL `mof.gov.ua/storage/files`;
+- [x] fail closed при зміні структури, невідомому типі, відсутній даті або дублікаті;
+- [x] detailed auction results у цьому slice не парсяться;
+- [x] deterministic tests без live-network залежності;
+- [x] нові user-facing error codes локалізовані UK/EN/FR/DE/ES/KO/JA;
+- [x] `PROJECT_STATE.md` / `docs/roadmap.md` уточнюють межу: PDF-документи індексуються, але їх таблиці ще не є структурованим future schedule;
+- [ ] актуальний head PR #19 має пройти GitHub `verify`.
 
 ### Критерій готовності slice
 
-1. WORKLOG-протокол і правило в `PROJECT_RULES.md` зафіксовані в активній гілці.
-2. PR #17 має актуальний зелений `verify` після останніх змін.
-3. PR #17 squash-merged у `main`.
-4. `WORKLOG.md` після merge вказує merge SHA і наступний slice.
+1. Офіційна структура джерела перевірена й зафіксована в коді/тестах без припущень.
+2. Typed calendar/documents model і fail-closed parser реалізовані.
+3. `flutter analyze` + `flutter test` проходять через GitHub verify.
+4. PR squash-merged у `main`.
+5. WORKLOG та Issue #18 містять merge SHA і наступну конкретну дію.
 
 ## Черга робіт
 
-1. **DOING** — завершити інтеграцію `START_HERE.md` + persistent worklog/ledger protocol у PR #17.
-2. **NEXT** — перевірити новий `verify` для актуального head PR #17 та squash-merge.
-3. **TODO** — окремий slice: календар документів/подій Мінфіну.
-4. **TODO** — окремий slice: детальний parser результатів аукціонів Мінфіну, з fail-closed поведінкою та provenance.
-5. **TODO** — нормалізований freshness/status UX у картці ISIN.
-6. **TODO** — підключити typed fee/tax/FX/exit assumptions до реальних розрахунків і UI; локалізувати generated planner copy/preset labels.
-7. **TODO** — кілька `PriceObservation` на ISIN + явний user-selected source priority.
-8. **TODO** — повне порівняння сценаріїв A/B/C.
-9. **TODO** — лише після цього оцінювати готовність формального prerelease checkpoint 0.9.0.
+1. **DOING** — створити replacement PR з `feat/minfin-calendar-documents-r2` від актуального checkpoint `29be2c199b3c2dd5ccf5773a44d1535b28e02373`; verify → squash merge.
+2. **NEXT** — окремий slice: структурований розклад майбутніх аукціонів із офіційних календарних PDF; перед parser-ом візуально перевірити актуальні PDF-макети, не вгадувати дані.
+3. **TODO** — детальний parser результатів аукціонів Мінфіну, з fail-closed поведінкою та provenance.
+4. **TODO** — нормалізований freshness/status UX у картці ISIN.
+5. **TODO** — підключити typed fee/tax/FX/exit assumptions до реальних розрахунків і UI; локалізувати generated planner copy/preset labels.
+6. **TODO** — кілька `PriceObservation` на ISIN + явний user-selected source priority.
+7. **TODO** — повне порівняння сценаріїв A/B/C.
+8. **TODO** — лише після цього оцінювати готовність формального prerelease checkpoint 0.9.0.
 
 ## Нещодавно завершено
 
+- **DONE — PR #17**: typed placement/switch auction event index + `START_HERE.md`/`WORKLOG.md`/Issue #18 recovery protocol; merge `2f3360d0d8f6d72fabff1489a8cb0d3bc5885c82`.
 - **DONE — PR #15**: typed `AppError`, стабільні codes + parameters, локалізований error rendering UK/EN/FR/DE/ES/KO/JA.
 - **DONE — PR #16**: завершено domain/parser error localization; прибрані залишкові hard-coded user-facing validation/error strings з активних flows.
 - `main` після PR #16: `9abab51af155fc7c482b9bbe9c74fd4efa0b242b`.

@@ -100,6 +100,107 @@ void main() {
     );
   });
 
+  test('MinFin calendar documents keep monthly quarterly and switch typed', () {
+    const calendarHtml = '''
+      <html><body>
+      <h1>Календар аукціонів</h1>
+      <article>
+        <a href="/storage/files/q3-2026.pdf">Графік розміщення ОВДП на ІІІ квартал 2026 року</a>
+        <div>17 Вересня 2026</div>
+        <a href="/storage/files/q3-2026.pdf">Завантажити</a>
+      </article>
+      <article>
+        <a href="/storage/files/september-2026.pdf">Графік розміщення ОВДП на вересень 2026 року</a>
+        <div>17 Вересня 2026</div>
+        <a href="/storage/files/september-2026.pdf">Завантажити</a>
+      </article>
+      <article>
+        <a href="/storage/files/switch-september-2026.pdf">Графік розміщення ОВДП з обміну на вересень 2026 року</a>
+        <div>18 Серпня 2026</div>
+        <a href="/storage/files/switch-september-2026.pdf">Завантажити</a>
+      </article>
+      </body></html>
+    ''';
+
+    final snapshot = parseMinfinCalendarDocuments(
+      calendarHtml,
+      DateTime.utc(2026, 9, 22, 12),
+    );
+
+    expect(snapshot.meta.sourceDate, '2026-09-17');
+    expect(snapshot.meta.sourceUrl, MinfinRepository.calendarUrl);
+    expect(snapshot.documents.length, 3);
+    expect(
+      snapshot.documents.map((e) => e.kind).toSet(),
+      {
+        MinfinCalendarDocumentKind.monthlyPlacement,
+        MinfinCalendarDocumentKind.quarterlyPlacement,
+        MinfinCalendarDocumentKind.monthlySwitch,
+      },
+    );
+    expect(
+      snapshot.documents
+          .firstWhere(
+            (e) => e.kind == MinfinCalendarDocumentKind.monthlySwitch,
+          )
+          .publishedDate,
+      '2026-08-18',
+    );
+    expect(
+      snapshot.documents
+          .firstWhere(
+            (e) => e.kind == MinfinCalendarDocumentKind.quarterlyPlacement,
+          )
+          .documentUrl,
+      'https://mof.gov.ua/storage/files/q3-2026.pdf',
+    );
+  });
+
+  test('MinFin calendar documents parser fails closed on changed source shape', () {
+    expect(
+      () => parseMinfinCalendarDocuments(
+        '<html><body>no calendar</body></html>',
+        DateTime.utc(2026, 9, 22),
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => parseMinfinCalendarDocuments(
+        '''
+        <html><body><h1>Календар аукціонів</h1>
+          <a href="https://example.test/calendar.pdf">Графік розміщення ОВДП на вересень 2026 року</a>
+          <div>17 Вересня 2026</div>
+        </body></html>
+        ''',
+        DateTime.utc(2026, 9, 22),
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => parseMinfinCalendarDocuments(
+        '''
+        <html><body><h1>Календар аукціонів</h1>
+          <a href="/storage/files/calendar.pdf">Графік розміщення ОВДП спеціального типу 2026</a>
+          <div>17 Вересня 2026</div>
+        </body></html>
+        ''',
+        DateTime.utc(2026, 9, 22),
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => parseMinfinCalendarDocuments(
+        '''
+        <html><body><h1>Календар аукціонів</h1>
+          <a href="/storage/files/calendar.pdf">Графік розміщення ОВДП на вересень 2026 року</a>
+        </body></html>
+        ''',
+        DateTime.utc(2026, 9, 22),
+      ),
+      throwsFormatException,
+    );
+  });
+
   test('MinFin parser fails closed on duplicate ISIN or missing section', () {
     expect(
       () => parseMinfinAuctionRates(
