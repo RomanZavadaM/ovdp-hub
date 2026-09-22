@@ -229,7 +229,7 @@ MinfinDetailedAuctionResult parseMinfinAuctionResultDocumentXml({
     sourceDate: event.auctionDate,
     retrievedAt: retrievedAt.toUtc().toIso8601String(),
     kind: ObservationKind.primaryAuction,
-    confidence: ObservationConfidence.publicIndicative,
+    confidence: ObservationConfidence.officialPublished,
   );
 
   return switch (event.kind) {
