@@ -74,6 +74,7 @@ Release pipeline успішно пройшов dependency resolution, `flutter a
 Вже інтегровано після v0.8.3:
 - market core: MinFin latest-auction adapter + ISIN join без змішування NBU / Мінфін / seller layers;
 - MinFin auction event index: typed placement/switch events з датою, офіційними announcement/result URL, provenance та fail-closed parser;
+- MinFin auction calendar document index: типізовані місячні/квартальні/switch PDF-документи з датою публікації, офіційним evidence URL, provenance та fail-closed parser; вміст PDF ще не перетворюється на структурований розклад;
 - трирівнева картка ISIN: НБУ / Мінфін / продавець з provenance;
 - contract/widget tests для market-source parser та картки ISIN;
 - функціональна локалізація shell, Каталогу, Калькулятора, Продавців, Сховища, Добірок і редактора Добірки для UK/EN/FR/DE/ES/KO/JA;
@@ -83,7 +84,7 @@ Release pipeline успішно пройшов dependency resolution, `flutter a
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. розширити Мінфін далі: індекс оголошень/результатів уже типізований; наступні кроки — календар документів і детальний parser результатів;
+1. розширити Мінфін далі: індекси оголошень/результатів і календарних документів уже типізовані; наступні кроки — структурований розклад із календарних PDF (окремий slice) та детальний parser результатів;
 2. нормалізований freshness/status UX у картці ISIN;
 3. підключення typed fee/tax/FX/exit assumptions до розрахунків і UI;
 4. кілька джерел цін і явний пріоритет користувача;
