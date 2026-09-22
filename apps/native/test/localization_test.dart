@@ -47,6 +47,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Saved collections'), findsOneWidget);
 
+    await tester.tap(find.text('Planning').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Goals and income planner'), findsOneWidget);
+    expect(find.text('Budget in selected currency'), findsOneWidget);
+
     expect(tester.takeException(), isNull);
   });
 }
