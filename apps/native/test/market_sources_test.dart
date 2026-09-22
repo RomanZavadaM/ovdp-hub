@@ -188,6 +188,17 @@ void main() {
       ),
       throwsFormatException,
     );
+    expect(
+      () => parseMinfinCalendarDocuments(
+        '''
+        <html><body><h1>Календар аукціонів</h1>
+          <a href="/storage/files/calendar.pdf">Графік розміщення ОВДП на вересень 2026 року</a>
+        </body></html>
+        ''',
+        DateTime.utc(2026, 9, 22),
+      ),
+      throwsFormatException,
+    );
   });
 
   test('MinFin parser fails closed on duplicate ISIN or missing section', () {
