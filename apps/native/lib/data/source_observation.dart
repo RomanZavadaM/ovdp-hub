@@ -14,6 +14,7 @@ enum ObservationConfidence {
   publicIndicative,
   authenticatedIndicative,
   executableConfirmed,
+  userAssumption,
 }
 
 @immutable
