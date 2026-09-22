@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../errors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/hub_repository.dart';
 import '../../models.dart';
@@ -8,7 +9,7 @@ class EditorState {
   final Map<String, Bond> selected;
   final String name, note;
   final bool busy, locked;
-  final String? error;
+  final AppError? error;
   final int revision;
   EditorState({
     Map<String, Bond> selected = const {},
@@ -26,7 +27,7 @@ class EditorState {
     String? note,
     bool? busy,
     bool? locked,
-    String? error,
+    AppError? error,
     bool clearError = false,
     int? revision,
   }) => EditorState(
@@ -88,7 +89,7 @@ class CollectionEditorCubit extends Cubit<EditorState> {
   Future<bool> save() async {
     if (state.busy || state.locked) return false;
     if (state.selected.isEmpty || state.name.trim().isEmpty) {
-      emit(state.copyWith(error: 'Додайте випуски та назву добірки'));
+      emit(state.copyWith(error: const AppError('collection.name_and_issues_required')));
       return false;
     }
     final draft = state;
@@ -105,7 +106,7 @@ class CollectionEditorCubit extends Cubit<EditorState> {
       if (!isClosed) emit(EditorState(revision: draft.revision + 1));
       return true;
     } catch (e) {
-      if (!isClosed) emit(state.copyWith(busy: false, error: e.toString()));
+      if (!isClosed) emit(state.copyWith(busy: false, error: AppError.from(e)));
       return false;
     }
   }
