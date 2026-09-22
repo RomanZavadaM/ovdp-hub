@@ -25,7 +25,7 @@ List<CashExpense> readExpenses(Map<String, String> c) {
   ];
   final count = int.parse(c['expenseCount'] ?? '0');
   if (count < 0 || count > 50) {
-    throw const FormatException('Не більше 50 додаткових витрат');
+    throw const FormatException('planner.too_many_expenses');
   }
   for (var i = 0; i < count; i++) {
     expenses.add(
@@ -39,7 +39,7 @@ List<CashExpense> readExpenses(Map<String, String> c) {
   for (final e in expenses) {
     if (isoDate(e.date).isBefore(isoDate(c['start']!))) {
       throw const FormatException(
-        'Витрати мають бути не раніше дати розрахунку',
+        'planner.expenses_before_start',
       );
     }
   }
@@ -121,7 +121,7 @@ List<PlanPosition> suggestProfitablePlan({
       delay < 0 ||
       delay > 30) {
     throw const FormatException(
-      'Перевірте бюджет, резерв і затримку зарахування',
+      'planner.invalid_budget_reserve_delay',
     );
   }
   final orderedExpenses = [...expenses]
@@ -138,7 +138,7 @@ List<PlanPosition> suggestProfitablePlan({
         p.unitCost <= Decimal.zero ||
         p.unitCost != p.unitCost.round(scale: 2)) {
       throw const FormatException(
-        'Потрібні унікальні випуски однієї валюти та ціна з точністю до копійок',
+        'planner.unique_single_currency_positions',
       );
     }
     profitByIsin[p.bond.isin] = totalProfit([p], start);
@@ -157,7 +157,7 @@ List<PlanPosition> suggestProfitablePlan({
   });
   if (ranked.isEmpty) {
     throw const FormatException(
-      'Немає позицій із додатним прибутком за заданими цінами та графіками',
+      'planner.no_profitable_positions',
     );
   }
   List<PlanPosition>? best;
@@ -214,7 +214,7 @@ List<PlanPosition> suggestProfitablePlan({
   }
   if (best == null) {
     throw const FormatException(
-      'Пошук не знайшов варіанта, що покриває всі витрати й резерв. Зменште витрати, додайте бюджет або змініть дати; це не доказ відсутності іншого варіанта.',
+      'planner.no_covering_variant',
     );
   }
   return best;
