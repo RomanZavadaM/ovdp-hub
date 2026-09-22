@@ -61,7 +61,7 @@ class CatalogView extends StatelessWidget {
             if (studio)
               MetricTile(strings.text('issuesSelected'), '${state.visible.length}')
             else
-              Chip(label: Text('${state.visible.length} випусків у вибірці')),
+              Chip(label: Text('${state.visible.length} ${strings.text('issuesSelected')}')),
             for (final c in state.currencyCounts.entries)
               if (studio)
                 MetricTile('${strings.text('issuesIn')} ${c.key}', '${c.value}')
