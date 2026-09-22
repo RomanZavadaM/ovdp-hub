@@ -69,6 +69,14 @@ Release pipeline успішно пройшов dependency resolution, `flutter a
 
 Ці незавершені частини не включаються до заявленого функціонального обсягу checkpoint.
 
+## Активна розробка — 0.9.0 «Ринок»
+
+Перший чистий slice після v0.8.3:
+- market core: MinFin latest-auction adapter + ISIN join без змішування NBU / Мінфін / seller layers;
+- contract tests для primary-market parser;
+- функціональна локалізація Каталогу, Калькулятора та Продавців для UK/EN/FR/DE/ES/KO/JA;
+- нові та перероблені market-facing екрани не повинні мати hard-coded користувацьких рядків.
+
 ## Наступний етап — 0.9.0 «Ринок»
 
 1. єдина картка ISIN;
