@@ -77,6 +77,14 @@ Issue не заміняє WORKLOG: він дає історію, WORKLOG — п�
 ### `docs/roadmap.md`
 Середньостроковий план функціоналу. Не використовувати замість `WORKLOG.md` для визначення того, що робиться прямо зараз.
 
+## Команда власника «злити у main»
+
+У цьому проєкті фраза власника **«злити у `main`» / «зливай у `main`»** не означає лише merge PR.
+
+Вона означає **повний тестовий релізний checkpoint**: нова version/build, інтеграція в `main`, збірки Windows/macOS/Android/iOS, START/source, checksums/legal notices, новий Git tag і GitHub prerelease.
+
+Для звичайного merge без релізу використовувати формулювання **«інтегрувати PR у `main`»**.
+
 ## Правило завершення slice
 
 Slice не є `DONE`, доки:
