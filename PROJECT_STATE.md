@@ -4,37 +4,33 @@
 
 ## Поточний checkpoint
 
-- Активна версія: **0.8.3+11**
-- Опублікований GitHub tag: **v0.8.3**
+- Активна версія: **0.8.4+12**
+- Опублікований GitHub tag: **v0.8.4**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
 - Основна гілка: `main`
 - Статус продукту: **test / prerelease**
-- Release commit: **325b75b80f4e4ed76501142ec02031713c2e4e5d**
-- GitHub Release: **v0.8.3**, опублікований 22.09.2026
+- Release commit: **1cb857e2ac3850a830c4bdde4e78559e50f03985**
+- GitHub Release: **v0.8.4**, опублікований 22.09.2026
 
-## Що реалізовано й входить до 0.8.3
+## Що реалізовано й входить до 0.8.4
 
 - локальний каталог ОВДП на базі публічних даних НБУ;
 - пошук, фільтри, графіки виплат та порівняння випусків;
 - локальні добірки й робочі папки;
 - навчальний калькулятор;
 - планування бюджету, строків, резерву й майбутніх витрат;
-- сценарії з кількома потребами та календарем надходжень;
-- публічні котирування ПриватБанку як окремий secondary-market observation layer;
-- provenance/freshness model для зовнішніх даних;
-- типізований `PlannerScenario` і scenario schema 3;
-- adapter старих scenario schema 1/2 без тихого переписування файлів;
+- scenario schema 3 + adapter schema 1/2 без тихого переписування;
 - typed price observations: full price, clean price + НКД, yield-only, nominal estimate;
-- моделі fee assumptions, effective-dated tax scenarios, FX assumptions, exit assumptions;
-- unknown fee/tax не підміняються нулем;
-- yield-only не підміняється unit price;
-- основа альтернативних сценаріїв A/B/C;
-- українська default/canonical; EN/FR/DE/ES/KO/JA передбачені для вибору;
-- retention публічних каталогів;
-- threat model і security gate майбутнього encrypted vault;
-- START, CI та multi-platform prerelease pipeline;
+- fee/tax/FX/exit domain models;
+- трирівнева картка ISIN: НБУ / Мінфін / продавець;
+- MinFin latest-auction adapter + ISIN join;
+- typed MinFin auction event index: placement / switch + announcement/result URLs;
+- typed MinFin auction calendar document index: monthly / quarterly / switch PDF + publication date + provenance;
+- функціональна локалізація активного UI для UK/EN/FR/DE/ES/KO/JA;
+- typed `AppError` / domain/repository/parser error localization;
+- START_HERE / WORKLOG / Issue #18 recovery protocol;
 - proprietary copyright/licensing на Roman Zavada.
 
 ## Інваріанти
@@ -42,53 +38,59 @@
 - приватні сценарії не передаються на сервер OVDP Hub;
 - продукт не виконує купівлю/продаж;
 - НБУ, Мінфін і продавці — різні шари даних і не підміняють одне одного;
-- індикативна дохідність без ціни не перетворюється на вигадану ринкову ціну;
+- yield-only не перетворюється на вигадану ринкову ціну;
 - невідома комісія або податок не означають 0;
 - workspace і старі сценарії не переписуються мовчки під час читання;
 - реальний портфель — лише після encrypted vault, platform secure storage і backup/recovery;
 - copyright original project materials: Roman Zavada (Роман Завада).
 
-## Реліз v0.8.3
+## Реліз v0.8.4
 
-Release pipeline успішно пройшов dependency resolution, `flutter analyze`, **47 тестів** та release builds усіх цільових платформ.
+Release pipeline **Publish native prerelease run #21** успішно завершив:
+- `flutter pub get --enforce-lockfile`;
+- `flutter analyze` — **No issues found**;
+- `flutter test` — **56/56 tests passed**;
+- Windows release build + packaging;
+- macOS release build + packaging;
+- Android release APK + packaging;
+- iOS unsigned release build + packaging;
+- START package;
+- SHA-256 manifest;
+- prerelease publication.
 
 Опубліковані assets:
-- `OVDP-Hub-0.8.3-Windows-x64.zip`;
-- `OVDP-Hub-0.8.3-macOS.zip`;
-- `OVDP-Hub-0.8.3-Android-test.zip`;
-- `OVDP-Hub-0.8.3-iOS-unsigned.zip`;
-- `OVDP-Hub-0.8.3-START.zip`;
+- `OVDP-Hub-0.8.4-Windows-x64.zip`;
+- `OVDP-Hub-0.8.4-macOS.zip`;
+- `OVDP-Hub-0.8.4-Android-test.zip`;
+- `OVDP-Hub-0.8.4-iOS-unsigned.zip`;
+- `OVDP-Hub-0.8.4-START.zip`;
 - `SHA256SUMS.txt`;
-- legal notices.
+- `LICENSE.md`;
+- `COPYRIGHT.md`;
+- `LEGAL_AND_COPYRIGHT.md`;
+- `THIRD_PARTY_NOTICES.md`.
 
-За політикою проєкту tag/release не пересуваємо й не переписуємо.
+Tag/release не пересуваємо й не переписуємо.
 
-## Чому 0.8.3, а не 0.9.0
+## Чому 0.8.4, а не 0.9.0
 
-0.8.3 — завершена проміжна точка. У ній уже є стабільний типізований домен, але **ще немає завершеної** єдиної картки ISIN, структурованого адаптера Мінфіну та повного UI для fee/tax/FX/early-sale моделей.
+0.8.4 уже містить значну частину етапу «Ринок», але **ще не завершені**:
+- структурований future auction schedule із вмісту PDF Мінфіну;
+- detailed auction results parser;
+- повне підключення typed fee/tax/FX/exit assumptions до всіх розрахунків та UI;
+- multiple price sources з explicit user priority;
+- повне A/B/C comparison.
 
-Ці незавершені частини не включаються до заявленого функціонального обсягу checkpoint.
-
-## Активна розробка — 0.9.0 «Ринок»
-
-Вже інтегровано після v0.8.3:
-- market core: MinFin latest-auction adapter + ISIN join без змішування NBU / Мінфін / seller layers;
-- MinFin auction event index: typed placement/switch events з датою, офіційними announcement/result URL, provenance та fail-closed parser;
-- MinFin auction calendar document index: типізовані місячні/квартальні/switch PDF-документи з датою публікації, офіційним evidence URL, provenance та fail-closed parser; вміст PDF ще не перетворюється на структурований розклад;
-- трирівнева картка ISIN: НБУ / Мінфін / продавець з provenance;
-- contract/widget tests для market-source parser та картки ISIN;
-- функціональна локалізація shell, Каталогу, Калькулятора, Продавців, Сховища, Добірок і редактора Добірки для UK/EN/FR/DE/ES/KO/JA;
-- повна статична UI-локалізація Планувальника;
-- domain/error localization завершено для активних user-facing error flows: typed `AppError` (code + parameters), локалізація UK/EN/FR/DE/ES/KO/JA, Cubit/Repository/parser/domain validation без готових українських error-текстів;
-- нові та перероблені екрани не повинні мати hard-coded користувацьких рядків.
+Тому 0.8.4 — завершений тестовий checkpoint, а 0.9.0 лишається активною ціллю.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. розширити Мінфін далі: індекси оголошень/результатів і календарних документів уже типізовані; наступні кроки — структурований розклад із календарних PDF (окремий slice) та детальний parser результатів;
-2. нормалізований freshness/status UX у картці ISIN;
-3. підключення typed fee/tax/FX/exit assumptions до розрахунків і UI;
-4. кілька джерел цін і явний пріоритет користувача;
-5. порівняння альтернативних сценаріїв A/B/C;
-6. ~~аудит і локалізація domain/error повідомлень із Cubit/Repository/parser/domain validation~~ — виконано; наступний localization debt: generated planner copy/preset labels під час підключення typed fee/tax/FX UI.
+1. structured future auction schedule з офіційних календарних PDF Мінфіну; перед parser-ом візуально перевірити актуальні PDF-макети;
+2. detailed parser результатів аукціонів Мінфіну;
+3. нормалізований freshness/status UX у картці ISIN;
+4. typed fee/tax/FX/exit assumptions → calculations + UI;
+5. multiple `PriceObservation` + explicit user source priority;
+6. A/B/C comparison;
+7. generated planner copy / preset labels localization під час відповідного UI slice.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел на відповідну дату.
