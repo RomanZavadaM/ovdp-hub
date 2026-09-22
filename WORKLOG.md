@@ -25,9 +25,21 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **NEXT**
+Статус: **DOING**
 
 Мета: **detailed MinFin auction results parser**.
+
+- base `main`: `9b5e6130411fb45528dfaf310db5c78c058a8252`
+- active branch: `feat/minfin-detailed-auction-results`
+- критерії готовності:
+  - перевірені фактичні офіційні сторінки/документи Мінфіну та зафіксовані реальні поля/layout;
+  - typed detailed auction result model/parser без вигаданих полів;
+  - provenance/sourceDate/retrievedAt збережені;
+  - fail-closed для невідомого або зміненого layout;
+  - deterministic tests без live-network залежності;
+  - локалізовані user-facing parser errors;
+  - PR + green `flutter pub get --enforce-lockfile` / `flutter analyze` / `flutter test`.
+
 
 - функціональний baseline після завершеного PDF schedule slice: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
 - post-merge documentation checkpoint: `d38189e24f1bec12c70991bb6c6df15957b1d8fe`
