@@ -4,19 +4,20 @@
 
 ## Поточний checkpoint
 
-- Активна версія в release candidate: **0.8.5+13**
-- Поточний опублікований GitHub tag: **v0.8.4**
-- Release candidate target: **v0.8.5**
+- Активна версія: **0.8.5+13**
+- Опублікований GitHub tag: **v0.8.5**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
 - Основна гілка: `main`
 - Статус продукту: **test / prerelease**
-- Release commit: **1cb857e2ac3850a830c4bdde4e78559e50f03985**
-- GitHub Release: **v0.8.4**, опублікований 22.09.2026
+- Release commit: **6e8ce5c7ccfd4217330e59fe96fd6a83ac531d59**
+- Release workflow: **Publish native prerelease run #32 — success**
+- GitHub Release: **v0.8.5**, опублікований 22.09.2026
 
-## Що реалізовано й входить до опублікованого 0.8.4
+## Що входить до опублікованого 0.8.5
 
+База 0.8.4 зберігається повністю:
 - локальний каталог ОВДП на базі публічних даних НБУ;
 - пошук, фільтри, графіки виплат та порівняння випусків;
 - локальні добірки й робочі папки;
@@ -27,30 +28,53 @@
 - fee/tax/FX/exit domain models;
 - трирівнева картка ISIN: НБУ / Мінфін / продавець;
 - MinFin latest-auction adapter + ISIN join;
-- typed MinFin auction event index: placement / switch + announcement/result URLs;
-- typed MinFin auction calendar document index: monthly / quarterly / switch PDF + publication date + provenance;
-- функціональна локалізація активного UI для UK/EN/FR/DE/ES/KO/JA;
-- typed `AppError` / domain/repository/parser error localization;
+- typed MinFin auction event index;
+- typed MinFin calendar document index;
+- локалізація активного UI та user-facing error flows для UK/EN/FR/DE/ES/KO/JA;
 - START_HERE / WORKLOG / Issue #18 recovery protocol;
 - proprietary copyright/licensing на Roman Zavada.
 
-## Що вже інтегровано в `main` після v0.8.4, але ще не опубліковано окремим релізом
-
+Додано в 0.8.5:
 - structured future auction schedule parser з офіційних calendar PDF Мінфіну;
-- окремі parser-и для monthly / quarterly / switch layout;
+- окремі monthly / quarterly / switch parsers;
 - provenance конкретного PDF, publication/source date і retrievedAt;
-- fail-closed validation для невідомої/зміненої структури;
-- deterministic tests без live-network залежності;
-- локалізовані parser errors для UK/EN/FR/DE/ES/KO/JA;
-- audited pure-Dart PDF dependencies та оновлені legal notices.
+- fail-closed validation для невідомої/зміненої PDF-структури;
 - detailed MinFin auction-result parser з офіційних DOCX;
-- typed placement results: 21-row observed layout × N випусків;
-- typed switch-auction results: 26-field observed layout;
-- нормалізація Word-run fragmentation без домислювання відсутніх даних;
-- fail-closed DOCX/URL/layout/date validation, provenance та deterministic tests;
-- direct MIT `archive` dependency і локалізовані result-DOCX errors UK/EN/FR/DE/ES/KO/JA.
+- typed placement results: **21-row observed layout × N випусків**;
+- typed switch-auction results: **26-field observed layout**;
+- нормалізація Word-run fragmentation у датах, числах та ISIN без домислювання відсутніх полів;
+- fail-closed DOCX/URL/layout/date validation;
+- deterministic tests без live-network залежності;
+- локалізовані parser errors UK/EN/FR/DE/ES/KO/JA;
+- audited pure-Dart PDF stack та direct MIT `archive` dependency з оновленими legal notices.
 
-Ці інтегровані зміни формують release candidate **v0.8.5 / 0.8.5+13** на шляху до **0.9.0 «Ринок»**. Git tag/release `v0.8.4` не переписується.
+## Реліз v0.8.5
+
+Release pipeline **Publish native prerelease run #32** успішно завершив:
+- `flutter pub get --enforce-lockfile`;
+- `flutter analyze`;
+- `flutter test`;
+- Windows release build + packaging;
+- macOS release build + packaging;
+- Android release APK + packaging;
+- iOS unsigned release build + packaging;
+- START/source package;
+- SHA-256 manifest;
+- prerelease publication.
+
+Опубліковані assets:
+- `OVDP-Hub-0.8.5-Windows-x64.zip`;
+- `OVDP-Hub-0.8.5-macOS.zip`;
+- `OVDP-Hub-0.8.5-Android-test.zip`;
+- `OVDP-Hub-0.8.5-iOS-unsigned.zip`;
+- `OVDP-Hub-0.8.5-START.zip`;
+- `SHA256SUMS.txt`;
+- `LICENSE.md`;
+- `COPYRIGHT.md`;
+- `LEGAL_AND_COPYRIGHT.md`;
+- `THIRD_PARTY_NOTICES.md`.
+
+Tag/release не пересуваємо й не переписуємо.
 
 ## Інваріанти
 
@@ -63,42 +87,16 @@
 - реальний портфель — лише після encrypted vault, platform secure storage і backup/recovery;
 - copyright original project materials: Roman Zavada (Роман Завада).
 
-## Реліз v0.8.4
+## Чому 0.8.5, а не 0.9.0
 
-Release pipeline **Publish native prerelease run #21** успішно завершив:
-- `flutter pub get --enforce-lockfile`;
-- `flutter analyze` — **No issues found**;
-- `flutter test` — **56/56 tests passed**;
-- Windows release build + packaging;
-- macOS release build + packaging;
-- Android release APK + packaging;
-- iOS unsigned release build + packaging;
-- START package;
-- SHA-256 manifest;
-- prerelease publication.
-
-Опубліковані assets:
-- `OVDP-Hub-0.8.4-Windows-x64.zip`;
-- `OVDP-Hub-0.8.4-macOS.zip`;
-- `OVDP-Hub-0.8.4-Android-test.zip`;
-- `OVDP-Hub-0.8.4-iOS-unsigned.zip`;
-- `OVDP-Hub-0.8.4-START.zip`;
-- `SHA256SUMS.txt`;
-- `LICENSE.md`;
-- `COPYRIGHT.md`;
-- `LEGAL_AND_COPYRIGHT.md`;
-- `THIRD_PARTY_NOTICES.md`.
-
-Tag/release не пересуваємо й не переписуємо.
-
-## Чому 0.8.4, а не 0.9.0
-
-0.8.4 уже містить значну частину етапу «Ринок», але **ще не завершені**:
-- повне підключення typed fee/tax/FX/exit assumptions до всіх розрахунків та UI;
+0.8.5 фіксує завершені MinFin parser-slice, але **ще не завершені**:
+- нормалізований freshness/status UX у картці ISIN;
 - multiple price sources з explicit user priority;
-- повне A/B/C comparison.
+- повне підключення typed fee/tax/FX/exit assumptions до calculations + UI;
+- A/B/C comparison;
+- generated planner copy / preset labels localization.
 
-Тому 0.8.4 — завершений тестовий checkpoint. Structured future auction schedule і detailed MinFin auction results уже інтегровані у `main` після цього релізу, але 0.9.0 лишається активною ціллю до завершення решти market-slice.
+Тому 0.9.0 «Ринок» лишається активною ціллю.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
@@ -106,6 +104,6 @@ Tag/release не пересуваємо й не переписуємо.
 2. multiple `PriceObservation` + explicit user source priority;
 3. typed fee/tax/FX/exit assumptions → calculations + UI;
 4. A/B/C comparison;
-5. generated planner copy / preset labels localization під час відповідного UI slice.
+5. generated planner copy / preset labels localization.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел на відповідну дату.

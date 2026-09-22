@@ -21,25 +21,23 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 **0.9.0 «Ринок»**.
 
-Поточний опублікований checkpoint: **v0.8.4 / 0.8.4+12**. Release candidate: **v0.8.5 / 0.8.5+13**.
+Поточний опублікований checkpoint: **v0.8.5 / 0.8.5+13**.
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **NEXT**
 
-Мета: **повний prerelease checkpoint v0.8.5 / 0.8.5+13** за командою власника «зливай у main».
+Мета: **freshness/status UX у картці ISIN**.
 
-- base `main`: `e5c04453dab3f926fa9fa0906a8bc70b3caf4fab`
-- release branch: `release/v0.8.5`
-- target tag: `v0.8.5`
-- включено: structured MinFin schedule PDF parser + detailed MinFin result DOCX parser
-- не включено: незавершений freshness/status UX slice
-- обов'язкові outputs: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
-- після publication: перевірити assets, зафіксувати release SHA/run, оновити README / PROJECT_STATE / START_HERE / WORKLOG
+- поточний `main` release baseline: `6e8ce5c7ccfd4217330e59fe96fd6a83ac531d59`
+- опублікований checkpoint: **v0.8.5 / 0.8.5+13**
+- release workflow: **Publish native prerelease run #32 — success**
+- release assets перевірені: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
+- наступний функціональний slice не входив у v0.8.5 і починається поверх нового release baseline
 
 ### Поточна наступна дія
 
-Підготувати release notes + version/build, відкрити release PR, пройти green checks, merge у `main` і дочекатися повного release workflow з публікацією `v0.8.5`.
+Відновити branch для **freshness/status UX** поверх актуального `main` і уніфікувати для NBU / MinFin / seller: **source → sourceDate/retrievedAt → freshness → confidence/status → evidence URL**, без змішування шарів.
 
 ## Черга робіт
 
@@ -72,9 +70,11 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - проміжно після user-visible integration можна тестувати START artifact з актуального `main`;
 - регулярно, орієнтовно після 2–3 user-visible integrated slices, робити повне **«злиття у `main`»** з релізами всіх систем;
 - робити такий checkpoint раніше після ризикової зміни parser/calculation/schema або одразу за прямою командою власника;
-- поточний опублікований v0.8.4 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
+- поточний опублікований v0.8.5 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — v0.8.5 full cross-platform checkpoint**: PR #33 squash-merged у `main` як `6e8ce5c7ccfd4217330e59fe96fd6a83ac531d59`; `Publish native prerelease` run #32 success; опубліковано Windows/macOS/Android/iOS/START + SHA256SUMS + legal notices під незмінним tag `v0.8.5`.
 
 - **DONE — detailed MinFin auction results**: PR #31 squash-merged у `main` як `3f8ff04d1bddb221b5180384b547c6bd544a22d8`; final clean run #95 success. Реальні 2026 result DOCX перевірено; placement parser покриває 21-row × N layout, switch parser — 26-field layout; provenance, fail-closed validation, deterministic tests і локалізовані errors інтегровані.
 

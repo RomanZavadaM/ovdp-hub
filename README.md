@@ -2,13 +2,13 @@
 
 Встановлюваний Flutter/Dart-застосунок для огляду ОВДП та власних інвестиційних сценаріїв. Цільові платформи: Windows, macOS, Android, iOS. Web/PWA виключено з продукту.
 
-> **Current prerelease:** [OVDP Hub 0.8.4](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.4) — тестовий market checkpoint із локалізованим UI, трирівневою ISIN-карткою та typed MinFin layers.
+> **Current prerelease:** [OVDP Hub 0.8.5](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.5) — тестовий market checkpoint зі structured MinFin calendar PDF та detailed auction-result DOCX parsers.
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.4/OVDP-Hub-0.8.4-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.4/OVDP-Hub-0.8.4-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.4/OVDP-Hub-0.8.4-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.4/OVDP-Hub-0.8.4-iOS-unsigned.zip) · [START](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.4/OVDP-Hub-0.8.4-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.4/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.5/OVDP-Hub-0.8.5-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.5/OVDP-Hub-0.8.5-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.5/OVDP-Hub-0.8.5-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.5/OVDP-Hub-0.8.5-iOS-unsigned.zip) · [START](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.5/OVDP-Hub-0.8.5-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.5/SHA256SUMS.txt)
 
-## Поточний prerelease 0.8.4
+## Поточний prerelease 0.8.5
 
-Активний код — `apps/native`. Перенесено каталог НБУ, пошук і фільтри, графіки виплат, порівняння випусків, короткий/довгий горизонт, збережені добірки з нотатками та навчальний калькулятор. Каталог постачається всередині застосунку й оновлюється напряму з НБУ. Номінальні ставки не є ринковою дохідністю; виконання купівлі немає. Калькулятор явно використовує синтетичний приклад.
+Активний код — `apps/native`. У 0.8.5 поверх 0.8.4 додано structured future auction schedule з офіційних PDF Мінфіну та detailed placement/switch auction results з офіційних DOCX із provenance, fail-closed validation і deterministic tests. Перенесено каталог НБУ, пошук і фільтри, графіки виплат, порівняння випусків, короткий/довгий горизонт, збережені добірки з нотатками та навчальний калькулятор. Каталог постачається всередині застосунку й оновлюється напряму з НБУ. Номінальні ставки не є ринковою дохідністю; виконання купівлі немає. Калькулятор явно використовує синтетичний приклад.
 
 Код розділено на UI, Cubit/State та репозиторій даних. Окремі Cubit керують каталогом, редактором добірки, переліком добірок, робочою папкою, калькулятором і навігацією. Стани та вкладені колекції незмінні; віджети не звертаються до файлів чи API. Рішення: `docs/adr/0003-cubit-layers.md`.
 
@@ -58,7 +58,7 @@ OVDP Hub є **proprietary software**. Публічна видимість цьо
 
 ## Мови
 
-Основна й еталонна мова — **українська**. Архітектура інтерфейсу підтримує вибір **English, Français, Deutsch, Español, 한국어, 日本語**. У 0.8.4 активний UI та основні user-facing domain/error flows локалізовані для UK/EN/FR/DE/ES/KO/JA; generated planner presets лишаються окремим наступним боргом.
+Основна й еталонна мова — **українська**. Архітектура інтерфейсу підтримує вибір **English, Français, Deutsch, Español, 한국어, 日本語**. У 0.8.5 активний UI та основні user-facing domain/error flows локалізовані для UK/EN/FR/DE/ES/KO/JA; generated planner presets лишаються окремим наступним боргом.
 
 ## Для розробника
 
@@ -82,7 +82,7 @@ Windows-пакет повинен містити весь каталог `build/
 - [PROJECT_STATE.md](PROJECT_STATE.md) — поточний checkpoint і наступний крок.
 - [PROJECT_RULES.md](PROJECT_RULES.md) — постійні правила розробки й релізів.
 - [CHANGELOG.md](CHANGELOG.md) — історія помітних змін.
-- [Release notes 0.8.4](docs/releases/RELEASE_NOTES_v0_8_4.md) — опис поточного prerelease.
+- [Release notes 0.8.5](docs/releases/RELEASE_NOTES_v0_8_5.md) — опис поточного prerelease.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — правила зовнішніх внесків у proprietary-проєкт.
 
 ## Структура
