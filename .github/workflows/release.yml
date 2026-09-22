@@ -12,6 +12,16 @@ on:
       - 'LICENSE.md'
       - 'COPYRIGHT.md'
       - 'THIRD_PARTY_NOTICES.md'
+  pull_request:
+    paths:
+      - 'apps/native/pubspec.yaml'
+      - 'docs/releases/**'
+      - '.github/workflows/release.yml'
+      - 'scripts/package-desktop.ps1'
+      - 'scripts/package-start.py'
+      - 'LICENSE.md'
+      - 'COPYRIGHT.md'
+      - 'THIRD_PARTY_NOTICES.md'
   workflow_dispatch:
 
 permissions:
@@ -69,7 +79,7 @@ jobs:
 
   verify:
     needs: preflight
-    if: needs.preflight.outputs.exists != 'true'
+    if: github.event_name != 'pull_request' && needs.preflight.outputs.exists != 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -87,7 +97,7 @@ jobs:
 
   start:
     needs: [preflight, verify]
-    if: needs.preflight.outputs.exists != 'true'
+    if: github.event_name != 'pull_request' && needs.preflight.outputs.exists != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -119,7 +129,7 @@ jobs:
 
   windows:
     needs: [preflight, verify]
-    if: needs.preflight.outputs.exists != 'true'
+    if: github.event_name != 'pull_request' && needs.preflight.outputs.exists != 'true'
     runs-on: windows-latest
     defaults:
       run:
@@ -150,7 +160,7 @@ jobs:
 
   macos:
     needs: [preflight, verify]
-    if: needs.preflight.outputs.exists != 'true'
+    if: github.event_name != 'pull_request' && needs.preflight.outputs.exists != 'true'
     runs-on: macos-latest
     defaults:
       run:
@@ -181,7 +191,7 @@ jobs:
 
   android:
     needs: [preflight, verify]
-    if: needs.preflight.outputs.exists != 'true'
+    if: github.event_name != 'pull_request' && needs.preflight.outputs.exists != 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -231,7 +241,7 @@ jobs:
 
   ios:
     needs: [preflight, verify]
-    if: needs.preflight.outputs.exists != 'true'
+    if: github.event_name != 'pull_request' && needs.preflight.outputs.exists != 'true'
     runs-on: macos-latest
     defaults:
       run:
@@ -269,7 +279,7 @@ jobs:
 
   publish:
     needs: [preflight, verify, start, windows, macos, android, ios]
-    if: needs.preflight.outputs.exists != 'true'
+    if: github.event_name != 'pull_request' && needs.preflight.outputs.exists != 'true'
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
