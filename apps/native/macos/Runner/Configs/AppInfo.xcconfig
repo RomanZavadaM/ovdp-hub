@@ -11,4 +11,4 @@ PRODUCT_NAME = ovdp_hub
 PRODUCT_BUNDLE_IDENTIFIER = ua.ovdphub.ovdpHub
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 ua.ovdphub. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 Roman Zavada. All rights reserved.
