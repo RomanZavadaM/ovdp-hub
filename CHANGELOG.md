@@ -2,6 +2,18 @@
 
 Усі помітні зміни OVDP Hub фіксуються тут. Опубліковані GitHub Releases додатково мають незмінні release notes у `docs/releases/`.
 
+## [0.8.4] — 2026-09-22
+
+### Market checkpoint and localization
+- Завершено функціональну локалізацію активного UI для UK/EN/FR/DE/ES/KO/JA, включно з Планувальником.
+- Domain/repository/parser error flows переведені на typed stable codes + localized rendering.
+- Додано трирівневу картку ISIN з окремими NBU / MinFin / seller шарами та provenance.
+- Додано MinFin latest-auction adapter та typed auction event index для placement/switch.
+- Додано typed index календарних PDF-документів Мінфіну: monthly / quarterly / switch + publication date + evidence URL.
+- Усі MinFin parser-и fail closed при невідомій структурі/посиланні.
+- Додано START_HERE / WORKLOG / GitHub Issue #18 recovery protocol для надійного продовження розробки між чатами.
+- Structured future auction schedule із вмісту PDF та detailed results parser залишаються наступними окремими slice.
+
 ## [0.8.3] — 2026-09-22
 
 ### Completed intermediate checkpoint
