@@ -1,5 +1,7 @@
 # Development rules
 
+- Before any project work, read `PROJECT_RULES.md` and `PROJECT_STATE.md`; they are the canonical persistent rules and current checkpoint.
+
 - Current scope: public-information aggregator; no execution, KYC, user accounts or financial advice.
 - Personal inputs, holdings, documents and signing keys must never traverse OVDP Hub servers.
 - Keep calculations on-device. No analytics, session replay, remote fonts or third-party scripts.
