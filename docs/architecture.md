@@ -1,56 +1,69 @@
-# Architecture 0.2 — public data, local calculations
+# Архітектура OVDP Hub — Flutter native
 
-```mermaid
-flowchart LR
-  N[НБУ / Мінфін / дозволені публічні джерела] --> P[Майбутній public-only importer]
-  P --> S[Версіоновані публічні snapshots]
-  S --> C[Пристрій користувача]
-  H[Static hosting: JS / CSS / HTML] --> C
-  subgraph Device[Межа пристрою]
-    C --> Q[Порівняння та фільтри]
-    Q --> M[Decimal pricing / XIRR]
-    V[Майбутнє локальне зашифроване сховище] --> Q
-  end
-  C -. майбутній прямий handoff .-> B[Банк / брокер / Дія]
+Оновлено: 22.09.2026
+
+## Межа продукту
+
+Активний продукт один: `apps/native` на Flutter/Dart для Windows, macOS, Android та iOS. Web/PWA, Next.js, Expo і Tauri більше не є продуктовими лініями.
+
+OVDP Hub — local-first інформаційний і планувальний застосунок. Немає серверних акаунтів OVDP Hub, централізованого портфеля, KYC, виконання угод або приватного relay-сервера.
+
+## Шари runtime
+
+```text
+Flutter UI
+  ↓
+Cubit / immutable State за функціями
+  ↓
+HubRepository + feature repositories
+  ↓
+локальний Workspace / дозволені публічні джерела
 ```
 
-Implemented: static Next.js application, direct browser-to-NBU refresh, validated committed public snapshot, local catalog filters and schedules. Separate /demo contains three synthetic quotes and local pricing. Public snapshot preparation is a CLI, not a runtime relay. Personal data storage and partner connections remain unimplemented.
+Поточні функціональні області:
 
-## Logical data model
+- `catalog` — випуски НБУ, фільтри, графіки виплат;
+- `collections` — незмінні збережені добірки та нотатки;
+- `calculator` — локальні фінансові розрахунки;
+- `workspace` — переносне локальне сховище;
+- `planner` — бюджет, резерв, потреби та cashflow-сценарії;
+- `sellers` — публічні спостереження продавців;
+- `navigation/appearance/l10n` — оболонка, вигляд і мова.
 
-Public: Asset(id, isin?, currency, nominal, issueDate, maturityDate, dayCount, termsVersion); Payment(assetId, date, coupon, principal); Quote(id, assetId, sourceId, bid/ask, clean/dirty, price, accruedInterest, min/max/stepQuantity, settlementDate, observedAt, validUntil, indicative/executable); FeeSchedule(sourceId, version, effectiveFrom/To, rules, evidence); Source(id, URL, redistributionPolicy, fetchedAt).
+Віджети не виконують файлові або мережеві операції. Cubit керує сценарієм. Репозиторії відповідають за I/O. Грошова арифметика — Decimal; Double допускається лише в окремо протестованому чисельному solver дохідності та представленні.
 
-Private future local model: LocalPortfolio(id, name, baseCurrency); LocalHolding(portfolioId, assetId, quantity, acquisitionCost); LocalSettings(id, preferences); VaultMetadata(version, cryptoParameters). No Users table or server-side portfolio FK. Partner credentials and signing keys are not ordinary portfolio records.
+## Ринкова модель
 
-```mermaid
-erDiagram
- ASSET ||--o{ PAYMENT : schedules
- ASSET ||--o{ QUOTE : quoted
- SOURCE ||--o{ QUOTE : publishes
- SOURCE ||--o{ FEE_SCHEDULE : documents
- LOCAL_PORTFOLIO ||--o{ LOCAL_HOLDING : contains
- ASSET ||--o{ LOCAL_HOLDING : references
-```
+Один ISIN може мати кілька незалежних шарів даних:
 
-## Local calculation contract
+1. **Інструмент / контрактні платежі** — НБУ.
+2. **Первинний ринок** — календар, оголошення та результати аукціонів Мінфіну.
+3. **Вторинний ринок** — публічні або дозволені котирування банків/брокерів.
+4. **Користувацький сценарій** — вручну введена ціна, кількість, комісії, податкова/FX модель та припущення.
 
-`calculateBond({ quantity, cleanPrice, accruedInterest, upfrontFee, settlementDate, payments })` returns costs, net receipts, profit, cashflows, netXirr, methodology and engineVersion. Money values are decimal strings. Prices are currency units per bond, not percent of nominal. Payments are net per-unit cashflows; callers must explicitly apply applicable tax/fee policy. No generic tax engine is implemented.
+Ці шари не зливаються у «єдину правду». Кожний запис має власне джерело, дату даних, час отримання, статус свіжості та рівень достовірності/виконуваності. Див. `docs/data-sources.md`.
 
-`compareDemo(budget)` returns SYNTHETIC, executable=false, fixed settlement/maturity dates, assumptions and ranked results. This is a local function, not a private POST API.
+## Приватні дані
 
-## Financial invariants
+Поточний workspace — відкритий JSON для каталогів, добірок і планів. Він не призначений для паролів, документів, ключів підпису чи секретів.
 
-- Dirty price = clean price + supplied accrued interest, once.
-- Initial outflow = rounded quantity × dirty price + rounded upfront fee.
-- Net XIRR uses ACT/365F and actual dates, one negative initial flow and positive/non-negative future flows.
-- Invalid dates, invalid decimal strings, fractional quantities and unsupported flow shapes are rejected.
-- Compare integer lots within liquidity and budget; show idle cash independently.
-- All demo amounts are UAH, exemption is a scenario assumption, no recurring fees or reinvestment.
+Перед повноцінним фактичним портфелем потрібен encrypted vault з platform secure storage, контрольованим backup/recovery і окремим threat model. Див. `docs/security-vault.md`.
 
-## Public feed contract
+## Планувальник
 
-Implemented NBU snapshot: schemaVersion, source, sourcePage, retrievedAt, sourceAsOf=null, assets, excludedCount, rejected. See nbu-source.md. Quotes and fee schedules are future extensions. Nominal rates are not executable yields.
+Поточний planner 0.7/0.8 сумісно зберігає criteria як рядкову карту. Це перехідний формат. Наступна доменна модель має розділити:
 
-## Security boundary
+- цілі й типи потреб;
+- позиції;
+- джерела та типи цін;
+- комісії;
+- effective-dated податкові припущення;
+- FX припущення;
+- сценарій продажу до погашення;
+- альтернативні варіанти та обмеження.
 
-No server API, cookies, account identity, analytics, document upload or signing code. Static delivery is still a supply-chain trust boundary. Production hosting headers, CSP, dependency audits and source provenance are launch gates, not claims fulfilled by this prototype.
+Міграція робиться версійно; існуючі сценарії не переписуються мовчки.
+
+## Локалізація
+
+Канонічна мова — українська. Підтримувані напрями локалізації: Українська, English, Français, Deutsch, Español, 한국어, 日本語. Бізнес-логіка не повинна містити текстів, від яких залежить розрахунок.
