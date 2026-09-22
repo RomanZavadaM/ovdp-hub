@@ -6,7 +6,7 @@ import '../../models.dart';
 import '../../pricing.dart';
 import 'planner_engine.dart';
 
-T _readEnum<T extends Enum>(List<T> values, Object? raw, String label) {
+T _readEnum<T extends Enum>(List<T> values, Object? raw) {
   if (raw is String) {
     for (final value in values) {
       if (value.name == raw) return value;
@@ -15,7 +15,7 @@ T _readEnum<T extends Enum>(List<T> values, Object? raw, String label) {
   throw const FormatException('planner.invalid_enum');
 }
 
-Decimal _decimal(Object? raw, String label, {bool positive = false}) {
+Decimal _decimal(Object? raw, {bool positive = false}) {
   try {
     final value = Decimal.parse(decimalText(raw));
     if (positive ? value <= Decimal.zero : value < Decimal.zero) {
@@ -27,7 +27,7 @@ Decimal _decimal(Object? raw, String label, {bool positive = false}) {
   }
 }
 
-String _date(Object? raw, String label) {
+String _date(Object? raw) {
   if (raw is! String) throw const FormatException('planner.invalid_date');
   try {
     isoDate(raw);
@@ -89,9 +89,9 @@ class PlannerNeed {
   factory PlannerNeed.fromJson(Map<String, dynamic> json) => PlannerNeed(
     id: json['id'] as String? ?? '',
     name: json['name'] as String? ?? '',
-    type: _readEnum(PlannerNeedType.values, json['type'], 'типу потреби'),
-    date: _date(json['date'], 'потреби'),
-    amount: _decimal(json['amount'], 'суми потреби'),
+    type: _readEnum(PlannerNeedType.values, json['type']),
+    date: _date(json['date']),
+    amount: _decimal(json['amount']),
     everyMonths: json['everyMonths'] as int?,
     occurrences: json['occurrences'] as int?,
   );
@@ -166,12 +166,12 @@ class PriceObservation {
 
   factory PriceObservation.fromJson(Map<String, dynamic> json) {
     Decimal? optionalDecimal(String key) =>
-        json[key] == null ? null : _decimal(json[key], key);
+        json[key] == null ? null : _decimal(json[key]);
     return PriceObservation(
       isin: json['isin'] as String? ?? '',
       currency: json['currency'] as String? ?? '',
-      kind: _readEnum(PriceValueKind.values, json['kind'], 'типу ціни'),
-      side: _readEnum(PriceSide.values, json['side'], 'сторони котирування'),
+      kind: _readEnum(PriceValueKind.values, json['kind']),
+      side: _readEnum(PriceSide.values, json['side']),
       price: optionalDecimal('price'),
       accruedInterest: optionalDecimal('accruedInterest'),
       yieldPercent: optionalDecimal('yieldPercent'),
@@ -321,9 +321,9 @@ class FeeRule {
   factory FeeRule.fromJson(Map<String, dynamic> json) => FeeRule(
     id: json['id'] as String? ?? '',
     name: json['name'] as String? ?? '',
-    kind: _readEnum(FeeKind.values, json['kind'], 'типу комісії'),
-    event: _readEnum(FeeEvent.values, json['event'], 'події комісії'),
-    value: _decimal(json['value'], 'комісії'),
+    kind: _readEnum(FeeKind.values, json['kind']),
+    event: _readEnum(FeeEvent.values, json['event']),
+    value: _decimal(json['value']),
     currency: json['currency'] as String?,
     everyMonths: json['everyMonths'] as int?,
     sourceUrl: json['sourceUrl'] as String?,
@@ -356,11 +356,7 @@ class FeeAssumptions {
   };
 
   factory FeeAssumptions.fromJson(Map<String, dynamic> json) => FeeAssumptions(
-    status: _readEnum(
-      FeeAssumptionStatus.values,
-      json['status'],
-      'статусу комісій',
-    ),
+    status: _readEnum(FeeAssumptionStatus.values, json['status']),
     rules: (json['rules'] as List? ?? const [])
         .map((e) => FeeRule.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList(),
@@ -419,12 +415,12 @@ class TaxRule {
 
   factory TaxRule.fromJson(Map<String, dynamic> json) => TaxRule(
     id: json['id'] as String? ?? '',
-    tax: _readEnum(TaxKind.values, json['tax'], 'виду податку'),
-    income: _readEnum(TaxIncomeKind.values, json['income'], 'виду доходу'),
-    ratePercent: _decimal(json['ratePercent'], 'ставки податку'),
-    scopeFrom: _date(json['scopeFrom'], 'початку податкового правила'),
-    scopeTo: _date(json['scopeTo'], 'кінця податкового правила'),
-    verifiedOn: _date(json['verifiedOn'], 'перевірки податкового правила'),
+    tax: _readEnum(TaxKind.values, json['tax']),
+    income: _readEnum(TaxIncomeKind.values, json['income']),
+    ratePercent: _decimal(json['ratePercent']),
+    scopeFrom: _date(json['scopeFrom']),
+    scopeTo: _date(json['scopeTo']),
+    verifiedOn: _date(json['verifiedOn']),
     sourceUrl: json['sourceUrl'] as String? ?? '',
   );
 }
@@ -505,11 +501,7 @@ class TaxScenario {
   };
 
   factory TaxScenario.fromJson(Map<String, dynamic> json) => TaxScenario(
-    status: _readEnum(
-      TaxAssumptionStatus.values,
-      json['status'],
-      'статусу податків',
-    ),
+    status: _readEnum(TaxAssumptionStatus.values, json['status']),
     label: json['label'] as String? ?? '',
     rules: (json['rules'] as List? ?? const [])
         .map((e) => TaxRule.fromJson(Map<String, dynamic>.from(e as Map)))
@@ -552,8 +544,8 @@ class FxAssumption {
   factory FxAssumption.fromJson(Map<String, dynamic> json) => FxAssumption(
     fromCurrency: json['from'] as String? ?? '',
     toCurrency: json['to'] as String? ?? '',
-    rate: _decimal(json['rate'], 'FX курсу', positive: true),
-    asOf: _date(json['asOf'], 'FX курсу'),
+    rate: _decimal(json['rate'], positive: true),
+    asOf: _date(json['asOf']),
     source: json['source'] == null
         ? null
         : SourceObservationMeta.fromJson(
@@ -601,12 +593,12 @@ class ExitAssumption {
   };
 
   factory ExitAssumption.fromJson(Map<String, dynamic> json) {
-    final mode = _readEnum(ExitMode.values, json['mode'], 'режиму виходу');
+    final mode = _readEnum(ExitMode.values, json['mode']);
     if (mode == ExitMode.holdToMaturity) {
       return ExitAssumption.holdToMaturity();
     }
     return ExitAssumption.earlySale(
-      _date(json['date'], 'дострокового продажу'),
+      _date(json['date']),
       PriceObservation.fromJson(
         Map<String, dynamic>.from(json['price'] as Map),
       ),
@@ -722,16 +714,12 @@ class PlannerScenario {
       groupId: json['groupId'] as String?,
       variantLabel: json['variantLabel'] as String? ?? 'A',
       currency: json['currency'] as String? ?? '',
-      budget: _decimal(json['budget'], 'бюджету', positive: true),
-      reserve: _decimal(json['reserve'], 'резерву'),
-      startDate: _date(json['startDate'], 'початку сценарію'),
-      minMaturity: _date(range['min'], 'мінімального погашення'),
-      maxMaturity: _date(range['max'], 'максимального погашення'),
-      strategy: _readEnum(
-        PlannerStrategy.values,
-        json['strategy'],
-        'стратегії',
-      ),
+      budget: _decimal(json['budget'], positive: true),
+      reserve: _decimal(json['reserve']),
+      startDate: _date(json['startDate']),
+      minMaturity: _date(range['min']),
+      maxMaturity: _date(range['max']),
+      strategy: _readEnum(PlannerStrategy.values, json['strategy']),
       needs: (json['needs'] as List)
           .map(
             (e) => PlannerNeed.fromJson(
