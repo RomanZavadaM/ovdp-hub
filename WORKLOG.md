@@ -25,54 +25,29 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **NEXT**
 
-Мета: **detailed MinFin auction results parser**.
+Мета: **freshness/status UX у картці ISIN**.
 
-- base `main`: `9b5e6130411fb45528dfaf310db5c78c058a8252`
-- active branch: `feat/minfin-detailed-auction-results`
-- критерії готовності:
-  - перевірені фактичні офіційні сторінки/документи Мінфіну та зафіксовані реальні поля/layout;
-  - typed detailed auction result model/parser без вигаданих полів;
-  - provenance/sourceDate/retrievedAt збережені;
-  - fail-closed для невідомого або зміненого layout;
-  - deterministic tests без live-network залежності;
-  - локалізовані user-facing parser errors;
-  - PR + green `flutter pub get --enforce-lockfile` / `flutter analyze` / `flutter test`.
-
-- draft PR: **#31** `Market: parse detailed MinFin auction results`
-- real source verified: 2026 MinFin result links are official `.docx` files under `mof.gov.ua/storage/files/`
-- observed placement layout: **21 rows × N placement columns**
-- observed switch layout: **26 fields × 1 result column**
-- deterministic parser/tests implemented; temporary live-network diagnostic removed
-- verify before diagnostic removal: **run #94 — success**
-
-
-- функціональний baseline після завершеного PDF schedule slice: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
-- post-merge documentation checkpoint: `d38189e24f1bec12c70991bb6c6df15957b1d8fe`
-- product direction / test cadence checkpoint: `531f33649da30eb9ec191632f11c418e33b7ddf7` (PR #27)
-- owner command semantics checkpoint: `75c62456e29a1882bbcf59d4a04e739966781da2` (PR #29)
-- попередній slice: structured future auction schedule from official calendar PDFs
-- merged PR: **#24** `Parse structured MinFin auction schedules from official PDFs`
-- merge SHA: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
-- stale source PR #21 закрито без merge
-- final functional verify before merge: **Flutter checks and START run #75 — success**
-- post-merge documentation verify: **Flutter checks and START run #77 — success** (`flutter pub get --enforce-lockfile`, `flutter analyze`, `flutter test`)
-- версія/checkpoint лишається **v0.8.4 / 0.8.4+12**
+- base `main`: `3f8ff04d1bddb221b5180384b547c6bd544a22d8`
+- попередній slice: detailed MinFin auction results parser
+- merged PR: **#31** `Market: parse detailed MinFin auction results from official DOCX`
+- merge SHA: `3f8ff04d1bddb221b5180384b547c6bd544a22d8`
+- final clean verify: **Flutter checks and START run #95 — success**
+- version/checkpoint лишається **v0.8.4 / 0.8.4+12**
 
 ### Поточна наступна дія
 
-Прогнати фінальний verify на гілці **без live-network diagnostic**; при success перевести PR #31 у ready і інтегрувати PR у `main`.
+Окремим slice перевірити поточну картку ISIN і уніфікувати відображення для кожного шару даних: **джерело → sourceDate/retrievedAt → freshness → confidence/status → evidence URL**, без змішування NBU / MinFin / seller.
 
 ## Черга робіт
 
-1. **VERIFIED** — detailed MinFin auction results parser.
-2. **TODO** — freshness/status UX у картці ISIN.
-3. **TODO** — multiple `PriceObservation` + explicit user source priority.
-4. **TODO** — typed fee/tax/FX/exit assumptions → calculations + UI.
-5. **TODO** — A/B/C comparison.
-6. **TODO** — generated planner copy / preset labels localization + UX regression.
-7. **TODO** — оцінка готовності formal prerelease 0.9.0.
+1. **NEXT** — freshness/status UX у картці ISIN.
+2. **TODO** — multiple `PriceObservation` + explicit user source priority.
+3. **TODO** — typed fee/tax/FX/exit assumptions → calculations + UI.
+4. **TODO** — A/B/C comparison.
+5. **TODO** — generated planner copy / preset labels localization + UX regression.
+6. **TODO** — оцінка готовності formal prerelease 0.9.0.
 
 ## Продуктова логіка цієї черги
 
@@ -99,6 +74,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.4 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — detailed MinFin auction results**: PR #31 squash-merged у `main` як `3f8ff04d1bddb221b5180384b547c6bd544a22d8`; final clean run #95 success. Реальні 2026 result DOCX перевірено; placement parser покриває 21-row × N layout, switch parser — 26-field layout; provenance, fail-closed validation, deterministic tests і локалізовані errors інтегровані.
 
 - **DONE — owner command semantics**: PR #29 squash-merged у `main` як `75c62456e29a1882bbcf59d4a04e739966781da2`; run #81 success. «Злити у main» тепер канонічно означає повний cross-platform test release, а звичайний merge називається «інтегрувати PR у main».
 

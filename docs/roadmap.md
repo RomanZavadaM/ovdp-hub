@@ -8,7 +8,7 @@
 
 Порядок розвитку:
 
-1. **Довіра до ринкових даних** — завершити detailed MinFin auction results parser з provenance, fail-closed поведінкою та deterministic tests.
+1. **Довіра до ринкових даних — DONE**: detailed MinFin auction results parser інтегрований з provenance, fail-closed поведінкою та deterministic tests.
 2. **Зрозуміла актуальність** — уніфікувати freshness/status UX у картці ISIN: що є офіційним фактом, що застаріло, що лише індикативне, коли саме отримано.
 3. **Явний вибір ринкової ціни** — підтримати кілька `PriceObservation` і дати користувачу явний пріоритет джерел без прихованої підміни yield/nominal ціною.
 4. **Повна економіка сценарію** — підключити typed fee/tax/FX/exit assumptions до розрахунків і UI; невідомі значення не вважати нулем.
@@ -41,11 +41,11 @@
 
 - [x] Єдина картка ISIN з окремими NBU / MinFin / seller шарами.
 - [x] НБУ: інструмент і графік контрактних виплат.
-- [ ] Мінфін: календар, оголошення, результати аукціонів і корекції.
+- [x] Мінфін: календар, оголошення та структуровані результати аукціонів.
   - [x] Typed index оголошень/результатів з розрізненням placement/switch та fail-closed parser.
   - [x] Typed index календарних документів Мінфіну: monthly / quarterly / switch PDF + publication date + provenance.
   - [x] Структурований розклад майбутніх аукціонів із календарних PDF: окремі monthly / quarterly / switch parser-и, provenance, deterministic tests і fail-closed validation.
-  - [ ] Детальний parser результатів аукціонів.
+  - [x] Детальний parser результатів аукціонів з офіційних DOCX: placement 21-row × N, switch 26-field, provenance + fail-closed + deterministic tests.
 - [x] Продавці: типізовані вторинні observations без вигаданої ціни.
 - [x] Базові sourceDate / retrievedAt / freshness / evidence URL; validUntil лишається source-specific.
 - [ ] Передача лише явної/введеної ціни у планувальник.
