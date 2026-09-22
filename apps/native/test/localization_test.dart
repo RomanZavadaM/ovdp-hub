@@ -38,6 +38,15 @@ void main() {
     await tester.tap(find.text('Sellers').first);
     await tester.pumpAndSettle();
     expect(find.text('Sellers · public quotes'), findsOneWidget);
+
+    await tester.tap(find.text('Storage').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Workspace folder'), findsOneWidget);
+
+    await tester.tap(find.text('Collections').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Saved collections'), findsOneWidget);
+
     expect(tester.takeException(), isNull);
   });
 }
