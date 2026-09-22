@@ -28,7 +28,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Catalog'), findsWidgets);
-    expect(find.text('Planning'), findsWidgets);
+    expect(find.byTooltip('Language'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
