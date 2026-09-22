@@ -29,12 +29,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 Мета: **detailed MinFin auction results parser**.
 
-- базовий `main`: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
+- функціональний baseline після завершеного PDF schedule slice: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
+- post-merge documentation checkpoint: `d38189e24f1bec12c70991bb6c6df15957b1d8fe`
 - попередній slice: structured future auction schedule from official calendar PDFs
 - merged PR: **#24** `Parse structured MinFin auction schedules from official PDFs`
 - merge SHA: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
 - stale source PR #21 закрито без merge
-- final verify before merge: **Flutter checks and START run #75 — success**
+- final functional verify before merge: **Flutter checks and START run #75 — success**
+- post-merge documentation verify: **Flutter checks and START run #77 — success** (`flutter pub get --enforce-lockfile`, `flutter analyze`, `flutter test`)
 - версія/checkpoint лишається **v0.8.4 / 0.8.4+12**
 
 ### Поточна наступна дія
