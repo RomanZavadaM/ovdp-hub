@@ -31,8 +31,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - базовий `main`: `2f3360d0d8f6d72fabff1489a8cb0d3bc5885c82`
 - активна гілка: `feat/minfin-calendar-documents`
-- PR: **#19 — Add typed MinFin auction calendar documents**
-- head перед цим оновленням журналу: `ee4e53a5e6e1000785cacef57c6924cc17ba72b8`
+- PR #19 **закритий без merge** через розсинхронізацію GitHub PR head (PR залишився на `f0918ac…`, тоді як гілка вже була на `29be2c…`)
+- replacement branch: `feat/minfin-calendar-documents-r2`; replacement PR створюється з актуального checkpoint
 - офіційне джерело перевірено 22.09.2026: `https://mof.gov.ua/uk/kalendar-aukcioniv`; сторінка публікує monthly / quarterly / switch PDF-документи та дати їх публікації
 - останній завершений slice: PR #17, merge `2f3360d0d8f6d72fabff1489a8cb0d3bc5885c82`
 - verify PR #17: run #53 — success
@@ -60,7 +60,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Черга робіт
 
-1. **DOING** — завершити PR #19: verify → squash merge.
+1. **DOING** — створити replacement PR з `feat/minfin-calendar-documents-r2` від актуального checkpoint `29be2c199b3c2dd5ccf5773a44d1535b28e02373`; verify → squash merge.
 2. **NEXT** — окремий slice: структурований розклад майбутніх аукціонів із офіційних календарних PDF; перед parser-ом візуально перевірити актуальні PDF-макети, не вгадувати дані.
 3. **TODO** — детальний parser результатів аукціонів Мінфіну, з fail-closed поведінкою та provenance.
 4. **TODO** — нормалізований freshness/status UX у картці ISIN.
