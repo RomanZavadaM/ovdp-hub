@@ -1,42 +1,58 @@
-# Roadmap
+# Roadmap OVDP Hub
 
-## 0.1 — initial baseline
-- [x] Repository documentation and local-first ADR.
-- [x] Static web comparison prototype with synthetic fixtures.
-- [x] Decimal pricing, conventional cashflow XIRR and tests.
-- [x] Build/typecheck/test CI definition.
+Оновлено: 22.09.2026. Цей roadmap стосується лише активного Flutter-продукту.
 
-## 0.2 — public information
-- [x] Validate NBU instrument and payment data API.
-- [x] NBU source adapter and provenance-aware public snapshot schema.
-- [x] Initial Ministry calendar view with source document and planned-status warning.
-- [ ] Ministry auction calendar/results ingestion with corrections.
-- [x] NBU retrieval freshness, quarantine and stale-source UX.
-- [x] Tests against versioned public fixtures; no network in unit tests.
+## 0.8.2 — стабілізація
 
-## 0.3 — comparison quality
-- [ ] Authorized public bank/broker quotes and versioned tariffs.
-- [x] ISIN, currency, maturity and source filters.
-- [x] Local comparison of up to three issues and short/long-horizon scenario packages.
-- [ ] Day-count-aware accrued interest and coupon schedules.
-- [ ] Effective-dated tax scenarios, recurring fees and deposit comparison.
-- [ ] Bid/Ask early-sale simulation, FX and budget-level return.
+- [x] Формальний proprietary release 0.8.1.
+- [x] Захист `main`: PR + `verify` + squash + up-to-date.
+- [ ] Прибрати завершені Web/Expo/Tauri/TypeScript прототипи з активного дерева.
+- [ ] Переписати архітектуру й product docs під Flutter.
+- [ ] Dart tool для оновлення початкового snapshot НБУ.
+- [ ] Retention старих публічних каталогів у workspace.
+- [ ] Єдина модель provenance/freshness для джерел.
+- [ ] Threat model для encrypted vault і backup/recovery.
+- [ ] Основа локалізації: UK за замовчуванням; EN/FR/DE/ES/KO/JA selectable.
 
-## 0.4 — local portfolio
-- [ ] Threat model, encrypted local vault and user-controlled backup/recovery.
-- [ ] Holdings import, coupon calendar, local ICS export.
-- [ ] Local maturity ladder and scenario calculator.
-- [ ] Offline asset caching and installable PWA after security review.
+## 0.9.0 — Ринок
 
-## 0.35 — multiplatform clients
-- [x] Installable Web/PWA shell.
-- [x] Expo Router catalog shell for iOS and Android.
-- [x] Tauri desktop shell for Windows and macOS.
-- [ ] Platform secure storage and release signing for private local vaults.
+- [ ] Єдина картка ISIN.
+- [ ] НБУ: інструмент і графік контрактних виплат.
+- [ ] Мінфін: календар, оголошення, результати аукціонів і корекції.
+- [ ] Продавці: типізовані вторинні observations без вигаданої ціни.
+- [ ] sourceDate / retrievedAt / validUntil / freshness / evidence URL.
+- [ ] Передача лише явної/введеної ціни у планувальник.
 
-## Later, separately scoped
-- [ ] React Native iOS/Android with platform secure storage.
-- [ ] Direct provider-authorized handoff; no private-data relay server.
-- [ ] Assess each partner's native/public-client authorization independently.
+## Планувальник наступного покоління
 
-Server-side identity, documents, signatures and order execution are excluded from the current architecture. Real-data integrations and automated recommendations are not implemented in 0.1.
+- [ ] Типізований PlannerScenario замість `Map<String,String>`.
+- [ ] Комісії: разові/періодичні/невідомі з явним статусом.
+- [ ] Effective-dated податкові сценарії.
+- [ ] Кілька джерел цін і пріоритет користувача.
+- [ ] Порівняння альтернативних сценаріїв A/B/C.
+- [ ] Продаж до погашення як окреме припущення з BID/ціною.
+- [ ] FX-модель з явним курсом, датою та джерелом.
+- [ ] Типи потреб: разова, регулярна, резервна, мінімальний залишок.
+- [ ] CSV/ICS; PDF лише після стабілізації структури звіту.
+
+## Encrypted vault / фактичний портфель
+
+- [ ] Threat model затверджений до коду шифрування.
+- [ ] Аудитована криптографічна бібліотека; не власна криптографія.
+- [ ] Platform secure storage: Windows/macOS/Android/iOS.
+- [ ] Lock/unlock, auto-lock, deletion, recovery.
+- [ ] Зашифрований backup з користувацьким recovery material.
+- [ ] Holdings, acquisition lots, фактичні купони/погашення після vault.
+- [ ] Android SAF / iOS security-scoped access для зовнішніх папок.
+
+## Distribution readiness
+
+- [ ] Windows code signing.
+- [ ] macOS Developer ID + notarization.
+- [ ] Android production keystore.
+- [ ] iOS signing/distribution.
+- [ ] Інсталятори й автооновлення — окреме рішення.
+
+## Незмінні межі
+
+Без окремого рішення власника не додаються централізовані портфелі, KYC, приватний relay, вбудовані partner secrets або виконання угод.
