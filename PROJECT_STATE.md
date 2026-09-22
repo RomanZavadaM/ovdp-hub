@@ -5,13 +5,14 @@
 ## Поточний checkpoint
 
 - Активна версія: **0.8.3+11**
-- Release target: **v0.8.3**
+- Опублікований GitHub tag: **v0.8.3**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
 - Основна гілка: `main`
 - Статус продукту: **test / prerelease**
-- Попередній опублікований checkpoint: **v0.8.2**
+- Release commit: **325b75b80f4e4ed76501142ec02031713c2e4e5d**
+- GitHub Release: **v0.8.3**, опублікований 22.09.2026
 
 ## Що реалізовано й входить до 0.8.3
 
@@ -46,6 +47,21 @@
 - workspace і старі сценарії не переписуються мовчки під час читання;
 - реальний портфель — лише після encrypted vault, platform secure storage і backup/recovery;
 - copyright original project materials: Roman Zavada (Роман Завада).
+
+## Реліз v0.8.3
+
+Release pipeline успішно пройшов dependency resolution, `flutter analyze`, **47 тестів** та release builds усіх цільових платформ.
+
+Опубліковані assets:
+- `OVDP-Hub-0.8.3-Windows-x64.zip`;
+- `OVDP-Hub-0.8.3-macOS.zip`;
+- `OVDP-Hub-0.8.3-Android-test.zip`;
+- `OVDP-Hub-0.8.3-iOS-unsigned.zip`;
+- `OVDP-Hub-0.8.3-START.zip`;
+- `SHA256SUMS.txt`;
+- legal notices.
+
+За політикою проєкту tag/release не пересуваємо й не переписуємо.
 
 ## Чому 0.8.3, а не 0.9.0
 
