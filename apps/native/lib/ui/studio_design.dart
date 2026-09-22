@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/hub_locale.dart';
 
 ThemeData hubTheme(bool studio) {
   if (!studio) {
@@ -103,7 +104,7 @@ class StudioSidebar extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'ОВДП HUB',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 21,
                             fontWeight: FontWeight.w700,
@@ -118,7 +119,7 @@ class StudioSidebar extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(12, 10, 0, 38),
                 child: Text(
                   'ПРОСТІР ДЛЯ РІШЕНЬ',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xffaabbd3),
                     fontSize: 10,
                     letterSpacing: 1.8,
@@ -129,7 +130,7 @@ class StudioSidebar extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(12, 0, 0, 12),
                 child: Text(
                   'ДОСЛІДИТИ',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xffaabbd3),
                     fontSize: 11,
                     letterSpacing: 1.5,
@@ -145,7 +146,7 @@ class StudioSidebar extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(12, 28, 0, 12),
                 child: Text(
                   'МОЇ РІШЕННЯ',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xffaabbd3),
                     fontSize: 11,
                     letterSpacing: 1.5,
@@ -247,7 +248,7 @@ class StudioHero extends StatelessWidget {
               ),
               onPressed: plan,
               icon: const Icon(Icons.arrow_forward, size: 18),
-              label: const Text('Планувати кошти'),
+              label: Text(strings.text('planFunds')),
             ),
             OutlinedButton(
               style: OutlinedButton.styleFrom(
@@ -259,7 +260,7 @@ class StudioHero extends StatelessWidget {
                 ),
               ),
               onPressed: sellers,
-              child: const Text('Переглянути продавців'),
+              child: Text(strings.text('viewSellers')),
             ),
           ],
         ),
