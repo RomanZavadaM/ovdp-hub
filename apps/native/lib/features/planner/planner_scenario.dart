@@ -203,7 +203,9 @@ class PriceObservation {
       kind: nominalEstimate
           ? ObservationKind.instrument
           : ObservationKind.manual,
-      confidence: ObservationConfidence.publicIndicative,
+      confidence: nominalEstimate
+          ? ObservationConfidence.publicIndicative
+          : ObservationConfidence.userAssumption,
     ),
   );
 }
@@ -877,7 +879,7 @@ class PlannerScenario {
 
   Map<String, String> toCurrentUiCriteria() {
     if (needs.any((need) => need.type != PlannerNeedType.oneOff)) {
-      throw const UnsupportedError(
+      throw UnsupportedError(
         'Поточний UI ще не редагує typed recurring/reserve needs',
       );
     }
