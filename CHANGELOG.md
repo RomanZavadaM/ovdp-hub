@@ -2,6 +2,13 @@
 
 Усі помітні зміни OVDP Hub фіксуються тут. Опубліковані GitHub Releases додатково мають незмінні release notes у `docs/releases/`.
 
+## [0.8.2] — 2026-09-22
+
+### Stabilization
+- Активний репозиторій консолідовано навколо Flutter native product.
+- Додано Dart refresh НБУ, retention публічних каталогів, provenance/freshness та threat model encrypted vault.
+- Закладено локалізацію з українською мовою за замовчуванням і вибором EN/FR/DE/ES/KO/JA.
+
 ## [0.8.1] — 2026-09-22
 
 ### Legal and packaging
