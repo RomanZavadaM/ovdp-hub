@@ -36,7 +36,7 @@ class SellersView extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
         if (state.snapshot != null)
-          Text(strings.fmt('sourceDate', {'date': state.snapshot!.sourceDate}) + ' · ' + strings.fmt('loadedAt', {'date': state.snapshot!.retrievedAt})),
+          Text('\${strings.fmt('sourceDate', {'date': state.snapshot!.sourceDate})} · \${strings.fmt('loadedAt', {'date': state.snapshot!.retrievedAt})}'),
         if (cubit.freshness != null && cubit.freshness != DataFreshness.current)
           Text(
             strings.text(switch (cubit.freshness!) {
@@ -76,10 +76,10 @@ class SellersView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SelectableText(
-                    '${q.isin} · ${q.currency} · погашення ${q.maturity}',
+                    '${q.isin} · ${q.currency} · ${strings.text('bondMaturity')} ${q.maturity}',
                   ),
                   Text(
-                    'ASK: ${q.askYield ?? 'немає'}${q.askYield == null ? '' : '%'} · BID: ${q.bidYield ?? 'немає'}${q.bidYield == null ? '' : '%'} · ${q.method}',
+                    'ASK: ${q.askYield ?? strings.text('none')}${q.askYield == null ? '' : '%'} · BID: ${q.bidYield ?? strings.text('none')}${q.bidYield == null ? '' : '%'} · ${q.method}',
                   ),
                   Text(strings.text('notConfirmed')),
                 ],
