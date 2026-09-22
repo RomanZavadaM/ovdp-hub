@@ -38,28 +38,15 @@ class OvdpApp extends StatelessWidget {
     dispose: (repo) => repo.dispose(),
     child: MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => CatalogCubit(context.read<HubRepository>()),
-          lazy: false,
-        ),
-        BlocProvider(
-          create: (context) => CollectionsCubit(context.read<HubRepository>()),
-          lazy: false,
-        ),
-        BlocProvider(
-          create: (context) =>
-              CollectionEditorCubit(context.read<HubRepository>()),
-          lazy: false,
-        ),
+        BlocProvider(create: (context) => CatalogCubit(context.read<HubRepository>()), lazy: false),
+        BlocProvider(create: (context) => CollectionsCubit(context.read<HubRepository>()), lazy: false),
+        BlocProvider(create: (context) => CollectionEditorCubit(context.read<HubRepository>()), lazy: false),
         BlocProvider(create: (_) => CalculatorCubit()),
         BlocProvider(create: (_) => AppearanceCubit()),
         BlocProvider(create: (_) => LocaleCubit()),
         BlocProvider(create: (_) => SellersCubit(SellerRepository())),
         BlocProvider(create: (_) => NavigationCubit()),
-        BlocProvider(
-          create: (context) => PlannerCubit(context.read<HubRepository>()),
-          lazy: false,
-        ),
+        BlocProvider(create: (context) => PlannerCubit(context.read<HubRepository>()), lazy: false),
         BlocProvider(
           create: (context) => WorkspaceCubit(
             context.read<HubRepository>(),
@@ -109,39 +96,18 @@ class Home extends StatelessWidget {
     final wide = MediaQuery.sizeOf(context).width >= 1000;
 
     final destinations = [
-      NavigationDestination(
-        icon: const Icon(Icons.analytics_outlined),
-        label: strings.text('catalog'),
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.bookmarks_outlined),
-        label: strings.text('collections'),
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.calculate_outlined),
-        label: strings.text('calculator'),
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.folder_outlined),
-        label: strings.text('workspace'),
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.event_available_outlined),
-        label: strings.text('planning'),
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.storefront_outlined),
-        label: strings.text('sellers'),
-      ),
+      NavigationDestination(icon: const Icon(Icons.analytics_outlined), label: strings.text('catalog')),
+      NavigationDestination(icon: const Icon(Icons.bookmarks_outlined), label: strings.text('collections')),
+      NavigationDestination(icon: const Icon(Icons.calculate_outlined), label: strings.text('calculator')),
+      NavigationDestination(icon: const Icon(Icons.folder_outlined), label: strings.text('workspace')),
+      NavigationDestination(icon: const Icon(Icons.event_available_outlined), label: strings.text('planning')),
+      NavigationDestination(icon: const Icon(Icons.storefront_outlined), label: strings.text('sellers')),
     ];
 
     final content = Column(
       children: [
         if (workspace.busy) const LinearProgressIndicator(),
-        ErrorNotice(
-          workspace.error,
-          context.read<WorkspaceCubit>().dismissError,
-        ),
+        ErrorNotice(workspace.error, context.read<WorkspaceCubit>().dismissError),
         Expanded(
           child: SingleChildScrollView(
             key: ValueKey(screen),
@@ -169,14 +135,11 @@ class Home extends StatelessWidget {
               showAboutDialog(
                 context: context,
                 applicationName: 'ОВДП Hub',
-                applicationLegalese:
-                    'Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.',
-                children: const [
+                applicationLegalese: 'Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.',
+                children: [
                   Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Text(
-                      'ОВДП Hub є proprietary software. Публічна видимість вихідного коду не є open-source ліцензією. Повні умови використання містяться у LICENSE.md у комплекті програми та репозиторії.',
-                    ),
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text(strings.text('aboutLegal')),
                   ),
                 ],
               );
@@ -189,40 +152,27 @@ class Home extends StatelessWidget {
             initialValue: language,
             onSelected: context.read<LocaleCubit>().select,
             itemBuilder: (_) => AppLanguage.values
-                .map(
-                  (item) => PopupMenuItem<AppLanguage>(
-                    value: item,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(item.nativeName),
-                        Text(
-                          item.ukrainianDescription,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
+                .map((item) => PopupMenuItem<AppLanguage>(
+                  value: item,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(item.nativeName),
+                      Text(item.ukrainianDescription, style: Theme.of(context).textTheme.bodySmall),
+                    ],
                   ),
-                )
+                ))
                 .toList(),
           ),
           IconButton(
-            tooltip: studio ? 'Класичний дизайн' : 'Дизайн «Робочий кабінет»',
+            tooltip: studio ? strings.text('classicDesign') : strings.text('studioDesign'),
             onPressed: context.read<AppearanceCubit>().toggle,
-            icon: Icon(
-              studio
-                  ? Icons.view_sidebar_outlined
-                  : Icons.dashboard_customize_outlined,
-            ),
+            icon: Icon(studio ? Icons.view_sidebar_outlined : Icons.dashboard_customize_outlined),
           ),
           if (wide)
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(
-                workspace.path == null
-                    ? strings.text('workspaceClosed')
-                    : strings.text('localData'),
-              ),
+              child: Text(workspace.path == null ? strings.text('workspaceClosed') : strings.text('localData')),
             ),
         ],
       ),
@@ -230,22 +180,14 @@ class Home extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (wide && studio)
-            StudioSidebar(
-              selected: screen,
-              onSelected: context.read<NavigationCubit>().select,
-            ),
+            StudioSidebar(selected: screen, onSelected: context.read<NavigationCubit>().select),
           if (wide && !studio)
             NavigationRail(
               selectedIndex: screen,
               labelType: NavigationRailLabelType.all,
               onDestinationSelected: context.read<NavigationCubit>().select,
               destinations: destinations
-                  .map(
-                    (d) => NavigationRailDestination(
-                      icon: d.icon,
-                      label: Text(d.label),
-                    ),
-                  )
+                  .map((d) => NavigationRailDestination(icon: d.icon, label: Text(d.label)))
                   .toList(),
             ),
           Expanded(child: content),
@@ -254,8 +196,7 @@ class Home extends StatelessWidget {
       bottomNavigationBar: wide
           ? null
           : NavigationBar(
-              labelBehavior:
-                  NavigationDestinationLabelBehavior.onlyShowSelected,
+              labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
               selectedIndex: screen,
               destinations: destinations,
               onDestinationSelected: context.read<NavigationCubit>().select,
