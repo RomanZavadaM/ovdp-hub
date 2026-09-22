@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +8,7 @@ import 'package:ovdp_hub/data/source_observation.dart';
 import 'package:ovdp_hub/features/market/minfin_repository.dart';
 import 'package:ovdp_hub/features/sellers/seller_repository.dart';
 import 'package:ovdp_hub/l10n/hub_locale.dart';
+import 'package:ovdp_hub/models.dart';
 import 'package:ovdp_hub/ui/components.dart';
 
 import 'planner_test.dart' as fixture;
@@ -15,6 +18,16 @@ void main() {
     tester,
   ) async {
     final bond = fixture.bond('UA4000239115', '2027-09-15');
+    final catalog = Catalog.parse(
+      jsonEncode({
+        'schemaVersion': 1,
+        'source': 'https://bank.gov.ua/depo_securities?json',
+        'sourcePage': 'https://bank.gov.ua/ua/markets/ovdp',
+        'retrievedAt': '2026-09-22T11:00:00Z',
+        'sourceAsOf': null,
+        'assets': [bond.json],
+      }),
+    );
     final primary = MinfinSnapshot(
       const SourceObservationMeta(
         sourceId: 'minfin-test',
@@ -64,6 +77,7 @@ void main() {
                 onPressed: () => showBondDetails(
                   context,
                   bond,
+                  catalog: catalog,
                   seller: seller,
                   primaryFuture: Future.value(primary),
                 ),
@@ -86,6 +100,17 @@ void main() {
     expect(find.text('Seller · secondary market'), findsOneWidget);
     expect(find.textContaining('15.17%'), findsOneWidget);
     expect(find.textContaining('15.00'), findsOneWidget);
+    expect(find.text('Source: NBU'), findsOneWidget);
+    expect(find.text('Source: Ministry of Finance'), findsOneWidget);
+    expect(find.text('Source: Seller'), findsOneWidget);
+    expect(
+      find.text('Data status: Officially published data'),
+      findsNWidgets(2),
+    );
+    expect(
+      find.text('Data status: Public indicative data'),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
 }
