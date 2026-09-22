@@ -34,6 +34,21 @@ void main() {
     expect((await reopened.catalog())!.bonds.length, catalog.bonds.length);
     expect((await reopened.sets()).single.note, 'Нотатка');
   });
+  test('public catalog cache keeps only retained newest snapshots', () async {
+    final source = await Workspace.open(
+      Directory(p.join(root.path, 'source')),
+      create: true,
+    );
+    for (var i = 0; i < Workspace.catalogRetention + 5; i++) {
+      await source.saveCatalog(catalog);
+    }
+    expect(
+      (await source.records('catalogs')).length,
+      Workspace.catalogRetention,
+    );
+    expect((await source.catalog())!.bonds.length, catalog.bonds.length);
+  });
+
   test('copy preserves source and validates destination', () async {
     final source = await Workspace.open(
       Directory(p.join(root.path, 'source')),
