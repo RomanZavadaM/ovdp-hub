@@ -42,6 +42,12 @@
 - deterministic tests без live-network залежності;
 - локалізовані parser errors для UK/EN/FR/DE/ES/KO/JA;
 - audited pure-Dart PDF dependencies та оновлені legal notices.
+- detailed MinFin auction-result parser з офіційних DOCX;
+- typed placement results: 21-row observed layout × N випусків;
+- typed switch-auction results: 26-field observed layout;
+- нормалізація Word-run fragmentation без домислювання відсутніх даних;
+- fail-closed DOCX/URL/layout/date validation, provenance та deterministic tests;
+- direct MIT `archive` dependency і локалізовані result-DOCX errors UK/EN/FR/DE/ES/KO/JA.
 
 Це development state на шляху до **0.9.0 «Ринок»**. Git tag/release `v0.8.4` не переписувався.
 
@@ -87,20 +93,18 @@ Tag/release не пересуваємо й не переписуємо.
 ## Чому 0.8.4, а не 0.9.0
 
 0.8.4 уже містить значну частину етапу «Ринок», але **ще не завершені**:
-- detailed auction results parser;
 - повне підключення typed fee/tax/FX/exit assumptions до всіх розрахунків та UI;
 - multiple price sources з explicit user priority;
 - повне A/B/C comparison.
 
-Тому 0.8.4 — завершений тестовий checkpoint. Structured future auction schedule уже інтегрований у `main` після цього релізу, але 0.9.0 лишається активною ціллю до завершення решти market-slice.
+Тому 0.8.4 — завершений тестовий checkpoint. Structured future auction schedule і detailed MinFin auction results уже інтегровані у `main` після цього релізу, але 0.9.0 лишається активною ціллю до завершення решти market-slice.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. detailed parser результатів аукціонів Мінфіну;
-2. нормалізований freshness/status UX у картці ISIN;
+1. нормалізований freshness/status UX у картці ISIN;
+2. multiple `PriceObservation` + explicit user source priority;
 3. typed fee/tax/FX/exit assumptions → calculations + UI;
-4. multiple `PriceObservation` + explicit user source priority;
-5. A/B/C comparison;
-6. generated planner copy / preset labels localization під час відповідного UI slice.
+4. A/B/C comparison;
+5. generated planner copy / preset labels localization під час відповідного UI slice.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел на відповідну дату.
