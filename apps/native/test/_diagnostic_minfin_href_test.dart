@@ -1,11 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
-  test('diagnostic: inspect current MinFin auction result targets', () async {
+  test('diagnostic: inspect current MinFin placement and switch result targets',
+      () async {
     final indexUri =
         Uri.parse('https://mof.gov.ua/uk/ogoloshennja-ta-rezultati-aukcioniv');
     final response = await http.get(indexUri);
@@ -17,67 +16,58 @@ void main() {
       dotAll: true,
     );
 
-    final targets = <Uri>[];
+    Uri? placementTarget;
+    Uri? switchTarget;
+
     for (final row in rowPattern.allMatches(response.body)) {
       final html = row.group(1)!;
       if (!html.contains('2026')) continue;
-      final anchors = anchorPattern.allMatches(html).toList();
-      if (!anchors.any((a) => a.group(2)!.contains('Результати проведення'))) {
-        continue;
-      }
 
-      final compact = html
-          .replaceAll(RegExp(r'<[^>]+>'), ' ')
-          .replaceAll(RegExp(r'\s+'), ' ')
-          .trim();
-      debugPrint('MINFIN_ROW: $compact');
-
-      for (final a in anchors) {
+      for (final a in anchorPattern.allMatches(html)) {
         final label = a
             .group(2)!
             .replaceAll(RegExp(r'<[^>]+>'), ' ')
             .replaceAll(RegExp(r'\s+'), ' ')
             .trim();
-        final href = a.group(1)!;
-        debugPrint('MINFIN_LINK: $href | $label');
-        if (label.contains('Результати проведення')) {
-          final target = indexUri.resolve(href);
-          if (!targets.contains(target) && targets.length < 2) {
-            targets.add(target);
-          }
+        if (!label.startsWith('Результати проведення')) continue;
+
+        final target = indexUri.resolve(a.group(1)!);
+        if (label.contains('обміну')) {
+          switchTarget ??= target;
+        } else {
+          placementTarget ??= target;
         }
       }
+
+      if (placementTarget != null && switchTarget != null) break;
     }
 
-    expect(targets, isNotEmpty, reason: 'No MinFin result targets discovered');
+    expect(placementTarget, isNotNull);
+    expect(switchTarget, isNotNull);
 
-    for (final target in targets) {
-      final result = await http.get(target);
+    for (final entry in <MapEntry<String, Uri>>[
+      MapEntry('PLACEMENT', placementTarget!),
+      MapEntry('SWITCH', switchTarget!),
+    ]) {
+      final result = await http.get(entry.value);
+      final kind = entry.key;
+      final target = entry.value;
       final status = result.statusCode;
       final contentType = result.headers['content-type'] ?? '';
       final length = result.bodyBytes.length;
-      debugPrint('MINFIN_TARGET: $target');
-      debugPrint('MINFIN_STATUS: $status');
-      debugPrint('MINFIN_CONTENT_TYPE: $contentType');
-      debugPrint('MINFIN_LENGTH: $length');
-
       final prefixHex = result.bodyBytes
-          .take(32)
+          .take(16)
           .map((b) => b.toRadixString(16).padLeft(2, '0'))
           .join(' ');
-      debugPrint('MINFIN_PREFIX_HEX: $prefixHex');
 
-      if (contentType.contains('text/') ||
-          contentType.contains('html') ||
-          contentType.contains('json')) {
-        final preview = utf8
-            .decode(result.bodyBytes, allowMalformed: true)
-            .replaceAll(RegExp(r'\s+'), ' ')
-            .trim();
-        final previewLength = preview.length > 1200 ? 1200 : preview.length;
-        final clipped = preview.substring(0, previewLength);
-        debugPrint('MINFIN_PREVIEW: $clipped');
-      }
+      debugPrint('MINFIN_$kind' '_TARGET: $target');
+      debugPrint('MINFIN_$kind' '_STATUS: $status');
+      debugPrint('MINFIN_$kind' '_CONTENT_TYPE: $contentType');
+      debugPrint('MINFIN_$kind' '_LENGTH: $length');
+      debugPrint('MINFIN_$kind' '_PREFIX_HEX: $prefixHex');
+
+      expect(status, 200);
+      expect(result.bodyBytes.length, greaterThan(4));
     }
   }, timeout: const Timeout(Duration(seconds: 45)));
 }
