@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../l10n/hub_locale.dart';
 import '../../ui/components.dart';
 import '../navigation/navigation_cubit.dart';
 import '../workspace/workspace_cubit.dart';
@@ -7,22 +9,25 @@ import 'editor_cubit.dart';
 
 class CollectionEditorView extends StatelessWidget {
   const CollectionEditorView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CollectionEditorCubit>().state;
+    final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     final cubit = context.read<CollectionEditorCubit>();
     final busy = state.busy || context.watch<WorkspaceCubit>().state.busy;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SectionHeading('Добірка для роздумів · ${state.selected.length}'),
-            ErrorNotice(state.error, cubit.dismissError),
-            const Text(
-              'Це власний сценарій, а не рекомендація або заявка на купівлю.',
+            SectionHeading(
+              '${strings.text('editorTitle')} · ${state.selected.length}',
             ),
+            ErrorNotice(state.error, cubit.dismissError),
+            Text(strings.text('editorDisclaimer')),
             Wrap(
               spacing: 8,
               children: state.selected.values
@@ -37,11 +42,11 @@ class CollectionEditorView extends StatelessWidget {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('ISIN')),
-                  DataColumn(label: Text('Валюта')),
-                  DataColumn(label: Text('Ставка')),
-                  DataColumn(label: Text('Погашення')),
+                columns: [
+                  const DataColumn(label: Text('ISIN')),
+                  DataColumn(label: Text(strings.text('currency'))),
+                  DataColumn(label: Text(strings.text('rate'))),
+                  DataColumn(label: Text(strings.text('maturityColumn'))),
                 ],
                 rows: state.selected.values
                     .map(
@@ -62,7 +67,9 @@ class CollectionEditorView extends StatelessWidget {
               key: ValueKey('name-${state.revision}'),
               initialValue: state.name,
               enabled: !busy,
-              decoration: const InputDecoration(labelText: 'Назва добірки'),
+              decoration: InputDecoration(
+                labelText: strings.text('collectionName'),
+              ),
               onChanged: (v) => cubit.edit(name: v),
             ),
             const SizedBox(height: 12),
@@ -71,8 +78,8 @@ class CollectionEditorView extends StatelessWidget {
               initialValue: state.note,
               enabled: !busy,
               maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: 'Нотатки та припущення',
+              decoration: InputDecoration(
+                labelText: strings.text('notesAssumptions'),
               ),
               onChanged: (v) => cubit.edit(note: v),
             ),
@@ -87,7 +94,7 @@ class CollectionEditorView extends StatelessWidget {
                       }
                     },
               icon: const Icon(Icons.save_outlined),
-              label: const Text('Зберегти в робочій папці'),
+              label: Text(strings.text('saveWorkspace')),
             ),
           ],
         ),
