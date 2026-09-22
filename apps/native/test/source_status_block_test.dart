@@ -18,7 +18,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: SourceStatusBlock(
             meta: meta,
@@ -57,7 +57,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: SourceStatusBlock(
             meta: meta,
