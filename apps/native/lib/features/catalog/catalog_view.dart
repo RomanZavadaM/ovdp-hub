@@ -8,6 +8,7 @@ import '../appearance/appearance_cubit.dart';
 import '../collections/editor_cubit.dart';
 import '../collections/editor_view.dart';
 import '../navigation/navigation_cubit.dart';
+import '../sellers/sellers_cubit.dart';
 import '../workspace/workspace_cubit.dart';
 import 'catalog_cubit.dart';
 
@@ -20,6 +21,7 @@ class CatalogView extends StatelessWidget {
     final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     final cubit = context.read<CatalogCubit>();
     final editor = context.watch<CollectionEditorCubit>().state;
+    final seller = context.watch<SellersCubit>().state.snapshot;
     final busy =
         state.busy || editor.busy || context.watch<WorkspaceCubit>().state.busy;
     if (state.catalog == null) {
@@ -145,7 +147,7 @@ class CatalogView extends StatelessWidget {
               trailing: IconButton(
                 tooltip: strings.text('issueDetails'),
                 icon: const Icon(Icons.chevron_right),
-                onPressed: () => showBondDetails(context, b),
+                onPressed: () => showBondDetails(context, b, seller: seller),
               ),
             ),
           ),
