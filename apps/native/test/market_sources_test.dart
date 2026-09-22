@@ -26,6 +26,7 @@ void main() {
       DateTime.utc(2026, 9, 22, 12),
     );
     expect(snapshot.meta.kind, ObservationKind.primaryAuction);
+    expect(snapshot.meta.confidence, ObservationConfidence.officialPublished);
     expect(snapshot.meta.sourceDate, '2026-09-15');
     expect(snapshot.rates.length, 2);
     expect(snapshot.rates.first.isin, 'UA4000239115');
@@ -58,6 +59,7 @@ void main() {
     );
 
     expect(snapshot.meta.sourceDate, '2026-09-23');
+    expect(snapshot.meta.confidence, ObservationConfidence.officialPublished);
     expect(snapshot.events.length, 2);
     expect(
       snapshot.events.first.kind,
@@ -128,6 +130,7 @@ void main() {
     );
 
     expect(snapshot.meta.sourceDate, '2026-09-17');
+    expect(snapshot.meta.confidence, ObservationConfidence.officialPublished);
     expect(snapshot.meta.sourceUrl, MinfinRepository.calendarUrl);
     expect(snapshot.documents.length, 3);
     expect(
