@@ -53,7 +53,7 @@ void main() {
 
     expect(snapshot.meta.sourceDate, '2026-03-27');
     expect(snapshot.meta.sourceUrl, document.documentUrl);
-    expect(snapshot.entries.length, 3);
+    expect(snapshot.entries.length, 2);
 
     final first = snapshot.entries.first as MinfinMonthlyPlacementScheduleEntry;
     expect(first.auctionDate, '2026-04-07');
@@ -107,7 +107,7 @@ void main() {
       retrievedAt: DateTime.utc(2026, 9, 22, 12),
     );
 
-    expect(snapshot.entries.length, 2);
+    expect(snapshot.entries.length, 3);
     final july =
         snapshot.entries.first as MinfinQuarterlyPlacementScheduleEntry;
     expect(july.auctionDate, '2026-07-07');
