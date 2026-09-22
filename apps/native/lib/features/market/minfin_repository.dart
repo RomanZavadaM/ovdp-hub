@@ -53,7 +53,7 @@ String _isoFromUaDate(String value) {
   if (parts.length != 3) {
     throw const FormatException('Невідома дата аукціону Мінфіну');
   }
-  final result = parts[2] + '-' + parts[1] + '-' + parts[0];
+  final result = '${parts[2]}-${parts[1]}-${parts[0]}';
   isoDate(result);
   return result;
 }
@@ -133,7 +133,7 @@ class MinfinRepository {
         .get(Uri.parse(url))
         .timeout(const Duration(seconds: 25));
     if (response.statusCode != 200) {
-      throw StateError('Мінфін відповів HTTP ' + response.statusCode.toString());
+      throw StateError('Мінфін відповів HTTP ${response.statusCode}');
     }
     if (response.bodyBytes.length > 4 * 1024 * 1024) {
       throw const FormatException('Неочікуваний розмір сторінки Мінфіну');
