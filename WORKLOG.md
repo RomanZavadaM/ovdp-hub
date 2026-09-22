@@ -47,10 +47,27 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 1. **NEXT** — detailed MinFin auction results parser.
 2. **TODO** — freshness/status UX у картці ISIN.
-3. **TODO** — typed fee/tax/FX/exit assumptions → calculations + UI.
-4. **TODO** — multiple `PriceObservation` + explicit user source priority.
+3. **TODO** — multiple `PriceObservation` + explicit user source priority.
+4. **TODO** — typed fee/tax/FX/exit assumptions → calculations + UI.
 5. **TODO** — A/B/C comparison.
-6. **TODO** — оцінка готовності formal prerelease 0.9.0.
+6. **TODO** — generated planner copy / preset labels localization + UX regression.
+7. **TODO** — оцінка готовності formal prerelease 0.9.0.
+
+## Продуктова логіка цієї черги
+
+Не розширювати продукт новими ізольованими джерелами, доки не замкнений базовий шлях користувача:
+
+**ринковий факт → freshness/provenance → вибір ціни → припущення витрат/податків/FX/exit → план → A/B/C comparison**.
+
+Поточний MinFin results parser є першим кроком цього ланцюжка, а не окремою технічною ціллю.
+
+## Ритм `main` і ручного тестування
+
+- кожен завершений self-contained slice: PR → green checks → merge у `main`;
+- не починати наступний функціональний slice, накопичуючи кілька готових незлитих гілок;
+- після кожного user-visible merge брати START artifact саме з актуального `main` для ручного тестування;
+- після 2–3 user-visible merged slices, або раніше після ризикової зміни parser/calculation/schema, робити новий immutable cross-platform prerelease/checkpoint;
+- поточний опублікований v0.8.4 не переписувати.
 
 ## Нещодавно завершено
 
