@@ -44,7 +44,7 @@ class CalculatorView extends StatelessWidget {
           onPressed: cubit.calculate,
           child: Text(strings.text('calculateLocal')),
         ),
-        if (state.error != null) Text(state.error!),
+        if (state.error != null) Text(strings.error(state.error!)),
         if (result != null)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),

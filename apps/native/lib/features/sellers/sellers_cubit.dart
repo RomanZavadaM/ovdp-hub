@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../errors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'seller_repository.dart';
 import '../../data/source_observation.dart';
@@ -8,7 +9,7 @@ class SellersState {
   final SellerSnapshot? snapshot;
   final bool busy, askOnly;
   final String currency;
-  final String? error;
+  final AppError? error;
   const SellersState({
     this.snapshot,
     this.busy = false,
@@ -21,7 +22,7 @@ class SellersState {
     bool? busy,
     bool? askOnly,
     String? currency,
-    String? error,
+    AppError? error,
     bool clearError = false,
   }) => SellersState(
     snapshot: snapshot ?? this.snapshot,
@@ -63,7 +64,7 @@ class SellersCubit extends Cubit<SellersState> {
       }
     } catch (e) {
       if (!isClosed) {
-        emit(state.copyWith(busy: false, error: e.toString()));
+        emit(state.copyWith(busy: false, error: AppError.from(e)));
       }
     }
   }

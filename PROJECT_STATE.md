@@ -76,7 +76,8 @@ Release pipeline успішно пройшов dependency resolution, `flutter a
 - трирівнева картка ISIN: НБУ / Мінфін / продавець з provenance;
 - contract/widget tests для market-source parser та картки ISIN;
 - функціональна локалізація shell, Каталогу, Калькулятора, Продавців, Сховища, Добірок і редактора Добірки для UK/EN/FR/DE/ES/KO/JA;
-- поточний slice завершує повну статичну UI-локалізацію Планувальника;
+- повна статична UI-локалізація Планувальника;
+- розпочато domain/error localization: введено typed `AppError` (code + parameters), локалізацію помилок UK/EN/FR/DE/ES/KO/JA та переведено основні Cubit/market/pricing потоки з готових текстів на коди;
 - нові та перероблені екрани не повинні мати hard-coded користувацьких рядків.
 
 ## Наступний етап — 0.9.0 «Ринок»

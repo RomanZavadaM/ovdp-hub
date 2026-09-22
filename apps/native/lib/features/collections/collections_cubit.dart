@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../../errors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/hub_repository.dart';
 import '../../models.dart';
@@ -8,7 +9,7 @@ import '../../models.dart';
 class CollectionsState {
   final List<SavedSet> sets;
   final bool busy;
-  final String? error;
+  final AppError? error;
   CollectionsState({
     Iterable<SavedSet> sets = const [],
     this.busy = false,
@@ -17,7 +18,7 @@ class CollectionsState {
   CollectionsState copyWith({
     Iterable<SavedSet>? sets,
     bool? busy,
-    String? error,
+    AppError? error,
     bool clearError = false,
   }) => CollectionsState(
     sets: sets ?? this.sets,
@@ -42,7 +43,7 @@ class CollectionsCubit extends Cubit<CollectionsState> {
       await repository.reloadCollections();
       if (!isClosed) emit(state.copyWith(busy: false));
     } catch (e) {
-      if (!isClosed) emit(state.copyWith(busy: false, error: e.toString()));
+      if (!isClosed) emit(state.copyWith(busy: false, error: AppError.from(e)));
     }
   }
 

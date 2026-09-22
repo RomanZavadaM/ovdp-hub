@@ -32,7 +32,7 @@ void main() {
       expect(await editor.save(), false);
       expect(editor.state.name, 'План');
       expect(editor.state.selected.length, 1);
-      expect(editor.state.error, contains('Диск'));
+      expect(editor.state.error?.code, 'common.unexpected');
       repository.saveError = null;
       expect(await editor.save(), true);
       expect(editor.state.dirty, false);

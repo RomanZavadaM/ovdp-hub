@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../../errors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/hub_repository.dart';
 import '../../models.dart';
@@ -9,7 +10,7 @@ class CatalogState {
   final Catalog? catalog;
   final String query, currency, horizon;
   final bool activeOnly, busy;
-  final String? error;
+  final AppError? error;
   final List<Bond> visible;
   final Map<String, int> currencyCounts;
   final bool stale;
@@ -33,7 +34,7 @@ class CatalogState {
     String? horizon,
     bool? activeOnly,
     bool? busy,
-    String? error,
+    AppError? error,
     bool clearError = false,
     Iterable<Bond>? visible,
     Map<String, int>? currencyCounts,
@@ -123,7 +124,7 @@ class CatalogCubit extends Cubit<CatalogState> {
       await repository.refreshCatalog();
       if (!isClosed) emit(state.copyWith(busy: false));
     } catch (e) {
-      if (!isClosed) emit(state.copyWith(busy: false, error: e.toString()));
+      if (!isClosed) emit(state.copyWith(busy: false, error: AppError.from(e)));
     }
   }
 

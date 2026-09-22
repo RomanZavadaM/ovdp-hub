@@ -203,7 +203,8 @@ void main() {
     fail = true;
     await cubit.refresh();
     expect(cubit.state.snapshot, same(before));
-    expect(cubit.state.error, contains('503'));
+    expect(cubit.state.error?.code, 'seller.http_status');
+    expect(cubit.state.error?.parameters['status'], 503);
     await cubit.close();
   });
 }
