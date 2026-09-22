@@ -360,55 +360,7 @@ MinfinCalendarDocumentsSnapshot parseMinfinCalendarDocuments(
         : title.contains('квартал')
         ? MinfinCalendarDocumentKind.quarterlyPlacement
         : RegExp(
-            r'Графік розміщення ОВДП на [А-ЯІЇЄҐа-яіїєґ]+ \d{4}(?: року)?  static const url = 'https://mof.gov.ua/uk/borgova-politika';
-  static const auctionEventsUrl =
-      'https://mof.gov.ua/uk/ogoloshennja-ta-rezultati-aukcioniv';
-  static const calendarUrl = 'https://mof.gov.ua/uk/kalendar-aukcioniv';
-
-  final http.Client client;
-  final DateTime Function() clock;
-
-  MinfinRepository({http.Client? client, DateTime Function()? clock})
-      : client = client ?? http.Client(),
-        clock = clock ?? DateTime.now;
-
-  Future<String> _fetchPage(String sourceUrl) async {
-    final response = await client
-        .get(Uri.parse(sourceUrl))
-        .timeout(const Duration(seconds: 25));
-    if (response.statusCode != 200) {
-      throw FormatException('minfin.http_status', {'status': response.statusCode});
-    }
-    if (response.bodyBytes.length > 4 * 1024 * 1024) {
-      throw const FormatException('minfin.page_too_large');
-    }
-    return utf8.decode(response.bodyBytes);
-  }
-
-  Future<MinfinSnapshot> fetch() async {
-    return parseMinfinAuctionRates(
-      await _fetchPage(url),
-      clock(),
-    );
-  }
-
-  Future<MinfinAuctionEventsSnapshot> fetchAuctionEvents() async {
-    return parseMinfinAuctionEvents(
-      await _fetchPage(auctionEventsUrl),
-      clock(),
-    );
-  }
-
-  Future<MinfinCalendarDocumentsSnapshot> fetchCalendarDocuments() async {
-    return parseMinfinCalendarDocuments(
-      await _fetchPage(calendarUrl),
-      clock(),
-    );
-  }
-
-  void dispose() => client.close();
-}
-,
+            r'Графік розміщення ОВДП на [А-ЯІЇЄҐа-яіїєґ]+ \d{4}(?: року)?$',
           ).hasMatch(title)
         ? MinfinCalendarDocumentKind.monthlyPlacement
         : null;
@@ -474,6 +426,7 @@ class MinfinRepository {
   static const url = 'https://mof.gov.ua/uk/borgova-politika';
   static const auctionEventsUrl =
       'https://mof.gov.ua/uk/ogoloshennja-ta-rezultati-aukcioniv';
+  static const calendarUrl = 'https://mof.gov.ua/uk/kalendar-aukcioniv';
 
   final http.Client client;
   final DateTime Function() clock;
@@ -505,6 +458,13 @@ class MinfinRepository {
   Future<MinfinAuctionEventsSnapshot> fetchAuctionEvents() async {
     return parseMinfinAuctionEvents(
       await _fetchPage(auctionEventsUrl),
+      clock(),
+    );
+  }
+
+  Future<MinfinCalendarDocumentsSnapshot> fetchCalendarDocuments() async {
+    return parseMinfinCalendarDocuments(
+      await _fetchPage(calendarUrl),
       clock(),
     );
   }
