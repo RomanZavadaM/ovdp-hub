@@ -62,13 +62,21 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 Поточний MinFin results parser є першим кроком цього ланцюжка, а не окремою технічною ціллю.
 
-## Ритм `main` і ручного тестування
+## Ритм `main` і тестування
 
-- кожен завершений self-contained slice: PR → green checks → merge у `main`;
-- не починати наступний функціональний slice, накопичуючи кілька готових незлитих гілок;
-- після кожного user-visible merge брати START artifact саме з актуального `main` для ручного тестування;
-- після 2–3 user-visible merged slices, або раніше після ризикової зміни parser/calculation/schema, робити новий immutable cross-platform prerelease/checkpoint;
-- поточний опублікований v0.8.4 не переписувати.
+Термінологія власника:
+
+- **«інтегрувати PR у `main`»** = звичайний технічний merge після green checks;
+- **«злити у `main`»** = повний test-release checkpoint: нова version/build + Windows/macOS/Android/iOS + START/source + checksums/legal + новий GitHub prerelease.
+
+Робочий ритм:
+
+- кожен завершений self-contained slice: PR → green checks → **інтеграція PR у `main`**;
+- не накопичувати кілька готових незлитих функціональних гілок;
+- проміжно після user-visible integration можна тестувати START artifact з актуального `main`;
+- регулярно, орієнтовно після 2–3 user-visible integrated slices, робити повне **«злиття у `main`»** з релізами всіх систем;
+- робити такий checkpoint раніше після ризикової зміни parser/calculation/schema або одразу за прямою командою власника;
+- поточний опублікований v0.8.4 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
 
