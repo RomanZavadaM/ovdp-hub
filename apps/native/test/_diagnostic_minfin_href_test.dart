@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
@@ -29,7 +30,7 @@ void main() {
           .replaceAll(RegExp(r'<[^>]+>'), ' ')
           .replaceAll(RegExp(r'\\s+'), ' ')
           .trim();
-      print('MINFIN_ROW: ' + compact);
+      debugPrint('MINFIN_ROW: $compact');
 
       for (final a in anchors) {
         final label = a
@@ -38,7 +39,7 @@ void main() {
             .replaceAll(RegExp(r'\\s+'), ' ')
             .trim();
         final href = a.group(1)!;
-        print('MINFIN_LINK: ' + href + ' | ' + label);
+        debugPrint('MINFIN_LINK: $href | $label');
         if (label.contains('Результати проведення')) {
           final target = indexUri.resolve(href);
           if (!targets.contains(target) && targets.length < 2) {
@@ -50,14 +51,20 @@ void main() {
 
     for (final target in targets) {
       final result = await http.get(target);
-      print('MINFIN_TARGET: ' + target.toString());
-      print('MINFIN_STATUS: ' + result.statusCode.toString());
-      print('MINFIN_CONTENT_TYPE: ' + (result.headers['content-type'] ?? ''));
-      print('MINFIN_LENGTH: ' + result.bodyBytes.length.toString());
-      final prefix = result.bodyBytes.take(32).toList();
-      print('MINFIN_PREFIX_HEX: ' +
-          prefix.map((b) => b.toRadixString(16).padLeft(2, '0')).join(' '));
+      final status = result.statusCode;
       final contentType = result.headers['content-type'] ?? '';
+      final length = result.bodyBytes.length;
+      debugPrint('MINFIN_TARGET: $target');
+      debugPrint('MINFIN_STATUS: $status');
+      debugPrint('MINFIN_CONTENT_TYPE: $contentType');
+      debugPrint('MINFIN_LENGTH: $length');
+
+      final prefixHex = result.bodyBytes
+          .take(32)
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join(' ');
+      debugPrint('MINFIN_PREFIX_HEX: $prefixHex');
+
       if (contentType.contains('text/') ||
           contentType.contains('html') ||
           contentType.contains('json')) {
@@ -65,8 +72,9 @@ void main() {
             .decode(result.bodyBytes, allowMalformed: true)
             .replaceAll(RegExp(r'\\s+'), ' ')
             .trim();
-        print('MINFIN_PREVIEW: ' +
-            preview.substring(0, preview.length > 1200 ? 1200 : preview.length));
+        final previewLength = preview.length > 1200 ? 1200 : preview.length;
+        final clipped = preview.substring(0, previewLength);
+        debugPrint('MINFIN_PREVIEW: $clipped');
       }
     }
   }, timeout: const Timeout(Duration(seconds: 45)));
