@@ -29,7 +29,12 @@ jobs:
           flutter-version: '3.47.5'
           channel: stable
           cache: true
-      - run: flutter pub get --enforce-lockfile
+      - name: Resolve dependency lockfile (temporary for PDF integration)
+        run: |
+          flutter pub get
+          echo '---BEGIN_PUBSPEC_LOCK---'
+          cat pubspec.lock
+          echo '---END_PUBSPEC_LOCK---'
       - run: flutter analyze
       - run: flutter test
   source:
