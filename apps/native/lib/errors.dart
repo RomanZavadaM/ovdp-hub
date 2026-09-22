@@ -21,7 +21,7 @@ class AppError {
       return _fromParts(error.message.toString(), null);
     }
     if (error is UnsupportedError) {
-      return _fromParts(error.message, null);
+      return _fromParts(error.message ?? 'common.unexpected', null);
     }
     if (error is FileSystemException) {
       return _fromParts(error.message, null);
