@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../calendar.dart';
+import '../../l10n/hub_locale.dart';
 import '../../ui/components.dart';
 import '../../ui/studio_design.dart';
 import '../appearance/appearance_cubit.dart';
@@ -15,6 +16,7 @@ class CatalogView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CatalogCubit>().state;
+    final strings = HubStrings.of(context);
     final studio = context.watch<AppearanceCubit>().state.studio;
     final cubit = context.read<CatalogCubit>();
     final editor = context.watch<CollectionEditorCubit>().state;
@@ -24,13 +26,13 @@ class CatalogView extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeading('Відкрийте робочу папку'),
+          SectionHeading(strings.text('openWorkspace')),
           const Text(
             'Каталог і збережені набори будуть доступні без інтернету.',
           ),
           FilledButton(
             onPressed: () => context.read<NavigationCubit>().select(3),
-            child: const Text('Налаштувати сховище'),
+            child: Text(strings.text('setupWorkspace')),
           ),
         ],
       );
@@ -44,23 +46,23 @@ class CatalogView extends StatelessWidget {
             sellers: () => context.read<NavigationCubit>().select(5),
           )
         else
-          const SectionHeading('Ваш простір для обдуманих рішень'),
+          SectionHeading(strings.text('catalogClassicTitle')),
         if (studio) const SizedBox(height: 12),
         ErrorNotice(state.error, cubit.dismissError),
         if (state.busy) const LinearProgressIndicator(),
-        const Text('Публічні дані НБУ · Порівняння випусків · Власні сценарії'),
+        Text(strings.text('catalogIntro')),
         const SizedBox(height: 20),
         Wrap(
           spacing: 12,
           runSpacing: 12,
           children: [
             if (studio)
-              MetricTile('Випусків у вибірці', '${state.visible.length}')
+              MetricTile(strings.text('issuesInSelection'), state.visible.length.toString())
             else
               Chip(label: Text('${state.visible.length} випусків у вибірці')),
             for (final c in state.currencyCounts.entries)
               if (studio)
-                MetricTile('Випусків у ${c.key}', '${c.value}')
+                MetricTile(strings.fmt('issuesInCurrency', {'currency': c.key}), c.value.toString())
               else
                 Chip(label: Text('${c.key}: ${c.value}')),
           ],
@@ -75,7 +77,7 @@ class CatalogView extends StatelessWidget {
         FilledButton.icon(
           onPressed: busy ? null : cubit.refresh,
           icon: const Icon(Icons.refresh),
-          label: const Text('Оновити напряму з НБУ'),
+          label: Text(strings.text('refreshNbu')),
         ),
         const SizedBox(height: 20),
         TextFormField(
@@ -93,12 +95,12 @@ class CatalogView extends StatelessWidget {
           children: [
             for (final c in ['', 'UAH', 'USD', 'EUR'])
               ChoiceChip(
-                label: Text(c.isEmpty ? 'Усі валюти' : c),
+                label: Text(c.isEmpty ? strings.text('allCurrencies') : c),
                 selected: state.currency == c,
                 onSelected: (_) => cubit.filter(currency: c),
               ),
             FilterChip(
-              label: const Text('Непогашені за строком'),
+              label: Text(strings.text('activeOnly')),
               selected: state.activeOnly,
               onSelected: (v) => cubit.filter(activeOnly: v),
             ),
@@ -122,7 +124,7 @@ class CatalogView extends StatelessWidget {
         if (editor.dirty) const CollectionEditorView(),
         const SizedBox(height: 16),
         if (state.visible.isEmpty)
-          const Text('За цими критеріями випусків немає.'),
+          Text(strings.text('noIssues')),
         ...state.visible.map(
           (b) => Card(
             child: ListTile(
@@ -141,7 +143,7 @@ class CatalogView extends StatelessWidget {
                 '${b.currency} · ${b.rate}% номінальна ставка\nПогашення ${b.maturity}',
               ),
               trailing: IconButton(
-                tooltip: 'Деталі випуску',
+                tooltip: strings.text('issueDetails'),
                 icon: const Icon(Icons.chevron_right),
                 onPressed: () => showBondDetails(context, b),
               ),
