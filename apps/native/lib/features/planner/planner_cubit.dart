@@ -6,6 +6,7 @@ import '../../models.dart';
 import '../../pricing.dart';
 import 'planner_engine.dart';
 import 'planner_goals.dart';
+import 'planner_scenario.dart';
 
 @immutable
 class PositionInput {
@@ -386,25 +387,21 @@ class PlannerCubit extends Cubit<PlannerState> {
   void load(SavedSet saved) {
     if (state.busy || state.locked) return;
     try {
-      final plan = saved.scenario!;
-      if (![1, 2].contains(plan['schemaVersion'])) {
-        throw const FormatException('Невідома версія сценарію');
-      }
+      final scenario = PlannerScenario.fromSavedSet(saved, now: clock());
       final criteria = {
         ...defaults(clock()),
-        ...Map<String, String>.from(plan['criteria'] as Map),
+        ...scenario.toCurrentUiCriteria(),
       };
       final inputs = <String, PositionInput>{};
-      for (final raw in plan['positions'] as List) {
-        if (raw['nominalEstimate'] == false) {
-          criteria['unitPrice:${raw['isin']}'] = raw['unitCost'] as String;
-        }
-        final bond = saved.bonds.firstWhere((b) => b.isin == raw['isin']);
+      for (final position in scenario.positions) {
+        final bond = saved.bonds.firstWhere((b) => b.isin == position.isin);
+        final nominal =
+            position.price.kind == PriceValueKind.nominalEstimate;
         inputs[bond.isin] = PositionInput(
           bond,
-          raw['quantity'].toString(),
-          raw['unitCost'] as String,
-          nominalEstimate: raw['nominalEstimate'] as bool,
+          position.quantity.toString(),
+          position.unitCost.toString(),
+          nominalEstimate: nominal,
         );
       }
       _recalculate(
@@ -439,19 +436,19 @@ class PlannerCubit extends Cubit<PlannerState> {
     final draft = state;
     emit(state.copyWith(busy: true, clearError: true));
     try {
+      final savedAt = clock().toUtc().toIso8601String();
+      final scenario = PlannerScenario.fromCurrentUi(
+        criteria: draft.criteria,
+        positions: draft.inputs.values.map((i) => i.parse()),
+        savedAt: savedAt,
+      );
       await repository.saveCollection(
         SavedSet(
           draft.criteria['name']!.trim(),
-          'Сценарій у ${draft.criteria['currency']}. Ціни за номіналом або введені вручну; доступність не підтверджена.',
-          clock().toUtc().toIso8601String(),
+          'Сценарій у ${draft.criteria['currency']}. Невідомі комісії, податки або FX не підміняються нулем.',
+          savedAt,
           draft.inputs.values.map((i) => i.bond),
-          scenario: {
-            'schemaVersion': 2,
-            'criteria': draft.criteria,
-            'positions': draft.inputs.values
-                .map((i) => i.parse().toJson())
-                .toList(),
-          },
+          scenario: scenario.toJson(),
         ),
       );
       if (!isClosed) emit(state.copyWith(busy: false, saved: true));
