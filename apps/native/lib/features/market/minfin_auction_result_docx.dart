@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:archive/archive.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
@@ -400,11 +398,9 @@ String _isoDate(String value) {
   if (date.day != day || date.month != month || date.year != year) {
     throw const FormatException('minfin.result_docx_layout_changed');
   }
-  return year.toString().padLeft(4, '0') +
-      '-' +
-      month.toString().padLeft(2, '0') +
-      '-' +
-      day.toString().padLeft(2, '0');
+  return '${year.toString().padLeft(4, '0')}-'
+      '${month.toString().padLeft(2, '0')}-'
+      '${day.toString().padLeft(2, '0')}';
 }
 
 List<String> _couponDates(String value) {
