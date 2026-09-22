@@ -2,9 +2,9 @@ name: Flutter checks and START
 on:
   push:
     branches: [main]
-    paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1', 'scripts/package-start.py']
+    paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1', 'scripts/package-start.py', 'LICENSE.md', 'COPYRIGHT.md', 'THIRD_PARTY_NOTICES.md', 'docs/LEGAL_AND_COPYRIGHT.md']
   pull_request:
-    paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1', 'scripts/package-start.py']
+    paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1', 'scripts/package-start.py', 'LICENSE.md', 'COPYRIGHT.md', 'THIRD_PARTY_NOTICES.md', 'docs/LEGAL_AND_COPYRIGHT.md']
   workflow_dispatch:
     inputs:
       packages:
@@ -97,10 +97,16 @@ jobs:
           cache: true
       - run: flutter pub get --enforce-lockfile
       - run: flutter build apk --release
+      - name: Prepare Android test package
+        run: |
+          mkdir -p build/android-package
+          cp build/app/outputs/flutter-apk/app-release.apk build/android-package/OVDP-Hub.apk
+          cp ../../LICENSE.md ../../COPYRIGHT.md ../../THIRD_PARTY_NOTICES.md build/android-package/
+          cp ../../docs/LEGAL_AND_COPYRIGHT.md build/android-package/LEGAL_AND_COPYRIGHT.md
       - uses: actions/upload-artifact@v4
         with:
           name: OVDP-Hub-Android-test-${{ github.run_number }}-${{ github.run_attempt }}
-          path: apps/native/build/app/outputs/flutter-apk/app-release.apk
+          path: apps/native/build/android-package/
           if-no-files-found: error
   ios:
     needs: verify
@@ -118,7 +124,14 @@ jobs:
           cache: true
       - run: flutter pub get --enforce-lockfile
       - run: flutter build ios --release --no-codesign
-      - run: ditto -c -k --sequesterRsrc --keepParent build/ios/iphoneos/Runner.app build/ovdp-ios-unsigned.zip
+      - name: Prepare iOS test package
+        run: |
+          rm -rf build/ios-package
+          mkdir -p build/ios-package
+          ditto build/ios/iphoneos/Runner.app build/ios-package/OVDP-Hub.app
+          cp ../../LICENSE.md ../../COPYRIGHT.md ../../THIRD_PARTY_NOTICES.md build/ios-package/
+          cp ../../docs/LEGAL_AND_COPYRIGHT.md build/ios-package/LEGAL_AND_COPYRIGHT.md
+          ditto -c -k --sequesterRsrc --keepParent build/ios-package build/ovdp-ios-unsigned.zip
       - uses: actions/upload-artifact@v4
         with:
           name: OVDP-Hub-iOS-unsigned-${{ github.run_number }}-${{ github.run_attempt }}
