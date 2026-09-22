@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import zipfile
 
@@ -29,7 +30,17 @@ with zipfile.ZipFile(io.BytesIO(archive)) as src:
         else:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(src.read(entry))
-for required in ['START.bat', 'START.command', 'START-README.md', 'pubspec.yaml', 'pubspec.lock', 'lib/main.dart', 'assets/nbu-snapshot.json']:
+legal_files = {
+    'LICENSE.md': root / 'LICENSE.md',
+    'COPYRIGHT.md': root / 'COPYRIGHT.md',
+    'THIRD_PARTY_NOTICES.md': root / 'THIRD_PARTY_NOTICES.md',
+    'LEGAL_AND_COPYRIGHT.md': root / 'docs/LEGAL_AND_COPYRIGHT.md',
+}
+for target_name, source in legal_files.items():
+    if not source.is_file():
+        raise SystemExit(f'Missing legal notice: {source}')
+    shutil.copy2(source, folder / target_name)
+for required in ['START.bat', 'START.command', 'START-README.md', 'pubspec.yaml', 'pubspec.lock', 'lib/main.dart', 'assets/nbu-snapshot.json', 'LICENSE.md', 'COPYRIGHT.md', 'THIRD_PARTY_NOTICES.md', 'LEGAL_AND_COPYRIGHT.md']:
     if not (folder / required).is_file():
         raise SystemExit(f'Missing required file: {required}')
 launcher = (folder / 'START.bat').read_bytes()
