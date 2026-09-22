@@ -5,7 +5,7 @@ import 'models.dart';
 Decimal money(String value) {
   if (!RegExp(r'^\d{1,12}(\.\d{1,8})?$').hasMatch(value)) {
     throw const FormatException(
-      'Введіть невід’ємну суму, десятковий роздільник — крапка',
+      'pricing.invalid_money',
     );
   }
   return Decimal.parse(value);
@@ -29,12 +29,12 @@ BondResult calculateBond({
       quantity > 1000000 ||
       payments.isEmpty ||
       payments.length > 100) {
-    throw const FormatException('Перевірте кількість та графік виплат');
+    throw const FormatException('pricing.invalid_quantity_or_schedule');
   }
   final start = isoDate(settlement);
   final dirty = money(cleanPrice) + money(accruedInterest);
   if (dirty <= Decimal.zero) {
-    throw const FormatException('Ціна має бути додатною');
+    throw const FormatException('pricing.nonpositive_price');
   }
   final cost =
       (dirty * Decimal.fromInt(quantity)).round(scale: 2) +
@@ -44,7 +44,7 @@ BondResult calculateBond({
   for (final payment in payments) {
     final days = isoDate(payment['date']!).difference(start).inDays;
     if (days <= 0) {
-      throw const FormatException('Виплата має бути після дати розрахунку');
+      throw const FormatException('pricing.payment_after_settlement');
     }
     final amount = (money(payment['amount']!) * Decimal.fromInt(quantity))
         .round(scale: 2);
@@ -54,7 +54,7 @@ BondResult calculateBond({
     future.add((days / 365, amount.toDouble()));
   }
   if (receipts <= Decimal.zero) {
-    throw const FormatException('Потрібна додатна виплата');
+    throw const FormatException('pricing.positive_payment_required');
   }
   double npv(double rate) => future.fold(
     -cost.toDouble(),
@@ -65,7 +65,7 @@ BondResult calculateBond({
     high *= 2;
   }
   if (npv(low) < 0 || npv(high) > 0) {
-    throw const FormatException('Дохідність поза діапазоном');
+    throw const FormatException('pricing.yield_out_of_range');
   }
   for (var i = 0; i < 150; i++) {
     final middle = (low + high) / 2;
