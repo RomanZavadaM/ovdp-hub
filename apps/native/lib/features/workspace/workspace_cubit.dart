@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../errors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/hub_repository.dart';
 import '../collections/editor_cubit.dart';
@@ -16,7 +17,7 @@ class WorkspaceState {
   });
   WorkspaceState copyWith({
     String? path,
-    String? error,
+    AppError? error,
     bool clearError = false,
     bool? busy,
     bool? externalFolders,
@@ -51,7 +52,7 @@ class WorkspaceCubit extends Cubit<WorkspaceState> {
     if (needsDraftDecision && !discardDraft) {
       emit(
         state.copyWith(
-          error: 'Збережіть добірку або підтвердьте відкидання чернетки',
+          error: const AppError('workspace.unsaved_draft'),
         ),
       );
       return;
@@ -77,7 +78,7 @@ class WorkspaceCubit extends Cubit<WorkspaceState> {
         emit(state.copyWith(path: repository.current?.path, busy: false));
       }
     } catch (e) {
-      if (!isClosed) emit(state.copyWith(busy: false, error: e.toString()));
+      if (!isClosed) emit(state.copyWith(busy: false, error: AppError.from(e)));
     } finally {
       editor.lock(false);
       planner?.lock(false);
