@@ -31,6 +31,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - функціональний baseline після завершеного PDF schedule slice: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
 - post-merge documentation checkpoint: `d38189e24f1bec12c70991bb6c6df15957b1d8fe`
+- product direction / test cadence checkpoint: `531f33649da30eb9ec191632f11c418e33b7ddf7` (PR #27)
 - попередній slice: structured future auction schedule from official calendar PDFs
 - merged PR: **#24** `Parse structured MinFin auction schedules from official PDFs`
 - merge SHA: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
@@ -70,6 +71,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.4 не переписувати.
 
 ## Нещодавно завершено
+
+- **DONE — product direction + regular test cadence**: PR #27 squash-merged у `main` як `531f33649da30eb9ec191632f11c418e33b7ddf7`; run #79 success. Зафіксовано vertical-slice порядок до 0.9.0, merge кожного завершеного slice у `main`, START-тест після user-visible merge та cross-platform checkpoint після 2–3 user-visible slices або раніше для ризикових core-змін.
 
 - **DONE — MinFin structured future auction schedule**: PR #24 squash-merged у `main` як `1313339ac0241dc2ea50db3ea14494ea07871f3c`; stale PR #21 закрито без merge; final verify run #75 success; parser підтримує окремі monthly / quarterly / switch layouts, provenance, deterministic tests і fail-closed behavior.
 
