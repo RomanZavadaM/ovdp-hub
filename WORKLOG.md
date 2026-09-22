@@ -32,6 +32,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - функціональний baseline після завершеного PDF schedule slice: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
 - post-merge documentation checkpoint: `d38189e24f1bec12c70991bb6c6df15957b1d8fe`
 - product direction / test cadence checkpoint: `531f33649da30eb9ec191632f11c418e33b7ddf7` (PR #27)
+- owner command semantics checkpoint: `75c62456e29a1882bbcf59d4a04e739966781da2` (PR #29)
 - попередній slice: structured future auction schedule from official calendar PDFs
 - merged PR: **#24** `Parse structured MinFin auction schedules from official PDFs`
 - merge SHA: `1313339ac0241dc2ea50db3ea14494ea07871f3c`
@@ -79,6 +80,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.4 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — owner command semantics**: PR #29 squash-merged у `main` як `75c62456e29a1882bbcf59d4a04e739966781da2`; run #81 success. «Злити у main» тепер канонічно означає повний cross-platform test release, а звичайний merge називається «інтегрувати PR у main».
 
 - **DONE — product direction + regular test cadence**: PR #27 squash-merged у `main` як `531f33649da30eb9ec191632f11c418e33b7ddf7`; run #79 success. Зафіксовано vertical-slice порядок до 0.9.0, merge кожного завершеного slice у `main`, START-тест після user-visible merge та cross-platform checkpoint після 2–3 user-visible slices або раніше для ризикових core-змін.
 
