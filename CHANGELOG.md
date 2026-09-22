@@ -2,6 +2,16 @@
 
 Усі помітні зміни OVDP Hub фіксуються тут. Опубліковані GitHub Releases додатково мають незмінні release notes у `docs/releases/`.
 
+## [Unreleased] — 0.9.0 «Ринок» development
+
+### MinFin structured future auction schedule
+- Додано typed structured future auction schedule з офіційних календарних PDF Мінфіну.
+- Monthly / quarterly / switch документи розбираються окремими parser-ами відповідно до фактичних layout.
+- Збережено provenance конкретного PDF, publication/source date та retrievedAt.
+- Parser fail closed при невідомій або зміненій структурі й покритий deterministic tests без live-network залежності.
+- Додано pure-Dart PDF stack `pdf_document` + `pdf_graphics`, localized parser errors UK/EN/FR/DE/ES/KO/JA та legal notices.
+- Зміна інтегрована після v0.8.4 і не є частиною незмінного GitHub Release `v0.8.4`.
+
 ## [0.8.4] — 2026-09-22
 
 ### Market checkpoint and localization
