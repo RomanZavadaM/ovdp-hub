@@ -28,7 +28,16 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Catalog'), findsWidgets);
+    expect(find.text('Refresh directly from NBU'), findsOneWidget);
     expect(find.byTooltip('Language'), findsOneWidget);
+
+    await tester.tap(find.text('Calculator').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Educational calculator'), findsOneWidget);
+
+    await tester.tap(find.text('Sellers').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Sellers · public quotes'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
