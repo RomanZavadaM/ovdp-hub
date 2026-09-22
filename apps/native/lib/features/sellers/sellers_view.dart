@@ -40,7 +40,7 @@ class SellersView extends StatelessWidget {
         if (state.busy) const LinearProgressIndicator(),
         if (state.error != null)
           Text(
-            '${strings.text('refreshFailed')} ${state.error}',
+            '${strings.text('refreshFailed')} ${strings.error(state.error!)}',
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
         if (state.snapshot != null)
