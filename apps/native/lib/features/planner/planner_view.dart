@@ -166,7 +166,7 @@ class PlannerView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              state.error!,
+              strings.error(state.error!),
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
