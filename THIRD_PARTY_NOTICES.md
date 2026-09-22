@@ -13,6 +13,7 @@ Direct Flutter/Dart dependencies currently declared by the active native applica
 - decimal
 - http
 - flutter_bloc
+- archive — MIT, ZIP/DOCX container decoding for official MinFin auction-result documents
 - pdf_document — Apache-2.0, pure-Dart PDF document model used by the calendar PDF reader
 - pdf_graphics — Apache-2.0, pure-Dart PDF text extraction used by the calendar PDF reader
 - flutter_lints (development dependency)
