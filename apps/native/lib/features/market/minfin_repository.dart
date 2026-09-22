@@ -51,7 +51,7 @@ String _plain(String html) => html
 String _isoFromUaDate(String value) {
   final parts = value.split('.');
   if (parts.length != 3) {
-    throw const FormatException('Невідома дата аукціону Мінфіну');
+    throw const FormatException('minfin.unknown_auction_date');
   }
   final result = '${parts[2]}-${parts[1]}-${parts[0]}';
   isoDate(result);
@@ -65,7 +65,7 @@ MinfinSnapshot parseMinfinAuctionRates(String html, DateTime retrievedAt) {
   final end = html.indexOf(endMarker, start < 0 ? 0 : start);
   if (start < 0 || end <= start) {
     throw const FormatException(
-      'Таблицю останніх ставок Мінфіну не знайдено. Формат сторінки міг змінитися.',
+      'minfin.section_missing',
     );
   }
 
@@ -79,13 +79,13 @@ MinfinSnapshot parseMinfinAuctionRates(String html, DateTime retrievedAt) {
   for (final match in pattern.allMatches(text)) {
     final isin = match.group(1)!;
     if (!seen.add(isin)) {
-      throw const FormatException('Повторний ISIN у таблиці Мінфіну');
+      throw const FormatException('minfin.duplicate_isin');
     }
     final placementDate = _isoFromUaDate(match.group(3)!);
     final rateText = match.group(4)!.replaceAll(',', '.');
     final rate = Decimal.parse(decimalText(rateText));
     if (rate <= Decimal.zero || rate >= Decimal.fromInt(100)) {
-      throw const FormatException('Некоректна ставка аукціону Мінфіну');
+      throw const FormatException('minfin.invalid_rate');
     }
     rows.add(
       MinfinAuctionRate(
@@ -98,7 +98,7 @@ MinfinSnapshot parseMinfinAuctionRates(String html, DateTime retrievedAt) {
   }
 
   if (rows.isEmpty) {
-    throw const FormatException('Мінфін не повернув розпізнаних ставок ОВДП');
+    throw const FormatException('minfin.empty');
   }
 
   final latest = rows
@@ -133,10 +133,10 @@ class MinfinRepository {
         .get(Uri.parse(url))
         .timeout(const Duration(seconds: 25));
     if (response.statusCode != 200) {
-      throw StateError('Мінфін відповів HTTP ${response.statusCode}');
+      throw FormatException('minfin.http_status', {'status': response.statusCode});
     }
     if (response.bodyBytes.length > 4 * 1024 * 1024) {
-      throw const FormatException('Неочікуваний розмір сторінки Мінфіну');
+      throw const FormatException('minfin.page_too_large');
     }
     return parseMinfinAuctionRates(
       utf8.decode(response.bodyBytes),
