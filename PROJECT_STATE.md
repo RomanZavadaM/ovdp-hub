@@ -28,6 +28,7 @@
 - MinFin latest-auction adapter + ISIN join;
 - typed MinFin auction event index: placement / switch + announcement/result URLs;
 - typed MinFin auction calendar document index: monthly / quarterly / switch PDF + publication date + provenance;
+- structured future auction schedule parser from official MinFin calendar PDFs with separate monthly / quarterly / switch layouts, provenance and fail-closed validation;
 - функціональна локалізація активного UI для UK/EN/FR/DE/ES/KO/JA;
 - typed `AppError` / domain/repository/parser error localization;
 - START_HERE / WORKLOG / Issue #18 recovery protocol;
@@ -85,12 +86,11 @@ Tag/release не пересуваємо й не переписуємо.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. structured future auction schedule з офіційних календарних PDF Мінфіну; перед parser-ом візуально перевірити актуальні PDF-макети;
-2. detailed parser результатів аукціонів Мінфіну;
-3. нормалізований freshness/status UX у картці ISIN;
-4. typed fee/tax/FX/exit assumptions → calculations + UI;
-5. multiple `PriceObservation` + explicit user source priority;
-6. A/B/C comparison;
-7. generated planner copy / preset labels localization під час відповідного UI slice.
+1. detailed parser результатів аукціонів Мінфіну;
+2. нормалізований freshness/status UX у картці ISIN;
+3. typed fee/tax/FX/exit assumptions → calculations + UI;
+4. multiple `PriceObservation` + explicit user source priority;
+5. A/B/C comparison;
+6. generated planner copy / preset labels localization під час відповідного UI slice.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел на відповідну дату.
