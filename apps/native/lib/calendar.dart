@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'l10n/hub_locale.dart';
 
 class AuctionCalendar extends StatelessWidget {
   const AuctionCalendar({super.key});
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) {
+    final strings = HubStrings(context.watch<LocaleCubit>().state.language);
+    return Card(
     child: Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'План аукціонів Мінфіну',
+            strings.text('auctionPlan'),
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const Text(
-            'Збережена редакція від 17.09.2026, вересень 2026. План може змінюватися; це не підтвердження проведення або пропозиція купівлі.',
-          ),
+          Text(strings.text('auctionSnapshot')),
           const SizedBox(height: 12),
           const Wrap(
             spacing: 8,
@@ -38,17 +40,16 @@ class AuctionCalendar extends StatelessWidget {
               );
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Посилання Мінфіну скопійовано'),
-                  ),
+                  SnackBar(content: Text(strings.text('sourceCopied'))),
                 );
               }
             },
             icon: const Icon(Icons.copy),
-            label: const Text('Скопіювати адресу джерела'),
+            label: Text(strings.text('copySource')),
           ),
         ],
       ),
     ),
-  );
+    );
+  }
 }
