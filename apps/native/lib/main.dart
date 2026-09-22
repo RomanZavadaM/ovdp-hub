@@ -12,6 +12,8 @@ import 'features/workspace/workspace_cubit.dart';
 import 'features/workspace/workspace_view.dart';
 import 'features/navigation/navigation_cubit.dart';
 import 'ui/components.dart';
+import 'ui/studio_design.dart';
+import 'features/appearance/appearance_cubit.dart';
 import 'features/planner/planner_cubit.dart';
 import 'features/planner/planner_view.dart';
 import 'features/sellers/seller_repository.dart';
@@ -46,6 +48,7 @@ class OvdpApp extends StatelessWidget {
           lazy: false,
         ),
         BlocProvider(create: (_) => CalculatorCubit()),
+        BlocProvider(create: (_) => AppearanceCubit()),
         BlocProvider(create: (_) => SellersCubit(SellerRepository())),
         BlocProvider(create: (_) => NavigationCubit()),
         BlocProvider(
@@ -61,20 +64,19 @@ class OvdpApp extends StatelessWidget {
           lazy: false,
         ),
       ],
-      child: MaterialApp(
-        title: 'ОВДП Hub',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff16624c)),
-          scaffoldBackgroundColor: const Color(0xfff5f7f4),
-          inputDecorationTheme: const InputDecorationTheme(
-            border: OutlineInputBorder(),
-          ),
-        ),
-        home: const Home(),
-      ),
+      child: const StyledApp(),
     ),
+  );
+}
+
+class StyledApp extends StatelessWidget {
+  const StyledApp({super.key});
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+    title: 'ОВДП Hub',
+    debugShowCheckedModeBanner: false,
+    theme: hubTheme(context.watch<AppearanceCubit>().state.studio),
+    home: const Home(),
   );
 }
 
@@ -84,7 +86,8 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     final screen = context.watch<NavigationCubit>().state.index;
     final workspace = context.watch<WorkspaceCubit>().state;
-    final wide = MediaQuery.sizeOf(context).width >= 850;
+    final studio = context.watch<AppearanceCubit>().state.studio;
+    final wide = MediaQuery.sizeOf(context).width >= 1000;
     const destinations = [
       NavigationDestination(
         icon: Icon(Icons.analytics_outlined),
@@ -136,8 +139,17 @@ class Home extends StatelessWidget {
     );
     return Scaffold(
       appBar: AppBar(
-        title: const Text('◈ ОВДП Hub'),
+        title: Text(studio ? 'Аналітичний кабінет' : '◈ ОВДП Hub'),
         actions: [
+          IconButton(
+            tooltip: studio ? 'Класичний дизайн' : 'Дизайн «Робочий кабінет»',
+            onPressed: context.read<AppearanceCubit>().toggle,
+            icon: Icon(
+              studio
+                  ? Icons.view_sidebar_outlined
+                  : Icons.dashboard_customize_outlined,
+            ),
+          ),
           if (wide)
             Padding(
               padding: const EdgeInsets.all(16),
@@ -150,8 +162,14 @@ class Home extends StatelessWidget {
         ],
       ),
       body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (wide)
+          if (wide && studio)
+            StudioSidebar(
+              selected: screen,
+              onSelected: context.read<NavigationCubit>().select,
+            ),
+          if (wide && !studio)
             NavigationRail(
               selectedIndex: screen,
               labelType: NavigationRailLabelType.all,
