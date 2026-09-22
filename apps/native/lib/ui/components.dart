@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../l10n/hub_locale.dart';
 import '../models.dart';
 
 class SectionHeading extends StatelessWidget {
   final String text;
   const SectionHeading(this.text, {super.key});
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -16,6 +18,7 @@ class ErrorNotice extends StatelessWidget {
   final String? message;
   final VoidCallback onDismiss;
   const ErrorNotice(this.message, this.onDismiss, {super.key});
+
   @override
   Widget build(BuildContext context) {
     final strings = HubStrings.of(context);
@@ -68,21 +71,10 @@ void showBondDetails(BuildContext context, Bond bond) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                bond.json['description'].toString() +
-                    '\n' +
-                    bond.currency +
-                    ' · ' +
-                    strings.text('bondNominal') +
-                    ' ' +
-                    bond.json['nominal'].toString() +
-                    '\n' +
-                    strings.text('bondRate') +
-                    ' ' +
-                    bond.rate +
-                    '% · ' +
-                    strings.text('bondMaturity') +
-                    ' ' +
-                    bond.maturity,
+                '${bond.json['description']}\n'
+                '${bond.currency} · ${strings.text('bondNominal')} ${bond.json['nominal']}\n'
+                '${strings.text('bondRate')} ${bond.rate}% · '
+                '${strings.text('bondMaturity')} ${bond.maturity}',
               ),
               const SizedBox(height: 16),
               Text(strings.text('paymentSchedule')),
@@ -90,11 +82,7 @@ void showBondDetails(BuildContext context, Bond bond) {
                 (v) => ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(
-                    v['date'].toString() +
-                        ' · ' +
-                        v['amount'].toString() +
-                        ' ' +
-                        bond.currency,
+                    '${v['date']} · ${v['amount']} ${bond.currency}',
                   ),
                   subtitle: Text(
                     {
