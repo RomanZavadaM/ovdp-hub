@@ -9,6 +9,7 @@ import 'package:ovdp_hub/features/planner/planner_goals.dart';
 import 'package:ovdp_hub/features/planner/planner_cubit.dart';
 import 'package:ovdp_hub/features/sellers/seller_repository.dart';
 import 'package:ovdp_hub/features/sellers/sellers_cubit.dart';
+import 'package:ovdp_hub/data/source_observation.dart';
 import 'package:ovdp_hub/models.dart';
 import 'planner_test.dart' as fixture;
 import 'support/fake_repository.dart';
@@ -195,7 +196,7 @@ void main() {
     final cubit = SellersCubit(repo);
     await cubit.refresh();
     expect(cubit.state.error, isNull);
-    expect(cubit.dateWarning, contains('майбутньому'));
+    expect(cubit.freshness, DataFreshness.futureDated);
     cubit.currency('USD');
     expect(cubit.visible.every((q) => q.askYield != null), true);
     final before = cubit.state.snapshot;

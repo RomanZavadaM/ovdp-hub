@@ -35,35 +35,24 @@ class SellersState {
 class SellersCubit extends Cubit<SellersState> {
   final SellerRepository repository;
   SellersCubit(this.repository) : super(const SellersState());
+
   List<SellerQuote> get visible =>
       state.snapshot?.quotes
           .where(
             (q) =>
                 q.currency == state.currency &&
-                q.maturity.compareTo(
-                      repository.clock().toIso8601String().substring(0, 10),
-                    ) >
-                    0 &&
+                q.maturity.compareTo(repository.clock().toIso8601String().substring(0, 10)) > 0 &&
                 (!state.askOnly || q.askYield != null),
           )
           .toList() ??
       [];
-  String? get dateWarning {
-    final meta = state.snapshot?.meta;
-    if (meta == null) return null;
-    return switch (meta.freshness(repository.clock())) {
-      DataFreshness.futureDated =>
-        'Дата джерела в майбутньому. Актуальність не підтверджена.',
-      DataFreshness.stale =>
-        'Котирування не за сьогодні. Уточніть умови у продавця.',
-      DataFreshness.unknown =>
-        'Джерело не має надійної дати даних. Перевірте умови у продавця.',
-      DataFreshness.current => null,
-    };
-  }
+
+  DataFreshness? get freshness =>
+      state.snapshot?.meta.freshness(repository.clock());
 
   void currency(String value) => emit(state.copyWith(currency: value));
   void askOnly(bool value) => emit(state.copyWith(askOnly: value));
+
   Future<void> refresh() async {
     if (state.busy) return;
     emit(state.copyWith(busy: true, clearError: true));
@@ -74,13 +63,7 @@ class SellersCubit extends Cubit<SellersState> {
       }
     } catch (e) {
       if (!isClosed) {
-        emit(
-          state.copyWith(
-            busy: false,
-            error:
-                'Не вдалося оновити. Показано попереднє завантаження, якщо воно є. $e',
-          ),
-        );
+        emit(state.copyWith(busy: false, error: e.toString()));
       }
     }
   }
