@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../pricing.dart';
 import '../../models.dart';
+import '../../data/source_observation.dart';
 
 @immutable
 class SellerQuote {
@@ -20,13 +21,13 @@ class SellerQuote {
 
 @immutable
 class SellerSnapshot {
-  final String sourceDate, retrievedAt;
+  final SourceObservationMeta meta;
   final List<SellerQuote> quotes;
-  SellerSnapshot(
-    this.sourceDate,
-    this.retrievedAt,
-    Iterable<SellerQuote> quotes,
-  ) : quotes = List.unmodifiable(quotes);
+  SellerSnapshot(this.meta, Iterable<SellerQuote> quotes)
+    : quotes = List.unmodifiable(quotes);
+
+  String get sourceDate => meta.sourceDate!;
+  String get retrievedAt => meta.retrievedAt;
 }
 
 String _plain(String s) => s
@@ -127,7 +128,17 @@ SellerSnapshot parsePrivatQuotes(String html, DateTime now) {
   if (quotes.isEmpty) {
     throw const FormatException('Продавець не повернув котирувань');
   }
-  return SellerSnapshot(sourceDate, now.toUtc().toIso8601String(), quotes);
+  return SellerSnapshot(
+    SourceObservationMeta(
+      sourceId: 'privatbank-public-ovdp',
+      sourceUrl: SellerRepository.url,
+      sourceDate: sourceDate,
+      retrievedAt: now.toUtc().toIso8601String(),
+      kind: ObservationKind.secondaryQuote,
+      confidence: ObservationConfidence.publicIndicative,
+    ),
+    quotes,
+  );
 }
 
 class SellerRepository {

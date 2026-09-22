@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'seller_repository.dart';
+import '../../data/source_observation.dart';
 
 @immutable
 class SellersState {
@@ -48,16 +49,17 @@ class SellersCubit extends Cubit<SellersState> {
           .toList() ??
       [];
   String? get dateWarning {
-    final date = state.snapshot?.sourceDate;
-    if (date == null) return null;
-    final today = repository.clock().toIso8601String().substring(0, 10);
-    if (date.compareTo(today) > 0) {
-      return 'Дата джерела в майбутньому. Актуальність не підтверджена.';
-    }
-    if (date != today) {
-      return 'Котирування не за сьогодні. Уточніть умови у продавця.';
-    }
-    return null;
+    final meta = state.snapshot?.meta;
+    if (meta == null) return null;
+    return switch (meta.freshness(repository.clock())) {
+      DataFreshness.futureDated =>
+        'Дата джерела в майбутньому. Актуальність не підтверджена.',
+      DataFreshness.stale =>
+        'Котирування не за сьогодні. Уточніть умови у продавця.',
+      DataFreshness.unknown =>
+        'Джерело не має надійної дати даних. Перевірте умови у продавця.',
+      DataFreshness.current => null,
+    };
   }
 
   void currency(String value) => emit(state.copyWith(currency: value));

@@ -1,6 +1,6 @@
 # ADR 0001: public aggregator and on-device private data
 
-Status: accepted, 2026-09-20. Source: explicit owner instruction.
+Status: local-first security boundary remains accepted; web-platform details are superseded by ADR 0002, 2026-09-22.
 
 ## Decision
 

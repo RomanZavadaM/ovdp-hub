@@ -10,6 +10,7 @@ class Workspace {
   final Directory directory;
   Workspace(this.directory);
   static const marker = 'ovdp-workspace.json';
+  static const catalogRetention = 12;
   static String uniqueId() =>
       '${DateTime.now().toUtc().microsecondsSinceEpoch}-${List.generate(16, (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0')).join()}';
 
@@ -93,8 +94,18 @@ class Workspace {
     return file.readAsString();
   }
 
-  Future<void> saveCatalog(Catalog catalog) =>
-      writeRecord('catalogs', catalog.json);
+  Future<void> saveCatalog(Catalog catalog) async {
+    await writeRecord('catalogs', catalog.json);
+    final files = await records('catalogs');
+    for (final file in files.skip(catalogRetention)) {
+      try {
+        await file.delete();
+      } on FileSystemException {
+        // Retention is best-effort: a durable new public snapshot must not be
+        // reported as a failed refresh only because an old cache file is locked.
+      }
+    }
+  }
   Future<void> saveSet(SavedSet set) => writeRecord('sets', set.toJson());
 
   /// Copy only validated application records; preserve source, never merge silently.

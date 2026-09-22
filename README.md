@@ -56,6 +56,10 @@ OVDP Hub є **proprietary software**. Публічна видимість цьо
 - [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 - [Авторські права та ліцензія](docs/LEGAL_AND_COPYRIGHT.md)
 
+## Мови
+
+Основна й еталонна мова — **українська**. Архітектура інтерфейсу підтримує вибір **English, Français, Deutsch, Español, 한국어, 日本語**. У 0.8.2 локалізовано оболонку; переклад функціональних модулів розширюється поетапно без зміни фінансового або юридичного змісту.
+
 ## Для розробника
 
 Flutter 3.47.5 / Dart 3.13.4. Кінцевому користувачеві SDK або локальний сервер не потрібні.
@@ -87,6 +91,8 @@ Windows-пакет повинен містити весь каталог `build/
 - `apps/native/assets` — публічний початковий знімок НБУ.
 - `docs/adr/0002-native-workspaces.md` — рішення про платформи, робочі папки та межі приватності.
 - `docs/platforms.md` — способи пакування.
+- `docs/data-sources.md` — provenance/freshness НБУ, Мінфіну та продавців.
+- `docs/security-vault.md` — threat model майбутнього encrypted vault.
 - `apps/web`, `apps/mobile`, `apps/desktop`, `packages` — попередній TypeScript-прототип як еталон міграції. Не є активними продуктами для поширення.
 
 Джерело каталогу: https://bank.gov.ua/ua/markets/ovdp. Час завантаження знімка не є датою актуальності всього набору НБУ.

@@ -23,7 +23,7 @@ retrievedAt records successful retrieval, not the underlying dataset's effective
 
 ## Updating
 
-Run pnpm data:refresh from the repository root. Only public data is requested. The validated output replaces apps/web/data/nbu-snapshot.json atomically; review the diff before committing. Builds and tests use the committed snapshot and never depend on source uptime.
+From `apps/native`, run `dart run tool/refresh_nbu.dart`. Only public data is requested. The validated output atomically replaces `apps/native/assets/nbu-snapshot.json`; review the diff before committing. Builds and tests use the committed snapshot and never depend on source uptime.
 
 The UI loads this public snapshot initially and refreshes only on explicit click, directly device → NBU, credentials omitted and referrer suppressed. No ISIN filter, budget, account, document or portfolio is sent. There is no automatic background polling or private storage. Public endpoint sees ordinary connection metadata. Static hosting is still a code-delivery trust boundary.
 

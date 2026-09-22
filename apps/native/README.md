@@ -16,3 +16,12 @@ flutter build windows --release
 macOS наразі орієнтований на пряме тестове поширення поза Mac App Store (без sandbox/signing/notarization). Android використовує development signing configuration. iOS-пакет непідписаний. Для store/production distribution потрібен окремий signing setup.
 
 **Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.** OVDP Hub є proprietary software; див. кореневий `LICENSE.md`.
+
+
+## Оновлення початкового каталогу НБУ
+
+З каталогу `apps/native` виконайте `dart run tool/refresh_nbu.dart`, перегляньте diff `assets/nbu-snapshot.json` і лише після перевірки комітьте snapshot.
+
+## Мови
+
+Основна мова — українська. Оболонка має вибір Українська / English / Français / Deutsch / Español / 한국어 / 日本語. Повний переклад функціональних модулів розширюється поетапно; український текст є еталоном змісту.

@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'data/hub_repository.dart';
+import 'features/appearance/appearance_cubit.dart';
+import 'features/calculator/calculator_cubit.dart';
+import 'features/calculator/calculator_view.dart';
 import 'features/catalog/catalog_cubit.dart';
 import 'features/catalog/catalog_view.dart';
 import 'features/collections/collections_cubit.dart';
 import 'features/collections/collections_view.dart';
 import 'features/collections/editor_cubit.dart';
-import 'features/calculator/calculator_cubit.dart';
-import 'features/calculator/calculator_view.dart';
-import 'features/workspace/workspace_cubit.dart';
-import 'features/workspace/workspace_view.dart';
 import 'features/navigation/navigation_cubit.dart';
-import 'ui/components.dart';
-import 'ui/studio_design.dart';
-import 'features/appearance/appearance_cubit.dart';
 import 'features/planner/planner_cubit.dart';
 import 'features/planner/planner_view.dart';
 import 'features/sellers/seller_repository.dart';
 import 'features/sellers/sellers_cubit.dart';
 import 'features/sellers/sellers_view.dart';
+import 'features/workspace/workspace_cubit.dart';
+import 'features/workspace/workspace_view.dart';
+import 'l10n/hub_locale.dart';
+import 'ui/components.dart';
+import 'ui/studio_design.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +31,7 @@ void main() {
 class OvdpApp extends StatelessWidget {
   final HubRepository? repository;
   const OvdpApp({super.key, this.repository});
+
   @override
   Widget build(BuildContext context) => RepositoryProvider<HubRepository>(
     create: (_) => repository ?? FileHubRepository(),
@@ -49,6 +53,7 @@ class OvdpApp extends StatelessWidget {
         ),
         BlocProvider(create: (_) => CalculatorCubit()),
         BlocProvider(create: (_) => AppearanceCubit()),
+        BlocProvider(create: (_) => LocaleCubit()),
         BlocProvider(create: (_) => SellersCubit(SellerRepository())),
         BlocProvider(create: (_) => NavigationCubit()),
         BlocProvider(
@@ -71,49 +76,65 @@ class OvdpApp extends StatelessWidget {
 
 class StyledApp extends StatelessWidget {
   const StyledApp({super.key});
+
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'ОВДП Hub',
-    debugShowCheckedModeBanner: false,
-    theme: hubTheme(context.watch<AppearanceCubit>().state.studio),
-    home: const Home(),
-  );
+  Widget build(BuildContext context) {
+    final language = context.watch<LocaleCubit>().state.language;
+    return MaterialApp(
+      title: 'ОВДП Hub',
+      debugShowCheckedModeBanner: false,
+      theme: hubTheme(context.watch<AppearanceCubit>().state.studio),
+      locale: language.locale,
+      supportedLocales: AppLanguage.values.map((e) => e.locale).toList(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: const Home(),
+    );
+  }
 }
 
 class Home extends StatelessWidget {
   const Home({super.key});
+
   @override
   Widget build(BuildContext context) {
     final screen = context.watch<NavigationCubit>().state.index;
     final workspace = context.watch<WorkspaceCubit>().state;
     final studio = context.watch<AppearanceCubit>().state.studio;
+    final language = context.watch<LocaleCubit>().state.language;
+    final strings = HubStrings(language);
     final wide = MediaQuery.sizeOf(context).width >= 1000;
-    const destinations = [
+
+    final destinations = [
       NavigationDestination(
-        icon: Icon(Icons.analytics_outlined),
-        label: 'Каталог',
+        icon: const Icon(Icons.analytics_outlined),
+        label: strings.text('catalog'),
       ),
       NavigationDestination(
-        icon: Icon(Icons.bookmarks_outlined),
-        label: 'Добірки',
+        icon: const Icon(Icons.bookmarks_outlined),
+        label: strings.text('collections'),
       ),
       NavigationDestination(
-        icon: Icon(Icons.calculate_outlined),
-        label: 'Калькулятор',
+        icon: const Icon(Icons.calculate_outlined),
+        label: strings.text('calculator'),
       ),
       NavigationDestination(
-        icon: Icon(Icons.folder_outlined),
-        label: 'Сховище',
+        icon: const Icon(Icons.folder_outlined),
+        label: strings.text('workspace'),
       ),
       NavigationDestination(
-        icon: Icon(Icons.event_available_outlined),
-        label: 'Планування',
+        icon: const Icon(Icons.event_available_outlined),
+        label: strings.text('planning'),
       ),
       NavigationDestination(
-        icon: Icon(Icons.storefront_outlined),
-        label: 'Продавці',
+        icon: const Icon(Icons.storefront_outlined),
+        label: strings.text('sellers'),
       ),
     ];
+
     final content = Column(
       children: [
         if (workspace.busy) const LinearProgressIndicator(),
@@ -137,12 +158,13 @@ class Home extends StatelessWidget {
         ),
       ],
     );
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(studio ? 'Аналітичний кабінет' : '◈ ОВДП Hub'),
+        title: Text(studio ? strings.text('studioTitle') : '◈ ОВДП Hub'),
         actions: [
           IconButton(
-            tooltip: 'Про програму',
+            tooltip: strings.text('about'),
             onPressed: () {
               showAboutDialog(
                 context: context,
@@ -161,6 +183,29 @@ class Home extends StatelessWidget {
             },
             icon: const Icon(Icons.info_outline),
           ),
+          PopupMenuButton<AppLanguage>(
+            tooltip: strings.text('language'),
+            icon: const Icon(Icons.language),
+            initialValue: language,
+            onSelected: context.read<LocaleCubit>().select,
+            itemBuilder: (_) => AppLanguage.values
+                .map(
+                  (item) => PopupMenuItem<AppLanguage>(
+                    value: item,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(item.nativeName),
+                        Text(
+                          item.ukrainianDescription,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
           IconButton(
             tooltip: studio ? 'Класичний дизайн' : 'Дизайн «Робочий кабінет»',
             onPressed: context.read<AppearanceCubit>().toggle,
@@ -175,8 +220,8 @@ class Home extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Text(
                 workspace.path == null
-                    ? 'Сховище не відкрито'
-                    : 'Дані на вашому пристрої',
+                    ? strings.text('workspaceClosed')
+                    : strings.text('localData'),
               ),
             ),
         ],

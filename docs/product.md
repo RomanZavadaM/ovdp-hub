@@ -1,40 +1,46 @@
-# Product scope and user journey
+# Продукт OVDP Hub
 
-## Goal
+## Мета
 
-Help users understand public OVDP information and compare net economics without collecting their investment budgets or portfolios centrally.
+Допомогти користувачеві зрозуміти публічні дані про ОВДП, порівняти випуски та побудувати власні локальні сценарії коштів без передавання бюджету, планів або майбутнього портфеля на сервер OVDP Hub.
 
-## Implemented catalog journey
+## Поточний шлях користувача
 
-Open committed NBU snapshot → filter locally → inspect source and retrieval time → expand future payments → compare up to three issues → build a short- or long-horizon scenario package → optionally refresh directly from NBU. Error retains prior snapshot. No purchase or accounts.
+1. Відкрити локальний каталог із початкового snapshot НБУ.
+2. За бажанням вручну оновити каталог напряму з НБУ.
+3. Відфільтрувати випуски за ISIN, валютою та строком.
+4. Переглянути контрактний графік майбутніх виплат.
+5. Зберегти добірку або побудувати план бюджету/резерву/потреб.
+6. Окремо завантажити дозволені публічні дані продавця й оцінити їх дату/актуальність.
+7. Зберегти сценарій у локальній робочій папці.
 
-Scenario packages use transparent maturity windows (up to 12 months or from 24 months), allow up to five locally selected issues, and show currency composition with equal technical preview shares. These shares are a comparison aid, not a personalized recommendation.
+Жоден із цих кроків не виконує купівлю або продаж.
 
-## Separate demo journey
+## Наступний продуктовий крок
 
-Open app → see SYNTHETIC label → enter UAH budget → calculate locally → compare quantity, price with fee, profit, annualized return and idle cash. No registration, recommendation, account opening or purchase.
+### 0.8.2 — стабілізація
 
-## Planned aggregator journey
+Архітектурна консолідація Flutter, очищення legacy, provenance/freshness, retention публічних каталогів, security design і основа багатомовності.
 
-Load public snapshots → filter currency/ISIN/maturity/source → inspect freshness and tariff completeness → calculate locally → optionally save to encrypted local vault → open public source. A broker handoff is external and explicitly labeled.
+### 0.9.0 — «Ринок»
 
-## Sources to validate
+Єдина картка ISIN з окремими шарами:
 
-- NBU OVDP reference: https://bank.gov.ua/ua/markets/ovdp
-- NBU open-data terms: https://bank.gov.ua/ua/open-data
-- Ministry auction calendar: https://www.mof.gov.ua/uk/kalendar-aukcioniv
-- Ministry primary purchase explanation: https://www.mof.gov.ua/uk/domestic_government_bonds_for_population-360
-- Tax reference: https://www.tax.gov.ua/deklaratsiyna-kampaniya-2026/stavki-podatku-na-dohodi-fizichnih-osib-ta-viyskovogo-zboru
+- НБУ — характеристики і контрактні виплати;
+- Мінфін — первинний ринок, календар та фактичні результати аукціонів;
+- продавці — вторинні публічні котирування;
+- користувацькі припущення — введена ціна, кількість та майбутні моделі витрат.
 
-The NBU securities adapter is implemented; other entries remain reference pages, not claims that a connector is implemented. Confirm payload/schema, CORS, attribution, terms and refresh frequency before each integration. No scraping of authenticated client accounts.
+Обов'язкова вимога: не перетворювати yield у вигадану виконувану ціну.
 
-## Acceptance criteria
+### Розвиток планувальника
 
-- Public data and demo fixtures are visually distinguishable.
-- Entering/changing budgets makes no network request.
-- All costs and assumptions visible; no unknown fee silently replaced with zero.
-- No KYC, accounts or trading action in phase one.
-- Dates and stale source status shown; no invented live prices.
-- Budget never exceeded, quantities integral and within liquidity.
-- Keyboard navigation, explicit labels and narrow-screen table scrolling.
-- No personal data committed to fixtures, logs or CI artifacts.
+Після типізації сценарію додаються окремими моделями: комісії, податки з датою дії правила, кілька джерел цін, альтернативні сценарії, продаж до погашення, FX та різні типи потреб. Кожне припущення видиме користувачеві.
+
+### Фактичний портфель
+
+Лише після encrypted vault, secure storage та перевіреного backup/recovery. Фактичний портфель не повинен з'явитися як звичайний відкритий JSON за замовчуванням.
+
+## Мови
+
+Українська — основна й еталонна. Інтерфейс проєктується для вибору English, Français, Deutsch, Español, 한국어 та 日本語. Переклади не змінюють юридичний чи фінансовий зміст.
