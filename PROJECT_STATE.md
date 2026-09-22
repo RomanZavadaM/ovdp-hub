@@ -76,6 +76,18 @@ Release pipeline **Publish native prerelease run #32** успішно завер
 
 Tag/release не пересуваємо й не переписуємо.
 
+## Що вже інтегровано в `main` після v0.8.5, але ще не опубліковано окремим релізом
+
+- нормалізований freshness/status UX у картці ISIN;
+- typed `officialPublished` status для офіційних NBU/MinFin observations;
+- seller public quotes лишаються `publicIndicative`;
+- однаковий provenance/status block для NBU / MinFin / seller: source, sourceDate, retrievedAt, freshness, data status, evidence URL;
+- textual status — не лише колір;
+- локалізація UK/EN/FR/DE/ES/KO/JA;
+- unit/widget/full-card wiring tests.
+
+Версія в development state лишається **0.8.5+13** до наступного повного checkpoint.
+
 ## Інваріанти
 
 - приватні сценарії не передаються на сервер OVDP Hub;
@@ -90,7 +102,6 @@ Tag/release не пересуваємо й не переписуємо.
 ## Чому 0.8.5, а не 0.9.0
 
 0.8.5 фіксує завершені MinFin parser-slice, але **ще не завершені**:
-- нормалізований freshness/status UX у картці ISIN;
 - multiple price sources з explicit user priority;
 - повне підключення typed fee/tax/FX/exit assumptions до calculations + UI;
 - A/B/C comparison;
@@ -100,10 +111,9 @@ Tag/release не пересуваємо й не переписуємо.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. нормалізований freshness/status UX у картці ISIN;
-2. multiple `PriceObservation` + explicit user source priority;
-3. typed fee/tax/FX/exit assumptions → calculations + UI;
-4. A/B/C comparison;
-5. generated planner copy / preset labels localization.
+1. multiple `PriceObservation` + explicit user source priority;
+2. typed fee/tax/FX/exit assumptions → calculations + UI;
+3. A/B/C comparison;
+4. generated planner copy / preset labels localization.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел на відповідну дату.

@@ -25,29 +25,28 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **NEXT**
 
-Мета: **freshness/status UX у картці ISIN**.
+Мета: **multiple `PriceObservation` + explicit user source priority**.
 
-- base `main`: `1b00ab2ba396176e31baabb98b991abeaa14ff39`
-- active branch: `feat/isin-freshness-status-ux-v2`
-- опублікований checkpoint: **v0.8.5 / 0.8.5+13**
-- release workflow: **Publish native prerelease run #32 — success**
-- release assets перевірені: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
-- наступний функціональний slice не входив у v0.8.5 і починається поверх нового release baseline
+- base `main`: `e4f6d1cfe0544a28cc1afff81084e5dd898910ba`
+- попередній slice: freshness/status UX у картці ISIN
+- merged PR: **#35**
+- merge SHA: `e4f6d1cfe0544a28cc1afff81084e5dd898910ba`
+- final verify: **Flutter checks and START run #104 — success**
+- version лишається **0.8.5+13**; нового release checkpoint не створювали
 
 ### Поточна наступна дія
 
-PR **#35** готовий до інтеграції: typed `officialPublished`, reusable provenance/status block, NBU/MinFin/seller status separation, 7 мов і wiring tests реалізовані. Final functional verify: **Flutter checks and START run #103 — success**.
+Перевірити поточну модель `PriceObservation` і planner price selection, після чого реалізувати **кілька observations на ISIN** з явним вибором/пріоритетом джерела користувачем. Заборонити будь-який неявний fallback, який перетворює yield або nominal estimate на вибрану ринкову ціну.
 
 ## Черга робіт
 
-1. **NEXT** — freshness/status UX у картці ISIN.
-2. **TODO** — multiple `PriceObservation` + explicit user source priority.
-3. **TODO** — typed fee/tax/FX/exit assumptions → calculations + UI.
-4. **TODO** — A/B/C comparison.
-5. **TODO** — generated planner copy / preset labels localization + UX regression.
-6. **TODO** — оцінка готовності formal prerelease 0.9.0.
+1. **NEXT** — multiple `PriceObservation` + explicit user source priority.
+2. **TODO** — typed fee/tax/FX/exit assumptions → calculations + UI.
+3. **TODO** — A/B/C comparison.
+4. **TODO** — generated planner copy / preset labels localization + UX regression.
+5. **TODO** — оцінка готовності formal prerelease 0.9.0.
 
 ## Продуктова логіка цієї черги
 
@@ -74,6 +73,8 @@ PR **#35** готовий до інтеграції: typed `officialPublished`, 
 - поточний опублікований v0.8.5 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — ISIN freshness/status UX**: PR #35 squash-merged у `main` як `e4f6d1cfe0544a28cc1afff81084e5dd898910ba`; final run #104 success. Official NBU/MinFin observations відокремлено від seller indicative quotes; для трьох шарів уніфіковано sourceDate/retrievedAt/freshness/status/evidence UI та 7 мов.
 
 - **DONE — v0.8.5 full cross-platform checkpoint**: PR #33 squash-merged у `main` як `6e8ce5c7ccfd4217330e59fe96fd6a83ac531d59`; `Publish native prerelease` run #32 success; опубліковано Windows/macOS/Android/iOS/START + SHA256SUMS + legal notices під незмінним tag `v0.8.5`.
 
