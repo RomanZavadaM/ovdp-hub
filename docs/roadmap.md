@@ -20,7 +20,8 @@
 - [x] НБУ: інструмент і графік контрактних виплат.
 - [ ] Мінфін: календар, оголошення, результати аукціонів і корекції.
   - [x] Typed index оголошень/результатів з розрізненням placement/switch та fail-closed parser.
-  - [ ] Календар документів Мінфіну.
+  - [x] Typed index календарних документів Мінфіну: monthly / quarterly / switch PDF + publication date + provenance.
+  - [ ] Структурований розклад майбутніх аукціонів із календарних PDF (окремий parser; не вгадувати дані з назви документа).
   - [ ] Детальний parser результатів аукціонів.
 - [x] Продавці: типізовані вторинні observations без вигаданої ціни.
 - [x] Базові sourceDate / retrievedAt / freshness / evidence URL; validUntil лишається source-specific.
