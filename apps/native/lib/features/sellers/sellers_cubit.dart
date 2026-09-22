@@ -48,6 +48,8 @@ class SellersCubit extends Cubit<SellersState> {
           )
           .toList() ??
       [];
+  DataFreshness? get freshness => state.snapshot?.meta.freshness(repository.clock());
+
   String? get dateWarning {
     final meta = state.snapshot?.meta;
     if (meta == null) return null;
