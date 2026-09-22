@@ -542,7 +542,7 @@ List<MinfinMonthlyPlacementOffering> _parseMonthlyOfferings(
     final isIsin = RegExp(r'^UA\d{10}$').hasMatch(compact);
     final isPrimary = compact.toLowerCase() == 'первиннерозміщення';
     if (!isIsin && !isPrimary) {
-      continue;
+      throw const FormatException('minfin.calendar_pdf_layout_changed');
     }
     if (maturity == null) {
       throw const FormatException('minfin.calendar_pdf_layout_changed');
@@ -735,6 +735,8 @@ MinfinSwitchLeg _parseSwitchLeg(
         throw const FormatException('minfin.calendar_pdf_layout_changed');
       }
       primary = true;
+    } else {
+      throw const FormatException('minfin.calendar_pdf_layout_changed');
     }
   }
 
