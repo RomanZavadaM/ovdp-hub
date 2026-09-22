@@ -24,6 +24,27 @@ class MinfinAuctionRate {
 
 enum MinfinAuctionEventKind { placement, switchAuction }
 
+enum MinfinCalendarDocumentKind {
+  monthlyPlacement,
+  quarterlyPlacement,
+  monthlySwitch,
+}
+
+@immutable
+class MinfinCalendarDocument {
+  final String publishedDate;
+  final MinfinCalendarDocumentKind kind;
+  final String title;
+  final String documentUrl;
+
+  const MinfinCalendarDocument({
+    required this.publishedDate,
+    required this.kind,
+    required this.title,
+    required this.documentUrl,
+  });
+}
+
 @immutable
 class MinfinAuctionEvent {
   final String auctionDate;
@@ -64,6 +85,17 @@ class MinfinAuctionEventsSnapshot {
     this.meta,
     Iterable<MinfinAuctionEvent> events,
   ) : events = List.unmodifiable(events);
+}
+
+@immutable
+class MinfinCalendarDocumentsSnapshot {
+  final SourceObservationMeta meta;
+  final List<MinfinCalendarDocument> documents;
+
+  MinfinCalendarDocumentsSnapshot(
+    this.meta,
+    Iterable<MinfinCalendarDocument> documents,
+  ) : documents = List.unmodifiable(documents);
 }
 
 String _plain(String html) => html
@@ -289,6 +321,145 @@ MinfinAuctionEventsSnapshot parseMinfinAuctionEvents(
       confidence: ObservationConfidence.publicIndicative,
     ),
     events,
+  );
+}
+
+
+MinfinCalendarDocumentsSnapshot parseMinfinCalendarDocuments(
+  String html,
+  DateTime retrievedAt,
+) {
+  if (!html.contains('Календар аукціонів')) {
+    throw const FormatException('minfin.calendar_section_missing');
+  }
+
+  final anchorPattern = RegExp(
+    r'''<a\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>''',
+    dotAll: true,
+  );
+  final datePattern = RegExp(
+    r'\b\d{1,2}\s+[А-ЯІЇЄҐа-яіїєґ]+\s+\d{4}\b',
+  );
+
+  final documents = <MinfinCalendarDocument>[];
+  final seen = <String>{};
+
+  for (final anchor in anchorPattern.allMatches(html)) {
+    final title = _plain(anchor.group(2)!);
+    if (!title.startsWith('Графік розміщення ОВДП')) continue;
+
+    final kind = title.contains('з обміну')
+        ? MinfinCalendarDocumentKind.monthlySwitch
+        : title.contains('квартал')
+        ? MinfinCalendarDocumentKind.quarterlyPlacement
+        : RegExp(
+            r'Графік розміщення ОВДП на [А-ЯІЇЄҐа-яіїєґ]+ \d{4}(?: року)?  static const url = 'https://mof.gov.ua/uk/borgova-politika';
+  static const auctionEventsUrl =
+      'https://mof.gov.ua/uk/ogoloshennja-ta-rezultati-aukcioniv';
+  static const calendarUrl = 'https://mof.gov.ua/uk/kalendar-aukcioniv';
+
+  final http.Client client;
+  final DateTime Function() clock;
+
+  MinfinRepository({http.Client? client, DateTime Function()? clock})
+      : client = client ?? http.Client(),
+        clock = clock ?? DateTime.now;
+
+  Future<String> _fetchPage(String sourceUrl) async {
+    final response = await client
+        .get(Uri.parse(sourceUrl))
+        .timeout(const Duration(seconds: 25));
+    if (response.statusCode != 200) {
+      throw FormatException('minfin.http_status', {'status': response.statusCode});
+    }
+    if (response.bodyBytes.length > 4 * 1024 * 1024) {
+      throw const FormatException('minfin.page_too_large');
+    }
+    return utf8.decode(response.bodyBytes);
+  }
+
+  Future<MinfinSnapshot> fetch() async {
+    return parseMinfinAuctionRates(
+      await _fetchPage(url),
+      clock(),
+    );
+  }
+
+  Future<MinfinAuctionEventsSnapshot> fetchAuctionEvents() async {
+    return parseMinfinAuctionEvents(
+      await _fetchPage(auctionEventsUrl),
+      clock(),
+    );
+  }
+
+  Future<MinfinCalendarDocumentsSnapshot> fetchCalendarDocuments() async {
+    return parseMinfinCalendarDocuments(
+      await _fetchPage(calendarUrl),
+      clock(),
+    );
+  }
+
+  void dispose() => client.close();
+}
+,
+          ).hasMatch(title)
+        ? MinfinCalendarDocumentKind.monthlyPlacement
+        : null;
+
+    if (kind == null) {
+      throw const FormatException('minfin.unknown_calendar_document_type');
+    }
+
+    final href = anchor.group(1)!;
+    final documentUrl = _absoluteMinfinUrl(href);
+    final documentUri = Uri.parse(documentUrl);
+    if (!documentUri.path.startsWith('/storage/files/') ||
+        !documentUri.path.toLowerCase().endsWith('.pdf')) {
+      throw const FormatException('minfin.invalid_source_url');
+    }
+
+    final candidateTailEnd = anchor.end + 800;
+    final tailEnd =
+        candidateTailEnd < html.length ? candidateTailEnd : html.length;
+    final tail = html.substring(anchor.end, tailEnd);
+    final dateMatch = datePattern.firstMatch(_plain(tail));
+    if (dateMatch == null) {
+      throw const FormatException('minfin.calendar_date_missing');
+    }
+    final publishedDate = _isoFromUaLongDate(dateMatch.group(0)!);
+
+    final key = '$publishedDate|${kind.name}|$documentUrl';
+    if (!seen.add(key)) {
+      throw const FormatException('minfin.duplicate_calendar_document');
+    }
+
+    documents.add(
+      MinfinCalendarDocument(
+        publishedDate: publishedDate,
+        kind: kind,
+        title: title,
+        documentUrl: documentUrl,
+      ),
+    );
+  }
+
+  if (documents.isEmpty) {
+    throw const FormatException('minfin.calendar_empty');
+  }
+
+  documents.sort((a, b) => b.publishedDate.compareTo(a.publishedDate));
+  final latest = documents.first.publishedDate;
+
+  return MinfinCalendarDocumentsSnapshot(
+    SourceObservationMeta(
+      sourceId: 'minfin-auction-calendar-documents',
+      sourceUrl: MinfinRepository.calendarUrl,
+      sourceDate: latest,
+      retrievedAt: retrievedAt.toUtc().toIso8601String(),
+      kind: ObservationKind.primaryAuction,
+      confidence: ObservationConfidence.publicIndicative,
+    ),
+    documents,
   );
 }
 
