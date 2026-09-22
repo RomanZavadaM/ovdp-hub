@@ -147,7 +147,12 @@ class CatalogView extends StatelessWidget {
               trailing: IconButton(
                 tooltip: strings.text('issueDetails'),
                 icon: const Icon(Icons.chevron_right),
-                onPressed: () => showBondDetails(context, b, seller: seller),
+                onPressed: () => showBondDetails(
+                  context,
+                  b,
+                  catalog: state.catalog,
+                  seller: seller,
+                ),
               ),
             ),
           ),
