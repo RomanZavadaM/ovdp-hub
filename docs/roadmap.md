@@ -19,10 +19,11 @@
 
 ## Ритм інтеграції та тестових checkpoint
 
-- Кожен завершений і перевірений vertical slice зливається в `main` перед початком наступного.
-- Після кожного user-visible merge тестуємо актуальний `main` через START artifact.
-- Багатоплатформний prerelease/checkpoint — орієнтовно після кожних 2–3 user-visible slices або раніше після ризикових змін parser/calculation/schema.
-- Опубліковані теги не переписуються; новий checkpoint отримує нову версію/build.
+- Кожен завершений і перевірений vertical slice **інтегруємо PR у `main`** перед початком наступного.
+- Проміжно після user-visible integration тестуємо актуальний `main` через START artifact.
+- Команда власника **«злити у `main`»** означає повний багатоплатформний test-release checkpoint: нова version/build, Windows/macOS/Android/iOS, START/source, checksums/legal, Git tag і GitHub prerelease.
+- Такий повний checkpoint плануємо регулярно — орієнтовно після кожних 2–3 user-visible integrated slices або раніше після ризикових змін parser/calculation/schema.
+- Опубліковані теги не переписуються; кожне повне «злиття у `main`» отримує нову версію/build.
 
 ## 0.8.2 — стабілізація
 
