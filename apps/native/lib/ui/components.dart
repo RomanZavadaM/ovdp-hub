@@ -62,9 +62,10 @@ void showBondDetails(
   BuildContext context,
   Bond bond, {
   SellerSnapshot? seller,
+  Future<MinfinSnapshot>? primaryFuture,
 }) {
-  final minfinRepository = MinfinRepository();
-  final minfinFuture = minfinRepository.fetch();
+  final minfinRepository = primaryFuture == null ? MinfinRepository() : null;
+  final minfinFuture = primaryFuture ?? minfinRepository!.fetch();
 
   showDialog<void>(
     context: context,
@@ -216,5 +217,5 @@ void showBondDetails(
         ],
       );
     },
-  ).whenComplete(minfinRepository.dispose);
+  ).whenComplete(() => minfinRepository?.dispose());
 }
