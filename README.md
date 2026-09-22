@@ -2,11 +2,11 @@
 
 Встановлюваний Flutter/Dart-застосунок для огляду ОВДП та власних інвестиційних сценаріїв. Цільові платформи: Windows, macOS, Android, iOS. Web/PWA виключено з продукту.
 
-> **Current prerelease:** [OVDP Hub 0.8.2](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.2) — стабілізований Flutter checkpoint перед етапом «Ринок».
+> **Current prerelease:** [OVDP Hub 0.8.3](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.3) — завершений проміжний checkpoint із типізованим доменом планувальника перед етапом «Ринок».
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/OVDP-Hub-0.8.2-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/OVDP-Hub-0.8.2-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/OVDP-Hub-0.8.2-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/OVDP-Hub-0.8.2-iOS-unsigned.zip) · [START](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/OVDP-Hub-0.8.2-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.2/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.3/OVDP-Hub-0.8.3-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.3/OVDP-Hub-0.8.3-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.3/OVDP-Hub-0.8.3-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.3/OVDP-Hub-0.8.3-iOS-unsigned.zip) · [START](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.3/OVDP-Hub-0.8.3-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.3/SHA256SUMS.txt)
 
-## Поточний prerelease 0.8.2
+## Поточний prerelease 0.8.3
 
 Активний код — `apps/native`. Перенесено каталог НБУ, пошук і фільтри, графіки виплат, порівняння випусків, короткий/довгий горизонт, збережені добірки з нотатками та навчальний калькулятор. Каталог постачається всередині застосунку й оновлюється напряму з НБУ. Номінальні ставки не є ринковою дохідністю; виконання купівлі немає. Калькулятор явно використовує синтетичний приклад.
 
@@ -20,7 +20,7 @@
 
 Тестові пакети містять одну кореневу папку `OVDP-Hub-<version>-b<build>-<platform>-<run>-<commit>`. Розпаковуйте весь пакет і запускайте застосунок із цієї папки. Версії програмних файлів не змішуються; робоча папка з даними зберігається окремо.
 
-Звичайні добірки формату 1 сумісні з попередніми версіями. Сценарії використовують формат добірки 2. Нові плани з кількома витратами мають внутрішню версію сценарію 2 та потребують застосунку 0.7; версія 0.6 відмовиться відкривати такий план. Версія 0.7 читає попередні сценарії. Версія 0.5 не зможе прочитати таку робочу папку; для паралельного тестування використовуйте копію папки.
+Звичайні добірки формату 1 сумісні з попередніми версіями. Сценарії старих schema 1/2 читаються через сумісний adapter. Нові сценарії використовують типізовану schema 3; читання старого файлу не переписує його мовчки. Для паралельного тестування старішими версіями використовуйте копію робочої папки.
 
 ## Швидке тестування та новий дизайн
 
@@ -58,7 +58,7 @@ OVDP Hub є **proprietary software**. Публічна видимість цьо
 
 ## Мови
 
-Основна й еталонна мова — **українська**. Архітектура інтерфейсу підтримує вибір **English, Français, Deutsch, Español, 한국어, 日本語**. У 0.8.2 локалізовано оболонку; переклад функціональних модулів розширюється поетапно без зміни фінансового або юридичного змісту.
+Основна й еталонна мова — **українська**. Архітектура інтерфейсу підтримує вибір **English, Français, Deutsch, Español, 한국어, 日本語**. У 0.8.3 локалізовано оболонку; переклад функціональних модулів розширюється поетапно без зміни фінансового або юридичного змісту.
 
 ## Для розробника
 
@@ -81,7 +81,7 @@ Windows-пакет повинен містити весь каталог `build/
 - [PROJECT_STATE.md](PROJECT_STATE.md) — поточний checkpoint і наступний крок.
 - [PROJECT_RULES.md](PROJECT_RULES.md) — постійні правила розробки й релізів.
 - [CHANGELOG.md](CHANGELOG.md) — історія помітних змін.
-- [Release notes 0.8.2](docs/releases/RELEASE_NOTES_v0_8_2.md) — опис поточного prerelease.
+- [Release notes 0.8.3](docs/releases/RELEASE_NOTES_v0_8_2.md) — опис поточного prerelease.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — правила зовнішніх внесків у proprietary-проєкт.
 
 ## Структура
@@ -91,8 +91,7 @@ Windows-пакет повинен містити весь каталог `build/
 - `apps/native/assets` — публічний початковий знімок НБУ.
 - `docs/adr/0002-native-workspaces.md` — рішення про платформи, робочі папки та межі приватності.
 - `docs/platforms.md` — способи пакування.
-- `docs/data-sources.md` — provenance/freshness НБУ, Мінфіну та продавців.
+- `docs/data-provenance.md` — provenance/freshness НБУ, Мінфіну та продавців.
 - `docs/security-vault.md` — threat model майбутнього encrypted vault.
-- `apps/web`, `apps/mobile`, `apps/desktop`, `packages` — попередній TypeScript-прототип як еталон міграції. Не є активними продуктами для поширення.
 
 Джерело каталогу: https://bank.gov.ua/ua/markets/ovdp. Час завантаження знімка не є датою актуальності всього набору НБУ.
