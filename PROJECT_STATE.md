@@ -146,10 +146,26 @@ Final PR verification: **Flutter checks and START run #123 — success**.
 
 Опублікований checkpoint лишається **v0.8.6 / 0.8.6+14**; tag/release не переписуємо.
 
+PR **#41 — Planner: explicit purchase fee assumptions** squash-merged у `main` як `fbe8028ae1f68fcbb9c4c7a7057134c6793c00ae`.
+
+Інтегровано, але ще не видано окремим GitHub release:
+- typed `FeeAssumptions` зберігаються в PlannerState та проходять load/save;
+- `unknown` чітко відрізняється від підтвердженого нуля;
+- підтримано явну aggregate purchase fee у валюті сценарію;
+- відома комісія резервується з planning budget і враховується в initial cost, reserve та calculated profit;
+- при невідомій комісії UI явно показує gross/pre-fee результат, а не net;
+- детальні typed fee rules зберігаються й не переписуються спрощеним UI без явної дії користувача;
+- UI та fee-related errors локалізовано UK/EN/FR/DE/ES/KO/JA;
+- domain/cubit/persistence/widget regression coverage проходить повністю.
+
+Final PR verification: **Flutter checks and START run #135 — success (80/80 tests)**.
+
 ## Чому 0.8.6, а не 0.9.0
 
-Після v0.8.6 у `main` уже інтегровано explicit price-source priority, але **ще не завершені**:
-- повне підключення typed fee/tax/FX/exit assumptions до calculations + UI;
+Після v0.8.6 у `main` уже інтегровано explicit price-source priority та purchase-fee assumptions, але **ще не завершені**:
+- tax assumptions → calculations + effective-dated verified UI;
+- FX assumptions → calculations + UI;
+- exit assumptions → redesign/wiring для multi-position scenarios;
 - A/B/C comparison;
 - generated planner copy / preset labels localization.
 
@@ -157,8 +173,10 @@ Final PR verification: **Flutter checks and START run #123 — success**.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. typed fee/tax/FX/exit assumptions → calculations + UI;
-2. A/B/C comparison;
-3. generated planner copy / preset labels localization.
+1. tax assumptions → official effective-date audit → calculations + UI;
+2. FX assumptions → calculations + UI;
+3. exit assumptions → multi-position redesign/wiring;
+4. A/B/C comparison;
+5. generated planner copy / preset labels localization.
 
-Перед використанням податкових правил обов'язкова перевірка офіційних джерел на відповідну дату.
+Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
