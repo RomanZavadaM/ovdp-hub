@@ -4,17 +4,16 @@
 
 ## Поточний checkpoint
 
-- Активна версія в release candidate: **0.8.6+14**
-- Поточний опублікований GitHub tag: **v0.8.5**
-- Release candidate target: **v0.8.6**
+- Активна версія: **0.8.6+14**
+- Опублікований GitHub tag: **v0.8.6**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
 - Основна гілка: `main`
 - Статус продукту: **test / prerelease**
-- Release commit: **6e8ce5c7ccfd4217330e59fe96fd6a83ac531d59**
-- Release workflow: **Publish native prerelease run #32 — success**
-- GitHub Release: **v0.8.5**, опублікований 22.09.2026
+- Release commit: **7b19670a2ff621a65685db714022d8819ecff7d4**
+- Release workflow: **Publish native prerelease run #34 — success**
+- GitHub Release: **v0.8.6**, опублікований 23.09.2026
 
 ## Що входить до опублікованого 0.8.5
 
@@ -77,7 +76,7 @@ Release pipeline **Publish native prerelease run #32** успішно завер
 
 Tag/release не пересуваємо й не переписуємо.
 
-## Що входить до release candidate v0.8.6 поверх v0.8.5
+## Що додано в опублікованому 0.8.6 поверх v0.8.5
 
 - нормалізований freshness/status UX у картці ISIN;
 - typed `officialPublished` status для офіційних NBU/MinFin observations;
@@ -87,7 +86,32 @@ Tag/release не пересуваємо й не переписуємо.
 - локалізація UK/EN/FR/DE/ES/KO/JA;
 - unit/widget/full-card wiring tests.
 
-Ці зміни формують release candidate **v0.8.6 / 0.8.6+14**. Опублікований `v0.8.5` не переписується.
+Ці зміни опубліковані як **v0.8.6 / 0.8.6+14**. Попередній `v0.8.5` не переписувався.
+
+## Реліз v0.8.6
+
+Release pipeline **Publish native prerelease run #34** успішно завершив:
+- `flutter pub get --enforce-lockfile`;
+- `flutter analyze`;
+- `flutter test`;
+- Windows release build + packaging;
+- macOS release build + packaging;
+- Android release APK + packaging;
+- iOS unsigned release build + packaging;
+- START/source package;
+- SHA-256 manifest;
+- prerelease publication.
+
+Опубліковані assets:
+- `OVDP-Hub-0.8.6-Windows-x64.zip`;
+- `OVDP-Hub-0.8.6-macOS.zip`;
+- `OVDP-Hub-0.8.6-Android-test.zip`;
+- `OVDP-Hub-0.8.6-iOS-unsigned.zip`;
+- `OVDP-Hub-0.8.6-START.zip`;
+- `SHA256SUMS.txt`;
+- legal notices.
+
+Tag/release не пересуваємо й не переписуємо.
 
 ## Інваріанти
 
@@ -100,9 +124,9 @@ Tag/release не пересуваємо й не переписуємо.
 - реальний портфель — лише після encrypted vault, platform secure storage і backup/recovery;
 - copyright original project materials: Roman Zavada (Роман Завада).
 
-## Чому 0.8.5, а не 0.9.0
+## Чому 0.8.6, а не 0.9.0
 
-0.8.5 фіксує завершені MinFin parser-slice, але **ще не завершені**:
+0.8.6 додає завершений freshness/status UX поверх MinFin parser-slice, але **ще не завершені**:
 - multiple price sources з explicit user priority;
 - повне підключення typed fee/tax/FX/exit assumptions до calculations + UI;
 - A/B/C comparison;
