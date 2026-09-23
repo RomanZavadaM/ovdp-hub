@@ -2,9 +2,9 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · **🇫🇷 Français** · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.7](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.7)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.8](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.8)**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/SHA256SUMS.txt)
 
 ---
 
@@ -23,7 +23,10 @@ Code actif : `apps/native`. Objectif principal actuel : **0.9.0 « Marché »**.
 - plusieurs sources de prix avec priorité explicite définie par l’utilisateur;
 - planificateur de budget, réserve, échéances et dépenses futures;
 - hypothèses explicites de frais d’achat : un frais inconnu n’est jamais considéré comme nul;
-- après v0.8.7, `main` contient aussi un profil fiscal OVDP 2026 vérifié pour une personne physique résidente d’Ukraine, avec distinction explicite **inconnu / zéro vérifié**;
+- un profil fiscal OVDP 2026 vérifié pour une personne physique résidente d’Ukraine, avec distinction explicite **inconnu / zéro vérifié**;
+- une comparaison FX explicite avec taux, date et URL de source saisis manuellement, sans mélanger les devises du cash-flow de base;
+- une vente anticipée par position avec date et prix de sortie BID/manuel propres;
+- un besoin futur principal récurrent conservé comme règle typée, les besoins supplémentaires restant ponctuels;
 - sauvegarde portable des scénarios au format JSON;
 - interface active et principales erreurs utilisateur localisées en **UK / EN / FR / DE / ES / KO / JA**.
 
