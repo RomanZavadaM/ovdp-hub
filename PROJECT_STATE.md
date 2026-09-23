@@ -160,10 +160,27 @@ PR **#41 — Planner: explicit purchase fee assumptions** squash-merged у `main
 
 Final PR verification: **Flutter checks and START run #135 — success (80/80 tests)**.
 
+## Інтегровано в `main` після опублікованого v0.8.7
+
+PR **#45 — Planner: verified OVDP tax assumptions** squash-merged у `main` як `b47fd1360432a8336ca38666064eb46eebbd04f7`.
+
+Інтегровано, але ще не видано окремим GitHub release:
+- official-source-audited preset для фізособи-резидента України / ОВДП / 2026;
+- чотири explicit 0% правила: PIT + military levy × interest + investment profit;
+- `TaxScenario` проходить PlannerState/load/save;
+- unknown tax не підміняється нулем;
+- incomplete / out-of-scope / non-zero rules fail closed до появи explicit tax-base model;
+- post-fee/post-tax result semantics: verified-zero показується явно, unknown tax лишає pre-tax caveat;
+- tax UI/status/errors локалізовано UK/EN/FR/DE/ES/KO/JA;
+- domain/cubit/persistence/widget tests зелені.
+
+Final PR verification: **Flutter checks and START run #145 — success**.
+
+Опублікований checkpoint лишається **v0.8.7 / 0.8.7+15**; tag/release не переписуємо.
+
 ## Чому 0.8.7, а не 0.9.0
 
-У v0.8.7 уже видано explicit price-source priority та purchase-fee assumptions, але **ще не завершені**:
-- tax assumptions → calculations + effective-dated verified UI;
+Після v0.8.7 у `main` уже інтегровано verified tax assumptions, але **ще не завершені**:
 - FX assumptions → calculations + UI;
 - exit assumptions → redesign/wiring для multi-position scenarios;
 - A/B/C comparison;
@@ -173,11 +190,10 @@ Final PR verification: **Flutter checks and START run #135 — success (80/80 te
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. tax assumptions → official effective-date audit → calculations + UI;
-2. FX assumptions → calculations + UI;
-3. exit assumptions → multi-position redesign/wiring;
-4. A/B/C comparison;
-5. generated planner copy / preset labels localization.
+1. FX assumptions → calculations + UI;
+2. exit assumptions → multi-position redesign/wiring;
+3. A/B/C comparison;
+4. generated planner copy / preset labels localization.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
 

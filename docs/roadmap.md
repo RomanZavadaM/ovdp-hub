@@ -11,7 +11,7 @@
 1. **Довіра до ринкових даних — DONE**: detailed MinFin auction results parser інтегрований з provenance, fail-closed поведінкою та deterministic tests.
 2. **Зрозуміла актуальність — DONE**: freshness/status UX у картці ISIN уніфіковано для NBU / MinFin / seller observations.
 3. **Явний вибір ринкової ціни — DONE**: кілька `PriceObservation`, explicit user priority, add/select/reorder controls і nominal fallback інтегровані без прихованої підміни yield/nominal ціною.
-4. **Повна економіка сценарію — IN PROGRESS**: purchase-fee vertical уже інтегрований; далі tax → FX → exit. Невідомі значення не вважати нулем.
+4. **Повна економіка сценарію — IN PROGRESS**: purchase-fee і verified-tax vertical інтегровані; далі FX → exit. Невідомі значення не вважати нулем.
 5. **Порівняння рішень** — A/B/C comparison з однаковими припущеннями, cashflow і поясненням різниці.
 6. **Готовність 0.9.0** — UX-polish, generated-copy localization, regression review, cross-platform prerelease.
 
@@ -57,7 +57,7 @@
 - [x] Домен effective-dated податкових сценаріїв.
 - [x] Кілька джерел цін і пріоритет користувача — PR #39, final run #123.
 - [x] Purchase fee assumptions: unknown / confirmed zero / aggregate fee → persistence / calculation / UI — PR #41, final run #135.
-- [ ] Tax assumptions → calculation/UI після official effective-date verification.
+- [x] Tax assumptions → official effective-date verification → calculation/UI — PR #45, final run #145.
 - [ ] FX assumptions → calculation/UI.
 - [ ] Exit assumptions → multi-position redesign/wiring.
 - [ ] Порівняння альтернативних сценаріїв A/B/C.

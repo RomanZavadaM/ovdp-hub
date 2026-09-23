@@ -25,41 +25,39 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
 Мета: **tax assumptions → official effective-date audit → calculation → persistence → 7-language UI → tests**.
 
-- baseline `main`: `847b0b1684dc2c6ca4e13435d03adf4356376276`
-- active branch: `feat/planner-tax-assumptions`
-- published checkpoint: **v0.8.7 / 0.8.7+15**
-- audit completed 23.09.2026 against official sources:
-  - PIT interest: current Tax Code section IV, p.p. 165.1.2 — government-bond interest excluded from taxable income;
-  - PIT investment profit: p.p. 165.1.52 + current 2026 DPS explanation — OVDP investment profit excluded;
-  - military levy: current 2026 DPS guidance states OVDP income is not subject to levy;
-  - stale pre-23.05.2020 wording that excluded 165.1.2/165.1.52 from the levy exemption must not be used; DPS documents the 2020 amendment removing that wording.
-- verified 2026 preset remains four explicit **0%** rules for Ukraine-resident individual / OVDP.
-- safety rule: unknown taxes are never zero; non-zero tax rules stay fail-closed until a tax-base model is explicitly implemented.
+- PR: **#45** `Planner: verified OVDP tax assumptions`
+- final head: `2cd3ff1ce60000098eceda7f850982cea1427beb`
+- final verify: **Flutter checks and START run #145 — success**
+- squash merge у `main`: `b47fd1360432a8336ca38666064eb46eebbd04f7`
+- published checkpoint remains **v0.8.7 / 0.8.7+15**
+- completed:
+  - official-source audit before activation;
+  - verified Ukraine-resident OVDP 2026 zero-tax preset;
+  - TaxScenario retained in state/load/save;
+  - explicit unknown vs verified-zero impact;
+  - incomplete/out-of-scope/non-zero tax rules fail closed;
+  - post-fee/post-tax result and expense caveats;
+  - tax UI/errors localized UK/EN/FR/DE/ES/KO/JA;
+  - domain/cubit/persistence/widget regression coverage green.
 
 ### Поточна наступна дія
 
-**DOING — wire only the verified 2026 Ukraine-resident OVDP preset.**
+**NEXT — FX assumptions calculation/UI.**
 
-1. refresh preset source/date metadata;
-2. retain `TaxScenario` in PlannerState/load/save;
-3. add a tax impact evaluator that distinguishes unknown vs verified zero and fails closed on unsupported non-zero bases;
-4. add unknown / verified-2026 UI and post-fee/post-tax result semantics;
-5. localize tax controls/status/errors for UK/EN/FR/DE/ES/KO/JA;
-6. add domain/cubit/persistence/widget tests;
-7. green verify → PR → integrate into `main`.
+Почати окремий vertical slice від актуального `main`: аудит наявного `FxAssumption` domain і поточного single-currency planner path → explicit unknown/no-conversion vs user-provided rate/date/source → persistence → calculation semantics → 7-language UI → tests.
 
-FX and exit remain out of this slice.
+Не змішувати валюти без explicit FX. Не підтягувати довільний live FX курс автоматично без окремого рішення про source/provenance.
 
 ## Черга робіт
 
 1. **DONE** — multiple `PriceObservation` + explicit user source priority.
 2. **DONE** — purchase fee assumptions → calculation + UI.
-3. **DOING** — tax assumptions → official effective-date audit → calculation + UI.
-4. **TODO** — FX assumptions calculation/UI.
+3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
+4. **NEXT** — FX assumptions calculation/UI.
 5. **TODO** — exit assumptions redesign/wiring for multi-position scenarios.
 6. **TODO** — A/B/C comparison.
 7. **TODO** — generated planner copy / preset labels localization + UX regression.
@@ -90,6 +88,9 @@ FX and exit remain out of this slice.
 - поточний опублікований v0.8.7 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — verified OVDP tax assumptions**: PR #45 squash-merged у `main` як `b47fd1360432a8336ca38666064eb46eebbd04f7`; final run #145 success. Official-source-audited 2026 zero-tax preset, unknown/verified-zero semantics, fail-closed non-zero tax base, persistence, post-fee/post-tax result UI and 7-language coverage integrated.
+
 
 - **DONE — v0.8.7 full cross-platform checkpoint**: PR #42 squash-merged у `main` як `6ab844fd3063fbfa9fcf54ab875539241c459845`; `Publish native prerelease` run #37 success. Опубліковано Windows/macOS/Android/iOS/START + SHA256SUMS + legal notices під tag `v0.8.7`; GitHub Release description містить UK/EN/FR/DE/ES/KO/JA.
 
