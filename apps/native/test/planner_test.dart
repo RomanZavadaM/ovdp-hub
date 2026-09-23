@@ -5,6 +5,7 @@ import 'package:ovdp_hub/models.dart';
 import 'package:ovdp_hub/features/planner/planner_engine.dart';
 import 'package:ovdp_hub/features/planner/planner_cubit.dart';
 import 'package:ovdp_hub/features/planner/planner_fees.dart';
+import 'package:ovdp_hub/features/planner/planner_fx.dart';
 import 'package:ovdp_hub/features/planner/planner_scenario.dart';
 import 'package:ovdp_hub/features/planner/planner_taxes.dart';
 import 'package:ovdp_hub/features/collections/editor_cubit.dart';
@@ -450,6 +451,101 @@ void main() {
     cubit.setTaxesUnknown();
     expect(cubit.state.taxes.status, TaxAssumptionStatus.unknown);
     expect(cubit.state.taxImpact!.known, false);
+
+    await cubit.close();
+    await repository.dispose();
+  });
+
+  test('FX comparison is explicit and advanced rules stay deferred', () {
+    final none = evaluateFxImpact(
+      fx: const [],
+      scenarioCurrency: 'UAH',
+      invested: Decimal.parse('100'),
+      reserve: Decimal.parse('20'),
+      profit: Decimal.parse('5'),
+    );
+    expect(none.active, false);
+    expect(none.deferred, false);
+
+    final assumption = FxAssumption(
+      fromCurrency: 'UAH',
+      toCurrency: 'USD',
+      rate: Decimal.parse('0.025'),
+      asOf: '2026-09-23',
+    );
+    final converted = evaluateFxImpact(
+      fx: [assumption],
+      scenarioCurrency: 'UAH',
+      invested: Decimal.parse('100'),
+      reserve: Decimal.parse('20'),
+      profit: Decimal.parse('5'),
+    );
+    expect(converted.active, true);
+    expect(converted.deferred, false);
+    expect(converted.invested.toString(), '2.5');
+    expect(converted.reserve.toString(), '0.5');
+    expect(converted.profit.toString(), '0.13');
+
+    final deferred = evaluateFxImpact(
+      fx: [
+        assumption,
+        FxAssumption(
+          fromCurrency: 'UAH',
+          toCurrency: 'EUR',
+          rate: Decimal.parse('0.022'),
+          asOf: '2026-09-23',
+        ),
+      ],
+      scenarioCurrency: 'UAH',
+      invested: Decimal.parse('100'),
+      reserve: Decimal.parse('20'),
+      profit: Decimal.parse('5'),
+    );
+    expect(deferred.active, false);
+    expect(deferred.deferred, true);
+  });
+
+  test('explicit FX comparison survives planner save and load', () async {
+    final repository = FakeRepository(data);
+    final cubit = PlannerCubit(
+      repository,
+      clock: () => DateTime.utc(2026, 9, 23, 12),
+    );
+
+    expect(cubit.state.fx, isEmpty);
+    expect(cubit.state.fxImpact!.active, false);
+
+    cubit.setFxComparison(
+      targetCurrency: 'USD',
+      rate: '0.025',
+      asOf: '2026-09-23',
+      sourceUrl: 'https://bank.gov.ua/',
+    );
+    expect(cubit.state.fx, hasLength(1));
+    expect(cubit.state.fx.single.fromCurrency, 'UAH');
+    expect(cubit.state.fx.single.toCurrency, 'USD');
+    expect(cubit.state.fx.single.source!.sourceUrl, 'https://bank.gov.ua/');
+    expect(cubit.state.fxImpact!.active, true);
+
+    cubit.generate();
+    expect(cubit.state.error, isNull);
+    expect(await cubit.save(), true);
+
+    final saved = repository.current!.sets.single;
+    final savedFx = saved.scenario!['fx'] as List;
+    expect(savedFx, hasLength(1));
+    expect((savedFx.single as Map)['rate'], '0.025');
+
+    cubit.reset();
+    expect(cubit.state.fx, isEmpty);
+    cubit.load(saved);
+    expect(cubit.state.fx, hasLength(1));
+    expect(cubit.state.fx.single.toCurrency, 'USD');
+    expect(cubit.state.fxImpact!.active, true);
+
+    cubit.clearFxComparison();
+    expect(cubit.state.fx, isEmpty);
+    expect(cubit.state.fxImpact!.active, false);
 
     await cubit.close();
     await repository.dispose();
