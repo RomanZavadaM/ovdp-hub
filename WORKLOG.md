@@ -32,7 +32,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - published checkpoint: **v0.8.8 / 0.8.8+16**;
 - baseline `main`: `0602405ab9c1d0735fcb7e60bced447494d10d4f`;
 - active branch: `feat/planner-abc-comparison-v2`;
-- old draft PR **#53** is diverged (9 commits ahead / 3 behind at audit) and is **not** a merge source;
+- active PR: **#58** `Planner: strict A/B/C scenario comparison v2` (draft until latest-head verify is green);
+- old draft PR **#53** was diverged (9 commits ahead / 3 behind at audit), is closed without merge and is **not** a code source;
 - useful comparison logic from #53 is being ported selectively onto current main;
 - current recurring-needs model from PR #54 must be preserved;
 - comparison remains neutral: no automatic best/worst/winner.
@@ -49,7 +50,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 6. add dedicated domain/Cubit/widget/localization tests;
 7. stale comparison errors must clear when selection becomes valid or drops below two scenarios;
 8. green latest-head verify → new PR → integrate into `main`;
-9. close old PR #53 as superseded after new PR exists.
+9. old PR #53 closed as superseded by PR #58.
 
 ## Черга робіт
 
