@@ -997,60 +997,56 @@ class PlannerScenario {
     String? groupId,
     String variantLabel = 'A',
   }) {
-    final legacy = positions
-        .map(
-          (position) => PlanPosition(
-            Bond({
-              'isin': position.isin,
-              'currency': position.price.currency,
-              'nominal': '1',
-              'nominalRate': null,
-              'issueDate': criteria['start'],
-              'maturityDate': criteria['maxDate'],
-              'payments': const [
-                {'date': '2999-12-31', 'amount': '1', 'kind': 'REDEMPTION'},
-              ],
-            }),
-            position.quantity,
-            position.unitCost,
-            nominalEstimate:
-                position.price.kind == PriceValueKind.nominalEstimate,
-          ),
-        )
-        .toList();
-    final base = PlannerScenario.fromCurrentUi(
-      criteria: criteria,
-      positions: legacy,
-      savedAt: savedAt,
-      fees: fees,
-      taxes: taxes,
-      fx: fx,
-      exit: exit,
-      priceSourcePriority: priceSourcePriority,
+    final count = int.parse(criteria['expenseCount'] ?? '0');
+    if (count < 0 || count > 50) {
+      throw const FormatException('planner.invalid_need_count');
+    }
+    final needs = <PlannerNeed>[
+      PlannerNeed(
+        id: 'need-0',
+        name: criteria['needName'] ?? 'Основна потреба',
+        type: PlannerNeedType.oneOff,
+        date: criteria['needDate']!,
+        amount: money(criteria['needAmount']!),
+      ),
+    ];
+    for (var i = 0; i < count; i++) {
+      needs.add(
+        PlannerNeed(
+          id: 'need-${i + 1}',
+          name: criteria['expenseName$i'] ?? 'Витрата ${i + 2}',
+          type: PlannerNeedType.oneOff,
+          date: criteria['expenseDate$i']!,
+          amount: money(criteria['expenseAmount$i']!),
+        ),
+      );
+    }
+    final strategy = switch (criteria['strategy']) {
+      'profit' => PlannerStrategy.profit,
+      'expenses' => PlannerStrategy.expenses,
+      _ => PlannerStrategy.ladder,
+    };
+    return PlannerScenario(
+      id: 'scenario:$savedAt',
+      name: criteria['name']?.trim() ?? '',
       groupId: groupId,
       variantLabel: variantLabel,
-    );
-    return PlannerScenario(
-      id: base.id,
-      name: base.name,
-      groupId: base.groupId,
-      variantLabel: base.variantLabel,
-      currency: base.currency,
-      budget: base.budget,
-      reserve: base.reserve,
-      startDate: base.startDate,
-      minMaturity: base.minMaturity,
-      maxMaturity: base.maxMaturity,
-      strategy: base.strategy,
-      needs: base.needs,
+      currency: criteria['currency']!,
+      budget: money(criteria['budget']!),
+      reserve: money(criteria['reserve']!),
+      startDate: criteria['start']!,
+      minMaturity: criteria['minDate']!,
+      maxMaturity: criteria['maxDate']!,
+      strategy: strategy,
+      needs: needs,
       positions: positions,
       priceSourcePriority: priceSourcePriority,
-      settlementDelayDays: base.settlementDelayDays,
-      pricedOnly: base.pricedOnly,
-      fees: base.fees,
-      taxes: base.taxes,
-      fx: base.fx,
-      exit: base.exit,
+      settlementDelayDays: int.parse(criteria['delay'] ?? '2'),
+      pricedOnly: criteria['pricedOnly'] == 'true',
+      fees: fees ?? FeeAssumptions.unknown(),
+      taxes: taxes ?? TaxScenario.unknown(),
+      fx: fx,
+      exit: exit,
     );
   }
 
