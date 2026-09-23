@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ovdp_hub/data/hub_repository.dart';
 import 'package:ovdp_hub/features/collections/collections_cubit.dart';
 import 'package:ovdp_hub/features/planner/planner_comparison.dart';
 import 'package:ovdp_hub/features/planner/planner_scenario.dart';
@@ -11,7 +12,7 @@ void main() {
   group('A/B/C comparison domain', () {
     test('compares two or three scenarios with neutral selection labels', () {
       final catalog = comparisonCatalog();
-      final bond = catalog.assets.first;
+      final bond = catalog.bonds.first;
       final a = comparisonSavedSet(
         bond,
         name: 'План Альфа',
@@ -49,7 +50,7 @@ void main() {
     });
 
     test('baseline mismatch and explicit group mismatch fail closed', () {
-      final bond = comparisonCatalog().assets.first;
+      final bond = comparisonCatalog().bonds.first;
       final a = comparisonSavedSet(
         bond,
         name: 'A',
@@ -99,7 +100,7 @@ void main() {
     });
 
     test('typed recurring needs compare when their schedule is identical', () {
-      final bond = comparisonCatalog().assets.first;
+      final bond = comparisonCatalog().bonds.first;
       final a = comparisonSavedSet(
         bond,
         name: 'A',
@@ -129,7 +130,7 @@ void main() {
     });
 
     test('reserve-floor needs remain explicit fail-closed comparison input', () {
-      final bond = comparisonCatalog().assets.first;
+      final bond = comparisonCatalog().bonds.first;
       final a = comparisonSavedSet(
         bond,
         name: 'A',
@@ -161,7 +162,7 @@ void main() {
     });
 
     test('comparison accepts exactly two or three scenarios', () {
-      final bond = comparisonCatalog().assets.first;
+      final bond = comparisonCatalog().bonds.first;
       final a = comparisonSavedSet(
         bond,
         name: 'A',
@@ -178,7 +179,7 @@ void main() {
   group('CollectionsCubit A/B/C selection', () {
     test('preserves selection order, caps at three and clears stale errors', () async {
       final catalog = comparisonCatalog();
-      final bond = catalog.assets.first;
+      final bond = catalog.bonds.first;
       final sets = [
         comparisonSavedSet(
           bond,
@@ -248,7 +249,7 @@ void main() {
 
     test('incompatible pair reports error and deselection recovers', () async {
       final catalog = comparisonCatalog();
-      final bond = catalog.assets.first;
+      final bond = catalog.bonds.first;
       final a = comparisonSavedSet(
         bond,
         name: 'A',
