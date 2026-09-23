@@ -25,32 +25,29 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **purchase fee assumptions — unknown / confirmed zero / confirmed aggregate fee → persistence → calculation → UI → tests**.
+Мета: **повний test-release checkpoint v0.8.7 / 0.8.7+15** за прямою командою власника «злити у main».
 
-- PR: **#41** `Planner: explicit purchase fee assumptions`
-- final head: `f8c03ac25dab3cd2a764f78fe47790f86c30aa5e`
-- final verify: **Flutter checks and START run #135 — success (80/80 tests)**
-- squash merge у `main`: `fbe8028ae1f68fcbb9c4c7a7057134c6793c00ae`
-- published checkpoint лишається **v0.8.6 / 0.8.6+14**
-- completed:
-  - typed `FeeAssumptions` retained in PlannerState/load/save;
-  - unknown fees remain distinct from confirmed zero;
-  - explicit aggregate purchase fee in scenario currency;
-  - known purchase fee reduces planning budget/reserve and calculated profit;
-  - unknown-fee result is explicitly gross/pre-fee, never silently net;
-  - richer typed fee rules are preserved instead of being silently rewritten;
-  - fee UI/errors localized for UK/EN/FR/DE/ES/KO/JA;
-  - domain/cubit/persistence/widget regression coverage green.
+- release branch: `release/v0.8.7`
+- base main: `fbe8028ae1f68fcbb9c4c7a7057134c6793c00ae`
+- scope:
+  - explicit price-source priority;
+  - explicit purchase-fee assumptions;
+  - release description UK / EN / FR / DE / ES / KO / JA;
+  - Windows / macOS / Android / iOS / START;
+  - SHA256SUMS + legal notices;
+  - immutable tag `v0.8.7`.
+- version/build: **0.8.7+15**
+- prior functional verify: PR #41 run #135 — success (80/80 tests)
 
 ### Поточна наступна дія
 
-**NEXT — tax assumptions audit before activation.**
+**DOING — release PR v0.8.7.**
 
-Створити окрему feature branch від актуального `main` і спочатку провести read-only audit наявного `TaxScenario.ukraineResidentOvdp2026()`: звірити кожне правило PIT / military levy для interest та investment profit з офіційними джерелами, effective period і датою перевірки. Лише після цього підключати tax state → validation → calculation → persistence → 7-language UI → tests.
+Завершити release metadata/docs, відкрити PR, отримати green checks, squash merge у `main`, дочекатися `Publish native prerelease`, перевірити всі assets/tag/release і лише після цього закрити checkpoint.
 
-Невідомий податок не вважати нулем. Не активувати застарілий або неперевірений preset.
+Після успішної публікації рівно одна наступна функціональна дія: **tax assumptions audit with official effective-date verification**.
 
 ## Черга робіт
 
