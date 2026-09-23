@@ -209,6 +209,155 @@ void main() {
     );
   });
 
+  test('price source priority resolves only explicit purchase prices', () {
+    final bond = sampleBond();
+    PriceObservation full(String source, String price) => PriceObservation(
+      isin: bond.isin,
+      currency: 'UAH',
+      kind: PriceValueKind.fullPrice,
+      side: PriceSide.ask,
+      price: Decimal.parse(price),
+      meta: SourceObservationMeta(
+        sourceId: source,
+        sourceUrl: 'https://example.invalid/$source',
+        sourceDate: '2026-09-23',
+        retrievedAt: '2026-09-23T06:00:00Z',
+        kind: ObservationKind.secondaryQuote,
+        confidence: ObservationConfidence.publicIndicative,
+      ),
+    );
+    final sourceA = full('source-a', '990');
+    final sourceB = full('source-b', '995');
+    final yieldOnly = PriceObservation(
+      isin: bond.isin,
+      currency: 'UAH',
+      kind: PriceValueKind.yieldOnly,
+      side: PriceSide.ask,
+      yieldPercent: Decimal.parse('15.5'),
+      meta: const SourceObservationMeta(
+        sourceId: 'yield-source',
+        sourceUrl: 'https://example.invalid/yield',
+        sourceDate: '2026-09-23',
+        retrievedAt: '2026-09-23T06:00:00Z',
+        kind: ObservationKind.secondaryQuote,
+        confidence: ObservationConfidence.publicIndicative,
+      ),
+    );
+    final nominal = PriceObservation.legacy(
+      bond: bond,
+      unitCost: Decimal.parse('1000'),
+      nominalEstimate: true,
+      observedAt: '2026-09-23T06:00:00Z',
+    );
+
+    final priority = PriceSourcePriority(['yield-source', 'source-b', 'source-a']);
+    final selected = priority.resolvePurchase(
+      bond.isin,
+      [sourceA, nominal, yieldOnly, sourceB],
+    );
+
+    expect(selected, same(sourceB));
+    expect(selected!.effectiveUnitCost.toString(), '995');
+  });
+
+  test('schema 3 additively persists observations and explicit priority', () {
+    final bond = sampleBond();
+    PriceObservation price(String source, String value) => PriceObservation(
+      isin: bond.isin,
+      currency: 'UAH',
+      kind: PriceValueKind.fullPrice,
+      side: PriceSide.ask,
+      price: Decimal.parse(value),
+      meta: SourceObservationMeta(
+        sourceId: source,
+        sourceUrl: 'https://example.invalid/$source',
+        sourceDate: '2026-09-23',
+        retrievedAt: '2026-09-23T06:00:00Z',
+        kind: ObservationKind.secondaryQuote,
+        confidence: ObservationConfidence.publicIndicative,
+      ),
+    );
+    final sourceA = price('source-a', '990');
+    final sourceB = price('source-b', '995');
+    final scenario = PlannerScenario(
+      id: 'scenario-priority',
+      name: 'Price sources',
+      currency: 'UAH',
+      budget: Decimal.parse('100000'),
+      reserve: Decimal.parse('10000'),
+      startDate: '2026-09-23',
+      minMaturity: '2026-09-24',
+      maxMaturity: '2028-09-23',
+      strategy: PlannerStrategy.profit,
+      needs: [
+        PlannerNeed(
+          id: 'need-1',
+          name: 'Need',
+          type: PlannerNeedType.oneOff,
+          date: '2027-01-01',
+          amount: Decimal.parse('5000'),
+        ),
+      ],
+      positions: [
+        PlannerPositionDraft(
+          isin: bond.isin,
+          quantity: 2,
+          price: sourceB,
+          priceObservations: [sourceA, sourceB],
+        ),
+      ],
+      priceSourcePriority: PriceSourcePriority(['source-b', 'source-a']),
+      settlementDelayDays: 2,
+      pricedOnly: true,
+      fees: FeeAssumptions.unknown(),
+      taxes: TaxScenario.unknown(),
+    );
+
+    final encoded = scenario.toJson();
+    expect(encoded['schemaVersion'], 3);
+    expect(
+      (encoded['positions'] as List).single['priceObservations'],
+      hasLength(2),
+    );
+    final decoded = PlannerScenario.fromJson(
+      jsonDecode(jsonEncode(encoded)) as Map<String, dynamic>,
+    );
+
+    expect(decoded.priceSourcePriority.sourceIds, ['source-b', 'source-a']);
+    expect(decoded.positions.single.priceObservations, hasLength(2));
+    expect(decoded.positions.single.price.meta.sourceId, 'source-b');
+  });
+
+  test('priority fails closed on duplicate eligible observations per source', () {
+    final bond = sampleBond();
+    PriceObservation quote(String value, String at) => PriceObservation(
+      isin: bond.isin,
+      currency: 'UAH',
+      kind: PriceValueKind.fullPrice,
+      side: PriceSide.ask,
+      price: Decimal.parse(value),
+      meta: SourceObservationMeta(
+        sourceId: 'same-source',
+        sourceUrl: 'https://example.invalid/quote',
+        sourceDate: '2026-09-23',
+        retrievedAt: at,
+        kind: ObservationKind.secondaryQuote,
+        confidence: ObservationConfidence.publicIndicative,
+      ),
+    );
+
+    expect(
+      () => PriceSourcePriority(['same-source']).resolvePurchase(
+        bond.isin,
+        [
+          quote('990', '2026-09-23T06:00:00Z'),
+          quote('991', '2026-09-23T07:00:00Z'),
+        ],
+      ),
+      throwsFormatException,
+    );
+  });
+
   test('early sale requires BID or explicit manual price', () {
     final ask = PriceObservation(
       isin: 'UA4000239115',
