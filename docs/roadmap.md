@@ -17,6 +17,10 @@
 
 Принцип пріоритезації: спочатку завершувати вертикальний користувацький шлях, а не додавати нові ізольовані джерела чи екрани.
 
+## Опублікований checkpoint v0.8.8
+
+**v0.8.8 / 0.8.8+16** опубліковано 23.09.2026 з verified-tax, explicit-FX, per-position exit та typed recurring-needs verticals. Повний release pipeline run #40 успішний для Windows/macOS/Android/iOS/START. Наступний продуктовый крок — A/B/C comparison після синхронізації draft PR #53 з актуальним `main`.
+
 ## Ритм інтеграції та тестових checkpoint
 
 - Кожен завершений і перевірений vertical slice **інтегруємо PR у `main`** перед початком наступного.
