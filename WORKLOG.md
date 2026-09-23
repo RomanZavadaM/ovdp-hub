@@ -31,6 +31,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - owner-approved pause in feature development to publish a concrete testable checkpoint;
 - release branch: `release/v0.8.8`;
+- release PR: **#56** `Release: v0.8.8 full test checkpoint`;
 - base `main`: `f4f47fb9a9f1f01a5fac67490d6f6c748773e8b3`;
 - target version/build: **0.8.8+16**;
 - A/B/C PR **#53** remains draft/paused and is excluded from this checkpoint;
