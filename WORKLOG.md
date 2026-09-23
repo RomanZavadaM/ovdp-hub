@@ -33,6 +33,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - baseline `main`: `3dfd7e6d62a110e733f3ffb738d021cf9966e30c`
 - active branch: `feat/planner-fee-assumptions`
+- PR: **#41** `Planner: explicit purchase fee assumptions`
+- current head: `71c6004b19370ce7bc0577d5e5ecd3bba237571a`
+- verify: **Flutter checks and START run #133 — in progress**; prior run #132: analyze ✅, tests 79/80, one incorrect initial widget expectation fixed at current head
 - опублікований checkpoint: **v0.8.6 / 0.8.6+14**
 - prior slice PR #39: merged as `255d15294105e8d5ae6dfe216f1e900fe0490192`
 - post-merge docs PR #40: merged as `3dfd7e6d62a110e733f3ffb738d021cf9966e30c`, run #125 success
@@ -50,14 +53,16 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-Implement the fee vertical in this branch:
-1. retain `FeeAssumptions` in PlannerState/load/save;
-2. calculate explicit purchase fee impact without treating unknown as zero;
-3. add unknown/known aggregate purchase-fee UI with 7-language strings;
-4. add domain/cubit/widget/persistence tests;
-5. green verify → PR → integrate into `main`.
+**DOING — final verification PR #41.**
 
-Tax/FX/exit remain unchanged in this sub-slice.
+Функціональний fee vertical реалізований. Run #132 пройшов analyze і 79/80 tests; єдине падіння було в неправильному початковому очікуванні widget-test: planner уже має розрахований gross result, тому при unknown fees caveat повинен бути видимим. Очікування виправлено без послаблення перевірки переходу unknown → known.
+
+Поточний head: `71c6004b19370ce7bc0577d5e5ecd3bba237571a`.  
+Run #133: in progress.
+
+Після green: позначити PR #41 ready → squash integrate у `main` → синхронізувати canonical PROJECT_STATE/WORKLOG/roadmap та Issue #18 → перейти до tax assumptions audit з обов'язковою official effective-date verification.
+
+Tax/FX/exit лишаються поза scope PR #41.
 
 ## Черга робіт
 
