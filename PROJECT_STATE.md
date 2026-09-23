@@ -118,16 +118,37 @@ Tag/release не пересуваємо й не переписуємо.
 - приватні сценарії не передаються на сервер OVDP Hub;
 - продукт не виконує купівлю/продаж;
 - НБУ, Мінфін і продавці — різні шари даних і не підміняють одне одного;
-- yield-only не перетворюється на вигадану ринкову ціну;
+- yield-only і nominal estimate не можуть автоматично ставати вибраною ринковою ціною;
 - невідома комісія або податок не означають 0;
 - workspace і старі сценарії не переписуються мовчки під час читання;
 - реальний портфель — лише після encrypted vault, platform secure storage і backup/recovery;
 - copyright original project materials: Roman Zavada (Роман Завада).
 
+## Інтегровано в `main` після опублікованого v0.8.6
+
+PR **#39 — Planner: multiple price observations with explicit source priority** squash-merged у `main` як `255d15294105e8d5ae6dfe216f1e900fe0490192`.
+
+Інтегровано, але ще не видано окремим GitHub release:
+- additive schema-3 `priceObservations` + `priceSourcePriority`;
+- кілька explicit price observations на ISIN;
+- явний user-controlled priority джерел;
+- add/select/reorder source controls у planner UI;
+- explicit nominal-estimate fallback;
+- legacy selected `price` збережений для сумісності зі старими readers;
+- yield-only і nominal estimate виключені з market-price candidates;
+- duplicate eligible observations одного source fail closed;
+- persistence/load/save для observations + source priority;
+- 9 нових price-source UI keys у UK/EN/FR/DE/ES/KO/JA;
+- regression tests для simultaneous quantity+price edit;
+- widget regression для lifecycle price-source dialog.
+
+Final PR verification: **Flutter checks and START run #123 — success**.
+
+Опублікований checkpoint лишається **v0.8.6 / 0.8.6+14**; tag/release не переписуємо.
+
 ## Чому 0.8.6, а не 0.9.0
 
-0.8.6 додає завершений freshness/status UX поверх MinFin parser-slice, але **ще не завершені**:
-- multiple price sources з explicit user priority;
+Після v0.8.6 у `main` уже інтегровано explicit price-source priority, але **ще не завершені**:
 - повне підключення typed fee/tax/FX/exit assumptions до calculations + UI;
 - A/B/C comparison;
 - generated planner copy / preset labels localization.
@@ -136,9 +157,8 @@ Tag/release не пересуваємо й не переписуємо.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. multiple `PriceObservation` + explicit user source priority;
-2. typed fee/tax/FX/exit assumptions → calculations + UI;
-3. A/B/C comparison;
-4. generated planner copy / preset labels localization.
+1. typed fee/tax/FX/exit assumptions → calculations + UI;
+2. A/B/C comparison;
+3. generated planner copy / preset labels localization.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел на відповідну дату.
