@@ -173,6 +173,53 @@ void main() {
       await repository.dispose();
     },
   );
+  test('price sources add select reorder persist and return to nominal', () async {
+    final repository = FakeRepository(data);
+    final cubit = PlannerCubit(
+      repository,
+      clock: () => DateTime.utc(2026, 9, 21),
+    );
+    cubit.generate();
+
+    cubit.addManualPriceSource(one.isin, 'Seller A', '990');
+    expect(cubit.state.inputs[one.isin]!.selectedSourceId, 'user:Seller A');
+    expect(cubit.state.inputs[one.isin]!.price, '990');
+
+    cubit.addManualPriceSource(one.isin, 'Seller B', '995');
+    cubit.selectPriceSource(one.isin, 'user:Seller B');
+    expect(cubit.state.inputs[one.isin]!.selectedSourceId, 'user:Seller B');
+    expect(cubit.state.inputs[one.isin]!.price, '995');
+
+    cubit.movePriceSource('user:Seller B', 1);
+    expect(
+      cubit.state.priceSourcePriority.sourceIds.take(2),
+      ['user:Seller A', 'user:Seller B'],
+    );
+    expect(cubit.state.inputs[one.isin]!.selectedSourceId, 'user:Seller A');
+    expect(cubit.state.inputs[one.isin]!.price, '990');
+
+    expect(await cubit.save(), true);
+    final saved = repository.current!.sets.single;
+    cubit.reset();
+    cubit.load(saved);
+
+    expect(
+      cubit.state.priceSourcePriority.sourceIds.take(2),
+      ['user:Seller A', 'user:Seller B'],
+    );
+    expect(cubit.state.inputs[one.isin]!.selectedSourceId, 'user:Seller A');
+    expect(cubit.state.inputs[one.isin]!.observations.length, greaterThanOrEqualTo(3));
+
+    cubit.useNominalEstimate(one.isin);
+    expect(cubit.state.inputs[one.isin]!.nominalEstimate, true);
+    expect(cubit.state.inputs[one.isin]!.selectedSourceId, isNull);
+    expect(cubit.state.inputs[one.isin]!.price, '1000');
+    expect(cubit.state.summary, isNotNull);
+
+    await cubit.close();
+    await repository.dispose();
+  });
+
   test('workspace change protects planner draft on cancellation', () async {
     final repository = FakeRepository(data);
     final planner = PlannerCubit(
