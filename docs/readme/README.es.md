@@ -39,7 +39,8 @@ Camino a 0.9.0:
 2. **DONE** — supuestos de comisión de compra;
 3. **DONE** — supuestos fiscales verificados;
 4. **DONE** — supuestos FX;
-5. **NEXT** — supuestos de salida; después comparación A/B/C y mejora UX/localización.
+5. **DONE** — supuestos de salida;
+6. **NEXT** — comparación A/B/C; después mejora UX/localización.
 
 OVDP Hub no ejecuta operaciones ni confirma disponibilidad con un vendedor.
 
