@@ -224,18 +224,36 @@ PR **#54 — Planner: implement recurring needs block** squash-merged у `main` 
 
 Final PR verification: **Flutter checks and START run #168 — success**.
 
-## Чому 0.8.7, а не 0.9.0
+## Інтегровано в `main` після опублікованого v0.8.8
 
-Після v0.8.7 у `main` уже інтегровано verified tax assumptions, explicit FX comparison assumptions, per-position exit assumptions та typed recurring Planner needs, але **ще не завершені**:
-- A/B/C comparison;
-- generated planner copy / preset labels localization.
+PR **#58 — Planner: strict A/B/C scenario comparison v2** squash-merged у `main` як `25123ceb049534c67b9d284ee0f79e5cc8694e28`.
+
+Інтегровано, але ще не видано окремим GitHub release:
+- порівняння рівно 2–3 збережених сценаріїв;
+- нейтральні позначки A/B/C зберігають порядок вибору користувача;
+- немає автоматичного best/worst/winner;
+- strict comparability для валюти, budget, reserve, start/horizon, settlement delay та economic needs;
+- recurring needs підтримуються, якщо їхні schedule збігаються;
+- fee/tax/FX/per-position exit/profit-basis/coverage differences показуються як пояснювальні метрики;
+- reserve-floor needs fail closed;
+- UI/errors локалізовано UK/EN/FR/DE/ES/KO/JA;
+- dedicated domain/Cubit/widget/localization regression coverage зелений.
+
+Final PR verification: **Flutter checks and START run #183 — success**.
+
+## Чому ще не 0.9.0
+
+Після v0.8.8 у `main` уже інтегровано strict A/B/C scenario comparison, але **ще не завершені**:
+- generated planner copy / preset labels localization;
+- фінальний UX/regression review перед formal 0.9.0 checkpoint.
 
 Тому 0.9.0 «Ринок» лишається активною ціллю.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. A/B/C comparison;
-2. generated planner copy / preset labels localization.
+1. generated planner copy / preset labels localization;
+2. UX/regression review;
+3. оцінка готовності formal prerelease 0.9.0.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
 
