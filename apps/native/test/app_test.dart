@@ -503,16 +503,17 @@ void main() {
     );
     expect(choices, findsNWidgets(2));
 
+    await tester.ensureVisible(choices.at(0));
     await tester.tap(choices.at(0));
     await tester.pumpAndSettle();
     expect(find.text('Вибрано: 1/3'), findsOneWidget);
 
-    await tester.tap(
-      find.widgetWithText(
-        CheckboxListTile,
-        'Додати до порівняння A/B/C',
-      ).at(1),
-    );
+    final secondChoice = find.widgetWithText(
+      CheckboxListTile,
+      'Додати до порівняння A/B/C',
+    ).at(1);
+    await tester.ensureVisible(secondChoice);
+    await tester.tap(secondChoice);
     await tester.pumpAndSettle();
 
     expect(find.text('Вибрано: 2/3'), findsOneWidget);
