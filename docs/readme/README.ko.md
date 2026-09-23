@@ -2,9 +2,9 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · [🇫🇷 Français](README.fr.md) · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · **🇰🇷 한국어** · [🇯🇵 日本語](README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.7](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.7)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.8](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.8)**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/SHA256SUMS.txt)
 
 ---
 
@@ -23,7 +23,10 @@
 - 사용자가 명시적으로 우선순위를 정하는 여러 가격 출처;
 - 예산, 준비금, 만기 범위, 미래 지출을 위한 플래너;
 - 명시적인 매수 수수료 가정: 알 수 없는 수수료를 0으로 처리하지 않음;
-- v0.8.7 이후 `main`에는 2026년 우크라이나 거주 개인의 OVDP에 대한 검증된 세금 프로필도 통합되어 **미확인**과 **검증된 0**을 명확히 구분;
+- 2026년 우크라이나 거주 개인의 OVDP에 대한 검증된 세금 프로필과 **미확인 / 검증된 0** 구분;
+- 기본 현금흐름의 통화를 섞지 않는 명시적 FX 비교(수동 환율, 날짜, 출처 URL);
+- 각 포지션별 매도일과 BID/수동 exit 가격을 사용하는 만기 전 매도;
+- typed 규칙으로 저장되는 반복 주요 필요와 별도 일회성 추가 필요;
 - 휴대 가능한 JSON 작업 폴더에 시나리오 저장;
 - 활성 UI와 주요 사용자 오류가 **UK / EN / FR / DE / ES / KO / JA**로 현지화됨.
 
