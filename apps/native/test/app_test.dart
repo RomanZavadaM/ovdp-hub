@@ -461,7 +461,7 @@ void main() {
   });
 
   testWidgets('saved plans can be compared neutrally as A/B', (tester) async {
-    tester.view.physicalSize = const Size(900, 1200);
+    tester.view.physicalSize = const Size(430, 1100);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
