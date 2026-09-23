@@ -21,39 +21,47 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 **0.9.0 «Ринок»**.
 
-Поточний опублікований checkpoint: **v0.8.7 / 0.8.7+15**.
+Поточний опублікований checkpoint: **v0.8.8 / 0.8.8+16**.
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
 Мета: **full test checkpoint v0.8.8 / 0.8.8+16**.
 
-- owner-approved pause in feature development to publish a concrete testable checkpoint;
-- release branch: `release/v0.8.8`;
-- release PR: **#56** `Release: v0.8.8 full test checkpoint`;
-- base `main`: `f4f47fb9a9f1f01a5fac67490d6f6c748773e8b3`;
-- target version/build: **0.8.8+16**;
-- A/B/C PR **#53** remains draft/paused and is excluded from this checkpoint;
+- release PR: **#56** `Release: v0.8.8 full test checkpoint`
+- release commit: `acacf53b903e876e7bacae45ebc6f895e799cd75`
+- release workflow: **Publish native prerelease run #40 — success**
+- tag: **v0.8.8**
+- GitHub prerelease: **OVDP Hub 0.8.8**
+- release notes: **UK / EN / FR / DE / ES / KO / JA**
+- published:
+  - `OVDP-Hub-0.8.8-Windows-x64.zip`;
+  - `OVDP-Hub-0.8.8-macOS.zip`;
+  - `OVDP-Hub-0.8.8-Android-test.zip`;
+  - `OVDP-Hub-0.8.8-iOS-unsigned.zip`;
+  - `OVDP-Hub-0.8.8-START.zip`;
+  - `SHA256SUMS.txt`;
+  - `LICENSE.md`, `COPYRIGHT.md`, `LEGAL_AND_COPYRIGHT.md`, `THIRD_PARTY_NOTICES.md`.
 - included since v0.8.7:
-  - verified Ukraine-resident OVDP 2026 tax assumptions;
+  - verified tax assumptions;
   - explicit FX comparison;
   - per-position exit assumptions;
   - typed recurring Planner needs;
-  - multilingual README pages / docs alignment.
+  - multilingual README pages.
 
 ### Поточна наступна дія
 
-**DOING — prepare v0.8.8 release metadata and packages.**
+**NEXT — resume A/B/C comparison from current `main`.**
 
-1. bump `apps/native/pubspec.yaml` to `0.8.8+16`;
-2. add changelog and immutable 7-language release notes;
-3. update START_HERE / PROJECT_STATE / multilingual README release links/status;
-4. open release PR and obtain green preflight + Flutter checks;
-5. squash merge release PR into `main`;
-6. wait for full `Publish native prerelease` pipeline;
-7. verify immutable tag `v0.8.8`, Windows/macOS/Android/iOS/START assets, SHA256SUMS and legal notices;
-8. post-release canonical sync → only then resume A/B/C.
+Draft PR **#53** was created before the recurring-needs slice and v0.8.8 checkpoint. Do **not** merge it blindly. First compare/rebase or safely port its changes onto current `main`, then restore/add dedicated comparison regression coverage and run a fresh latest-head verify.
+
+Comparison invariants:
+- 2–3 scenarios only;
+- neutral A/B/C labels follow user selection order;
+- no automatic “best/winner” recommendation;
+- only comparable assumptions/currency/horizon may be compared;
+- unsupported recurring/reserve-floor semantics fail closed until comparison supports them explicitly.
 
 ## Черга робіт
 
@@ -62,9 +70,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
 4. **DONE** — FX assumptions calculation/UI.
 5. **DONE** — exit assumptions redesign/wiring for multi-position scenarios.
-6. **PAUSED** — A/B/C comparison (draft PR #53; resume after v0.8.8 checkpoint).
+6. **NEXT** — A/B/C comparison (resume draft PR #53 only after synchronizing with current main).
 7. **DONE** — Planner needs/future-expenses block requested by owner.
-8. **DOING** — full test checkpoint v0.8.8 from current main.
+8. **DONE** — full test checkpoint v0.8.8 from current main.
 9. **TODO** — generated planner copy / preset labels localization + UX regression.
 10. **TODO** — оцінка готовності formal prerelease 0.9.0.
 
@@ -90,9 +98,12 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - проміжно після user-visible integration можна тестувати START artifact з актуального `main`;
 - регулярно, орієнтовно після 2–3 user-visible integrated slices, робити повне **«злиття у `main`»** з релізами всіх систем;
 - робити такий checkpoint раніше після ризикової зміни parser/calculation/schema або одразу за прямою командою власника;
-- поточний опублікований v0.8.7 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
+- поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — v0.8.8 full cross-platform checkpoint**: PR #56 squash-merged у `main` як `acacf53b903e876e7bacae45ebc6f895e799cd75`; `Publish native prerelease` run #40 success. Опубліковано Windows/macOS/Android/iOS/START + SHA256SUMS + legal notices під tag `v0.8.8`; release description містить UK/EN/FR/DE/ES/KO/JA.
+
 
 - **DONE — typed recurring Planner needs block**: PR #54 squash-merged у `main` як `e2a48d7017fe578295e631054d84fce52cbc2b55`; final run #168 success. Primary recurring need, month-end-safe expansion, schema-3 persistence/reload, one-off additions and 7-language UI integrated.
 
