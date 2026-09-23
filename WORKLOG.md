@@ -25,41 +25,40 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **повний test-release checkpoint v0.8.7 / 0.8.7+15**.
+Мета: **tax assumptions → official effective-date audit → calculation → persistence → 7-language UI → tests**.
 
-- release PR: **#42** `Release: v0.8.7 multilingual full checkpoint`
-- merge у `main`: `6ab844fd3063fbfa9fcf54ab875539241c459845`
-- release workflow: **Publish native prerelease run #37 — success**
-- tag: **v0.8.7**
-- GitHub prerelease: **OVDP Hub 0.8.7**
-- published:
-  - `OVDP-Hub-0.8.7-Windows-x64.zip`;
-  - `OVDP-Hub-0.8.7-macOS.zip`;
-  - `OVDP-Hub-0.8.7-Android-test.zip`;
-  - `OVDP-Hub-0.8.7-iOS-unsigned.zip`;
-  - `OVDP-Hub-0.8.7-START.zip`;
-  - `SHA256SUMS.txt`;
-  - legal notices.
-- release description: **Українська / English / Français / Deutsch / Español / 한국어 / 日本語**
-- release scope:
-  - explicit price-source priority;
-  - explicit purchase-fee assumptions.
+- baseline `main`: `847b0b1684dc2c6ca4e13435d03adf4356376276`
+- active branch: `feat/planner-tax-assumptions`
+- published checkpoint: **v0.8.7 / 0.8.7+15**
+- audit completed 23.09.2026 against official sources:
+  - PIT interest: current Tax Code section IV, p.p. 165.1.2 — government-bond interest excluded from taxable income;
+  - PIT investment profit: p.p. 165.1.52 + current 2026 DPS explanation — OVDP investment profit excluded;
+  - military levy: current 2026 DPS guidance states OVDP income is not subject to levy;
+  - stale pre-23.05.2020 wording that excluded 165.1.2/165.1.52 from the levy exemption must not be used; DPS documents the 2020 amendment removing that wording.
+- verified 2026 preset remains four explicit **0%** rules for Ukraine-resident individual / OVDP.
+- safety rule: unknown taxes are never zero; non-zero tax rules stay fail-closed until a tax-base model is explicitly implemented.
 
 ### Поточна наступна дія
 
-**NEXT — tax assumptions audit before activation.**
+**DOING — wire only the verified 2026 Ukraine-resident OVDP preset.**
 
-Створити окрему feature branch від актуального `main` і спочатку провести read-only audit наявного `TaxScenario.ukraineResidentOvdp2026()`: звірити PIT / military levy для interest та investment profit з офіційними джерелами, effective period і датою перевірки. Лише після цього підключати tax state → validation → calculation → persistence → 7-language UI → tests.
+1. refresh preset source/date metadata;
+2. retain `TaxScenario` in PlannerState/load/save;
+3. add a tax impact evaluator that distinguishes unknown vs verified zero and fails closed on unsupported non-zero bases;
+4. add unknown / verified-2026 UI and post-fee/post-tax result semantics;
+5. localize tax controls/status/errors for UK/EN/FR/DE/ES/KO/JA;
+6. add domain/cubit/persistence/widget tests;
+7. green verify → PR → integrate into `main`.
 
-Невідомий податок не вважати нулем. Не активувати неперевірений preset.
+FX and exit remain out of this slice.
 
 ## Черга робіт
 
 1. **DONE** — multiple `PriceObservation` + explicit user source priority.
 2. **DONE** — purchase fee assumptions → calculation + UI.
-3. **NEXT** — tax assumptions → official effective-date audit → calculation + UI.
+3. **DOING** — tax assumptions → official effective-date audit → calculation + UI.
 4. **TODO** — FX assumptions calculation/UI.
 5. **TODO** — exit assumptions redesign/wiring for multi-position scenarios.
 6. **TODO** — A/B/C comparison.
