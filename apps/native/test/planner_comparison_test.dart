@@ -3,7 +3,6 @@ import 'package:ovdp_hub/data/hub_repository.dart';
 import 'package:ovdp_hub/features/collections/collections_cubit.dart';
 import 'package:ovdp_hub/features/planner/planner_comparison.dart';
 import 'package:ovdp_hub/features/planner/planner_scenario.dart';
-import 'package:ovdp_hub/models.dart';
 
 import 'support/fake_repository.dart';
 import 'support/planner_comparison_fixtures.dart';
