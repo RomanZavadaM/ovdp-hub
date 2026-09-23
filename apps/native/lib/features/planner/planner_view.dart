@@ -165,6 +165,177 @@ class PlannerView extends StatelessWidget {
     }
   }
 
+  PositionExitAssumption? _exitFor(
+    PlannerState state,
+    String isin,
+  ) {
+    for (final exit in state.positionExits) {
+      if (exit.isin == isin) return exit;
+    }
+    return null;
+  }
+
+  Future<void> _editPositionExit(
+    BuildContext context,
+    PlannerCubit cubit,
+    HubStrings strings,
+    PositionInput input,
+    PositionExitAssumption? existing,
+  ) async {
+    var date = existing?.date ??
+        DateTime.now().add(const Duration(days: 30)).toIso8601String().substring(0, 10);
+    var price = existing?.price.effectiveUnitCost?.toString() ?? '';
+    var side = existing?.price.side ?? PriceSide.manual;
+    var sourceUrl = existing?.price.meta.sourceUrl == 'local://manual-exit'
+        ? ''
+        : existing?.price.meta.sourceUrl ?? '';
+
+    final submitted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: Text(strings.text('exitEditTitle')),
+          content: SizedBox(
+            width: 440,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(strings.text('exitAssumptionsInfo')),
+                const SizedBox(height: 8),
+                TextFormField(
+                  initialValue: date,
+                  decoration: InputDecoration(
+                    labelText: strings.text('exitDate'),
+                  ),
+                  onChanged: (value) => date = value,
+                ),
+                TextFormField(
+                  initialValue: price,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText:
+                        '${strings.text('exitFullPrice')}, ${input.bond.currency}',
+                  ),
+                  onChanged: (value) => price = value,
+                ),
+                DropdownButton<PriceSide>(
+                  value: side,
+                  isExpanded: true,
+                  items: [
+                    DropdownMenuItem(
+                      value: PriceSide.manual,
+                      child: Text(strings.text('exitManualPrice')),
+                    ),
+                    DropdownMenuItem(
+                      value: PriceSide.bid,
+                      child: Text(strings.text('exitBidPrice')),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setDialogState(() => side = value);
+                    }
+                  },
+                ),
+                TextFormField(
+                  initialValue: sourceUrl,
+                  decoration: InputDecoration(
+                    labelText: side == PriceSide.bid
+                        ? strings.text('exitSourceUrlRequired')
+                        : strings.text('exitSourceUrlOptional'),
+                  ),
+                  onChanged: (value) => sourceUrl = value,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(strings.text('close')),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(strings.text('applyExit')),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (submitted == true && context.mounted) {
+      cubit.setPositionExit(
+        isin: input.bond.isin,
+        date: date,
+        price: price,
+        side: side,
+        sourceUrl: sourceUrl,
+      );
+    }
+  }
+
+  Widget _exitControls(
+    BuildContext context,
+    PlannerCubit cubit,
+    PlannerState state,
+    HubStrings strings,
+    PositionInput input,
+    bool disabled,
+  ) {
+    final exit = _exitFor(state, input.bond.isin);
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            exit == null
+                ? strings.text('exitHoldToMaturity')
+                : '${strings.text('exitEarlySale')}: ${exit.date} · '
+                    '${exit.price.effectiveUnitCost} ${input.bond.currency} · '
+                    '${exit.price.side == PriceSide.bid ? strings.text('exitBidPrice') : strings.text('exitManualPrice')}',
+          ),
+          if (exit != null && exit.price.meta.sourceUrl != 'local://manual-exit')
+            Text(
+              '${strings.text('exitSource')}: ${exit.price.meta.sourceUrl}',
+            ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: disabled
+                    ? null
+                    : () => _editPositionExit(
+                        context,
+                        cubit,
+                        strings,
+                        input,
+                        exit,
+                      ),
+                icon: const Icon(Icons.sell_outlined),
+                label: Text(
+                  exit == null
+                      ? strings.text('addEarlySale')
+                      : strings.text('changeEarlySale'),
+                ),
+              ),
+              if (exit != null)
+                TextButton.icon(
+                  onPressed: disabled
+                      ? null
+                      : () => cubit.clearPositionExit(input.bond.isin),
+                  icon: const Icon(Icons.restore),
+                  label: Text(strings.text('returnToMaturity')),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PlannerCubit>(),
@@ -637,6 +808,14 @@ class PlannerView extends StatelessWidget {
                         ),
                       ],
                     ),
+                    _exitControls(
+                      context,
+                      cubit,
+                      state,
+                      strings,
+                      i,
+                      disabled,
+                    ),
                   ],
                 ),
               ),
@@ -694,6 +873,8 @@ class PlannerView extends StatelessWidget {
             )
           else
             Text(strings.text('unknownTaxesResultInfo')),
+          if (state.positionExits.isNotEmpty)
+            Text(strings.text('exitResultInfo')),
           if (fxImpact?.active == true) ...[
             const SizedBox(height: 8),
             Text(
@@ -757,7 +938,8 @@ class PlannerView extends StatelessWidget {
                 children: [
                   Text(
                     '${m.month} · ${strings.text('coupons')} ${m.coupons.toStringAsFixed(2)} · '
-                    '${strings.text('principal')} ${m.principal.toStringAsFixed(2)} $currency',
+                    '${strings.text('principal')} ${m.principal.toStringAsFixed(2)} · '
+                    '${strings.text('saleProceeds')} ${m.sales.toStringAsFixed(2)} $currency',
                   ),
                   LinearProgressIndicator(
                     value: maximum == 0 ? 0 : m.total.toDouble() / maximum,
