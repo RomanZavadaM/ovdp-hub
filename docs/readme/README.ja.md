@@ -2,9 +2,9 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · [🇫🇷 Français](README.fr.md) · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · **🇯🇵 日本語**
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.7](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.7)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.8](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.8)**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/SHA256SUMS.txt)
 
 ---
 
@@ -23,7 +23,10 @@
 - ユーザーが明示的に優先順位を決める複数の価格ソース;
 - 予算、準備金、償還期間、将来支出を扱うプランナー;
 - 明示的な購入手数料前提。不明な手数料を 0 とみなさない;
-- v0.8.7 以降の `main` には、2026 年のウクライナ居住個人による OVDP 向け検証済み税務プロファイルも統合され、**不明** と **検証済み 0** を明確に区別;
+- 2026 年のウクライナ居住個人向け OVDP 検証済み税務プロファイルと **不明 / 検証済み 0** の明確な区別;
+- 基準 cashflow の通貨を混在させない、手動レート・日付・情報源 URL による明示的 FX 比較;
+- 各ポジションごとの売却日と BID/手動 exit 価格による満期前売却;
+- typed ルールとして保存される定期的な主な必要額と、個別の一回限り追加必要額;
 - ポータブルな JSON ワークスペースへのシナリオ保存;
 - アクティブ UI と主要なユーザー向けエラーを **UK / EN / FR / DE / ES / KO / JA** にローカライズ.
 

@@ -25,41 +25,35 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **Planner needs block → explicit primary need → recurring schedule → additional one-off needs → cashflow/persistence → 7-language UI → tests**.
+Мета: **full test checkpoint v0.8.8 / 0.8.8+16**.
 
-- PR: **#54** `Planner: implement recurring needs block`
-- final head: `28bcc9e219feedaa3253a2371c4d2fc8add77580`
-- final verify: **Flutter checks and START run #168 — success**
-- squash merge у `main`: `e2a48d7017fe578295e631054d84fce52cbc2b55`
-- published checkpoint remains **v0.8.7 / 0.8.7+15**
-- completed:
-  - explicit primary need card: name/date/amount;
-  - recurring toggle + interval in months + total occurrence count;
-  - typed `PlannerNeedType.recurring` persisted in schema 3;
-  - deterministic cashflow expansion with month-end clamping;
-  - recurring scenarios reload into UI;
-  - additional needs remain one-off add/remove items;
-  - legacy one-off scenarios stay compatible;
-  - hard-coded duplicate-five-months behavior removed;
-  - UK/EN/FR/DE/ES/KO/JA localization;
-  - domain/save-load/widget/full regression suite green.
+- owner-approved pause in feature development to publish a concrete testable checkpoint;
+- release branch: `release/v0.8.8`;
+- release PR: **#56** `Release: v0.8.8 full test checkpoint`;
+- base `main`: `f4f47fb9a9f1f01a5fac67490d6f6c748773e8b3`;
+- target version/build: **0.8.8+16**;
+- A/B/C PR **#53** remains draft/paused and is excluded from this checkpoint;
+- included since v0.8.7:
+  - verified Ukraine-resident OVDP 2026 tax assumptions;
+  - explicit FX comparison;
+  - per-position exit assumptions;
+  - typed recurring Planner needs;
+  - multilingual README pages / docs alignment.
 
 ### Поточна наступна дія
 
-**NEXT — prepare full test checkpoint v0.8.8 before resuming A/B/C.**
+**DOING — prepare v0.8.8 release metadata and packages.**
 
-Owner approved the proposed pause in feature development. Build a complete testable checkpoint from current `main`, including all user-visible work integrated after v0.8.7:
-- verified tax assumptions;
-- explicit FX comparison;
-- per-position exit assumptions;
-- typed recurring Planner needs;
-- multilingual README split/pages.
-
-Release protocol: version/build bump → changelog + 7-language release notes → PR → green verify → merge → Windows/macOS/Android/iOS/START → SHA256SUMS/legal → immutable tag/release → post-release canonical sync.
-
-A/B/C PR **#53** stays draft/paused until the checkpoint is published and tested.
+1. bump `apps/native/pubspec.yaml` to `0.8.8+16`;
+2. add changelog and immutable 7-language release notes;
+3. update START_HERE / PROJECT_STATE / multilingual README release links/status;
+4. open release PR and obtain green preflight + Flutter checks;
+5. squash merge release PR into `main`;
+6. wait for full `Publish native prerelease` pipeline;
+7. verify immutable tag `v0.8.8`, Windows/macOS/Android/iOS/START assets, SHA256SUMS and legal notices;
+8. post-release canonical sync → only then resume A/B/C.
 
 ## Черга робіт
 
@@ -70,7 +64,7 @@ A/B/C PR **#53** stays draft/paused until the checkpoint is published and tested
 5. **DONE** — exit assumptions redesign/wiring for multi-position scenarios.
 6. **PAUSED** — A/B/C comparison (draft PR #53; resume after v0.8.8 checkpoint).
 7. **DONE** — Planner needs/future-expenses block requested by owner.
-8. **NEXT** — full test checkpoint v0.8.8 from current main.
+8. **DOING** — full test checkpoint v0.8.8 from current main.
 9. **TODO** — generated planner copy / preset labels localization + UX regression.
 10. **TODO** — оцінка готовності formal prerelease 0.9.0.
 

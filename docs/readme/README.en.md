@@ -2,9 +2,9 @@
 
 [🇺🇦 Українська](../../README.md) · **🇬🇧 English** · [🇫🇷 Français](README.fr.md) · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.7](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.7)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.8](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.8)**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/SHA256SUMS.txt)
 
 ---
 
@@ -23,7 +23,10 @@ Active code: `apps/native`. The current major target is **0.9.0 “Market”**.
 - multiple price sources with explicit user-controlled priority;
 - planner for budget, reserve, maturity horizon, and future expenses;
 - explicit purchase-fee assumptions: an unknown fee is never treated as zero;
-- after v0.8.7, `main` also contains a verified 2026 Ukraine-resident OVDP tax profile with explicit **unknown** versus **verified zero** semantics;
+- a verified 2026 Ukraine-resident OVDP tax profile with explicit **unknown** versus **verified zero** semantics;
+- explicit FX comparison with manual rate, date, and source URL while base cashflow stays single-currency;
+- per-position early sale with an individual sale date and BID/manual exit price;
+- a recurring primary future need stored as a typed rule, while additional needs remain one-off items;
 - portable JSON workspace persistence;
 - active UI and main user-facing errors localized for **UK / EN / FR / DE / ES / KO / JA**.
 
