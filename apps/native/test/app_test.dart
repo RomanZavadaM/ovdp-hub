@@ -292,18 +292,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Налаштувати FX-порівняння'), findsOneWidget);
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Курс · 1 UAH → USD'),
-      '0.025',
+    final fxFields = find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.byType(TextFormField),
     );
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Дата курсу YYYY-MM-DD'),
-      '2026-09-23',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'URL джерела курсу FX'),
-      'https://bank.gov.ua/',
-    );
+    expect(fxFields, findsNWidgets(3));
+    await tester.enterText(fxFields.at(0), '0.025');
+    await tester.enterText(fxFields.at(1), '2026-09-23');
+    await tester.enterText(fxFields.at(2), 'https://bank.gov.ua/');
     await tester.tap(find.text('Застосувати FX'));
     await tester.pumpAndSettle();
 
