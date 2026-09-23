@@ -1,6 +1,6 @@
 # WORKLOG — OVDP Hub
 
-Оновлено: **22.09.2026**
+Оновлено: **23.09.2026**
 
 Цей файл — оперативна точка відновлення активної розробки.
 
@@ -21,24 +21,25 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 **0.9.0 «Ринок»**.
 
-Поточний опублікований checkpoint: **v0.8.5 / 0.8.5+13**.
+Поточний опублікований checkpoint: **v0.8.5 / 0.8.5+13**. Release candidate: **v0.8.6 / 0.8.6+14**.
 
 ## Поточний slice
 
-Статус: **NEXT**
+Статус: **DOING**
 
-Мета: **multiple `PriceObservation` + explicit user source priority**.
+Мета: **повний prerelease checkpoint v0.8.6 / 0.8.6+14** за командою власника «зливай в main».
 
-- base `main`: `e4f6d1cfe0544a28cc1afff81084e5dd898910ba`
-- попередній slice: freshness/status UX у картці ISIN
-- merged PR: **#35**
-- merge SHA: `e4f6d1cfe0544a28cc1afff81084e5dd898910ba`
-- final verify: **Flutter checks and START run #104 — success**
-- version лишається **0.8.5+13**; нового release checkpoint не створювали
+- base `main`: `92ff3d3582b4b806a83d50cec74be6b96de99c1d`
+- release branch: `release/v0.8.6`
+- target tag: `v0.8.6`
+- включено: freshness/status UX у картці ISIN
+- не включено: multiple `PriceObservation` + explicit user source priority
+- обов'язкові outputs: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
+- після publication: перевірити assets, зафіксувати release SHA/run, оновити README / PROJECT_STATE / START_HERE / WORKLOG
 
 ### Поточна наступна дія
 
-Перевірити поточну модель `PriceObservation` і planner price selection, після чого реалізувати **кілька observations на ISIN** з явним вибором/пріоритетом джерела користувачем. Заборонити будь-який неявний fallback, який перетворює yield або nominal estimate на вибрану ринкову ціну.
+Відкрити release PR, пройти green checks, merge у `main`, дочекатися повного `Publish native prerelease` і перевірити опублікований `v0.8.6`. Після цього продовжити slice **multiple `PriceObservation` + explicit user source priority**.
 
 ## Черга робіт
 
