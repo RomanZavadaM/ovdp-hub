@@ -2,9 +2,9 @@
 
 **🇺🇦 Українська** · [🇬🇧 English](docs/readme/README.en.md) · [🇫🇷 Français](docs/readme/README.fr.md) · [🇩🇪 Deutsch](docs/readme/README.de.md) · [🇪🇸 Español](docs/readme/README.es.md) · [🇰🇷 한국어](docs/readme/README.ko.md) · [🇯🇵 日本語](docs/readme/README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.7](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.7)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.8](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.8)**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/OVDP-Hub-0.8.7-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.7/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/SHA256SUMS.txt)
 
 ---
 
@@ -23,7 +23,10 @@
 - кілька джерел ціни з явним пріоритетом користувача;
 - планувальник бюджету, резерву, строків і майбутніх витрат;
 - явні purchase-fee assumptions: невідома комісія не прирівнюється до нуля;
-- після v0.8.7 у `main` уже інтегровано перевірений податковий профіль для фізособи-резидента України / ОВДП / 2026 з чітким розрізненням **unknown** та **verified zero**;
+- перевірений податковий профіль для фізособи-резидента України / ОВДП / 2026 з чітким розрізненням **unknown** та **verified zero**;
+- явне FX-порівняння з ручним курсом, датою та URL джерела без змішування валют у базовому cashflow;
+- достроковий продаж по кожній позиції з власною датою та BID/ручною exit-ціною;
+- основна майбутня потреба може бути регулярною; повторення зберігається як typed правило, додаткові потреби — як окремі one-off записи;
 - збереження сценаріїв у переносній робочій папці JSON;
 - активний UI та основні user-facing помилки локалізовані **UK / EN / FR / DE / ES / KO / JA**.
 
