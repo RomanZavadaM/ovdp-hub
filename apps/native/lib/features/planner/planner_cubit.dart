@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
 import '../../errors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
