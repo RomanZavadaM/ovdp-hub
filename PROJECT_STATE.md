@@ -178,10 +178,24 @@ Final PR verification: **Flutter checks and START run #145 — success**.
 
 Опублікований checkpoint лишається **v0.8.7 / 0.8.7+15**; tag/release не переписуємо.
 
+PR **#48 — Planner: explicit FX comparison assumptions** squash-merged у `main` як `755c328e0d1b15d2d4843f434eaf774d80ff5494`.
+
+Інтегровано, але ще не видано окремим GitHub release:
+- typed `FxAssumption` проходить PlannerState/load/save;
+- planner лишається single-currency: FX не дозволяє змішувати позиції чи потреби різних валют;
+- explicit comparison semantics: **1 одиниця валюти сценарію = введений курс у валюті порівняння**;
+- користувач задає target currency, rate, as-of date та source URL;
+- 0 FX rules = конвертацію не просили;
+- 1 matching rule = показуються converted invested/reserve/profit;
+- multiple/non-standard rules зберігаються й defer-яться без здогадок або тихого переписування;
+- base-currency cashflow лишається authoritative;
+- FX UI/status/errors локалізовано UK/EN/FR/DE/ES/KO/JA.
+
+Final PR verification: **Flutter checks and START run #152 — success (88/88 tests)**.
+
 ## Чому 0.8.7, а не 0.9.0
 
-Після v0.8.7 у `main` уже інтегровано verified tax assumptions, але **ще не завершені**:
-- FX assumptions → calculations + UI;
+Після v0.8.7 у `main` уже інтегровано verified tax assumptions та explicit FX comparison assumptions, але **ще не завершені**:
 - exit assumptions → redesign/wiring для multi-position scenarios;
 - A/B/C comparison;
 - generated planner copy / preset labels localization.
@@ -190,10 +204,9 @@ Final PR verification: **Flutter checks and START run #145 — success**.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. FX assumptions → calculations + UI;
-2. exit assumptions → multi-position redesign/wiring;
-3. A/B/C comparison;
-4. generated planner copy / preset labels localization.
+1. exit assumptions → multi-position redesign/wiring;
+2. A/B/C comparison;
+3. generated planner copy / preset labels localization.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
 
