@@ -39,7 +39,8 @@ Route vers 0.9.0 :
 2. **DONE** — hypothèses de frais d’achat;
 3. **DONE** — hypothèses fiscales vérifiées;
 4. **DONE** — hypothèses FX;
-5. **NEXT** — hypothèses de sortie; ensuite comparaison A/B/C et finition UX/localisation.
+5. **DONE** — hypothèses de sortie;
+6. **NEXT** — comparaison A/B/C; ensuite finition UX/localisation.
 
 OVDP Hub n’exécute aucune transaction et ne confirme pas la disponibilité d’un instrument chez un vendeur.
 
