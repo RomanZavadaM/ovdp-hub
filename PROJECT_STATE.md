@@ -1,11 +1,12 @@
 # PROJECT_STATE — OVDP Hub
 
-Оновлено: 22.09.2026
+Оновлено: 23.09.2026
 
 ## Поточний checkpoint
 
-- Активна версія: **0.8.5+13**
-- Опублікований GitHub tag: **v0.8.5**
+- Активна версія в release candidate: **0.8.6+14**
+- Поточний опублікований GitHub tag: **v0.8.5**
+- Release candidate target: **v0.8.6**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
@@ -76,7 +77,7 @@ Release pipeline **Publish native prerelease run #32** успішно завер
 
 Tag/release не пересуваємо й не переписуємо.
 
-## Що вже інтегровано в `main` після v0.8.5, але ще не опубліковано окремим релізом
+## Що входить до release candidate v0.8.6 поверх v0.8.5
 
 - нормалізований freshness/status UX у картці ISIN;
 - typed `officialPublished` status для офіційних NBU/MinFin observations;
@@ -86,7 +87,7 @@ Tag/release не пересуваємо й не переписуємо.
 - локалізація UK/EN/FR/DE/ES/KO/JA;
 - unit/widget/full-card wiring tests.
 
-Версія в development state лишається **0.8.5+13** до наступного повного checkpoint.
+Ці зміни формують release candidate **v0.8.6 / 0.8.6+14**. Опублікований `v0.8.5` не переписується.
 
 ## Інваріанти
 
