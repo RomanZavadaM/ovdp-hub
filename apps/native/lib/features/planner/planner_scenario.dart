@@ -97,6 +97,50 @@ class PlannerNeed {
   );
 }
 
+List<PlannerNeed> plannerNeedsFromCriteria(Map<String, String> criteria) {
+  final count = int.tryParse(criteria['expenseCount'] ?? '0');
+  if (count == null || count < 0 || count > 50) {
+    throw const FormatException('planner.invalid_need_count');
+  }
+
+  final recurring = criteria['needRecurring'] == 'true';
+  int? everyMonths;
+  int? occurrences;
+  if (recurring) {
+    everyMonths = int.tryParse(criteria['needEveryMonths'] ?? '1');
+    occurrences = int.tryParse(criteria['needOccurrences'] ?? '6');
+    if (everyMonths == null || occurrences == null) {
+      throw const FormatException('planner.invalid_repeat');
+    }
+  }
+
+  final needs = <PlannerNeed>[
+    PlannerNeed(
+      id: 'need-0',
+      name: (criteria['needName'] ?? 'Основна потреба').trim(),
+      type: recurring ? PlannerNeedType.recurring : PlannerNeedType.oneOff,
+      date: criteria['needDate']!,
+      amount: money(criteria['needAmount']!),
+      everyMonths: everyMonths,
+      occurrences: occurrences,
+    ),
+  ];
+
+  for (var i = 0; i < count; i++) {
+    needs.add(
+      PlannerNeed(
+        id: 'need-${i + 1}',
+        name: (criteria['expenseName$i'] ?? 'Витрата ${i + 2}').trim(),
+        type: PlannerNeedType.oneOff,
+        date: criteria['expenseDate$i']!,
+        amount: money(criteria['expenseAmount$i']!),
+      ),
+    );
+  }
+
+  return List.unmodifiable(needs);
+}
+
 enum PriceValueKind { fullPrice, cleanPrice, yieldOnly, nominalEstimate }
 enum PriceSide { ask, bid, manual }
 
@@ -1014,30 +1058,7 @@ class PlannerScenario {
     String? groupId,
     String variantLabel = 'A',
   }) {
-    final count = int.parse(criteria['expenseCount'] ?? '0');
-    if (count < 0 || count > 50) {
-      throw const FormatException('planner.invalid_need_count');
-    }
-    final needs = <PlannerNeed>[
-      PlannerNeed(
-        id: 'need-0',
-        name: criteria['needName'] ?? 'Основна потреба',
-        type: PlannerNeedType.oneOff,
-        date: criteria['needDate']!,
-        amount: money(criteria['needAmount']!),
-      ),
-    ];
-    for (var i = 0; i < count; i++) {
-      needs.add(
-        PlannerNeed(
-          id: 'need-${i + 1}',
-          name: criteria['expenseName$i'] ?? 'Витрата ${i + 2}',
-          type: PlannerNeedType.oneOff,
-          date: criteria['expenseDate$i']!,
-          amount: money(criteria['expenseAmount$i']!),
-        ),
-      );
-    }
+    final needs = plannerNeedsFromCriteria(criteria);
     final strategy = switch (criteria['strategy']) {
       'profit' => PlannerStrategy.profit,
       'expenses' => PlannerStrategy.expenses,
@@ -1088,30 +1109,7 @@ class PlannerScenario {
     String? groupId,
     String variantLabel = 'A',
   }) {
-    final count = int.parse(criteria['expenseCount'] ?? '0');
-    if (count < 0 || count > 50) {
-      throw const FormatException('planner.invalid_need_count');
-    }
-    final needs = <PlannerNeed>[
-      PlannerNeed(
-        id: 'need-0',
-        name: criteria['needName'] ?? 'Основна потреба',
-        type: PlannerNeedType.oneOff,
-        date: criteria['needDate']!,
-        amount: money(criteria['needAmount']!),
-      ),
-    ];
-    for (var i = 0; i < count; i++) {
-      needs.add(
-        PlannerNeed(
-          id: 'need-${i + 1}',
-          name: criteria['expenseName$i'] ?? 'Витрата ${i + 2}',
-          type: PlannerNeedType.oneOff,
-          date: criteria['expenseDate$i']!,
-          amount: money(criteria['expenseAmount$i']!),
-        ),
-      );
-    }
+    final needs = plannerNeedsFromCriteria(criteria);
     final strategy = switch (criteria['strategy']) {
       'profit' => PlannerStrategy.profit,
       'expenses' => PlannerStrategy.expenses,
@@ -1183,12 +1181,15 @@ class PlannerScenario {
   }
 
   Map<String, String> toCurrentUiCriteria() {
-    if (needs.any((need) => need.type != PlannerNeedType.oneOff)) {
+    if (needs.isEmpty ||
+        needs.first.type == PlannerNeedType.reserveFloor ||
+        needs.skip(1).any((need) => need.type != PlannerNeedType.oneOff)) {
       throw UnsupportedError(
         'planner.typed_need_ui_unsupported',
       );
     }
     final primary = needs.first;
+    final recurring = primary.type == PlannerNeedType.recurring;
     final result = <String, String>{
       'currency': currency,
       'budget': budget.toString(),
@@ -1199,6 +1200,9 @@ class PlannerScenario {
       'needName': primary.name,
       'needDate': primary.date,
       'needAmount': primary.amount.toString(),
+      'needRecurring': '$recurring',
+      'needEveryMonths': '${primary.everyMonths ?? 1}',
+      'needOccurrences': '${primary.occurrences ?? 6}',
       'name': name,
       'strategy': strategy.name,
       'expenseCount': '${needs.length - 1}',
@@ -1229,8 +1233,12 @@ class PlannerScenario {
       'start': date(now),
       'minDate': date(now.add(const Duration(days: 1))),
       'maxDate': date(DateTime(now.year + 2, now.month, now.day)),
+      'needName': 'Основна потреба',
       'needDate': date(DateTime(now.year, now.month + 6, now.day)),
       'needAmount': '10000',
+      'needRecurring': 'false',
+      'needEveryMonths': '1',
+      'needOccurrences': '6',
       'name': 'Мій план',
       'strategy': 'ladder',
       'expenseCount': '0',
