@@ -25,43 +25,35 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **VERIFIED**
 
-Мета: **full test checkpoint v0.8.8 / 0.8.8+16**.
+Мета: **A/B/C scenario comparison → current-main port → strict comparability → explanatory metrics → regression coverage → 7-language UI**.
 
-- release PR: **#56** `Release: v0.8.8 full test checkpoint`
-- release commit: `acacf53b903e876e7bacae45ebc6f895e799cd75`
-- release workflow: **Publish native prerelease run #40 — success**
-- tag: **v0.8.8**
-- GitHub prerelease: **OVDP Hub 0.8.8**
-- release notes: **UK / EN / FR / DE / ES / KO / JA**
-- published:
-  - `OVDP-Hub-0.8.8-Windows-x64.zip`;
-  - `OVDP-Hub-0.8.8-macOS.zip`;
-  - `OVDP-Hub-0.8.8-Android-test.zip`;
-  - `OVDP-Hub-0.8.8-iOS-unsigned.zip`;
-  - `OVDP-Hub-0.8.8-START.zip`;
-  - `SHA256SUMS.txt`;
-  - `LICENSE.md`, `COPYRIGHT.md`, `LEGAL_AND_COPYRIGHT.md`, `THIRD_PARTY_NOTICES.md`.
-- included since v0.8.7:
-  - verified tax assumptions;
-  - explicit FX comparison;
-  - per-position exit assumptions;
-  - typed recurring Planner needs;
-  - multilingual README pages.
+- published checkpoint: **v0.8.8 / 0.8.8+16**;
+- baseline `main`: `0602405ab9c1d0735fcb7e60bced447494d10d4f`;
+- active branch: `feat/planner-abc-comparison-v2`;
+- active PR: **#58** `Planner: strict A/B/C scenario comparison v2`;
+- verified code head: `80f07d7fc1cf23708972596b504efffe0b6aca15`;
+- verify: **Flutter checks and START run #182 — success, 108/108 tests**;
+- old draft PR **#53** was diverged (9 commits ahead / 3 behind at audit), is closed without merge and is **not** a code source;
+- useful comparison logic from #53 is being ported selectively onto current main;
+- current recurring-needs model from PR #54 must be preserved;
+- comparison remains neutral: no automatic best/worst/winner.
 
 ### Поточна наступна дія
 
-**NEXT — resume A/B/C comparison from current `main`.**
+**VERIFIED — A/B/C comparison is ready for final docs-only-head verify and integration.**
 
-Draft PR **#53** was created before the recurring-needs slice and v0.8.8 checkpoint. Do **not** merge it blindly. First compare/rebase or safely port its changes onto current `main`, then restore/add dedicated comparison regression coverage and run a fresh latest-head verify.
-
-Comparison invariants:
-- 2–3 scenarios only;
-- neutral A/B/C labels follow user selection order;
-- no automatic “best/winner” recommendation;
-- only comparable assumptions/currency/horizon may be compared;
-- unsupported recurring/reserve-floor semantics fail closed until comparison supports them explicitly.
+1. port pure comparison evaluator and Collections selection/UI;
+2. update comparison need handling for current typed recurring-needs model;
+3. preserve selection order as neutral A/B/C labels;
+4. hard comparability: same currency, budget, reserve, start/horizon, settlement delay and economic needs;
+5. explanatory differences may include strategy, composition, price, fees, tax, FX and per-position exits;
+6. add dedicated domain/Cubit/widget/localization tests;
+7. stale comparison errors must clear when selection becomes valid or drops below two scenarios;
+8. code head `80f07d7f…` passed run #182 with 108/108 tests;
+9. old PR #53 closed as superseded by PR #58;
+10. run final verify on this WORKLOG-only head → mark PR #58 ready → squash merge.
 
 ## Черга робіт
 
@@ -70,7 +62,7 @@ Comparison invariants:
 3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
 4. **DONE** — FX assumptions calculation/UI.
 5. **DONE** — exit assumptions redesign/wiring for multi-position scenarios.
-6. **NEXT** — A/B/C comparison (resume draft PR #53 only after synchronizing with current main).
+6. **DOING** — A/B/C comparison on fresh current-main branch; old PR #53 superseded after replacement PR opens.
 7. **DONE** — Planner needs/future-expenses block requested by owner.
 8. **DONE** — full test checkpoint v0.8.8 from current main.
 9. **TODO** — generated planner copy / preset labels localization + UX regression.

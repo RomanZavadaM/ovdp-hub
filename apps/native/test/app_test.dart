@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/main.dart';
+import 'package:ovdp_hub/data/hub_repository.dart';
 import 'package:ovdp_hub/models.dart';
 import 'support/fake_repository.dart';
+import 'support/planner_comparison_fixtures.dart';
 
 void main() {
   late Catalog catalog;
@@ -451,6 +453,81 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Витрата 2'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    await repository.dispose();
+  });
+
+  testWidgets('saved plans can be compared neutrally as A/B', (tester) async {
+    tester.view.physicalSize = const Size(430, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final comparison = comparisonCatalog();
+    final bond = comparison.bonds.first;
+    final sets = [
+      comparisonSavedSet(
+        bond,
+        name: 'Сценарій один',
+        savedAt: '2026-09-23T10:00:00Z',
+      ),
+      comparisonSavedSet(
+        bond,
+        name: 'Сценарій два',
+        savedAt: '2026-09-23T10:01:00Z',
+        variantLabel: 'B',
+        purchasePrice: '990',
+      ),
+    ];
+    final repository = FakeRepository(comparison);
+    repository.current = WorkspaceSnapshot('local', comparison, sets);
+
+    await tester.pumpWidget(OvdpApp(repository: repository));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Добірки'));
+    await tester.pumpAndSettle();
+
+    for (final name in ['Сценарій один', 'Сценарій два']) {
+      final tile = find.text(name).first;
+      await tester.ensureVisible(tile);
+      await tester.tap(tile);
+      await tester.pumpAndSettle();
+    }
+
+    final choices = find.widgetWithText(
+      CheckboxListTile,
+      'Додати до порівняння A/B/C',
+    );
+    expect(choices, findsNWidgets(2));
+
+    await tester.ensureVisible(choices.at(0));
+    await tester.tap(choices.at(0));
+    await tester.pumpAndSettle();
+    expect(find.text('Вибрано: 1/3'), findsOneWidget);
+
+    final secondChoice = find.widgetWithText(
+      CheckboxListTile,
+      'Додати до порівняння A/B/C',
+    ).at(1);
+    await tester.ensureVisible(secondChoice);
+    await tester.tap(secondChoice);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Вибрано: 2/3'), findsOneWidget);
+    expect(find.text('Порівняння A/B/C'), findsWidgets);
+    expect(
+      find.text(
+        'Таблиця не визначає переможця: вона показує фактичні відмінності сценаріїв.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Сценарій один'), findsWidgets);
+    expect(find.text('Сценарій два'), findsWidgets);
+    expect(find.text('A'), findsWidgets);
+    expect(find.text('B'), findsWidgets);
     expect(tester.takeException(), isNull);
 
     await tester.pumpWidget(const SizedBox.shrink());
