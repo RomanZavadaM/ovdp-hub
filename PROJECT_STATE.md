@@ -4,16 +4,17 @@
 
 ## Поточний checkpoint
 
-- Активна версія: **0.8.7+15**
-- Опублікований GitHub tag: **v0.8.7**
+- Release candidate: **0.8.8+16**
+- Поточний опублікований GitHub tag до завершення pipeline: **v0.8.7**
+- Запланований новий tag: **v0.8.8**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
 - Основна гілка: `main`
 - Статус продукту: **test / prerelease**
-- Release commit: **6ab844fd3063fbfa9fcf54ab875539241c459845**
-- Release workflow: **Publish native prerelease run #37 — success**
-- GitHub Release: **v0.8.7**, опублікований 23.09.2026
+- Release base перед checkpoint: **f4f47fb9a9f1f01a5fac67490d6f6c748773e8b3**
+- Release workflow: **очікує merge release PR**
+- GitHub Release: **v0.8.8 — готується**
 
 ## Що входить до опублікованого 0.8.5
 
@@ -256,5 +257,30 @@ Release pipeline **Publish native prerelease run #37** успішно завер
 - `OVDP-Hub-0.8.7-Android-test.zip`;
 - `OVDP-Hub-0.8.7-iOS-unsigned.zip`;
 - `OVDP-Hub-0.8.7-START.zip`;
+- `SHA256SUMS.txt`;
+- legal notices.
+
+
+## Release candidate v0.8.8
+
+Повний test checkpoint **0.8.8+16** готується з актуального `main` після v0.8.7.
+
+До checkpoint входять інтегровані після v0.8.7 user-visible verticals:
+- verified tax assumptions для фізособи-резидента України / ОВДП / 2026;
+- explicit FX comparison із rate/date/source provenance;
+- per-position early-sale assumptions;
+- typed recurring primary needs + additional one-off needs;
+- multilingual README pages та документаційна синхронізація.
+
+A/B/C comparison PR #53 лишається draft/paused і **не входить до v0.8.8**.
+
+Release notes підготовлено сімома мовами: UK / EN / FR / DE / ES / KO / JA.
+
+Очікувані assets:
+- `OVDP-Hub-0.8.8-Windows-x64.zip`;
+- `OVDP-Hub-0.8.8-macOS.zip`;
+- `OVDP-Hub-0.8.8-Android-test.zip`;
+- `OVDP-Hub-0.8.8-iOS-unsigned.zip`;
+- `OVDP-Hub-0.8.8-START.zip`;
 - `SHA256SUMS.txt`;
 - legal notices.
