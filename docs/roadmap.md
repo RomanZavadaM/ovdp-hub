@@ -12,14 +12,14 @@
 2. **Зрозуміла актуальність — DONE**: freshness/status UX у картці ISIN уніфіковано для NBU / MinFin / seller observations.
 3. **Явний вибір ринкової ціни — DONE**: кілька `PriceObservation`, explicit user priority, add/select/reorder controls і nominal fallback інтегровані без прихованої підміни yield/nominal ціною.
 4. **Повна економіка сценарію — DONE**: purchase-fee, verified-tax, explicit-FX та per-position exit vertical інтегровані. Невідомі значення не вважати нулем.
-5. **Порівняння рішень** — A/B/C comparison з однаковими припущеннями, cashflow і поясненням різниці.
+5. **Порівняння рішень — DONE**: neutral A/B/C comparison для 2–3 saved scenarios із strict baseline comparability, recurring-needs support, explanatory metrics і no-winner semantics — PR #58, final run #183.
 6. **Готовність 0.9.0** — UX-polish, generated-copy localization, regression review, cross-platform prerelease.
 
 Принцип пріоритезації: спочатку завершувати вертикальний користувацький шлях, а не додавати нові ізольовані джерела чи екрани.
 
 ## Опублікований checkpoint v0.8.8
 
-**v0.8.8 / 0.8.8+16** опубліковано 23.09.2026 з verified-tax, explicit-FX, per-position exit та typed recurring-needs verticals. Повний release pipeline run #40 успішний для Windows/macOS/Android/iOS/START. Наступний продуктовый крок — A/B/C comparison після синхронізації draft PR #53 з актуальним `main`.
+**v0.8.8 / 0.8.8+16** опубліковано 23.09.2026 з verified-tax, explicit-FX, per-position exit та typed recurring-needs verticals. Повний release pipeline run #40 успішний для Windows/macOS/Android/iOS/START. A/B/C comparison інтегровано після v0.8.8 через PR #58; наступний продуктовий крок — generated Planner copy / preset labels localization + UX regression.
 
 ## Ритм інтеграції та тестових checkpoint
 
@@ -64,7 +64,7 @@
 - [x] Tax assumptions → official effective-date verification → calculation/UI — PR #45, final run #145.
 - [x] FX assumptions → explicit comparison calculation/UI — PR #48, final run #152.
 - [x] Exit assumptions → per-position multi-ISIN cashflow/profit/UI — PR #51, final run #161.
-- [ ] Порівняння альтернативних сценаріїв A/B/C.
+- [x] Порівняння альтернативних сценаріїв A/B/C — PR #58, final run #183; 2–3 scenarios, strict comparability, no automatic winner, recurring needs supported.
 - [x] Домен продажу до погашення як окремого припущення з BID/ручною ціною.
 - [x] Домен FX з явним курсом, датою та джерелом.
 - [x] Типи потреб: разова + регулярна з typed persistence/cashflow/UI — PR #54, final run #168.

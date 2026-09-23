@@ -25,35 +25,40 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
-Мета: **A/B/C scenario comparison → current-main port → strict comparability → explanatory metrics → regression coverage → 7-language UI**.
+Мета: **A/B/C scenario comparison → strict comparability → explanatory metrics → recurring-needs support → 7-language UI → regression coverage**.
 
-- published checkpoint: **v0.8.8 / 0.8.8+16**;
-- baseline `main`: `0602405ab9c1d0735fcb7e60bced447494d10d4f`;
-- active branch: `feat/planner-abc-comparison-v2`;
-- active PR: **#58** `Planner: strict A/B/C scenario comparison v2`;
-- verified code head: `80f07d7fc1cf23708972596b504efffe0b6aca15`;
-- verify: **Flutter checks and START run #182 — success, 108/108 tests**;
-- old draft PR **#53** was diverged (9 commits ahead / 3 behind at audit), is closed without merge and is **not** a code source;
-- useful comparison logic from #53 is being ported selectively onto current main;
-- current recurring-needs model from PR #54 must be preserved;
-- comparison remains neutral: no automatic best/worst/winner.
+- PR: **#58** `Planner: strict A/B/C scenario comparison v2`;
+- final head: `66b4382d27b5d0da30df746181cda6ea9283681c`;
+- final latest-head verify: **Flutter checks and START run #183 — success**;
+- regression result: **108/108 tests passed**;
+- squash merge у `main`: `25123ceb049534c67b9d284ee0f79e5cc8694e28`;
+- old draft PR #53: **closed without merge**;
+- completed:
+  - neutral A/B/C labels follow user selection order;
+  - exactly 2–3 saved scenarios;
+  - no automatic winner/best/worst;
+  - strict baseline comparability;
+  - explanatory strategy/composition/price/fee/tax/FX/exit/profit/coverage metrics;
+  - typed recurring needs supported when schedules match;
+  - reserve-floor needs fail closed explicitly;
+  - stale comparison errors clear after recovery;
+  - phone widget flow and all seven interface languages covered.
 
 ### Поточна наступна дія
 
-**VERIFIED — A/B/C comparison is ready for final docs-only-head verify and integration.**
+**NEXT — generated Planner copy / preset labels localization + UX regression.**
 
-1. port pure comparison evaluator and Collections selection/UI;
-2. update comparison need handling for current typed recurring-needs model;
-3. preserve selection order as neutral A/B/C labels;
-4. hard comparability: same currency, budget, reserve, start/horizon, settlement delay and economic needs;
-5. explanatory differences may include strategy, composition, price, fees, tax, FX and per-position exits;
-6. add dedicated domain/Cubit/widget/localization tests;
-7. stale comparison errors must clear when selection becomes valid or drops below two scenarios;
-8. code head `80f07d7f…` passed run #182 with 108/108 tests;
-9. old PR #53 closed as superseded by PR #58;
-10. run final verify on this WORKLOG-only head → mark PR #58 ready → squash merge.
+Audit-first:
+1. find every generated Planner string, strategy/preset label and user-facing fallback that still bypasses `HubStrings`;
+2. separate persisted stable identifiers from display labels — never localize stored enum/ID values;
+3. localize generated copy for UK/EN/FR/DE/ES/KO/JA;
+4. verify saved scenarios remain language-neutral and reopen correctly after language switching;
+5. review Planner → save → Collections → A/B/C → reopen flow on narrow and desktop layouts;
+6. add regression tests for generated copy, preset labels, language switch and overflow/scroll behavior;
+7. green latest-head verify → integrate PR into `main`;
+8. then assess formal 0.9.0 prerelease readiness.
 
 ## Черга робіт
 
@@ -62,10 +67,10 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
 4. **DONE** — FX assumptions calculation/UI.
 5. **DONE** — exit assumptions redesign/wiring for multi-position scenarios.
-6. **DOING** — A/B/C comparison on fresh current-main branch; old PR #53 superseded after replacement PR opens.
+6. **DONE** — A/B/C comparison — PR #58, final run #183, merge `25123ceb…`.
 7. **DONE** — Planner needs/future-expenses block requested by owner.
 8. **DONE** — full test checkpoint v0.8.8 from current main.
-9. **TODO** — generated planner copy / preset labels localization + UX regression.
+9. **NEXT** — generated planner copy / preset labels localization + UX regression.
 10. **TODO** — оцінка готовності formal prerelease 0.9.0.
 
 ## Продуктова логіка цієї черги
@@ -93,6 +98,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — strict neutral A/B/C comparison**: PR #58 squash-merged у `main` як `25123ceb049534c67b9d284ee0f79e5cc8694e28`; final run #183 success, 108/108 tests. Порівнюються 2–3 saved scenarios з однаковими baseline assumptions; recurring needs supported, reserve-floor fail closed, no automatic winner; UK/EN/FR/DE/ES/KO/JA UI + domain/Cubit/widget regressions green. Старий PR #53 закрито без merge.
+
 
 - **DONE — v0.8.8 full cross-platform checkpoint**: PR #56 squash-merged у `main` як `acacf53b903e876e7bacae45ebc6f895e799cd75`; `Publish native prerelease` run #40 success. Опубліковано Windows/macOS/Android/iOS/START + SHA256SUMS + legal notices під tag `v0.8.8`; release description містить UK/EN/FR/DE/ES/KO/JA.
 
