@@ -142,6 +142,12 @@ class CollectionsCubit extends Cubit<CollectionsState> {
 
   bool isSelectedForComparison(SavedSet set) =>
       state.selectedComparisonKeys.contains(_comparisonKey(set));
+
+  String? comparisonLabelFor(SavedSet set) {
+    final index = state.selectedComparisonKeys.indexOf(_comparisonKey(set));
+    if (index < 0 || index > 2) return null;
+    return const ['A', 'B', 'C'][index];
+  }
   Future<void> reload() async {
     if (state.busy) return;
     emit(state.copyWith(busy: true, clearError: true));
