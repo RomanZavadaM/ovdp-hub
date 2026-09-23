@@ -131,6 +131,52 @@ void main() {
     }
   });
 
+  test('A/B/C comparison is localized in every supported language', () {
+    const keys = [
+      'comparisonTitle',
+      'comparisonSelectInfo',
+      'comparisonSelected',
+      'comparisonSelectOneMore',
+      'comparisonSelectScenario',
+      'comparisonVariant',
+      'comparisonNoWinner',
+      'comparisonSharedAssumptions',
+      'comparisonMetric',
+      'comparisonScenarioName',
+      'comparisonStrategy',
+      'comparisonComposition',
+      'comparisonPurchaseFee',
+      'comparisonTax',
+      'comparisonProfit',
+      'comparisonCoverageShortfall',
+      'comparisonFx',
+      'comparisonClear',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+      for (final code in [
+        'planner.comparison_max_three',
+        'planner.comparison_two_or_three',
+        'planner.comparison_assumptions_mismatch',
+        'planner.comparison_group_mismatch',
+        'planner.comparison_need_model_unsupported',
+      ]) {
+        expect(
+          strings.error(AppError(code)),
+          isNot(code),
+          reason: '${language.code} must localize $code',
+        );
+      }
+    }
+  });
+
   test('Planner needs block is localized in every supported language', () {
     const keys = [
       'futureExpenses',
