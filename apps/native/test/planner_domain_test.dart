@@ -176,6 +176,144 @@ void main() {
     expect(decoded.exit.price!.side, PriceSide.bid);
   });
 
+  test('per-position exits round-trip additively with safe legacy hold field', () {
+    final bond = sampleBond();
+    final buy = PriceObservation(
+      isin: bond.isin,
+      currency: 'UAH',
+      kind: PriceValueKind.fullPrice,
+      side: PriceSide.manual,
+      price: Decimal.parse('980'),
+      meta: manualMeta(),
+    );
+    final sell = PriceObservation(
+      isin: bond.isin,
+      currency: 'UAH',
+      kind: PriceValueKind.fullPrice,
+      side: PriceSide.manual,
+      price: Decimal.parse('995'),
+      meta: manualMeta(),
+    );
+    final scenario = PlannerScenario(
+      id: 'scenario-exit',
+      name: 'Exit',
+      currency: 'UAH',
+      budget: Decimal.parse('100000'),
+      reserve: Decimal.parse('10000'),
+      startDate: '2026-09-22',
+      minMaturity: '2026-09-23',
+      maxMaturity: '2028-09-22',
+      strategy: PlannerStrategy.ladder,
+      needs: [
+        PlannerNeed(
+          id: 'need-1',
+          name: 'Потреба',
+          type: PlannerNeedType.oneOff,
+          date: '2027-06-01',
+          amount: Decimal.parse('1000'),
+        ),
+      ],
+      positions: [
+        PlannerPositionDraft(isin: bond.isin, quantity: 2, price: buy),
+      ],
+      settlementDelayDays: 2,
+      pricedOnly: false,
+      fees: FeeAssumptions.unknown(),
+      taxes: TaxScenario.unknown(),
+      positionExits: [
+        PositionExitAssumption(
+          isin: bond.isin,
+          date: '2027-05-01',
+          price: sell,
+        ),
+      ],
+    );
+
+    final json = scenario.toJson();
+    expect((json['exit'] as Map)['mode'], 'holdToMaturity');
+    expect(json['positionExits'], isA<List>());
+    final decoded = PlannerScenario.fromJson(
+      jsonDecode(jsonEncode(json)) as Map<String, dynamic>,
+    );
+    expect(decoded.positionExits, hasLength(1));
+    expect(decoded.effectivePositionExits.single.isin, bond.isin);
+    expect(decoded.effectivePositionExits.single.price.price.toString(), '995');
+  });
+
+  test('legacy global early sale fails closed for multi-position scenario', () {
+    final first = sampleBond();
+    final second = Bond({
+      'isin': 'UA4000236541',
+      'currency': 'UAH',
+      'nominal': '1000',
+      'nominalRate': '12',
+      'issueDate': '2026-01-01',
+      'maturityDate': '2028-09-22',
+      'payments': [
+        {'date': '2028-09-22', 'kind': 'REDEMPTION', 'amount': '1000'},
+      ],
+    });
+    PriceObservation buy(Bond bond) => PriceObservation(
+      isin: bond.isin,
+      currency: 'UAH',
+      kind: PriceValueKind.fullPrice,
+      side: PriceSide.manual,
+      price: Decimal.parse('980'),
+      meta: manualMeta(),
+    );
+    final firstBuy = buy(first);
+    final secondBuy = buy(second);
+    final sell = PriceObservation(
+      isin: first.isin,
+      currency: 'UAH',
+      kind: PriceValueKind.fullPrice,
+      side: PriceSide.bid,
+      price: Decimal.parse('990'),
+      meta: manualMeta(),
+    );
+
+    expect(
+      () => PlannerScenario(
+        id: 'legacy-ambiguous',
+        name: 'Legacy',
+        currency: 'UAH',
+        budget: Decimal.parse('100000'),
+        reserve: Decimal.parse('10000'),
+        startDate: '2026-09-22',
+        minMaturity: '2026-09-23',
+        maxMaturity: '2029-09-22',
+        strategy: PlannerStrategy.ladder,
+        needs: [
+          PlannerNeed(
+            id: 'need-1',
+            name: 'Потреба',
+            type: PlannerNeedType.oneOff,
+            date: '2027-06-01',
+            amount: Decimal.parse('1000'),
+          ),
+        ],
+        positions: [
+          PlannerPositionDraft(
+            isin: first.isin,
+            quantity: 1,
+            price: firstBuy,
+          ),
+          PlannerPositionDraft(
+            isin: second.isin,
+            quantity: 1,
+            price: secondBuy,
+          ),
+        ],
+        settlementDelayDays: 2,
+        pricedOnly: false,
+        fees: FeeAssumptions.unknown(),
+        taxes: TaxScenario.unknown(),
+        exit: ExitAssumption.earlySale('2027-05-01', sell),
+      ),
+      throwsFormatException,
+    );
+  });
+
   test('unknown fees are distinct from confirmed zero fees', () {
     final unknown = FeeAssumptions.unknown();
     final zero = FeeAssumptions.confirmed([]);
