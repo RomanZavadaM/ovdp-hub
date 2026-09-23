@@ -499,20 +499,172 @@ class PlannerCubit extends Cubit<PlannerState> {
     if (state.busy || state.locked) return;
     final old = state.inputs[isin];
     if (old == null) return;
+    try {
+      var priority = state.priceSourcePriority;
+      var updated = old.copyWith(quantity: quantity);
+      Map<String, String>? criteria;
+      if (price != null) {
+        final manual = PriceObservation.manualFullPrice(
+          bond: old.bond,
+          sourceId: 'manual-price',
+          unitCost: money(price),
+          observedAt: clock().toUtc().toIso8601String(),
+        );
+        final observations = [
+          ...old.observations.where((o) => o.meta.sourceId != 'manual-price'),
+          manual,
+        ];
+        priority = PriceSourcePriority([
+          'manual-price',
+          ...priority.sourceIds.where((id) => id != 'manual-price'),
+        ]);
+        updated = old.copyWith(
+          price: price,
+          nominalEstimate: false,
+          observations: observations,
+          selectedSourceId: 'manual-price',
+        );
+        criteria = {...state.criteria, 'unitPrice:$isin': price};
+      }
+      _recalculate(
+        state.copyWith(
+          criteria: criteria,
+          priceSourcePriority: priority,
+          inputs: {...state.inputs, isin: updated},
+          saved: false,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
+  void addManualPriceSource(String isin, String label, String price) {
+    if (state.busy || state.locked) return;
+    final old = state.inputs[isin];
+    if (old == null) return;
+    try {
+      final cleanLabel = label.trim();
+      if (cleanLabel.isEmpty) {
+        throw const FormatException('planner.price_source_name_required');
+      }
+      final sourceId = 'user:$cleanLabel';
+      final observation = PriceObservation.manualFullPrice(
+        bond: old.bond,
+        sourceId: sourceId,
+        unitCost: money(price),
+        observedAt: clock().toUtc().toIso8601String(),
+      );
+      final observations = [
+        ...old.observations.where((o) => o.meta.sourceId != sourceId),
+        observation,
+      ];
+      final priority = state.priceSourcePriority.sourceIds.contains(sourceId)
+          ? state.priceSourcePriority
+          : PriceSourcePriority([
+              ...state.priceSourcePriority.sourceIds,
+              sourceId,
+            ]);
+      final updated = old.copyWith(observations: observations);
+      final inputs = _applyPriority(
+        priority,
+        {...state.inputs, isin: updated},
+        activateIsin: isin,
+      );
+      _recalculate(
+        state.copyWith(
+          priceSourcePriority: priority,
+          inputs: inputs,
+          saved: false,
+          revision: state.revision + 1,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
+  void selectPriceSource(String isin, String sourceId) {
+    if (state.busy || state.locked) return;
+    try {
+      final priority = _withSourceFirst(sourceId);
+      final inputs = _applyPriority(
+        priority,
+        state.inputs,
+        activateIsin: isin,
+      );
+      _recalculate(
+        state.copyWith(
+          priceSourcePriority: priority,
+          inputs: inputs,
+          saved: false,
+          revision: state.revision + 1,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
+  void movePriceSource(String sourceId, int delta) {
+    if (state.busy || state.locked || delta == 0) return;
+    final ids = state.priceSourcePriority.sourceIds.toList();
+    final index = ids.indexOf(sourceId);
+    final target = index + delta;
+    if (index < 0 || target < 0 || target >= ids.length) return;
+    final moved = ids.removeAt(index);
+    ids.insert(target, moved);
+    try {
+      final priority = PriceSourcePriority(ids);
+      final inputs = _applyPriority(priority, state.inputs);
+      _recalculate(
+        state.copyWith(
+          priceSourcePriority: priority,
+          inputs: inputs,
+          saved: false,
+          revision: state.revision + 1,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
+  void useNominalEstimate(String isin) {
+    if (state.busy || state.locked) return;
+    final old = state.inputs[isin];
+    if (old == null) return;
+    PriceObservation? nominal;
+    for (final observation in old.observations) {
+      if (observation.kind == PriceValueKind.nominalEstimate) {
+        nominal = observation;
+        break;
+      }
+    }
+    nominal ??= PriceObservation.legacy(
+      bond: old.bond,
+      unitCost: money(old.bond.json['nominal'].toString()),
+      nominalEstimate: true,
+      observedAt: clock().toUtc().toIso8601String(),
+    );
+    final observations = old.observations.any(
+      (o) => o.kind == PriceValueKind.nominalEstimate,
+    )
+        ? old.observations
+        : [...old.observations, nominal];
     _recalculate(
       state.copyWith(
-        criteria: price == null
-            ? null
-            : {...state.criteria, 'unitPrice:$isin': price},
         inputs: {
           ...state.inputs,
           isin: old.copyWith(
-            quantity: quantity,
-            price: price,
-            nominalEstimate: price == null ? null : false,
+            price: nominal.effectiveUnitCost!.toString(),
+            nominalEstimate: true,
+            observations: observations,
+            clearSelectedSource: true,
           ),
         },
         saved: false,
+        revision: state.revision + 1,
       ),
     );
   }
