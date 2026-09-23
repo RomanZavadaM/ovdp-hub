@@ -89,7 +89,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - проміжно після user-visible integration можна тестувати START artifact з актуального `main`;
 - регулярно, орієнтовно після 2–3 user-visible integrated slices, робити повне **«злиття у `main`»** з релізами всіх систем;
 - робити такий checkpoint раніше після ризикової зміни parser/calculation/schema або одразу за прямою командою власника;
-- поточний опублікований v0.8.6 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
+- поточний опублікований v0.8.7 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
 
