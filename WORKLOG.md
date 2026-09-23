@@ -21,25 +21,23 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 **0.9.0 «Ринок»**.
 
-Поточний опублікований checkpoint: **v0.8.5 / 0.8.5+13**. Release candidate: **v0.8.6 / 0.8.6+14**.
+Поточний опублікований checkpoint: **v0.8.6 / 0.8.6+14**.
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **NEXT**
 
-Мета: **повний prerelease checkpoint v0.8.6 / 0.8.6+14** за командою власника «зливай в main».
+Мета: **multiple `PriceObservation` + explicit user source priority**.
 
-- base `main`: `92ff3d3582b4b806a83d50cec74be6b96de99c1d`
-- release branch: `release/v0.8.6`
-- target tag: `v0.8.6`
-- включено: freshness/status UX у картці ISIN
-- не включено: multiple `PriceObservation` + explicit user source priority
-- обов'язкові outputs: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
-- після publication: перевірити assets, зафіксувати release SHA/run, оновити README / PROJECT_STATE / START_HERE / WORKLOG
+- release baseline `main`: `7b19670a2ff621a65685db714022d8819ecff7d4`
+- опублікований checkpoint: **v0.8.6 / 0.8.6+14**
+- release workflow: **Publish native prerelease run #34 — success**
+- перевірені assets: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
+- наступний functional slice стартує поверх підтвердженого v0.8.6 baseline
 
 ### Поточна наступна дія
 
-Відкрити release PR, пройти green checks, merge у `main`, дочекатися повного `Publish native prerelease` і перевірити опублікований `v0.8.6`. Після цього продовжити slice **multiple `PriceObservation` + explicit user source priority**.
+Перевірити поточну модель `PriceObservation` і planner price selection, після чого реалізувати **кілька observations на ISIN** з явним вибором/пріоритетом джерела користувачем. Заборонити будь-який неявний fallback, який перетворює yield-only або nominal estimate на вибрану ринкову ціну.
 
 ## Черга робіт
 
@@ -71,9 +69,11 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - проміжно після user-visible integration можна тестувати START artifact з актуального `main`;
 - регулярно, орієнтовно після 2–3 user-visible integrated slices, робити повне **«злиття у `main`»** з релізами всіх систем;
 - робити такий checkpoint раніше після ризикової зміни parser/calculation/schema або одразу за прямою командою власника;
-- поточний опублікований v0.8.5 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
+- поточний опублікований v0.8.6 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — v0.8.6 full cross-platform checkpoint**: PR #37 squash-merged у `main` як `7b19670a2ff621a65685db714022d8819ecff7d4`; `Publish native prerelease` run #34 success; опубліковано Windows/macOS/Android/iOS/START + SHA256SUMS + legal notices під tag `v0.8.6`.
 
 - **DONE — ISIN freshness/status UX**: PR #35 squash-merged у `main` як `e4f6d1cfe0544a28cc1afff81084e5dd898910ba`; final run #104 success. Official NBU/MinFin observations відокремлено від seller indicative quotes; для трьох шарів уніфіковано sourceDate/retrievedAt/freshness/status/evidence UI та 7 мов.
 
