@@ -60,6 +60,30 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  test('price source controls are localized in every supported language', () {
+    const keys = [
+      'addPriceSource',
+      'priceSourceName',
+      'priceSourceFullPrice',
+      'priceSourcePriorityTitle',
+      'priceSourcePriorityInfo',
+      'moveSourceUp',
+      'moveSourceDown',
+      'selectedPriceSource',
+      'useNominalEstimate',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+    }
+  });
+
   testWidgets('typed error follows the selected UI language', (tester) async {
     final locale = LocaleCubit()..select(AppLanguage.en);
     await tester.pumpWidget(

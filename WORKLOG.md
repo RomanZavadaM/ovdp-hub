@@ -25,19 +25,45 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **NEXT**
+Статус: **VERIFIED**
 
 Мета: **multiple `PriceObservation` + explicit user source priority**.
 
-- release baseline `main`: `7b19670a2ff621a65685db714022d8819ecff7d4`
+- release baseline `main`: `2030dcfe01304dcd11e443c886ae9d2bc6f6c165`
+- active branch: `feat/price-observation-source-priority`
 - опублікований checkpoint: **v0.8.6 / 0.8.6+14**
-- release workflow: **Publish native prerelease run #34 — success**
-- перевірені assets: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
-- наступний functional slice стартує поверх підтвердженого v0.8.6 baseline
+- active draft PR: **#39** `Planner: multiple price observations with explicit source priority`
+- verified functional head: `b6bfe1e47870e7a9ff3faf319035ad164cb8495c`
+- final functional verify: **Flutter checks and START run #122 — success**
+- `flutter pub get --enforce-lockfile` — success
+- `flutter analyze` — success
+- `flutter test` — success
+- implemented and verified:
+  - additive schema-3 `priceObservations` + `priceSourcePriority`;
+  - legacy selected `price` retained for older readers;
+  - resolver accepts only explicit purchase prices (full/clean ASK/manual);
+  - yield-only and nominal estimate are excluded from market-price candidates;
+  - duplicate eligible observations from one source fail closed;
+  - PlannerCubit load/save preserves observations and source priority;
+  - planner UI supports add/select/reorder source controls and explicit nominal fallback;
+  - combined quantity + manual-price edit regression fixed: the already quantity-updated input is no longer overwritten from stale state;
+  - price-source dialog no longer disposes controllers during route-exit animation;
+  - 9 price-source UI keys localized in UK/EN/FR/DE/ES/KO/JA;
+  - deterministic domain, cubit/persistence, localization and widget-flow tests added and passing.
+- CI history:
+  - run #112 — analyzer failure;
+  - run #113/#114 — one planner regression;
+  - run #115 — diagnostic confirmed `planner.reserve_spent` came from stale quantity `45`;
+  - run #121 — domain/cubit/localization tests green, widget test exposed disposed-controller UI race;
+  - run #122 — **success** after UI race fix.
 
 ### Поточна наступна дія
 
-Перевірити поточну модель `PriceObservation` і planner price selection, після чого реалізувати **кілька observations на ISIN** з явним вибором/пріоритетом джерела користувачем. Заборонити будь-який неявний fallback, який перетворює yield-only або nominal estimate на вибрану ринкову ціну.
+Перевести PR **#39** з draft у **ready**, дочекатися green checks на фінальному WORKLOG head і **інтегрувати PR у `main`** squash merge.
+
+Після merge синхронізувати `PROJECT_STATE.md`, `WORKLOG.md`, roadmap та Issue #18. Єдиний наступний functional slice після синхронізації: **typed fee/tax/FX/exit assumptions → calculations + UI**.
+
+Hard invariant: yield-only або nominal estimate **ніколи** не можуть автоматично стати вибраною ринковою ціною.
 
 ## Черга робіт
 

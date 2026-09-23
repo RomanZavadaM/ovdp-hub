@@ -14,34 +14,111 @@ class PositionInput {
   final Bond bond;
   final String quantity, price;
   final bool nominalEstimate;
-  const PositionInput(
+  final List<PriceObservation> observations;
+  final String? selectedSourceId;
+
+  PositionInput(
     this.bond,
     this.quantity,
     this.price, {
     this.nominalEstimate = true,
-  });
+    Iterable<PriceObservation> observations = const [],
+    this.selectedSourceId,
+  }) : observations = List.unmodifiable(observations) {
+    if (this.observations.any(
+      (o) => o.isin != bond.isin || o.currency != bond.currency,
+    )) {
+      throw const FormatException('planner.invalid_price_observation');
+    }
+  }
+
   PositionInput copyWith({
     String? quantity,
     String? price,
     bool? nominalEstimate,
+    Iterable<PriceObservation>? observations,
+    String? selectedSourceId,
+    bool clearSelectedSource = false,
   }) => PositionInput(
     bond,
     quantity ?? this.quantity,
     price ?? this.price,
     nominalEstimate: nominalEstimate ?? this.nominalEstimate,
+    observations: observations ?? this.observations,
+    selectedSourceId: clearSelectedSource
+        ? null
+        : selectedSourceId ?? this.selectedSourceId,
   );
+
   PlanPosition parse() => PlanPosition(
     bond,
     int.parse(quantity),
     money(price),
     nominalEstimate: nominalEstimate,
   );
+
+  PriceObservation? selectedObservation() {
+    if (nominalEstimate) {
+      for (final observation in observations) {
+        if (observation.kind == PriceValueKind.nominalEstimate) {
+          return observation;
+        }
+      }
+      return null;
+    }
+    if (selectedSourceId == null) return null;
+    final matches = observations
+        .where(
+          (o) =>
+              o.meta.sourceId == selectedSourceId &&
+              o.isExplicitPurchasePrice &&
+              o.effectiveUnitCost == money(price),
+        )
+        .toList(growable: false);
+    if (matches.length > 1) {
+      throw const FormatException('planner.ambiguous_price_source');
+    }
+    return matches.isEmpty ? null : matches.single;
+  }
+
+  PlannerPositionDraft toDraft({required String observedAt}) {
+    var selected = selectedObservation();
+    final all = observations.toList(growable: true);
+    if (selected == null) {
+      selected = PriceObservation.legacy(
+        bond: bond,
+        unitCost: money(price),
+        nominalEstimate: nominalEstimate,
+        observedAt: observedAt,
+      );
+      all.insert(0, selected);
+    }
+    return PlannerPositionDraft(
+      isin: bond.isin,
+      quantity: int.parse(quantity),
+      price: selected,
+      priceObservations: all,
+    );
+  }
+
+  factory PositionInput.fromDraft(Bond bond, PlannerPositionDraft draft) =>
+      PositionInput(
+        bond,
+        draft.quantity.toString(),
+        draft.unitCost.toString(),
+        nominalEstimate: draft.price.kind == PriceValueKind.nominalEstimate,
+        observations: draft.priceObservations,
+        selectedSourceId: draft.price.kind == PriceValueKind.nominalEstimate
+            ? null
+            : draft.price.meta.sourceId,
+      );
 }
 
 @immutable
 class PlannerState {
   final Map<String, String> criteria;
   final Map<String, PositionInput> inputs;
+  final PriceSourcePriority priceSourcePriority;
   final List<Bond> candidates;
   final PlanSummary? summary;
   final List<ExpenseBalance> expenseBalances;
@@ -52,6 +129,7 @@ class PlannerState {
   PlannerState({
     required Map<String, String> criteria,
     Map<String, PositionInput> inputs = const {},
+    PriceSourcePriority? priceSourcePriority,
     Iterable<Bond> candidates = const [],
     this.summary,
     Iterable<ExpenseBalance> expenseBalances = const [],
@@ -65,11 +143,13 @@ class PlannerState {
   }) : expenseBalances = List.unmodifiable(expenseBalances),
        criteria = Map.unmodifiable(criteria),
        inputs = Map.unmodifiable(inputs),
+       priceSourcePriority = priceSourcePriority ?? PriceSourcePriority.none(),
        candidates = List.unmodifiable(candidates);
   bool get dirty => (changed || inputs.isNotEmpty) && !saved;
   PlannerState copyWith({
     Map<String, String>? criteria,
     Map<String, PositionInput>? inputs,
+    PriceSourcePriority? priceSourcePriority,
     Iterable<Bond>? candidates,
     PlanSummary? summary,
     Iterable<ExpenseBalance>? expenseBalances,
@@ -84,6 +164,7 @@ class PlannerState {
   }) => PlannerState(
     criteria: criteria ?? this.criteria,
     inputs: inputs ?? this.inputs,
+    priceSourcePriority: priceSourcePriority ?? this.priceSourcePriority,
     candidates: candidates ?? this.candidates,
     summary: clearSummary ? null : summary ?? this.summary,
     expenseBalances: clearSummary
@@ -128,6 +209,72 @@ class PlannerCubit extends Cubit<PlannerState> {
     _subscription = repository.changes.listen((_) => _recalculate(state));
     _recalculate(state);
   }
+
+  PositionInput _legacyInput(
+    Bond bond,
+    int quantity,
+    String price, {
+    required bool nominalEstimate,
+    Iterable<PriceObservation>? observations,
+    String? selectedSourceId,
+  }) {
+    final existing = observations?.toList(growable: true) ?? <PriceObservation>[];
+    if (existing.isEmpty) {
+      existing.add(
+        PriceObservation.legacy(
+          bond: bond,
+          unitCost: money(price),
+          nominalEstimate: nominalEstimate,
+          observedAt: clock().toUtc().toIso8601String(),
+        ),
+      );
+    }
+    return PositionInput(
+      bond,
+      quantity.toString(),
+      price,
+      nominalEstimate: nominalEstimate,
+      observations: existing,
+      selectedSourceId:
+          nominalEstimate ? null : selectedSourceId ?? existing.first.meta.sourceId,
+    );
+  }
+
+  PriceSourcePriority _withSourceFirst(String sourceId) => PriceSourcePriority([
+    sourceId,
+    ...state.priceSourcePriority.sourceIds.where((id) => id != sourceId),
+  ]);
+
+  Map<String, PositionInput> _applyPriority(
+    PriceSourcePriority priority,
+    Map<String, PositionInput> inputs, {
+    String? activateIsin,
+  }) {
+    final result = <String, PositionInput>{};
+    for (final entry in inputs.entries) {
+      var input = entry.value;
+      final shouldUseMarket =
+          !input.nominalEstimate || entry.key == activateIsin;
+      if (shouldUseMarket && !priority.isEmpty) {
+        final selected = priority.resolvePurchase(
+          input.bond.isin,
+          input.observations,
+        );
+        if (selected != null) {
+          input = input.copyWith(
+            price: selected.effectiveUnitCost!.toString(),
+            nominalEstimate: false,
+            selectedSourceId: selected.meta.sourceId,
+          );
+        } else if (entry.key == activateIsin) {
+          throw const FormatException('planner.no_price_for_priority');
+        }
+      }
+      result[entry.key] = input;
+    }
+    return result;
+  }
+
   void edit(String key, String value) {
     if (state.busy || state.locked) return;
     final resetPositions = [
@@ -250,12 +397,19 @@ class PlannerCubit extends Cubit<PlannerState> {
         state.copyWith(
           inputs: {
             for (final p in positions)
-              p.bond.isin: PositionInput(
-                p.bond,
-                p.quantity.toString(),
-                p.unitCost.toString(),
-                nominalEstimate: p.nominalEstimate,
-              ),
+              p.bond.isin: state.inputs[p.bond.isin] == null
+                  ? _legacyInput(
+                      p.bond,
+                      p.quantity,
+                      p.unitCost.toString(),
+                      nominalEstimate: p.nominalEstimate,
+                    )
+                  : state.inputs[p.bond.isin]!.copyWith(
+                      quantity: p.quantity.toString(),
+                      price: p.unitCost.toString(),
+                      nominalEstimate: p.nominalEstimate,
+                      clearSelectedSource: p.nominalEstimate,
+                    ),
           },
           saved: false,
           revision: state.revision + 1,
@@ -335,12 +489,12 @@ class PlannerCubit extends Cubit<PlannerState> {
     if (state.busy || state.locked) return;
     final inputs = {...state.inputs};
     if (selected) {
-      inputs[bond.isin] = PositionInput(
+      final explicit = state.criteria['unitPrice:${bond.isin}'];
+      inputs[bond.isin] = _legacyInput(
         bond,
-        '1',
-        state.criteria['unitPrice:${bond.isin}'] ??
-            bond.json['nominal'].toString(),
-        nominalEstimate: !state.criteria.containsKey('unitPrice:${bond.isin}'),
+        1,
+        explicit ?? bond.json['nominal'].toString(),
+        nominalEstimate: explicit == null,
       );
     } else {
       inputs.remove(bond.isin);
@@ -352,20 +506,172 @@ class PlannerCubit extends Cubit<PlannerState> {
     if (state.busy || state.locked) return;
     final old = state.inputs[isin];
     if (old == null) return;
+    try {
+      var priority = state.priceSourcePriority;
+      var updated = old.copyWith(quantity: quantity);
+      Map<String, String>? criteria;
+      if (price != null) {
+        final manual = PriceObservation.manualFullPrice(
+          bond: old.bond,
+          sourceId: 'manual-price',
+          unitCost: money(price),
+          observedAt: clock().toUtc().toIso8601String(),
+        );
+        final observations = [
+          ...old.observations.where((o) => o.meta.sourceId != 'manual-price'),
+          manual,
+        ];
+        priority = PriceSourcePriority([
+          'manual-price',
+          ...priority.sourceIds.where((id) => id != 'manual-price'),
+        ]);
+        updated = updated.copyWith(
+          price: price,
+          nominalEstimate: false,
+          observations: observations,
+          selectedSourceId: 'manual-price',
+        );
+        criteria = {...state.criteria, 'unitPrice:$isin': price};
+      }
+      _recalculate(
+        state.copyWith(
+          criteria: criteria,
+          priceSourcePriority: priority,
+          inputs: {...state.inputs, isin: updated},
+          saved: false,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
+  void addManualPriceSource(String isin, String label, String price) {
+    if (state.busy || state.locked) return;
+    final old = state.inputs[isin];
+    if (old == null) return;
+    try {
+      final cleanLabel = label.trim();
+      if (cleanLabel.isEmpty) {
+        throw const FormatException('planner.price_source_name_required');
+      }
+      final sourceId = 'user:$cleanLabel';
+      final observation = PriceObservation.manualFullPrice(
+        bond: old.bond,
+        sourceId: sourceId,
+        unitCost: money(price),
+        observedAt: clock().toUtc().toIso8601String(),
+      );
+      final observations = [
+        ...old.observations.where((o) => o.meta.sourceId != sourceId),
+        observation,
+      ];
+      final priority = state.priceSourcePriority.sourceIds.contains(sourceId)
+          ? state.priceSourcePriority
+          : PriceSourcePriority([
+              ...state.priceSourcePriority.sourceIds,
+              sourceId,
+            ]);
+      final updated = old.copyWith(observations: observations);
+      final inputs = _applyPriority(
+        priority,
+        {...state.inputs, isin: updated},
+        activateIsin: isin,
+      );
+      _recalculate(
+        state.copyWith(
+          priceSourcePriority: priority,
+          inputs: inputs,
+          saved: false,
+          revision: state.revision + 1,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
+  void selectPriceSource(String isin, String sourceId) {
+    if (state.busy || state.locked) return;
+    try {
+      final priority = _withSourceFirst(sourceId);
+      final inputs = _applyPriority(
+        priority,
+        state.inputs,
+        activateIsin: isin,
+      );
+      _recalculate(
+        state.copyWith(
+          priceSourcePriority: priority,
+          inputs: inputs,
+          saved: false,
+          revision: state.revision + 1,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
+  void movePriceSource(String sourceId, int delta) {
+    if (state.busy || state.locked || delta == 0) return;
+    final ids = state.priceSourcePriority.sourceIds.toList();
+    final index = ids.indexOf(sourceId);
+    final target = index + delta;
+    if (index < 0 || target < 0 || target >= ids.length) return;
+    final moved = ids.removeAt(index);
+    ids.insert(target, moved);
+    try {
+      final priority = PriceSourcePriority(ids);
+      final inputs = _applyPriority(priority, state.inputs);
+      _recalculate(
+        state.copyWith(
+          priceSourcePriority: priority,
+          inputs: inputs,
+          saved: false,
+          revision: state.revision + 1,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
+  void useNominalEstimate(String isin) {
+    if (state.busy || state.locked) return;
+    final old = state.inputs[isin];
+    if (old == null) return;
+    PriceObservation? nominal;
+    for (final observation in old.observations) {
+      if (observation.kind == PriceValueKind.nominalEstimate) {
+        nominal = observation;
+        break;
+      }
+    }
+    nominal ??= PriceObservation.legacy(
+      bond: old.bond,
+      unitCost: money(old.bond.json['nominal'].toString()),
+      nominalEstimate: true,
+      observedAt: clock().toUtc().toIso8601String(),
+    );
+    final observations = old.observations.any(
+      (o) => o.kind == PriceValueKind.nominalEstimate,
+    )
+        ? old.observations
+        : [...old.observations, nominal];
     _recalculate(
       state.copyWith(
-        criteria: price == null
-            ? null
-            : {...state.criteria, 'unitPrice:$isin': price},
         inputs: {
           ...state.inputs,
           isin: old.copyWith(
-            quantity: quantity,
-            price: price,
-            nominalEstimate: price == null ? null : false,
+            price: nominal.effectiveUnitCost!.toString(),
+            nominalEstimate: true,
+            observations: observations,
+            clearSelectedSource: true,
           ),
         },
         saved: false,
+        revision: state.revision + 1,
       ),
     );
   }
@@ -396,19 +702,13 @@ class PlannerCubit extends Cubit<PlannerState> {
       final inputs = <String, PositionInput>{};
       for (final position in scenario.positions) {
         final bond = saved.bonds.firstWhere((b) => b.isin == position.isin);
-        final nominal =
-            position.price.kind == PriceValueKind.nominalEstimate;
-        inputs[bond.isin] = PositionInput(
-          bond,
-          position.quantity.toString(),
-          position.unitCost.toString(),
-          nominalEstimate: nominal,
-        );
+        inputs[bond.isin] = PositionInput.fromDraft(bond, position);
       }
       _recalculate(
         state.copyWith(
           criteria: criteria,
           inputs: inputs,
+          priceSourcePriority: scenario.priceSourcePriority,
           saved: true,
           revision: state.revision + 1,
         ),
@@ -438,10 +738,13 @@ class PlannerCubit extends Cubit<PlannerState> {
     emit(state.copyWith(busy: true, clearError: true));
     try {
       final savedAt = clock().toUtc().toIso8601String();
-      final scenario = PlannerScenario.fromCurrentUi(
+      final scenario = PlannerScenario.fromCurrentUiDrafts(
         criteria: draft.criteria,
-        positions: draft.inputs.values.map((i) => i.parse()),
+        positions: draft.inputs.values.map(
+          (i) => i.toDraft(observedAt: savedAt),
+        ),
         savedAt: savedAt,
+        priceSourcePriority: draft.priceSourcePriority,
       );
       await repository.saveCollection(
         SavedSet(

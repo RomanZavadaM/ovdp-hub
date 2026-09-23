@@ -7,6 +7,64 @@ import 'planner_cubit.dart';
 
 class PlannerView extends StatelessWidget {
   const PlannerView({super.key});
+
+  String _sourceLabel(HubStrings strings, String sourceId) {
+    if (sourceId == 'manual-price') return strings.text('manualPrice');
+    if (sourceId.startsWith('user:')) return sourceId.substring(5);
+    return sourceId;
+  }
+
+  Future<void> _addPriceSource(
+    BuildContext context,
+    PlannerCubit cubit,
+    PositionInput input,
+    HubStrings strings,
+  ) async {
+    var source = '';
+    var price = '';
+    final submitted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(strings.text('addPriceSource')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              onChanged: (value) => source = value,
+              decoration: InputDecoration(
+                labelText: strings.text('priceSourceName'),
+              ),
+            ),
+            TextField(
+              onChanged: (value) => price = value,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: strings.text('priceSourceFullPrice'),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(strings.text('close')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(strings.text('addPriceSource')),
+          ),
+        ],
+      ),
+    );
+    if (submitted == true && context.mounted) {
+      cubit.addManualPriceSource(
+        input.bond.isin,
+        source,
+        price,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PlannerCubit>(),
@@ -173,6 +231,63 @@ class PlannerView extends StatelessWidget {
         if (state.inputs.isNotEmpty) ...[
           SectionHeading(strings.text('scenarioComposition')),
           Text(strings.text('priceDefaultInfo')),
+          if (state.priceSourcePriority.sourceIds.isNotEmpty)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strings.text('priceSourcePriorityTitle'),
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    Text(strings.text('priceSourcePriorityInfo')),
+                    for (var sourceIndex = 0;
+                        sourceIndex < state.priceSourcePriority.sourceIds.length;
+                        sourceIndex++)
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 28,
+                            child: Text('${sourceIndex + 1}.'),
+                          ),
+                          Expanded(
+                            child: Text(
+                              _sourceLabel(
+                                strings,
+                                state.priceSourcePriority.sourceIds[sourceIndex],
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: strings.text('moveSourceUp'),
+                            onPressed: disabled || sourceIndex == 0
+                                ? null
+                                : () => cubit.movePriceSource(
+                                    state.priceSourcePriority.sourceIds[sourceIndex],
+                                    -1,
+                                  ),
+                            icon: const Icon(Icons.arrow_upward),
+                          ),
+                          IconButton(
+                            tooltip: strings.text('moveSourceDown'),
+                            onPressed: disabled ||
+                                    sourceIndex ==
+                                        state.priceSourcePriority.sourceIds.length - 1
+                                ? null
+                                : () => cubit.movePriceSource(
+                                    state.priceSourcePriority.sourceIds[sourceIndex],
+                                    1,
+                                  ),
+                            icon: const Icon(Icons.arrow_downward),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
           ...state.inputs.values.map(
             (i) => Card(
               child: Padding(
@@ -197,7 +312,65 @@ class PlannerView extends StatelessWidget {
                     Text(
                       i.nominalEstimate
                           ? strings.text('nominalEstimate')
-                          : strings.text('manualPrice'),
+                          : '${strings.text('selectedPriceSource')}: '
+                              '${_sourceLabel(strings, i.selectedSourceId ?? 'manual-price')}',
+                    ),
+                    if (i.observations.any((o) => o.isExplicitPurchasePrice))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (final observation
+                                in i.observations.where(
+                                  (o) => o.isExplicitPurchasePrice,
+                                ))
+                              ChoiceChip(
+                                label: Text(
+                                  '${_sourceLabel(strings, observation.meta.sourceId)} · '
+                                  '${observation.effectiveUnitCost} $currency',
+                                ),
+                                selected: !i.nominalEstimate &&
+                                    i.selectedSourceId ==
+                                        observation.meta.sourceId,
+                                onSelected: disabled
+                                    ? null
+                                    : (_) => cubit.selectPriceSource(
+                                        i.bond.isin,
+                                        observation.meta.sourceId,
+                                      ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: disabled
+                                ? null
+                                : () => cubit.useNominalEstimate(i.bond.isin),
+                            icon: const Icon(Icons.account_balance_outlined),
+                            label: Text(strings.text('useNominalEstimate')),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: disabled
+                                ? null
+                                : () => _addPriceSource(
+                                    context,
+                                    cubit,
+                                    i,
+                                    strings,
+                                  ),
+                            icon: const Icon(Icons.add_chart_outlined),
+                            label: Text(strings.text('addPriceSource')),
+                          ),
+                        ],
+                      ),
                     ),
                     Wrap(
                       spacing: 12,

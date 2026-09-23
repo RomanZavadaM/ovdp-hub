@@ -60,6 +60,83 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
+  testWidgets('planner price source controls are usable end to end', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final now = DateTime.now();
+    final maturity = DateTime(
+      now.year + 1,
+      now.month,
+      now.day,
+    ).toIso8601String().substring(0, 10);
+    final json = jsonDecode(jsonEncode(catalog.json)) as Map<String, dynamic>;
+    final asset = (json['assets'] as List).single as Map<String, dynamic>;
+    asset['maturityDate'] = maturity;
+    asset['currency'] = 'UAH';
+    asset['payments'] = [
+      {'date': maturity, 'kind': 'REDEMPTION', 'amount': '1000'},
+    ];
+
+    final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
+    await tester.pumpWidget(OvdpApp(repository: repository));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Планування'));
+    await tester.pumpAndSettle();
+
+    final generate = find.text('Розподілити за строками');
+    await tester.ensureVisible(generate);
+    await tester.tap(generate);
+    await tester.pumpAndSettle();
+
+    final addSource = find.widgetWithText(
+      OutlinedButton,
+      'Додати джерело ціни',
+    );
+    await tester.ensureVisible(addSource);
+    await tester.tap(addSource);
+    await tester.pumpAndSettle();
+
+    final dialogFields = find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.byType(TextField),
+    );
+    expect(dialogFields, findsNWidgets(2));
+    await tester.enterText(dialogFields.at(0), 'Тестовий продавець');
+    await tester.enterText(dialogFields.at(1), '990');
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(FilledButton, 'Додати джерело ціни'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Пріоритет джерел ціни'), findsOneWidget);
+    expect(
+      find.text('Вибране джерело ціни: Тестовий продавець'),
+      findsOneWidget,
+    );
+    expect(find.text('Тестовий продавець · 990 UAH'), findsOneWidget);
+
+    final nominal = find.widgetWithText(
+      OutlinedButton,
+      'Використати оцінку за номіналом',
+    );
+    await tester.ensureVisible(nominal);
+    await tester.tap(nominal);
+    await tester.pumpAndSettle();
+    expect(find.text('Оцінка за номіналом'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    await repository.dispose();
+  });
   testWidgets('phone layout saves a collection through Cubit and reopens it', (
     tester,
   ) async {

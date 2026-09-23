@@ -153,6 +153,14 @@ class PriceObservation {
     return price;
   }
 
+  bool get isExplicitPurchasePrice =>
+      kind != PriceValueKind.yieldOnly &&
+      kind != PriceValueKind.nominalEstimate &&
+      effectiveUnitCost != null &&
+      (side == PriceSide.ask || side == PriceSide.manual);
+
+  String get sourceId => meta.sourceId;
+
   Map<String, dynamic> toJson() => {
     'isin': isin,
     'currency': currency,
@@ -177,6 +185,32 @@ class PriceObservation {
       yieldPercent: optionalDecimal('yieldPercent'),
       meta: SourceObservationMeta.fromJson(
         Map<String, dynamic>.from(json['meta'] as Map),
+      ),
+    );
+  }
+
+  factory PriceObservation.manualFullPrice({
+    required Bond bond,
+    required String sourceId,
+    required Decimal unitCost,
+    required String observedAt,
+  }) {
+    final cleanSource = sourceId.trim();
+    if (cleanSource.isEmpty || cleanSource.length > 120) {
+      throw const FormatException('planner.invalid_price_source');
+    }
+    return PriceObservation(
+      isin: bond.isin,
+      currency: bond.currency,
+      kind: PriceValueKind.fullPrice,
+      side: PriceSide.manual,
+      price: unitCost,
+      meta: SourceObservationMeta(
+        sourceId: cleanSource,
+        sourceUrl: 'local://price-source',
+        retrievedAt: observedAt,
+        kind: ObservationKind.manual,
+        confidence: ObservationConfidence.userAssumption,
       ),
     );
   }
@@ -210,24 +244,104 @@ class PriceObservation {
   );
 }
 
+bool _samePriceObservation(PriceObservation a, PriceObservation b) =>
+    a.isin == b.isin &&
+    a.currency == b.currency &&
+    a.kind == b.kind &&
+    a.side == b.side &&
+    a.price == b.price &&
+    a.accruedInterest == b.accruedInterest &&
+    a.yieldPercent == b.yieldPercent &&
+    a.meta.sourceId == b.meta.sourceId &&
+    a.meta.sourceUrl == b.meta.sourceUrl &&
+    a.meta.sourceDate == b.meta.sourceDate &&
+    a.meta.retrievedAt == b.meta.retrievedAt &&
+    a.meta.validUntil == b.meta.validUntil &&
+    a.meta.kind == b.meta.kind &&
+    a.meta.confidence == b.meta.confidence;
+
+@immutable
+class PriceSourcePriority {
+  final List<String> sourceIds;
+
+  PriceSourcePriority(Iterable<String> sourceIds)
+      : sourceIds = List.unmodifiable(sourceIds.map((e) => e.trim())) {
+    if (this.sourceIds.any((e) => e.isEmpty || e.length > 120) ||
+        this.sourceIds.toSet().length != this.sourceIds.length) {
+      throw const FormatException('planner.invalid_price_source_priority');
+    }
+  }
+
+  factory PriceSourcePriority.none() => PriceSourcePriority(const []);
+
+  bool get isEmpty => sourceIds.isEmpty;
+
+  PriceObservation? resolvePurchase(
+    String isin,
+    Iterable<PriceObservation> observations,
+  ) {
+    final eligible = observations
+        .where((o) => o.isin == isin && o.isExplicitPurchasePrice)
+        .toList(growable: false);
+    for (final sourceId in sourceIds) {
+      final matches = eligible
+          .where((o) => o.meta.sourceId == sourceId)
+          .toList(growable: false);
+      if (matches.length > 1) {
+        throw const FormatException('planner.ambiguous_price_source');
+      }
+      if (matches.length == 1) return matches.single;
+    }
+    return null;
+  }
+
+  Map<String, dynamic> toJson() => {'sourceIds': sourceIds};
+
+  factory PriceSourcePriority.fromJson(Map<String, dynamic> json) {
+    final raw = json['sourceIds'];
+    if (raw is! List || raw.any((e) => e is! String)) {
+      throw const FormatException('planner.invalid_price_source_priority');
+    }
+    return PriceSourcePriority(raw.cast<String>());
+  }
+}
+
 @immutable
 class PlannerPositionDraft {
   final String isin;
   final int quantity;
   final PriceObservation price;
+  final List<PriceObservation> priceObservations;
 
   PlannerPositionDraft({
     required this.isin,
     required this.quantity,
     required this.price,
-  }) {
+    Iterable<PriceObservation>? priceObservations,
+  }) : priceObservations = List.unmodifiable(
+         priceObservations ?? [price],
+       ) {
     if (isin != price.isin ||
         quantity < 1 ||
         quantity > 1000000 ||
-        price.effectiveUnitCost == null) {
-      throw const FormatException(
-        'planner.invalid_position',
-      );
+        price.effectiveUnitCost == null ||
+        this.priceObservations.isEmpty ||
+        this.priceObservations.any(
+          (o) => o.isin != isin || o.currency != price.currency,
+        ) ||
+        !this.priceObservations.any((o) => _samePriceObservation(o, price))) {
+      throw const FormatException('planner.invalid_position');
+    }
+    final identities = this.priceObservations
+        .map(
+          (o) =>
+              '${o.meta.sourceId}|${o.kind.name}|${o.side.name}|'
+              '${o.meta.retrievedAt}|${o.price}|${o.accruedInterest}|'
+              '${o.yieldPercent}',
+        )
+        .toList(growable: false);
+    if (identities.toSet().length != identities.length) {
+      throw const FormatException('planner.duplicate_price_observation');
     }
   }
 
@@ -237,30 +351,52 @@ class PlannerPositionDraft {
     'isin': isin,
     'quantity': quantity,
     'price': price.toJson(),
+    if (priceObservations.length > 1)
+      'priceObservations': priceObservations.map((e) => e.toJson()).toList(),
   };
 
-  factory PlannerPositionDraft.fromJson(Map<String, dynamic> json) =>
-      PlannerPositionDraft(
-        isin: json['isin'] as String? ?? '',
-        quantity: json['quantity'] as int? ?? 0,
-        price: PriceObservation.fromJson(
-          Map<String, dynamic>.from(json['price'] as Map),
-        ),
-      );
+  factory PlannerPositionDraft.fromJson(Map<String, dynamic> json) {
+    final price = PriceObservation.fromJson(
+      Map<String, dynamic>.from(json['price'] as Map),
+    );
+    final rawObservations = json['priceObservations'];
+    final observations = rawObservations == null
+        ? <PriceObservation>[price]
+        : (rawObservations as List)
+              .map(
+                (e) => PriceObservation.fromJson(
+                  Map<String, dynamic>.from(e as Map),
+                ),
+              )
+              .toList();
+    if (!observations.any((o) => _samePriceObservation(o, price))) {
+      observations.insert(0, price);
+    }
+    return PlannerPositionDraft(
+      isin: json['isin'] as String? ?? '',
+      quantity: json['quantity'] as int? ?? 0,
+      price: price,
+      priceObservations: observations,
+    );
+  }
 
   factory PlannerPositionDraft.fromLegacy(
     PlanPosition position, {
     required String observedAt,
-  }) => PlannerPositionDraft(
-    isin: position.bond.isin,
-    quantity: position.quantity,
-    price: PriceObservation.legacy(
+  }) {
+    final price = PriceObservation.legacy(
       bond: position.bond,
       unitCost: position.unitCost,
       nominalEstimate: position.nominalEstimate,
       observedAt: observedAt,
-    ),
-  );
+    );
+    return PlannerPositionDraft(
+      isin: position.bond.isin,
+      quantity: position.quantity,
+      price: price,
+      priceObservations: [price],
+    );
+  }
 }
 
 enum FeeAssumptionStatus { unknown, known }
@@ -625,6 +761,7 @@ class PlannerScenario {
   final PlannerStrategy strategy;
   final List<PlannerNeed> needs;
   final List<PlannerPositionDraft> positions;
+  final PriceSourcePriority priceSourcePriority;
   final int settlementDelayDays;
   final bool pricedOnly;
   final FeeAssumptions fees;
@@ -644,6 +781,7 @@ class PlannerScenario {
     required this.strategy,
     required Iterable<PlannerNeed> needs,
     required Iterable<PlannerPositionDraft> positions,
+    PriceSourcePriority? priceSourcePriority,
     required this.settlementDelayDays,
     required this.pricedOnly,
     required this.fees,
@@ -654,6 +792,7 @@ class PlannerScenario {
     this.variantLabel = 'A',
   }) : needs = List.unmodifiable(needs),
        positions = List.unmodifiable(positions),
+       priceSourcePriority = priceSourcePriority ?? PriceSourcePriority.none(),
        fx = List.unmodifiable(fx),
        exit = exit ?? ExitAssumption.holdToMaturity() {
     if (id.trim().isEmpty ||
@@ -679,6 +818,18 @@ class PlannerScenario {
             this.positions.length) {
       throw const FormatException('planner.duplicate_items');
     }
+    if (!this.priceSourcePriority.isEmpty) {
+      for (final position in this.positions) {
+        if (position.price.kind == PriceValueKind.nominalEstimate) continue;
+        final resolved = this.priceSourcePriority.resolvePurchase(
+          position.isin,
+          position.priceObservations,
+        );
+        if (resolved == null || !_samePriceObservation(resolved, position.price)) {
+          throw const FormatException('planner.selected_price_priority_mismatch');
+        }
+      }
+    }
   }
 
   Map<String, dynamic> toJson() => {
@@ -695,6 +846,8 @@ class PlannerScenario {
     'strategy': strategy.name,
     'needs': needs.map((e) => e.toJson()).toList(),
     'positions': positions.map((e) => e.toJson()).toList(),
+    if (!priceSourcePriority.isEmpty)
+      'priceSourcePriority': priceSourcePriority.toJson(),
     'settlementDelayDays': settlementDelayDays,
     'pricedOnly': pricedOnly,
     'fees': fees.toJson(),
@@ -734,6 +887,11 @@ class PlannerScenario {
             ),
           )
           .toList(),
+      priceSourcePriority: json['priceSourcePriority'] == null
+          ? PriceSourcePriority.none()
+          : PriceSourcePriority.fromJson(
+              Map<String, dynamic>.from(json['priceSourcePriority'] as Map),
+            ),
       settlementDelayDays: json['settlementDelayDays'] as int? ?? 0,
       pricedOnly: json['pricedOnly'] as bool? ?? false,
       fees: FeeAssumptions.fromJson(
@@ -763,6 +921,7 @@ class PlannerScenario {
     TaxScenario? taxes,
     Iterable<FxAssumption> fx = const [],
     ExitAssumption? exit,
+    PriceSourcePriority? priceSourcePriority,
     String? groupId,
     String variantLabel = 'A',
   }) {
@@ -816,6 +975,72 @@ class PlannerScenario {
             ),
           )
           .toList(),
+      priceSourcePriority: priceSourcePriority,
+      settlementDelayDays: int.parse(criteria['delay'] ?? '2'),
+      pricedOnly: criteria['pricedOnly'] == 'true',
+      fees: fees ?? FeeAssumptions.unknown(),
+      taxes: taxes ?? TaxScenario.unknown(),
+      fx: fx,
+      exit: exit,
+    );
+  }
+
+  factory PlannerScenario.fromCurrentUiDrafts({
+    required Map<String, String> criteria,
+    required Iterable<PlannerPositionDraft> positions,
+    required String savedAt,
+    PriceSourcePriority? priceSourcePriority,
+    FeeAssumptions? fees,
+    TaxScenario? taxes,
+    Iterable<FxAssumption> fx = const [],
+    ExitAssumption? exit,
+    String? groupId,
+    String variantLabel = 'A',
+  }) {
+    final count = int.parse(criteria['expenseCount'] ?? '0');
+    if (count < 0 || count > 50) {
+      throw const FormatException('planner.invalid_need_count');
+    }
+    final needs = <PlannerNeed>[
+      PlannerNeed(
+        id: 'need-0',
+        name: criteria['needName'] ?? 'Основна потреба',
+        type: PlannerNeedType.oneOff,
+        date: criteria['needDate']!,
+        amount: money(criteria['needAmount']!),
+      ),
+    ];
+    for (var i = 0; i < count; i++) {
+      needs.add(
+        PlannerNeed(
+          id: 'need-${i + 1}',
+          name: criteria['expenseName$i'] ?? 'Витрата ${i + 2}',
+          type: PlannerNeedType.oneOff,
+          date: criteria['expenseDate$i']!,
+          amount: money(criteria['expenseAmount$i']!),
+        ),
+      );
+    }
+    final strategy = switch (criteria['strategy']) {
+      'profit' => PlannerStrategy.profit,
+      'expenses' => PlannerStrategy.expenses,
+      _ => PlannerStrategy.ladder,
+    };
+    return PlannerScenario(
+      id: 'scenario:$savedAt',
+      name: criteria['name']?.trim() ?? '',
+      groupId: groupId,
+      variantLabel: variantLabel,
+      currency: criteria['currency']!,
+      budget: money(criteria['budget']!),
+      reserve: money(criteria['reserve']!),
+      startDate: criteria['start']!,
+      minMaturity: criteria['minDate']!,
+      maxMaturity: criteria['maxDate']!,
+      strategy: strategy,
+      needs: needs,
+      positions: positions,
+      priceSourcePriority: priceSourcePriority,
       settlementDelayDays: int.parse(criteria['delay'] ?? '2'),
       pricedOnly: criteria['pricedOnly'] == 'true',
       fees: fees ?? FeeAssumptions.unknown(),
