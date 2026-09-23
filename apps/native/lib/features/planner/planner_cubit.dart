@@ -397,12 +397,19 @@ class PlannerCubit extends Cubit<PlannerState> {
         state.copyWith(
           inputs: {
             for (final p in positions)
-              p.bond.isin: PositionInput(
-                p.bond,
-                p.quantity.toString(),
-                p.unitCost.toString(),
-                nominalEstimate: p.nominalEstimate,
-              ),
+              p.bond.isin: state.inputs[p.bond.isin] == null
+                  ? _legacyInput(
+                      p.bond,
+                      p.quantity,
+                      p.unitCost.toString(),
+                      nominalEstimate: p.nominalEstimate,
+                    )
+                  : state.inputs[p.bond.isin]!.copyWith(
+                      quantity: p.quantity.toString(),
+                      price: p.unitCost.toString(),
+                      nominalEstimate: p.nominalEstimate,
+                      clearSelectedSource: p.nominalEstimate,
+                    ),
           },
           saved: false,
           revision: state.revision + 1,
