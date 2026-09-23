@@ -35,10 +35,38 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - release workflow: **Publish native prerelease run #34 — success**
 - перевірені assets: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
 - наступний functional slice стартує поверх підтвердженого v0.8.6 baseline
+- active draft PR: **#39** `Planner: multiple price observations with explicit source priority`
+- current head: `11beef250ee57acc04cf5a973779d27e83ac43af`
+- CI history:
+  - run #112 — failure on analyzer (3 issues);
+  - analyzer issues fixed in `11beef250ee57acc04cf5a973779d27e83ac43af`;
+  - run #113 — `pub get` success, `analyze` success, `test` failure on one planner regression.
+- already implemented in PR #39:
+  - additive schema-3 `priceObservations` + `priceSourcePriority`;
+  - legacy single `price` retained for older readers;
+  - resolver uses only explicit purchase prices (full/clean ASK/manual);
+  - yield-only and nominal estimate excluded from market-price candidates;
+  - duplicate eligible observations from one source fail closed;
+  - PlannerCubit load/save keeps observations and source priority;
+  - planner UI already contains add/select/reorder source controls and nominal fallback;
+  - deterministic domain tests for source priority are passing.
+- still incomplete:
+  - regression fix for `planner_test.dart:156`;
+  - 9 new localization keys are still absent for the price-source UI;
+  - cubit/persistence/widget tests for the UI flow;
+  - final green verify + ready/merge.
 
 ### Поточна наступна дія
 
-Провести audit поточної моделі `PriceObservation`, persistence schema та planner price selection. Після audit реалізувати **кілька observations на ISIN** і явний user-controlled source priority. Жоден yield-only або nominal estimate не може автоматично стати вибраною ринковою ціною.
+**Першою дією нового чату** виправити regression у PR #39 / run #113: test `planner_test.dart: scenario persists quantities prices and need date and reloads identically` падає на рядку 156, бо після `generate()` + `position(... price: '1050.25')` `cubit.state.summary` стає `null`. `flutter pub get --enforce-lockfile` і `flutter analyze` у run #113 вже зелені.
+
+Після цього:
+1. додати 9 UI localization keys для price-source controls у UK/EN/FR/DE/ES/KO/JA;
+2. додати cubit/persistence/widget tests для add/select/reorder/nominal fallback;
+3. прогнати final green verify;
+4. перевести PR #39 з draft у ready та інтегрувати PR у `main`.
+
+Hard invariant: yield-only або nominal estimate **ніколи** не можуть автоматично стати вибраною ринковою ціною.
 
 ## Черга робіт
 
