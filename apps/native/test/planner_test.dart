@@ -153,6 +153,9 @@ void main() {
       );
       cubit.generate();
       cubit.position(one.isin, quantity: '3', price: '1050.25');
+      // Temporary CI diagnostic; remove after identifying the regression.
+      // ignore: avoid_print
+      print('planner-regression error=${cubit.state.error?.code} inputs=${cubit.state.inputs.map((k, v) => MapEntry(k, '${v.quantity}@${v.price}/${v.nominalEstimate}'))}');
       final before = cubit.state.summary!.availableByNeed;
       expect(await cubit.save(), true);
       final saved = SavedSet.parse(
