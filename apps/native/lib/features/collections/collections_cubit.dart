@@ -127,7 +127,11 @@ class CollectionsCubit extends Cubit<CollectionsState> {
       }
       selected.add(key);
     }
-    _emitComparison(sets: state.sets, selectedKeys: selected);
+    _emitComparison(
+      sets: state.sets,
+      selectedKeys: selected,
+      clearError: true,
+    );
   }
 
   void clearComparison() {
