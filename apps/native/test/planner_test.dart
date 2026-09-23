@@ -629,6 +629,15 @@ void main() {
       isin: one.isin,
       date: '2027-03-01',
       price: '1020',
+      side: PriceSide.bid,
+    );
+    expect(cubit.state.error?.code, 'planner.exit_source_url_required');
+    expect(cubit.state.positionExits, isEmpty);
+
+    cubit.setPositionExit(
+      isin: one.isin,
+      date: '2027-03-01',
+      price: '1020',
       side: PriceSide.manual,
     );
     expect(cubit.state.error, isNull);
