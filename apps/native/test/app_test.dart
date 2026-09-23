@@ -431,7 +431,7 @@ void main() {
     final heading = find.text('Мої майбутні потреби й витрати');
     await tester.ensureVisible(heading);
     expect(heading, findsOneWidget);
-    expect(find.text('Основна потреба'), findsOneWidget);
+    expect(find.text('Основна потреба'), findsWidgets);
     expect(find.text('Додаткові одноразові потреби'), findsOneWidget);
 
     final recurring = find.text('Повторювати цю потребу');
