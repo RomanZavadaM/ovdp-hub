@@ -37,6 +37,7 @@ List<CashExpense> expandPlannerNeeds(
     switch (need.type) {
       case PlannerNeedType.oneOff:
         expenses.add(CashExpense(need.name, need.date, need.amount));
+        break;
       case PlannerNeedType.recurring:
         final base = isoDate(need.date);
         for (var i = 0; i < need.occurrences!; i++) {
@@ -53,6 +54,7 @@ List<CashExpense> expandPlannerNeeds(
             ),
           );
         }
+        break;
       case PlannerNeedType.reserveFloor:
         throw const FormatException('planner.reserve_floor_ui_unsupported');
     }
