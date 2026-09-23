@@ -137,6 +137,67 @@ void main() {
     await tester.pumpAndSettle();
     await repository.dispose();
   });
+  testWidgets('planner purchase fee is explicit and affects displayed result', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final now = DateTime.now();
+    final maturity = DateTime(
+      now.year + 1,
+      now.month,
+      now.day,
+    ).toIso8601String().substring(0, 10);
+    final json = jsonDecode(jsonEncode(catalog.json)) as Map<String, dynamic>;
+    final asset = (json['assets'] as List).single as Map<String, dynamic>;
+    asset['maturityDate'] = maturity;
+    asset['currency'] = 'UAH';
+    asset['payments'] = [
+      {'date': maturity, 'kind': 'REDEMPTION', 'amount': '1000'},
+    ];
+    final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
+
+    await tester.pumpWidget(OvdpApp(repository: repository));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Планування'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Комісії придбання'), findsOneWidget);
+    expect(find.text('Комісії невідомі'), findsOneWidget);
+    expect(find.textContaining('Комісії невідомі: показані суми'), findsNothing);
+
+    await tester.tap(find.text('Комісію підтверджено'));
+    await tester.pumpAndSettle();
+    final feeField = find.widgetWithText(
+      TextFormField,
+      'Загальна комісія придбання, UAH',
+    );
+    expect(feeField, findsOneWidget);
+    await tester.enterText(feeField, '100');
+    await tester.pumpAndSettle();
+
+    final generate = find.text('Розподілити за строками');
+    await tester.ensureVisible(generate);
+    await tester.tap(generate);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Врахована комісія придбання: 100.00 UAH'), findsOneWidget);
+    expect(find.textContaining('Комісії невідомі: показані суми'), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    final unknown = find.text('Комісії невідомі');
+    await tester.ensureVisible(unknown);
+    await tester.tap(unknown);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Комісії невідомі: показані суми'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    await repository.dispose();
+  });
   testWidgets('phone layout saves a collection through Cubit and reopens it', (
     tester,
   ) async {
