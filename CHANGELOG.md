@@ -4,8 +4,19 @@
 
 ## [Unreleased] — 0.9.0 «Ринок» development
 
-- Наступний slice після v0.8.8: A/B/C comparison.
-- Далі: reserve-floor/minimum-balance needs, generated planner copy localization та UX/regression review.
+### Neutral A/B/C scenario comparison
+- Додано порівняння рівно 2–3 saved Planner scenarios у «Добірки».
+- A/B/C визначаються порядком вибору користувача й не є рейтингом; автоматичний winner/best/worst відсутній.
+- Порівняння fail closed, якщо відрізняються currency, budget, reserve, start/horizon, settlement delay або економічні потреби.
+- Пояснюються strategy, composition, selected prices, purchase fee, tax, FX, per-position exits, profit basis/value та coverage shortfall.
+- Однакові typed recurring needs підтримуються; reserve-floor needs поки explicit fail closed.
+- UI/errors локалізовано UK/EN/FR/DE/ES/KO/JA.
+- PR #58; final latest-head run #183; 108/108 tests.
+
+### Next
+- generated Planner copy / preset labels localization + UX/regression review.
+- після цього — оцінка готовності formal prerelease 0.9.0.
+- reserve-floor/minimum-balance needs лишаються окремим незавершеним типом потреби і не підміняються автоматично.
 
 ## [0.8.8] — 2026-09-23
 
