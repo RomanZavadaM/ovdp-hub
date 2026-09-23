@@ -108,9 +108,9 @@ PlannerFeeImpact evaluatePurchaseFeeImpact({
     currency: currency,
   );
   final known = fee != null;
-  final total = known ? grossCost + fee : null;
+  final total = known ? grossCost + fee! : null;
   final reserve = known ? budget - total! : null;
-  final netProfit = known ? grossProfit - fee : null;
+  final netProfit = known ? grossProfit - fee! : null;
   final deferred = fees.status == FeeAssumptionStatus.known &&
       fees.rules.any((r) => r.event != FeeEvent.purchase);
 
