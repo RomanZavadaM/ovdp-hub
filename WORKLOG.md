@@ -25,36 +25,41 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
 Мета: **Planner needs block → explicit primary need → recurring schedule → additional one-off needs → cashflow/persistence → 7-language UI → tests**.
 
-- owner-requested reprioritization from the visible Planner needs/future-expenses block;
-- baseline `main`: `d0d1a50e6d28267398b1d400a3503a2ba12bf566`
-- active branch: `feat/planner-needs-block`
-- A/B/C PR **#53** remains draft/paused and must not be merged before this slice;
-- published checkpoint remains **v0.8.7 / 0.8.7+15**.
-- audit:
-  - primary need currently exists only as `needDate/needAmount` in the generic top field grid;
-  - `needName` exists in data but is not exposed in this block;
-  - extra expenses are wired to cashflow but stored as flat `expense*` rows;
-  - “repeat main need 5 more months” currently duplicates five one-off rows instead of persisting a real recurring need;
-  - schema 3 already has typed `PlannerNeedType.recurring`, `everyMonths`, `occurrences`, but current UI/load path rejects typed recurring needs.
+- PR: **#54** `Planner: implement recurring needs block`
+- final head: `28bcc9e219feedaa3253a2371c4d2fc8add77580`
+- final verify: **Flutter checks and START run #168 — success**
+- squash merge у `main`: `e2a48d7017fe578295e631054d84fce52cbc2b55`
+- published checkpoint remains **v0.8.7 / 0.8.7+15**
+- completed:
+  - explicit primary need card: name/date/amount;
+  - recurring toggle + interval in months + total occurrence count;
+  - typed `PlannerNeedType.recurring` persisted in schema 3;
+  - deterministic cashflow expansion with month-end clamping;
+  - recurring scenarios reload into UI;
+  - additional needs remain one-off add/remove items;
+  - legacy one-off scenarios stay compatible;
+  - hard-coded duplicate-five-months behavior removed;
+  - UK/EN/FR/DE/ES/KO/JA localization;
+  - domain/save-load/widget/full regression suite green.
 
 ### Поточна наступна дія
 
-**DOING — implement typed recurring primary need without schema bump.**
+**NEXT — prepare full test checkpoint v0.8.8 before resuming A/B/C.**
 
-1. expose primary need name/date/amount in one clear card;
-2. add recurring toggle + interval in months + occurrence count;
-3. expand recurring dates deterministically with month-end clamping for cashflow/coverage;
-4. persist primary recurring need as typed `PlannerNeed` in schema 3;
-5. reload typed recurring primary need back into UI;
-6. keep additional needs as add/remove one-off cards;
-7. legacy one-off scenarios remain compatible;
-8. UK/EN/FR/DE/ES/KO/JA localization;
-9. domain/cubit/save-load/widget tests → green PR → integrate into `main`;
-10. then resume A/B/C PR #53 on top of updated `main`.
+Owner approved the proposed pause in feature development. Build a complete testable checkpoint from current `main`, including all user-visible work integrated after v0.8.7:
+- verified tax assumptions;
+- explicit FX comparison;
+- per-position exit assumptions;
+- typed recurring Planner needs;
+- multilingual README split/pages.
+
+Release protocol: version/build bump → changelog + 7-language release notes → PR → green verify → merge → Windows/macOS/Android/iOS/START → SHA256SUMS/legal → immutable tag/release → post-release canonical sync.
+
+A/B/C PR **#53** stays draft/paused until the checkpoint is published and tested.
 
 ## Черга робіт
 
@@ -63,10 +68,11 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
 4. **DONE** — FX assumptions calculation/UI.
 5. **DONE** — exit assumptions redesign/wiring for multi-position scenarios.
-6. **PAUSED** — A/B/C comparison (draft PR #53; resume after owner-requested needs block).
-7. **DOING** — Planner needs/future-expenses block requested by owner.
-8. **TODO** — generated planner copy / preset labels localization + UX regression.
-9. **TODO** — оцінка готовності formal prerelease 0.9.0.
+6. **PAUSED** — A/B/C comparison (draft PR #53; resume after v0.8.8 checkpoint).
+7. **DONE** — Planner needs/future-expenses block requested by owner.
+8. **NEXT** — full test checkpoint v0.8.8 from current main.
+9. **TODO** — generated planner copy / preset labels localization + UX regression.
+10. **TODO** — оцінка готовності formal prerelease 0.9.0.
 
 ## Продуктова логіка цієї черги
 
@@ -93,6 +99,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.7 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — typed recurring Planner needs block**: PR #54 squash-merged у `main` як `e2a48d7017fe578295e631054d84fce52cbc2b55`; final run #168 success. Primary recurring need, month-end-safe expansion, schema-3 persistence/reload, one-off additions and 7-language UI integrated.
+
 
 - **DONE — per-position exit assumptions**: PR #51 squash-merged у `main` як `296fb9e0b53093685ced9e801196616a401582f4`; final run #161 success. Multi-ISIN exit model, sale cashflow/profit/coverage, safe legacy compatibility, BID/manual provenance, persistence and 7-language UI integrated.
 

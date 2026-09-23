@@ -28,7 +28,12 @@ Planner 0.7/0.8 виріс із швидкої карти `Map<String,String>`. 
 - `recurring` — регулярна потреба з кроком у місяцях і кількістю повторень;
 - `reserveFloor` — мінімальний залишок/резерв.
 
-Поточний UI 0.8 редагує лише one-off потреби. Якщо майбутній typed scenario містить тип, який старий UI не вміє редагувати, adapter відмовляється від тихого спрощення.
+Поточний UI редагує:
+- основну `oneOff` потребу;
+- основну `recurring` потребу з `everyMonths` + `occurrences`;
+- додаткові `oneOff` потреби.
+
+Recurring primary need зберігається як typed `PlannerNeed` у schema 3 і детерміновано розгортається в cashflow/coverage з month-end clamping. `reserveFloor` ще не редагується активним UI; adapter має fail-closed замість тихого спрощення.
 
 ### Ціни
 
@@ -54,7 +59,7 @@ Yield-only **не має effectiveUnitCost** і не може бути пози�
 
 Податкова модель effective-dated: tax kind, income kind, ставка, scopeFrom/scopeTo, verifiedOn, sourceUrl.
 
-У коді є інформаційний preset `TaxScenario.ukraineResidentOvdp2026()` для фізособи-резидента України, перевірений 22.09.2026 за офіційними джерелами ДПС. Він **не підставляється автоматично** в існуючий план: legacy і новий UI без явного вибору мають status unknown.
+У коді є інформаційний preset `TaxScenario.ukraineResidentOvdp2026()` для фізособи-резидента України, перевірений 23.09.2026 за офіційними джерелами ДПС. Він **не підставляється автоматично** в існуючий план: legacy і новий UI без явного вибору мають status unknown.
 
 ### FX
 
