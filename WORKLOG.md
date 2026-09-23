@@ -25,34 +25,36 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **exit assumptions → per-position multi-ISIN model → cashflow/profit wiring → persistence → 7-language UI → tests**.
+Мета: **Planner needs block → explicit primary need → recurring schedule → additional one-off needs → cashflow/persistence → 7-language UI → tests**.
 
-- PR: **#51** `Planner: per-position exit assumptions`
-- final head: `0d6c75e505833afd9dbc008ef86653dbec8ebe9f`
-- final verify: **Flutter checks and START run #161 — success**
-- squash merge у `main`: `296fb9e0b53093685ced9e801196616a401582f4`
-- published checkpoint remains **v0.8.7 / 0.8.7+15**
-- completed:
-  - per-position `positionExits` keyed by ISIN;
-  - safe legacy compatibility + ambiguous multi-position legacy exit fail closed;
-  - contractual receipts before sale + sale proceeds, later payments excluded;
-  - settlement delay on sale proceeds in expense coverage;
-  - exit-aware profit feeds fees → tax → FX;
-  - no silent portfolio re-optimization for exit;
-  - BID provenance required, manual assumptions explicit;
-  - persistence/load/save;
-  - UK/EN/FR/DE/ES/KO/JA UI/error coverage;
-  - domain/cubit/persistence/widget regression coverage green.
+- owner-requested reprioritization from the visible Planner needs/future-expenses block;
+- baseline `main`: `d0d1a50e6d28267398b1d400a3503a2ba12bf566`
+- active branch: `feat/planner-needs-block`
+- A/B/C PR **#53** remains draft/paused and must not be merged before this slice;
+- published checkpoint remains **v0.8.7 / 0.8.7+15**.
+- audit:
+  - primary need currently exists only as `needDate/needAmount` in the generic top field grid;
+  - `needName` exists in data but is not exposed in this block;
+  - extra expenses are wired to cashflow but stored as flat `expense*` rows;
+  - “repeat main need 5 more months” currently duplicates five one-off rows instead of persisting a real recurring need;
+  - schema 3 already has typed `PlannerNeedType.recurring`, `everyMonths`, `occurrences`, but current UI/load path rejects typed recurring needs.
 
 ### Поточна наступна дія
 
-**NEXT — A/B/C scenario comparison.**
+**DOING — implement typed recurring primary need without schema bump.**
 
-Почати audit-first vertical від актуального `main`: перевірити наявні `groupId` / `variantLabel` у PlannerScenario, визначити однаковий набір comparison assumptions і побудувати порівняння без змішування різних budget/currency/need assumptions.
-
-Comparison має пояснювати **чому** сценарії відрізняються: position composition, initial cost/fees, tax status, FX comparison, exit assumptions, cashflow, profit та coverage. Не оголошувати «найкращий» сценарій без явного user-defined criterion.
+1. expose primary need name/date/amount in one clear card;
+2. add recurring toggle + interval in months + occurrence count;
+3. expand recurring dates deterministically with month-end clamping for cashflow/coverage;
+4. persist primary recurring need as typed `PlannerNeed` in schema 3;
+5. reload typed recurring primary need back into UI;
+6. keep additional needs as add/remove one-off cards;
+7. legacy one-off scenarios remain compatible;
+8. UK/EN/FR/DE/ES/KO/JA localization;
+9. domain/cubit/save-load/widget tests → green PR → integrate into `main`;
+10. then resume A/B/C PR #53 on top of updated `main`.
 
 ## Черга робіт
 
@@ -61,9 +63,10 @@ Comparison має пояснювати **чому** сценарії відрі�
 3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
 4. **DONE** — FX assumptions calculation/UI.
 5. **DONE** — exit assumptions redesign/wiring for multi-position scenarios.
-6. **NEXT** — A/B/C comparison.
-7. **TODO** — generated planner copy / preset labels localization + UX regression.
-8. **TODO** — оцінка готовності formal prerelease 0.9.0.
+6. **PAUSED** — A/B/C comparison (draft PR #53; resume after owner-requested needs block).
+7. **DOING** — Planner needs/future-expenses block requested by owner.
+8. **TODO** — generated planner copy / preset labels localization + UX regression.
+9. **TODO** — оцінка готовності formal prerelease 0.9.0.
 
 ## Продуктова логіка цієї черги
 
