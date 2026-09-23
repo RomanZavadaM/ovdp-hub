@@ -79,7 +79,10 @@ class PlannerView extends StatelessWidget {
     final feesKnown = state.fees.status == FeeAssumptionStatus.known;
     final simpleFeeRules = state.fees.rules.isEmpty ||
         (state.fees.rules.length == 1 &&
-            state.fees.rules.single.id == 'ui-purchase-fee');
+            state.fees.rules.single.id == 'ui-purchase-fee' &&
+            state.fees.rules.single.kind == FeeKind.flat &&
+            state.fees.rules.single.event == FeeEvent.purchase &&
+            state.fees.rules.single.currency == currency);
     final aggregatePurchaseFee = state.fees.rules.isEmpty
         ? '0'
         : simpleFeeRules
