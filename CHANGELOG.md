@@ -4,8 +4,30 @@
 
 ## [Unreleased] — 0.9.0 «Ринок» development
 
-- Наступний slice: multiple `PriceObservation` + explicit user source priority.
-- Далі: fee/tax/FX/exit UI, A/B/C comparison та generated planner copy localization.
+- Наступний slice: tax assumptions → official effective-date audit → calculation + UI.
+- Далі: FX assumptions, exit redesign/wiring, A/B/C comparison та generated planner copy localization.
+
+## [0.8.7] — 2026-09-23
+
+### Explicit price-source priority
+- Додано кілька `PriceObservation` на ISIN і явний порядок пріоритету джерел, керований користувачем.
+- Доступні add/select/reorder controls та явне повернення до nominal estimate.
+- Yield-only і nominal estimate не можуть неявно стати market price.
+- Duplicate eligible observations одного source fail closed.
+- Збережено сумісність зі старим selected `price`.
+
+### Explicit purchase-fee assumptions
+- Typed `FeeAssumptions` тепер проходять через PlannerState/load/save.
+- `unknown` відрізняється від підтвердженого нуля.
+- Явна aggregate purchase fee зменшує доступний planning budget, reserve та calculated profit.
+- Якщо комісія невідома, результат явно показується як gross/pre-fee, а не net.
+- Детальні typed fee rules не переписуються спрощеним UI без явної дії користувача.
+- UI та fee-related errors локалізовано UK/EN/FR/DE/ES/KO/JA.
+
+### Release checkpoint
+- Версія застосунку: `0.8.7+15`.
+- Повний prerelease checkpoint для Windows, macOS, Android, iOS і START/source.
+- Release description на GitHub підготовлений усіма сімома мовами інтерфейсу.
 
 ## [0.8.6] — 2026-09-23
 

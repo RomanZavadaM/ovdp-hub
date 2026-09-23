@@ -8,7 +8,7 @@
 
 ## Поточний prerelease 0.8.6
 
-Активний код — `apps/native`. У 0.8.6 поверх 0.8.5 додано нормалізований freshness/status UX у картці ISIN: офіційні NBU/MinFin observations мають `officialPublished`, seller quotes лишаються `publicIndicative`, а sourceDate/retrievedAt/freshness/status/evidence показуються однаково для всіх трьох шарів. У 0.8.5 додано structured future auction schedule з офіційних PDF Мінфіну та detailed placement/switch auction results з офіційних DOCX із provenance, fail-closed validation і deterministic tests. Перенесено каталог НБУ, пошук і фільтри, графіки виплат, порівняння випусків, короткий/довгий горизонт, збережені добірки з нотатками та навчальний калькулятор. Каталог постачається всередині застосунку й оновлюється напряму з НБУ. Номінальні ставки не є ринковою дохідністю; виконання купівлі немає. Калькулятор явно використовує синтетичний приклад.
+Активний код — `apps/native`. У 0.8.7 поверх 0.8.6 додано явний user-controlled priority для кількох джерел ціни та purchase-fee assumptions: невідома комісія не прирівнюється до нуля, а відома aggregate purchase fee враховується в бюджеті, резерві та розрахованому прибутку. У 0.8.6 додано нормалізований freshness/status UX у картці ISIN: офіційні NBU/MinFin observations мають `officialPublished`, seller quotes лишаються `publicIndicative`, а sourceDate/retrievedAt/freshness/status/evidence показуються однаково для всіх трьох шарів. У 0.8.5 додано structured future auction schedule з офіційних PDF Мінфіну та detailed placement/switch auction results з офіційних DOCX із provenance, fail-closed validation і deterministic tests. Перенесено каталог НБУ, пошук і фільтри, графіки виплат, порівняння випусків, короткий/довгий горизонт, збережені добірки з нотатками та навчальний калькулятор. Каталог постачається всередині застосунку й оновлюється напряму з НБУ. Номінальні ставки не є ринковою дохідністю; виконання купівлі немає. Калькулятор явно використовує синтетичний приклад.
 
 Код розділено на UI, Cubit/State та репозиторій даних. Окремі Cubit керують каталогом, редактором добірки, переліком добірок, робочою папкою, калькулятором і навігацією. Стани та вкладені колекції незмінні; віджети не звертаються до файлів чи API. Рішення: `docs/adr/0003-cubit-layers.md`.
 
@@ -58,7 +58,7 @@ OVDP Hub є **proprietary software**. Публічна видимість цьо
 
 ## Мови
 
-Основна й еталонна мова — **українська**. Архітектура інтерфейсу підтримує вибір **English, Français, Deutsch, Español, 한국어, 日本語**. У 0.8.6 активний UI та основні user-facing domain/error flows локалізовані для UK/EN/FR/DE/ES/KO/JA; generated planner presets лишаються окремим наступним боргом.
+Основна й еталонна мова — **українська**. Архітектура інтерфейсу підтримує вибір **English, Français, Deutsch, Español, 한국어, 日本語**. У 0.8.7 активний UI та основні user-facing domain/error flows локалізовані для UK/EN/FR/DE/ES/KO/JA; опис GitHub Release також подано всіма сімома мовами. Generated planner presets лишаються окремим наступним боргом.
 
 ## Для розробника
 
@@ -82,7 +82,7 @@ Windows-пакет повинен містити весь каталог `build/
 - [PROJECT_STATE.md](PROJECT_STATE.md) — поточний checkpoint і наступний крок.
 - [PROJECT_RULES.md](PROJECT_RULES.md) — постійні правила розробки й релізів.
 - [CHANGELOG.md](CHANGELOG.md) — історія помітних змін.
-- [Release notes 0.8.6](docs/releases/RELEASE_NOTES_v0_8_6.md) — опис поточного prerelease.
+- [Release notes 0.8.7](docs/releases/RELEASE_NOTES_v0_8_7.md) — опис поточного prerelease сімома мовами.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — правила зовнішніх внесків у proprietary-проєкт.
 
 ## Структура
