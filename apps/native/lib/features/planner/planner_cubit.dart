@@ -10,6 +10,7 @@ import 'planner_engine.dart';
 import 'planner_fees.dart';
 import 'planner_goals.dart';
 import 'planner_scenario.dart';
+import 'planner_taxes.dart';
 
 @immutable
 class PositionInput {
@@ -123,6 +124,8 @@ class PlannerState {
   final PriceSourcePriority priceSourcePriority;
   final FeeAssumptions fees;
   final PlannerFeeImpact? feeImpact;
+  final TaxScenario taxes;
+  final PlannerTaxImpact? taxImpact;
   final List<Bond> candidates;
   final PlanSummary? summary;
   final List<ExpenseBalance> expenseBalances;
@@ -136,6 +139,8 @@ class PlannerState {
     PriceSourcePriority? priceSourcePriority,
     FeeAssumptions? fees,
     this.feeImpact,
+    TaxScenario? taxes,
+    this.taxImpact,
     Iterable<Bond> candidates = const [],
     this.summary,
     Iterable<ExpenseBalance> expenseBalances = const [],
@@ -151,6 +156,7 @@ class PlannerState {
        inputs = Map.unmodifiable(inputs),
        priceSourcePriority = priceSourcePriority ?? PriceSourcePriority.none(),
        fees = fees ?? FeeAssumptions.unknown(),
+       taxes = taxes ?? TaxScenario.unknown(),
        candidates = List.unmodifiable(candidates);
   bool get dirty => (changed || inputs.isNotEmpty) && !saved;
   PlannerState copyWith({
@@ -159,6 +165,8 @@ class PlannerState {
     PriceSourcePriority? priceSourcePriority,
     FeeAssumptions? fees,
     PlannerFeeImpact? feeImpact,
+    TaxScenario? taxes,
+    PlannerTaxImpact? taxImpact,
     Iterable<Bond>? candidates,
     PlanSummary? summary,
     Iterable<ExpenseBalance>? expenseBalances,
@@ -176,6 +184,8 @@ class PlannerState {
     priceSourcePriority: priceSourcePriority ?? this.priceSourcePriority,
     fees: fees ?? this.fees,
     feeImpact: clearSummary ? null : feeImpact ?? this.feeImpact,
+    taxes: taxes ?? this.taxes,
+    taxImpact: clearSummary ? null : taxImpact ?? this.taxImpact,
     candidates: candidates ?? this.candidates,
     summary: clearSummary ? null : summary ?? this.summary,
     expenseBalances: clearSummary
@@ -343,6 +353,13 @@ class PlannerCubit extends Cubit<PlannerState> {
         budget: budget,
         start: c['start']!,
       );
+      final profitBeforeTax =
+          feeImpact.known ? feeImpact.profitAfterPurchaseFee : null;
+      final taxImpact = evaluateTaxImpact(
+        taxes: next.taxes,
+        scenarioDate: c['start']!,
+        profitBeforeTax: profitBeforeTax,
+      );
       final reserveForValidation =
           feeImpact.reserveAfterPurchaseFee ?? summary.reserve;
       if (reserveForValidation < reserve) {
@@ -356,6 +373,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           candidates: candidates,
           summary: summary,
           feeImpact: feeImpact,
+          taxImpact: taxImpact,
           expenseBalances: expenseCalendar(
             positions,
             calendarBudget,
@@ -759,6 +777,28 @@ class PlannerCubit extends Cubit<PlannerState> {
     }
   }
 
+  void setTaxesUnknown() {
+    if (state.busy || state.locked) return;
+    _recalculate(
+      state.copyWith(
+        taxes: TaxScenario.unknown(),
+        saved: false,
+        clearError: true,
+      ),
+    );
+  }
+
+  void useUkraineResidentOvdp2026Taxes() {
+    if (state.busy || state.locked) return;
+    _recalculate(
+      state.copyWith(
+        taxes: TaxScenario.ukraineResidentOvdp2026(),
+        saved: false,
+        clearError: true,
+      ),
+    );
+  }
+
   void lock(bool value) {
     if (!isClosed) emit(state.copyWith(locked: value));
   }
@@ -793,6 +833,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           inputs: inputs,
           priceSourcePriority: scenario.priceSourcePriority,
           fees: scenario.fees,
+          taxes: scenario.taxes,
           saved: true,
           revision: state.revision + 1,
         ),
@@ -830,14 +871,18 @@ class PlannerCubit extends Cubit<PlannerState> {
         savedAt: savedAt,
         priceSourcePriority: draft.priceSourcePriority,
         fees: draft.fees,
+        taxes: draft.taxes,
       );
       final feeNote = draft.fees.status == FeeAssumptionStatus.unknown
           ? 'комісії невідомі'
           : 'комісії задані явно';
+      final taxNote = draft.taxes.status == TaxAssumptionStatus.unknown
+          ? 'податки невідомі'
+          : 'податкові правила перевірені';
       await repository.saveCollection(
         SavedSet(
           draft.criteria['name']!.trim(),
-          'Сценарій у ${draft.criteria['currency']}. $feeNote; невідомі податки або FX не підміняються нулем.',
+          'Сценарій у ${draft.criteria['currency']}. $feeNote; $taxNote; невідомий FX не підміняється нулем.',
           savedAt,
           draft.inputs.values.map((i) => i.bond),
           scenario: scenario.toJson(),

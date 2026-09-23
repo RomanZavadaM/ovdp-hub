@@ -585,7 +585,7 @@ class TaxScenario {
 
   factory TaxScenario.ukraineResidentOvdp2026() => TaxScenario(
     status: TaxAssumptionStatus.known,
-    label: 'Фізособа-резидент України — ОВДП (перевірено 22.09.2026)',
+    label: 'Фізособа-резидент України — ОВДП (перевірено 23.09.2026)',
     rules: [
       TaxRule(
         id: 'ua-2026-pit-interest',
@@ -594,7 +594,7 @@ class TaxScenario {
         ratePercent: Decimal.zero,
         scopeFrom: '2026-01-01',
         scopeTo: '2026-12-31',
-        verifiedOn: '2026-09-22',
+        verifiedOn: '2026-09-23',
         sourceUrl: 'https://www.tax.gov.ua/nk/rozdil-iv--podatok-na-dohodi-fizichnih-o/',
       ),
       TaxRule(
@@ -604,7 +604,7 @@ class TaxScenario {
         ratePercent: Decimal.zero,
         scopeFrom: '2026-01-01',
         scopeTo: '2026-12-31',
-        verifiedOn: '2026-09-22',
+        verifiedOn: '2026-09-23',
         sourceUrl: 'https://cv.tax.gov.ua/media-ark/news-ark/print-1018909.html',
       ),
       TaxRule(
@@ -614,7 +614,7 @@ class TaxScenario {
         ratePercent: Decimal.zero,
         scopeFrom: '2026-01-01',
         scopeTo: '2026-12-31',
-        verifiedOn: '2026-09-22',
+        verifiedOn: '2026-09-23',
         sourceUrl: 'https://lv.tax.gov.ua/media-ark/news-ark/print-1002439.html',
       ),
       TaxRule(
@@ -624,7 +624,7 @@ class TaxScenario {
         ratePercent: Decimal.zero,
         scopeFrom: '2026-01-01',
         scopeTo: '2026-12-31',
-        verifiedOn: '2026-09-22',
+        verifiedOn: '2026-09-23',
         sourceUrl: 'https://lv.tax.gov.ua/media-ark/news-ark/print-1002439.html',
       ),
     ],

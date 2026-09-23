@@ -380,7 +380,7 @@ void main() {
     expect(taxes.rules, hasLength(4));
     expect(taxes.rules.every((r) => r.scopeFrom == '2026-01-01'), true);
     expect(taxes.rules.every((r) => r.scopeTo == '2026-12-31'), true);
-    expect(taxes.rules.every((r) => r.verifiedOn == '2026-09-22'), true);
+    expect(taxes.rules.every((r) => r.verifiedOn == '2026-09-23'), true);
     expect(taxes.rules.every((r) => r.sourceUrl.startsWith('https://')), true);
   });
 }

@@ -108,6 +108,29 @@ void main() {
     }
   });
 
+  test('tax controls are localized in every supported language', () {
+    const keys = [
+      'taxAssumptionsTitle',
+      'taxAssumptionsInfo',
+      'taxesUnknown',
+      'taxPresetUkraine2026',
+      'taxVerifiedOn',
+      'taxApplied',
+      'unknownTaxesResultInfo',
+      'expenseCoverageUnknownTaxesInfo',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+    }
+  });
+
   testWidgets('typed error follows the selected UI language', (tester) async {
     final locale = LocaleCubit()..select(AppLanguage.en);
     await tester.pumpWidget(
@@ -134,6 +157,12 @@ void main() {
         const AppError('planner.fee_currency_mismatch'),
       ),
       'The fee currency does not match the scenario currency.',
+    );
+    expect(
+      HubStrings(AppLanguage.en).error(
+        const AppError('planner.unsupported_tax_base'),
+      ),
+      'A non-zero tax rule requires an explicit tax-base model; the calculation was stopped.',
     );
     await locale.close();
   });
