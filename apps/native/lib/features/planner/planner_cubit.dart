@@ -209,6 +209,72 @@ class PlannerCubit extends Cubit<PlannerState> {
     _subscription = repository.changes.listen((_) => _recalculate(state));
     _recalculate(state);
   }
+
+  PositionInput _legacyInput(
+    Bond bond,
+    int quantity,
+    String price, {
+    required bool nominalEstimate,
+    Iterable<PriceObservation>? observations,
+    String? selectedSourceId,
+  }) {
+    final existing = observations?.toList(growable: true) ?? <PriceObservation>[];
+    if (existing.isEmpty) {
+      existing.add(
+        PriceObservation.legacy(
+          bond: bond,
+          unitCost: money(price),
+          nominalEstimate: nominalEstimate,
+          observedAt: clock().toUtc().toIso8601String(),
+        ),
+      );
+    }
+    return PositionInput(
+      bond,
+      quantity.toString(),
+      price,
+      nominalEstimate: nominalEstimate,
+      observations: existing,
+      selectedSourceId:
+          nominalEstimate ? null : selectedSourceId ?? existing.first.meta.sourceId,
+    );
+  }
+
+  PriceSourcePriority _withSourceFirst(String sourceId) => PriceSourcePriority([
+    sourceId,
+    ...state.priceSourcePriority.sourceIds.where((id) => id != sourceId),
+  ]);
+
+  Map<String, PositionInput> _applyPriority(
+    PriceSourcePriority priority,
+    Map<String, PositionInput> inputs, {
+    String? activateIsin,
+  }) {
+    final result = <String, PositionInput>{};
+    for (final entry in inputs.entries) {
+      var input = entry.value;
+      final shouldUseMarket =
+          !input.nominalEstimate || entry.key == activateIsin;
+      if (shouldUseMarket && !priority.isEmpty) {
+        final selected = priority.resolvePurchase(
+          input.bond.isin,
+          input.observations,
+        );
+        if (selected != null) {
+          input = input.copyWith(
+            price: selected.effectiveUnitCost!.toString(),
+            nominalEstimate: false,
+            selectedSourceId: selected.meta.sourceId,
+          );
+        } else if (entry.key == activateIsin) {
+          throw const FormatException('planner.no_price_for_priority');
+        }
+      }
+      result[entry.key] = input;
+    }
+    return result;
+  }
+
   void edit(String key, String value) {
     if (state.busy || state.locked) return;
     final resetPositions = [
