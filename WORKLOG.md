@@ -25,34 +25,35 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **exit assumptions → per-position multi-ISIN model → cashflow/profit wiring → persistence → 7-language UI → tests**.
+Мета: **A/B/C scenario comparison → strict comparability → explanatory metrics → 7-language UI → tests**.
 
-- PR: **#51** `Planner: per-position exit assumptions`
-- final head: `0d6c75e505833afd9dbc008ef86653dbec8ebe9f`
-- final verify: **Flutter checks and START run #161 — success**
-- squash merge у `main`: `296fb9e0b53093685ced9e801196616a401582f4`
-- published checkpoint remains **v0.8.7 / 0.8.7+15**
-- completed:
-  - per-position `positionExits` keyed by ISIN;
-  - safe legacy compatibility + ambiguous multi-position legacy exit fail closed;
-  - contractual receipts before sale + sale proceeds, later payments excluded;
-  - settlement delay on sale proceeds in expense coverage;
-  - exit-aware profit feeds fees → tax → FX;
-  - no silent portfolio re-optimization for exit;
-  - BID provenance required, manual assumptions explicit;
-  - persistence/load/save;
-  - UK/EN/FR/DE/ES/KO/JA UI/error coverage;
-  - domain/cubit/persistence/widget regression coverage green.
+- baseline `main`: `d0d1a50e6d28267398b1d400a3503a2ba12bf566`
+- active branch: `feat/planner-abc-comparison`
+- published checkpoint: **v0.8.7 / 0.8.7+15**
+- audit:
+  - `PlannerScenario` already contains `groupId` and `variantLabel`, but current UI does not use them;
+  - saved planner scenarios already live in `CollectionsView`, so comparison should reuse those immutable SavedSet records;
+  - hard comparability boundary: currency, budget, reserve, start/horizon, settlement delay and economic needs must match;
+  - strategy, positions, selected prices, fees, tax status, FX and exits may differ and are explanatory comparison dimensions;
+  - two or three scenarios only;
+  - no automatic winner/ranking in this slice; A/B/C are neutral display labels;
+  - scenarios with unsupported recurring/reserveFloor needs fail closed until those need types are wired through active planner calculations.
 
 ### Поточна наступна дія
 
-**NEXT — A/B/C scenario comparison.**
+**DOING — comparison in “Мій план”.**
 
-Почати audit-first vertical від актуального `main`: перевірити наявні `groupId` / `variantLabel` у PlannerScenario, визначити однаковий набір comparison assumptions і побудувати порівняння без змішування різних budget/currency/need assumptions.
+1. strict pure evaluator for 2–3 SavedSet planner scenarios;
+2. reconstruct positions and reuse the same exit-aware fee → tax → FX → expense calculations as Planner;
+3. select up to 3 saved scenarios in Collections;
+4. table/cards: composition, strategy, initial cost, purchase fee status, tax status, reserve, profit basis/value, FX comparison, exits and expense shortfall;
+5. clearly show shared baseline assumptions and why variants differ;
+6. no best/worst label without explicit user criterion;
+7. UK/EN/FR/DE/ES/KO/JA localization + domain/cubit/widget tests.
 
-Comparison має пояснювати **чому** сценарії відрізняються: position composition, initial cost/fees, tax status, FX comparison, exit assumptions, cashflow, profit та coverage. Не оголошувати «найкращий» сценарій без явного user-defined criterion.
+Generated planner copy/localization polish remains after this slice.
 
 ## Черга робіт
 
@@ -61,7 +62,7 @@ Comparison має пояснювати **чому** сценарії відрі�
 3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
 4. **DONE** — FX assumptions calculation/UI.
 5. **DONE** — exit assumptions redesign/wiring for multi-position scenarios.
-6. **NEXT** — A/B/C comparison.
+6. **DOING** — A/B/C comparison.
 7. **TODO** — generated planner copy / preset labels localization + UX regression.
 8. **TODO** — оцінка готовності formal prerelease 0.9.0.
 
