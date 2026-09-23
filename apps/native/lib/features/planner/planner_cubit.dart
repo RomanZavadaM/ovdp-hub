@@ -702,19 +702,13 @@ class PlannerCubit extends Cubit<PlannerState> {
       final inputs = <String, PositionInput>{};
       for (final position in scenario.positions) {
         final bond = saved.bonds.firstWhere((b) => b.isin == position.isin);
-        final nominal =
-            position.price.kind == PriceValueKind.nominalEstimate;
-        inputs[bond.isin] = PositionInput(
-          bond,
-          position.quantity.toString(),
-          position.unitCost.toString(),
-          nominalEstimate: nominal,
-        );
+        inputs[bond.isin] = PositionInput.fromDraft(bond, position);
       }
       _recalculate(
         state.copyWith(
           criteria: criteria,
           inputs: inputs,
+          priceSourcePriority: scenario.priceSourcePriority,
           saved: true,
           revision: state.revision + 1,
         ),
@@ -744,10 +738,13 @@ class PlannerCubit extends Cubit<PlannerState> {
     emit(state.copyWith(busy: true, clearError: true));
     try {
       final savedAt = clock().toUtc().toIso8601String();
-      final scenario = PlannerScenario.fromCurrentUi(
+      final scenario = PlannerScenario.fromCurrentUiDrafts(
         criteria: draft.criteria,
-        positions: draft.inputs.values.map((i) => i.parse()),
+        positions: draft.inputs.values.map(
+          (i) => i.toDraft(observedAt: savedAt),
+        ),
         savedAt: savedAt,
+        priceSourcePriority: draft.priceSourcePriority,
       );
       await repository.saveCollection(
         SavedSet(
