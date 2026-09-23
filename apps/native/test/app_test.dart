@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/main.dart';
+import 'package:ovdp_hub/data/hub_repository.dart';
 import 'package:ovdp_hub/models.dart';
 import 'support/fake_repository.dart';
 import 'support/planner_comparison_fixtures.dart';
@@ -466,7 +467,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final comparison = comparisonCatalog();
-    final bond = comparison.assets.first;
+    final bond = comparison.bonds.first;
     final sets = [
       comparisonSavedSet(
         bond,
