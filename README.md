@@ -39,7 +39,8 @@
 2. **DONE** — purchase-fee assumptions;
 3. **DONE** — verified tax assumptions;
 4. **DONE** — FX assumptions;
-5. **NEXT** — exit assumptions; далі A/B/C comparison і UX/localization polish.
+5. **DONE** — exit assumptions;
+6. **NEXT** — A/B/C comparison; далі UX/localization polish.
 
 OVDP Hub не виконує купівлю чи продаж і не підтверджує доступність інструмента у продавця.
 
