@@ -490,6 +490,13 @@ void main() {
     await tester.tap(find.text('Добірки'));
     await tester.pumpAndSettle();
 
+    for (final name in ['Сценарій один', 'Сценарій два']) {
+      final tile = find.text(name).first;
+      await tester.ensureVisible(tile);
+      await tester.tap(tile);
+      await tester.pumpAndSettle();
+    }
+
     final choices = find.widgetWithText(
       CheckboxListTile,
       'Додати до порівняння A/B/C',
