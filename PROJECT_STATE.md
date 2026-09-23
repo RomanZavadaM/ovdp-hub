@@ -209,9 +209,24 @@ PR **#51 — Planner: per-position exit assumptions** squash-merged у `main` я
 
 Final PR verification: **Flutter checks and START run #161 — success**.
 
+PR **#54 — Planner: implement recurring needs block** squash-merged у `main` як `e2a48d7017fe578295e631054d84fce52cbc2b55`.
+
+Інтегровано, але ще не видано окремим GitHub release:
+- основна потреба винесена в окремий блок із назвою, датою та сумою;
+- основну потребу можна зробити recurring із кроком у місяцях і загальною кількістю платежів;
+- recurring need зберігається як typed `PlannerNeedType.recurring` у schema 3 без schema bump;
+- cashflow/coverage розгортає recurring need детерміновано з month-end clamping;
+- сценарій із recurring primary need коректно завантажується назад у UI;
+- додаткові потреби лишаються явними one-off записами add/remove;
+- hard-coded кнопка, що дублювала ще 5 місяців, видалена;
+- legacy one-off scenarios лишаються сумісними;
+- UI/errors локалізовано UK/EN/FR/DE/ES/KO/JA.
+
+Final PR verification: **Flutter checks and START run #168 — success**.
+
 ## Чому 0.8.7, а не 0.9.0
 
-Після v0.8.7 у `main` уже інтегровано verified tax assumptions, explicit FX comparison assumptions та per-position exit assumptions, але **ще не завершені**:
+Після v0.8.7 у `main` уже інтегровано verified tax assumptions, explicit FX comparison assumptions, per-position exit assumptions та typed recurring Planner needs, але **ще не завершені**:
 - A/B/C comparison;
 - generated planner copy / preset labels localization.
 
