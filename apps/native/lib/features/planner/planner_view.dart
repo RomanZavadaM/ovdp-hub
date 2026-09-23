@@ -74,9 +74,11 @@ class PlannerView extends StatelessWidget {
     final c = state.criteria,
         summary = state.summary,
         feeImpact = state.feeImpact,
+        taxImpact = state.taxImpact,
         disabled = state.busy || state.locked;
     final currency = c['currency'];
     final feesKnown = state.fees.status == FeeAssumptionStatus.known;
+    final taxesKnown = state.taxes.status == TaxAssumptionStatus.known;
     final simpleFeeRules = state.fees.rules.isEmpty ||
         (state.fees.rules.length == 1 &&
             state.fees.rules.single.id == 'ui-purchase-fee' &&
@@ -263,6 +265,32 @@ class PlannerView extends StatelessWidget {
           ),
         if (feesKnown && !simpleFeeRules)
           Text(strings.text('advancedFeeRulesPreserved')),
+        const SizedBox(height: 12),
+        SectionHeading(strings.text('taxAssumptionsTitle')),
+        Text(strings.text('taxAssumptionsInfo')),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ChoiceChip(
+              label: Text(strings.text('taxesUnknown')),
+              selected: !taxesKnown,
+              onSelected: disabled ? null : (_) => cubit.setTaxesUnknown(),
+            ),
+            ChoiceChip(
+              label: Text(strings.text('taxPresetUkraine2026')),
+              selected: taxesKnown,
+              onSelected: disabled
+                  ? null
+                  : (_) => cubit.useUkraineResidentOvdp2026Taxes(),
+            ),
+          ],
+        ),
+        if (taxesKnown && state.taxes.rules.isNotEmpty)
+          Text(
+            '${strings.text('taxVerifiedOn')}: '
+            '${state.taxes.rules.first.verifiedOn}',
+          ),
         const SizedBox(height: 12),
         FilledButton.icon(
           onPressed: disabled ? null : cubit.generate,
@@ -492,7 +520,7 @@ class PlannerView extends StatelessWidget {
             ),
             Text(
               '${strings.text('expectedProfit')}: '
-              '${feeImpact.profitAfterPurchaseFee!.toStringAsFixed(2)} $currency',
+              '${(taxImpact?.known == true && taxImpact?.profitAfterTax != null ? taxImpact!.profitAfterTax! : feeImpact.profitAfterPurchaseFee!).toStringAsFixed(2)} $currency',
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ] else ...[
@@ -508,10 +536,19 @@ class PlannerView extends StatelessWidget {
           ],
           if (feeImpact?.hasDeferredRules == true)
             Text(strings.text('advancedFeeRulesPreserved')),
+          if (taxImpact?.known == true)
+            Text(
+              '${strings.text('taxApplied')}: '
+              '${taxImpact!.taxAmount!.toStringAsFixed(2)} $currency',
+            )
+          else
+            Text(strings.text('unknownTaxesResultInfo')),
           Text(strings.text('resultCaveat')),
           SectionHeading(strings.text('expenseCoverage')),
           if (feeImpact?.known != true)
             Text(strings.text('expenseCoverageUnknownFeesInfo')),
+          if (taxImpact?.known != true)
+            Text(strings.text('expenseCoverageUnknownTaxesInfo')),
           for (final row in state.expenseBalances)
             Card(
               child: ListTile(
