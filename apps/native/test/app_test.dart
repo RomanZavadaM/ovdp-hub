@@ -267,6 +267,65 @@ void main() {
     await tester.pumpAndSettle();
     await repository.dispose();
   });
+  testWidgets('planner FX comparison is explicit and does not alter base currency', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = FakeRepository(catalog);
+    await tester.pumpWidget(OvdpApp(repository: repository));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Планування'));
+    await tester.pumpAndSettle();
+
+    final heading = find.text('FX-порівняння');
+    await tester.ensureVisible(heading);
+    expect(heading, findsOneWidget);
+    expect(find.text('FX-порівняння не задане.'), findsOneWidget);
+
+    final add = find.text('Додати FX-порівняння');
+    await tester.ensureVisible(add);
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Налаштувати FX-порівняння'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Курс · 1 UAH → USD'),
+      '0.025',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Дата курсу YYYY-MM-DD'),
+      '2026-09-23',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'URL джерела курсу FX'),
+      'https://bank.gov.ua/',
+    );
+    await tester.tap(find.text('Застосувати FX'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('1 UAH = 0.025 USD'), findsWidgets);
+    expect(find.text('Порівняльний результат у валюті FX'), findsOneWidget);
+    expect(
+      find.textContaining('Базові суми та cashflow у валюті сценарію'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('UAH'), findsWidgets);
+    expect(tester.takeException(), isNull);
+
+    final clear = find.text('Очистити FX');
+    await tester.ensureVisible(clear);
+    await tester.tap(clear);
+    await tester.pumpAndSettle();
+    expect(find.text('FX-порівняння не задане.'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    await repository.dispose();
+  });
   testWidgets('phone layout saves a collection through Cubit and reopens it', (
     tester,
   ) async {
