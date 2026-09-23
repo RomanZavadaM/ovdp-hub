@@ -118,6 +118,7 @@ class PositionInput {
 class PlannerState {
   final Map<String, String> criteria;
   final Map<String, PositionInput> inputs;
+  final PriceSourcePriority priceSourcePriority;
   final List<Bond> candidates;
   final PlanSummary? summary;
   final List<ExpenseBalance> expenseBalances;
@@ -128,6 +129,7 @@ class PlannerState {
   PlannerState({
     required Map<String, String> criteria,
     Map<String, PositionInput> inputs = const {},
+    PriceSourcePriority? priceSourcePriority,
     Iterable<Bond> candidates = const [],
     this.summary,
     Iterable<ExpenseBalance> expenseBalances = const [],
@@ -141,11 +143,13 @@ class PlannerState {
   }) : expenseBalances = List.unmodifiable(expenseBalances),
        criteria = Map.unmodifiable(criteria),
        inputs = Map.unmodifiable(inputs),
+       priceSourcePriority = priceSourcePriority ?? PriceSourcePriority.none(),
        candidates = List.unmodifiable(candidates);
   bool get dirty => (changed || inputs.isNotEmpty) && !saved;
   PlannerState copyWith({
     Map<String, String>? criteria,
     Map<String, PositionInput>? inputs,
+    PriceSourcePriority? priceSourcePriority,
     Iterable<Bond>? candidates,
     PlanSummary? summary,
     Iterable<ExpenseBalance>? expenseBalances,
@@ -160,6 +164,7 @@ class PlannerState {
   }) => PlannerState(
     criteria: criteria ?? this.criteria,
     inputs: inputs ?? this.inputs,
+    priceSourcePriority: priceSourcePriority ?? this.priceSourcePriority,
     candidates: candidates ?? this.candidates,
     summary: clearSummary ? null : summary ?? this.summary,
     expenseBalances: clearSummary
