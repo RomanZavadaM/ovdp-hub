@@ -1,6 +1,6 @@
 # Roadmap OVDP Hub
 
-Оновлено: 22.09.2026. Цей roadmap стосується лише активного Flutter-продукту.
+Оновлено: 23.09.2026. Цей roadmap стосується лише активного Flutter-продукту.
 
 ## Продуктовий напрямок до 0.9.0
 
@@ -9,8 +9,8 @@
 Порядок розвитку:
 
 1. **Довіра до ринкових даних — DONE**: detailed MinFin auction results parser інтегрований з provenance, fail-closed поведінкою та deterministic tests.
-2. **Зрозуміла актуальність** — уніфікувати freshness/status UX у картці ISIN: що є офіційним фактом, що застаріло, що лише індикативне, коли саме отримано.
-3. **Явний вибір ринкової ціни** — підтримати кілька `PriceObservation` і дати користувачу явний пріоритет джерел без прихованої підміни yield/nominal ціною.
+2. **Зрозуміла актуальність — DONE**: freshness/status UX у картці ISIN уніфіковано для NBU / MinFin / seller observations.
+3. **Явний вибір ринкової ціни — DONE**: кілька `PriceObservation`, explicit user priority, add/select/reorder controls і nominal fallback інтегровані без прихованої підміни yield/nominal ціною.
 4. **Повна економіка сценарію** — підключити typed fee/tax/FX/exit assumptions до розрахунків і UI; невідомі значення не вважати нулем.
 5. **Порівняння рішень** — A/B/C comparison з однаковими припущеннями, cashflow і поясненням різниці.
 6. **Готовність 0.9.0** — UX-polish, generated-copy localization, regression review, cross-platform prerelease.
@@ -48,14 +48,14 @@
   - [x] Детальний parser результатів аукціонів з офіційних DOCX: placement 21-row × N, switch 26-field, provenance + fail-closed + deterministic tests.
 - [x] Продавці: типізовані вторинні observations без вигаданої ціни.
 - [x] Базові sourceDate / retrievedAt / freshness / evidence URL; validUntil лишається source-specific.
-- [ ] Передача лише явної/введеної ціни у планувальник.
+- [x] Передача лише явної/введеної ціни у планувальник; yield-only/nominal не стають market price автоматично.
 
 ## Планувальник наступного покоління
 
 - [x] Типізований PlannerScenario / schema 3 з adapter schema 1/2.
 - [x] Домен комісій: разові/періодичні/невідомі з явним статусом.
 - [x] Домен effective-dated податкових сценаріїв.
-- [ ] Кілька джерел цін і пріоритет користувача.
+- [x] Кілька джерел цін і пріоритет користувача — PR #39, final run #123.
 - [ ] Порівняння альтернативних сценаріїв A/B/C.
 - [x] Домен продажу до погашення як окремого припущення з BID/ручною ціною.
 - [x] Домен FX з явним курсом, датою та джерелом.

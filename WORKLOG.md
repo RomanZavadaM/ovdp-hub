@@ -25,50 +25,39 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **multiple `PriceObservation` + explicit user source priority**.
 
-- release baseline `main`: `2030dcfe01304dcd11e443c886ae9d2bc6f6c165`
-- active branch: `feat/price-observation-source-priority`
-- опублікований checkpoint: **v0.8.6 / 0.8.6+14**
-- active draft PR: **#39** `Planner: multiple price observations with explicit source priority`
-- verified functional head: `b6bfe1e47870e7a9ff3faf319035ad164cb8495c`
-- final functional verify: **Flutter checks and START run #122 — success**
-- `flutter pub get --enforce-lockfile` — success
-- `flutter analyze` — success
-- `flutter test` — success
-- implemented and verified:
+- PR: **#39** `Planner: multiple price observations with explicit source priority`
+- squash merge у `main`: `255d15294105e8d5ae6dfe216f1e900fe0490192`
+- final PR head: `ba26ee63bc25b82e220582ee4c4572cee39eb61e`
+- final verify: **Flutter checks and START run #123 — success**
+- published checkpoint лишається **v0.8.6 / 0.8.6+14**
+- completed:
   - additive schema-3 `priceObservations` + `priceSourcePriority`;
-  - legacy selected `price` retained for older readers;
-  - resolver accepts only explicit purchase prices (full/clean ASK/manual);
-  - yield-only and nominal estimate are excluded from market-price candidates;
-  - duplicate eligible observations from one source fail closed;
-  - PlannerCubit load/save preserves observations and source priority;
-  - planner UI supports add/select/reorder source controls and explicit nominal fallback;
-  - combined quantity + manual-price edit regression fixed: the already quantity-updated input is no longer overwritten from stale state;
-  - price-source dialog no longer disposes controllers during route-exit animation;
-  - 9 price-source UI keys localized in UK/EN/FR/DE/ES/KO/JA;
-  - deterministic domain, cubit/persistence, localization and widget-flow tests added and passing.
-- CI history:
-  - run #112 — analyzer failure;
-  - run #113/#114 — one planner regression;
-  - run #115 — diagnostic confirmed `planner.reserve_spent` came from stale quantity `45`;
-  - run #121 — domain/cubit/localization tests green, widget test exposed disposed-controller UI race;
-  - run #122 — **success** after UI race fix.
+  - explicit purchase-price resolver: full/clean ASK/manual only;
+  - yield-only і nominal estimate не є market-price candidates;
+  - add/select/reorder source controls + explicit nominal fallback;
+  - persistence/load/save observations + source priority;
+  - duplicate eligible observations per source fail closed;
+  - simultaneous quantity+price edit regression fixed;
+  - price-source dialog controller-lifetime race fixed;
+  - 9 UI keys localized in UK/EN/FR/DE/ES/KO/JA;
+  - domain, cubit/persistence, localization and widget-flow tests passing.
 
 ### Поточна наступна дія
 
-Перевести PR **#39** з draft у **ready**, дочекатися green checks на фінальному WORKLOG head і **інтегрувати PR у `main`** squash merge.
+**NEXT — typed fee/tax/FX/exit assumptions → calculations + UI.**
 
-Після merge синхронізувати `PROJECT_STATE.md`, `WORKLOG.md`, roadmap та Issue #18. Єдиний наступний functional slice після синхронізації: **typed fee/tax/FX/exit assumptions → calculations + UI**.
+Перший крок нового functional slice: створити окрему feature branch від актуального `main`, провести audit вже наявних `FeeAssumptions`, `TaxScenario`, `FxAssumption`, `ExitAssumption` та всіх місць, де planner calculations/UI їх ще не використовують. Після audit реалізувати вертикально: typed input → validation → calculation → persistence → 7-language UI → tests.
 
-Hard invariant: yield-only або nominal estimate **ніколи** не можуть автоматично стати вибраною ринковою ціною.
+Перед використанням будь-якого податкового preset обов'язково перевірити офіційне джерело та effective date.
 
 ## Черга робіт
 
-1. **NEXT** — multiple `PriceObservation` + explicit user source priority.
-2. **TODO** — typed fee/tax/FX/exit assumptions → calculations + UI.
+1. **DONE** — multiple `PriceObservation` + explicit user source priority.
+2. **NEXT** — typed fee/tax/FX/exit assumptions → calculations + UI.
 3. **TODO** — A/B/C comparison.
 4. **TODO** — generated planner copy / preset labels localization + UX regression.
 5. **TODO** — оцінка готовності formal prerelease 0.9.0.
@@ -98,6 +87,8 @@ Hard invariant: yield-only або nominal estimate **ніколи** не мож�
 - поточний опублікований v0.8.6 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — explicit price-source priority**: PR #39 squash-merged у `main` як `255d15294105e8d5ae6dfe216f1e900fe0490192`; final run #123 success. Planner зберігає кілька observations, explicit source priority, UI add/select/reorder + nominal fallback; yield-only/nominal не стають market price автоматично; UI локалізовано 7 мовами, regression/widget coverage зелені.
 
 - **DONE — v0.8.6 full cross-platform checkpoint**: PR #37 squash-merged у `main` як `7b19670a2ff621a65685db714022d8819ecff7d4`; `Publish native prerelease` run #34 success; опубліковано Windows/macOS/Android/iOS/START + SHA256SUMS + legal notices під tag `v0.8.6`.
 
