@@ -25,46 +25,43 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **multiple `PriceObservation` + explicit user source priority**.
 
 - release baseline `main`: `2030dcfe01304dcd11e443c886ae9d2bc6f6c165`
 - active branch: `feat/price-observation-source-priority`
 - опублікований checkpoint: **v0.8.6 / 0.8.6+14**
-- release workflow: **Publish native prerelease run #34 — success**
-- перевірені assets: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
-- наступний functional slice стартує поверх підтвердженого v0.8.6 baseline
 - active draft PR: **#39** `Planner: multiple price observations with explicit source priority`
-- current head: `11beef250ee57acc04cf5a973779d27e83ac43af`
-- CI history:
-  - run #112 — failure on analyzer (3 issues);
-  - analyzer issues fixed in `11beef250ee57acc04cf5a973779d27e83ac43af`;
-  - run #113 — `pub get` success, `analyze` success, `test` failure on one planner regression.
-- already implemented in PR #39:
+- verified functional head: `b6bfe1e47870e7a9ff3faf319035ad164cb8495c`
+- final functional verify: **Flutter checks and START run #122 — success**
+- `flutter pub get --enforce-lockfile` — success
+- `flutter analyze` — success
+- `flutter test` — success
+- implemented and verified:
   - additive schema-3 `priceObservations` + `priceSourcePriority`;
-  - legacy single `price` retained for older readers;
-  - resolver uses only explicit purchase prices (full/clean ASK/manual);
-  - yield-only and nominal estimate excluded from market-price candidates;
+  - legacy selected `price` retained for older readers;
+  - resolver accepts only explicit purchase prices (full/clean ASK/manual);
+  - yield-only and nominal estimate are excluded from market-price candidates;
   - duplicate eligible observations from one source fail closed;
-  - PlannerCubit load/save keeps observations and source priority;
-  - planner UI already contains add/select/reorder source controls and nominal fallback;
-  - deterministic domain tests for source priority are passing.
-- still incomplete:
-  - regression fix for `planner_test.dart:156`;
-  - 9 new localization keys are still absent for the price-source UI;
-  - cubit/persistence/widget tests for the UI flow;
-  - final green verify + ready/merge.
+  - PlannerCubit load/save preserves observations and source priority;
+  - planner UI supports add/select/reorder source controls and explicit nominal fallback;
+  - combined quantity + manual-price edit regression fixed: the already quantity-updated input is no longer overwritten from stale state;
+  - price-source dialog no longer disposes controllers during route-exit animation;
+  - 9 price-source UI keys localized in UK/EN/FR/DE/ES/KO/JA;
+  - deterministic domain, cubit/persistence, localization and widget-flow tests added and passing.
+- CI history:
+  - run #112 — analyzer failure;
+  - run #113/#114 — one planner regression;
+  - run #115 — diagnostic confirmed `planner.reserve_spent` came from stale quantity `45`;
+  - run #121 — domain/cubit/localization tests green, widget test exposed disposed-controller UI race;
+  - run #122 — **success** after UI race fix.
 
 ### Поточна наступна дія
 
-**Першою дією нового чату** виправити regression у PR #39 / run #113: test `planner_test.dart: scenario persists quantities prices and need date and reloads identically` падає на рядку 156, бо після `generate()` + `position(... price: '1050.25')` `cubit.state.summary` стає `null`. `flutter pub get --enforce-lockfile` і `flutter analyze` у run #113 вже зелені.
+Перевести PR **#39** з draft у **ready**, дочекатися green checks на фінальному WORKLOG head і **інтегрувати PR у `main`** squash merge.
 
-Після цього:
-1. додати 9 UI localization keys для price-source controls у UK/EN/FR/DE/ES/KO/JA;
-2. додати cubit/persistence/widget tests для add/select/reorder/nominal fallback;
-3. прогнати final green verify;
-4. перевести PR #39 з draft у ready та інтегрувати PR у `main`.
+Після merge синхронізувати `PROJECT_STATE.md`, `WORKLOG.md`, roadmap та Issue #18. Єдиний наступний functional slice після синхронізації: **typed fee/tax/FX/exit assumptions → calculations + UI**.
 
 Hard invariant: yield-only або nominal estimate **ніколи** не можуть автоматично стати вибраною ринковою ціною.
 
