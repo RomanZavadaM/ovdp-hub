@@ -20,8 +20,8 @@ class PlannerView extends StatelessWidget {
     PositionInput input,
     HubStrings strings,
   ) async {
-    final source = TextEditingController();
-    final price = TextEditingController();
+    var source = '';
+    var price = '';
     final submitted = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -30,13 +30,13 @@ class PlannerView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: source,
+              onChanged: (value) => source = value,
               decoration: InputDecoration(
                 labelText: strings.text('priceSourceName'),
               ),
             ),
             TextField(
-              controller: price,
+              onChanged: (value) => price = value,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: strings.text('priceSourceFullPrice'),
@@ -59,12 +59,10 @@ class PlannerView extends StatelessWidget {
     if (submitted == true && context.mounted) {
       cubit.addManualPriceSource(
         input.bond.isin,
-        source.text,
-        price.text,
+        source,
+        price,
       );
     }
-    source.dispose();
-    price.dispose();
   }
 
   @override
