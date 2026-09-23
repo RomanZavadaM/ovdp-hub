@@ -66,6 +66,105 @@ class PlannerView extends StatelessWidget {
     }
   }
 
+  Future<void> _editFxComparison(
+    BuildContext context,
+    PlannerCubit cubit,
+    HubStrings strings,
+    String baseCurrency,
+    List<FxAssumption> current,
+  ) async {
+    final targets = ['UAH', 'USD', 'EUR']
+        .where((value) => value != baseCurrency)
+        .toList(growable: false);
+    FxAssumption? existing;
+    if (current.length == 1 && current.single.fromCurrency == baseCurrency) {
+      existing = current.single;
+    }
+    var target = existing?.toCurrency ?? targets.first;
+    var rate = existing?.rate.toString() ?? '';
+    var asOf = existing?.asOf ??
+        DateTime.now().toIso8601String().substring(0, 10);
+    var sourceUrl = existing?.source?.sourceUrl ?? '';
+
+    final submitted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: Text(strings.text('fxEditTitle')),
+          content: SizedBox(
+            width: 420,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButton<String>(
+                  value: target,
+                  isExpanded: true,
+                  items: [
+                    for (final value in targets)
+                      DropdownMenuItem(
+                        value: value,
+                        child: Text(
+                          '${strings.text('fxTargetCurrency')}: $value',
+                        ),
+                      ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setDialogState(() => target = value);
+                    }
+                  },
+                ),
+                TextFormField(
+                  initialValue: rate,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText:
+                        '${strings.text('fxRate')} · 1 $baseCurrency → $target',
+                  ),
+                  onChanged: (value) => rate = value,
+                ),
+                TextFormField(
+                  initialValue: asOf,
+                  decoration: InputDecoration(
+                    labelText: strings.text('fxAsOf'),
+                  ),
+                  onChanged: (value) => asOf = value,
+                ),
+                TextFormField(
+                  initialValue: sourceUrl,
+                  decoration: InputDecoration(
+                    labelText: strings.text('fxSourceUrl'),
+                  ),
+                  onChanged: (value) => sourceUrl = value,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(strings.text('close')),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(strings.text('applyFxComparison')),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (submitted == true && context.mounted) {
+      cubit.setFxComparison(
+        targetCurrency: target,
+        rate: rate,
+        asOf: asOf,
+        sourceUrl: sourceUrl,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PlannerCubit>(),
@@ -75,10 +174,15 @@ class PlannerView extends StatelessWidget {
         summary = state.summary,
         feeImpact = state.feeImpact,
         taxImpact = state.taxImpact,
+        fxImpact = state.fxImpact,
         disabled = state.busy || state.locked;
     final currency = c['currency'];
     final feesKnown = state.fees.status == FeeAssumptionStatus.known;
     final taxesKnown = state.taxes.status == TaxAssumptionStatus.known;
+    final simpleFx = state.fx.length == 1 &&
+        state.fx.single.fromCurrency == currency
+        ? state.fx.single
+        : null;
     final simpleFeeRules = state.fees.rules.isEmpty ||
         (state.fees.rules.length == 1 &&
             state.fees.rules.single.id == 'ui-purchase-fee' &&
@@ -291,6 +395,53 @@ class PlannerView extends StatelessWidget {
             '${strings.text('taxVerifiedOn')}: '
             '${state.taxes.rules.first.verifiedOn}',
           ),
+        const SizedBox(height: 12),
+        SectionHeading(strings.text('fxAssumptionsTitle')),
+        Text(strings.text('fxAssumptionsInfo')),
+        if (state.fx.isEmpty)
+          Text(strings.text('fxNotSet'))
+        else if (simpleFx != null) ...[
+          Text(
+            '1 $currency = ${simpleFx.rate} ${simpleFx.toCurrency} · '
+            '${strings.text('fxAsOf')}: ${simpleFx.asOf}',
+          ),
+          if (simpleFx.source != null)
+            Text(
+              '${strings.text('fxSourceUrl')}: ${simpleFx.source!.sourceUrl}',
+            ),
+        ] else
+          Text(strings.text('advancedFxRulesPreserved')),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            OutlinedButton.icon(
+              onPressed: disabled
+                  ? null
+                  : () => _editFxComparison(
+                      context,
+                      cubit,
+                      strings,
+                      currency!,
+                      state.fx,
+                    ),
+              icon: const Icon(Icons.currency_exchange),
+              label: Text(
+                state.fx.isEmpty
+                    ? strings.text('addFxComparison')
+                    : simpleFx != null
+                        ? strings.text('changeFxComparison')
+                        : strings.text('replaceFxComparison'),
+              ),
+            ),
+            if (state.fx.isNotEmpty)
+              TextButton.icon(
+                onPressed: disabled ? null : cubit.clearFxComparison,
+                icon: const Icon(Icons.clear),
+                label: Text(strings.text('clearFxComparison')),
+              ),
+          ],
+        ),
         const SizedBox(height: 12),
         FilledButton.icon(
           onPressed: disabled ? null : cubit.generate,
@@ -543,6 +694,30 @@ class PlannerView extends StatelessWidget {
             )
           else
             Text(strings.text('unknownTaxesResultInfo')),
+          if (fxImpact?.active == true) ...[
+            const SizedBox(height: 8),
+            Text(
+              '${strings.text('fxComparisonResult')}: '
+              '1 $currency = ${fxImpact!.assumption!.rate} '
+              '${fxImpact.assumption!.toCurrency}',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            Text(
+              '${strings.text('invested')}: '
+              '${fxImpact.invested!.toStringAsFixed(2)} '
+              '${fxImpact.assumption!.toCurrency} · '
+              '${strings.text('free')}: '
+              '${fxImpact.reserve!.toStringAsFixed(2)} '
+              '${fxImpact.assumption!.toCurrency}',
+            ),
+            Text(
+              '${strings.text('expectedProfit')}: '
+              '${fxImpact.profit!.toStringAsFixed(2)} '
+              '${fxImpact.assumption!.toCurrency}',
+            ),
+            Text(strings.text('fxBaseAuthoritative')),
+          ] else if (fxImpact?.deferred == true)
+            Text(strings.text('advancedFxRulesPreserved')),
           Text(strings.text('resultCaveat')),
           SectionHeading(strings.text('expenseCoverage')),
           if (feeImpact?.known != true)
