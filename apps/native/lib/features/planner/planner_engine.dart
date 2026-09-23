@@ -22,11 +22,41 @@ class PlanPosition {
   };
 }
 
+class PlanExitOverride {
+  final String isin, date;
+  final Decimal unitPrice;
+  const PlanExitOverride(this.isin, this.date, this.unitPrice);
+}
+
+void validatePlanExit(
+  PlanPosition position,
+  PlanExitOverride exit,
+  String start,
+) {
+  final sale = isoDate(exit.date);
+  final startDate = isoDate(start);
+  final maturity = isoDate(position.bond.maturity);
+  if (exit.isin != position.bond.isin ||
+      exit.unitPrice <= Decimal.zero ||
+      !sale.isAfter(startDate) ||
+      !sale.isBefore(maturity) ||
+      position.bond.payments.any(
+        (payment) => isoDate(payment['date'] as String) == sale,
+      )) {
+    throw const FormatException('planner.invalid_exit_timing');
+  }
+}
+
 class MonthlyFlow {
   final String month;
-  final Decimal coupons, principal;
-  MonthlyFlow(this.month, this.coupons, this.principal);
-  Decimal get total => coupons + principal;
+  final Decimal coupons, principal, sales;
+  MonthlyFlow(
+    this.month,
+    this.coupons,
+    this.principal, {
+    Decimal? sales,
+  }) : sales = sales ?? Decimal.zero;
+  Decimal get total => coupons + principal + sales;
 }
 
 class PlanSummary {
@@ -34,6 +64,7 @@ class PlanSummary {
       reserve,
       couponsByNeed,
       principalByNeed,
+      salesByNeed,
       availableByNeed,
       shortfall;
   final List<MonthlyFlow> months;
@@ -43,6 +74,7 @@ class PlanSummary {
     required this.reserve,
     required this.couponsByNeed,
     required this.principalByNeed,
+    required this.salesByNeed,
     required this.availableByNeed,
     required this.shortfall,
     required Iterable<MonthlyFlow> months,
@@ -130,6 +162,7 @@ PlanSummary summarizePlan({
   required String start,
   required String needDate,
   required Decimal needAmount,
+  Map<String, PlanExitOverride> exits = const {},
 }) {
   final startDate = isoDate(start), need = isoDate(needDate);
   if (budget <= Decimal.zero ||
@@ -140,10 +173,11 @@ PlanSummary summarizePlan({
   final unique = <String>{};
   var cost = Decimal.zero,
       couponsByNeed = Decimal.zero,
-      principalByNeed = Decimal.zero;
+      principalByNeed = Decimal.zero,
+      salesByNeed = Decimal.zero;
   var last = need;
   var conditional = false;
-  final amounts = <String, (Decimal, Decimal)>{};
+  final amounts = <String, (Decimal, Decimal, Decimal)>{};
   for (final position in positions) {
     final b = position.bond;
     if (!unique.add(b.isin) ||
@@ -155,10 +189,15 @@ PlanSummary summarizePlan({
       throw const FormatException('planner.invalid_positions');
     }
     cost += position.cost;
-    if (isoDate(b.maturity).isAfter(last)) last = isoDate(b.maturity);
+    final exit = exits[b.isin];
+    if (exit != null) validatePlanExit(position, exit, start);
+    final positionEnd = exit == null ? isoDate(b.maturity) : isoDate(exit.date);
+    if (positionEnd.isAfter(last)) last = positionEnd;
     for (final payment in b.payments) {
       final date = isoDate(payment['date'] as String);
-      if (!date.isAfter(startDate) || date.isAfter(isoDate(b.maturity))) {
+      if (!date.isAfter(startDate) ||
+          date.isAfter(isoDate(b.maturity)) ||
+          (exit != null && !date.isBefore(isoDate(exit.date)))) {
         continue;
       }
       if (payment['kind'] == 'EARLY_REDEMPTION') {
@@ -171,10 +210,12 @@ PlanSummary summarizePlan({
               .round(scale: 2);
       final coupon = payment['kind'] == 'COUPON';
       final month = (payment['date'] as String).substring(0, 7);
-      final existing = amounts[month] ?? (Decimal.zero, Decimal.zero);
+      final existing =
+          amounts[month] ?? (Decimal.zero, Decimal.zero, Decimal.zero);
       amounts[month] = (
         existing.$1 + (coupon ? amount : Decimal.zero),
         existing.$2 + (coupon ? Decimal.zero : amount),
+        existing.$3,
       );
       if (!date.isAfter(need)) {
         if (coupon) {
@@ -182,6 +223,21 @@ PlanSummary summarizePlan({
         } else {
           principalByNeed += amount;
         }
+      }
+    }
+    if (exit != null) {
+      final saleAmount =
+          (exit.unitPrice * Decimal.fromInt(position.quantity)).round(scale: 2);
+      final saleMonth = exit.date.substring(0, 7);
+      final existing =
+          amounts[saleMonth] ?? (Decimal.zero, Decimal.zero, Decimal.zero);
+      amounts[saleMonth] = (
+        existing.$1,
+        existing.$2,
+        existing.$3 + saleAmount,
+      );
+      if (!isoDate(exit.date).isAfter(need)) {
+        salesByNeed += saleAmount;
       }
     }
   }
@@ -202,16 +258,24 @@ PlanSummary summarizePlan({
     final month = d.toIso8601String().substring(0, 7),
         values =
             amounts[d.toIso8601String().substring(0, 7)] ??
-            (Decimal.zero, Decimal.zero);
-    months.add(MonthlyFlow(month, values.$1, values.$2));
+            (Decimal.zero, Decimal.zero, Decimal.zero);
+    months.add(
+      MonthlyFlow(
+        month,
+        values.$1,
+        values.$2,
+        sales: values.$3,
+      ),
+    );
   }
   final reserve = budget - cost,
-      available = reserve + couponsByNeed + principalByNeed;
+      available = reserve + couponsByNeed + principalByNeed + salesByNeed;
   return PlanSummary(
     cost: cost,
     reserve: reserve,
     couponsByNeed: couponsByNeed,
     principalByNeed: principalByNeed,
+    salesByNeed: salesByNeed,
     availableByNeed: available,
     shortfall: needAmount > available ? needAmount - available : Decimal.zero,
     months: months,
