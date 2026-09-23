@@ -14,28 +14,104 @@ class PositionInput {
   final Bond bond;
   final String quantity, price;
   final bool nominalEstimate;
-  const PositionInput(
+  final List<PriceObservation> observations;
+  final String? selectedSourceId;
+
+  PositionInput(
     this.bond,
     this.quantity,
     this.price, {
     this.nominalEstimate = true,
-  });
+    Iterable<PriceObservation> observations = const [],
+    this.selectedSourceId,
+  }) : observations = List.unmodifiable(observations) {
+    if (this.observations.any(
+      (o) => o.isin != bond.isin || o.currency != bond.currency,
+    )) {
+      throw const FormatException('planner.invalid_price_observation');
+    }
+  }
+
   PositionInput copyWith({
     String? quantity,
     String? price,
     bool? nominalEstimate,
+    Iterable<PriceObservation>? observations,
+    String? selectedSourceId,
+    bool clearSelectedSource = false,
   }) => PositionInput(
     bond,
     quantity ?? this.quantity,
     price ?? this.price,
     nominalEstimate: nominalEstimate ?? this.nominalEstimate,
+    observations: observations ?? this.observations,
+    selectedSourceId: clearSelectedSource
+        ? null
+        : selectedSourceId ?? this.selectedSourceId,
   );
+
   PlanPosition parse() => PlanPosition(
     bond,
     int.parse(quantity),
     money(price),
     nominalEstimate: nominalEstimate,
   );
+
+  PriceObservation? selectedObservation() {
+    if (nominalEstimate) {
+      for (final observation in observations) {
+        if (observation.kind == PriceValueKind.nominalEstimate) {
+          return observation;
+        }
+      }
+      return null;
+    }
+    if (selectedSourceId == null) return null;
+    final matches = observations
+        .where(
+          (o) =>
+              o.meta.sourceId == selectedSourceId &&
+              o.isExplicitPurchasePrice &&
+              o.effectiveUnitCost == money(price),
+        )
+        .toList(growable: false);
+    if (matches.length > 1) {
+      throw const FormatException('planner.ambiguous_price_source');
+    }
+    return matches.isEmpty ? null : matches.single;
+  }
+
+  PlannerPositionDraft toDraft({required String observedAt}) {
+    var selected = selectedObservation();
+    final all = observations.toList(growable: true);
+    if (selected == null) {
+      selected = PriceObservation.legacy(
+        bond: bond,
+        unitCost: money(price),
+        nominalEstimate: nominalEstimate,
+        observedAt: observedAt,
+      );
+      all.insert(0, selected);
+    }
+    return PlannerPositionDraft(
+      isin: bond.isin,
+      quantity: int.parse(quantity),
+      price: selected,
+      priceObservations: all,
+    );
+  }
+
+  factory PositionInput.fromDraft(Bond bond, PlannerPositionDraft draft) =>
+      PositionInput(
+        bond,
+        draft.quantity.toString(),
+        draft.unitCost.toString(),
+        nominalEstimate: draft.price.kind == PriceValueKind.nominalEstimate,
+        observations: draft.priceObservations,
+        selectedSourceId: draft.price.kind == PriceValueKind.nominalEstimate
+            ? null
+            : draft.price.meta.sourceId,
+      );
 }
 
 @immutable
