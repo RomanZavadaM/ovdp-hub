@@ -204,6 +204,69 @@ void main() {
     await tester.pumpAndSettle();
     await repository.dispose();
   });
+  testWidgets('planner tax preset is explicit and shows verified zero', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final now = DateTime.now();
+    final maturity = DateTime(
+      now.year + 1,
+      now.month,
+      now.day,
+    ).toIso8601String().substring(0, 10);
+    final json = jsonDecode(jsonEncode(catalog.json)) as Map<String, dynamic>;
+    final asset = (json['assets'] as List).single as Map<String, dynamic>;
+    asset['maturityDate'] = maturity;
+    asset['currency'] = 'UAH';
+    asset['payments'] = [
+      {'date': maturity, 'kind': 'REDEMPTION', 'amount': '1000'},
+    ];
+    final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
+
+    await tester.pumpWidget(OvdpApp(repository: repository));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Планування'));
+    await tester.pumpAndSettle();
+
+    final taxHeading = find.text('Податки');
+    await tester.ensureVisible(taxHeading);
+    expect(taxHeading, findsOneWidget);
+    expect(find.text('Податки невідомі'), findsOneWidget);
+    expect(
+      find.textContaining('Податки невідомі: показаний прибуток'),
+      findsOneWidget,
+    );
+
+    final preset = find.text('Резидент України · ОВДП · 2026');
+    await tester.ensureVisible(preset);
+    await tester.tap(preset);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Правила перевірено: 2026-09-23'), findsOneWidget);
+    expect(find.text('Враховані податки: 0.00 UAH'), findsOneWidget);
+    expect(
+      find.textContaining('Податки невідомі: показаний прибуток'),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
+
+    final unknown = find.text('Податки невідомі');
+    await tester.ensureVisible(unknown);
+    await tester.tap(unknown);
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Податки невідомі: показаний прибуток'),
+      findsOneWidget,
+    );
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    await repository.dispose();
+  });
   testWidgets('phone layout saves a collection through Cubit and reopens it', (
     tester,
   ) async {
