@@ -4,17 +4,16 @@
 
 ## Поточний checkpoint
 
-- Release candidate: **0.8.7+15**
-- Поточний опублікований GitHub tag до завершення pipeline: **v0.8.6**
-- Запланований новий tag: **v0.8.7**
+- Активна версія: **0.8.7+15**
+- Опублікований GitHub tag: **v0.8.7**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
 - Основна гілка: `main`
 - Статус продукту: **test / prerelease**
-- Release base перед checkpoint: **fbe8028ae1f68fcbb9c4c7a7057134c6793c00ae**
-- Release workflow: **очікує merge release PR**
-- GitHub Release: **v0.8.7 — готується**
+- Release commit: **6ab844fd3063fbfa9fcf54ab875539241c459845**
+- Release workflow: **Publish native prerelease run #37 — success**
+- GitHub Release: **v0.8.7**, опублікований 23.09.2026
 
 ## Що входить до опублікованого 0.8.5
 
@@ -125,11 +124,11 @@ Tag/release не пересуваємо й не переписуємо.
 - реальний портфель — лише після encrypted vault, platform secure storage і backup/recovery;
 - copyright original project materials: Roman Zavada (Роман Завада).
 
-## Інтегровано в `main` після опублікованого v0.8.6
+## Що додано в опублікованому v0.8.7 поверх v0.8.6
 
 PR **#39 — Planner: multiple price observations with explicit source priority** squash-merged у `main` як `255d15294105e8d5ae6dfe216f1e900fe0490192`.
 
-Інтегровано, але ще не видано окремим GitHub release:
+Увійшло до v0.8.7:
 - additive schema-3 `priceObservations` + `priceSourcePriority`;
 - кілька explicit price observations на ISIN;
 - явний user-controlled priority джерел;
@@ -145,11 +144,11 @@ PR **#39 — Planner: multiple price observations with explicit source priority*
 
 Final PR verification: **Flutter checks and START run #123 — success**.
 
-Опублікований checkpoint лишається **v0.8.6 / 0.8.6+14**; tag/release не переписуємо.
+Цей slice виданий у **v0.8.7 / 0.8.7+15**; попередній v0.8.6 не переписувався.
 
 PR **#41 — Planner: explicit purchase fee assumptions** squash-merged у `main` як `fbe8028ae1f68fcbb9c4c7a7057134c6793c00ae`.
 
-Інтегровано, але ще не видано окремим GitHub release:
+Увійшло до v0.8.7:
 - typed `FeeAssumptions` зберігаються в PlannerState та проходять load/save;
 - `unknown` чітко відрізняється від підтвердженого нуля;
 - підтримано явну aggregate purchase fee у валюті сценарію;
@@ -161,9 +160,9 @@ PR **#41 — Planner: explicit purchase fee assumptions** squash-merged у `main
 
 Final PR verification: **Flutter checks and START run #135 — success (80/80 tests)**.
 
-## Чому 0.8.6, а не 0.9.0
+## Чому 0.8.7, а не 0.9.0
 
-Після v0.8.6 у `main` уже інтегровано explicit price-source priority та purchase-fee assumptions, але **ще не завершені**:
+У v0.8.7 уже видано explicit price-source priority та purchase-fee assumptions, але **ще не завершені**:
 - tax assumptions → calculations + effective-dated verified UI;
 - FX assumptions → calculations + UI;
 - exit assumptions → redesign/wiring для multi-position scenarios;
@@ -183,15 +182,17 @@ Final PR verification: **Flutter checks and START run #135 — success (80/80 te
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
 
 
-## Release candidate v0.8.7
+## Реліз v0.8.7
 
-Повний checkpoint 0.8.7 включає два інтегровані user-visible slice після v0.8.6:
+Повний checkpoint 0.8.7 опубліковано з двома user-visible slice після v0.8.6:
 - explicit price-source priority;
 - explicit purchase-fee assumptions.
 
-Release notes підготовлено сімома мовами інтерфейсу: UK / EN / FR / DE / ES / KO / JA.
+Release notes опубліковано сімома мовами інтерфейсу: UK / EN / FR / DE / ES / KO / JA.
 
-Очікувані assets:
+Release pipeline **Publish native prerelease run #37** успішно завершив verify, Windows, macOS, Android, iOS, START і publish.
+
+Опубліковані assets:
 - `OVDP-Hub-0.8.7-Windows-x64.zip`;
 - `OVDP-Hub-0.8.7-macOS.zip`;
 - `OVDP-Hub-0.8.7-Android-test.zip`;
