@@ -49,17 +49,31 @@ List<CashExpense> readExpenses(Map<String, String> c) {
 
 // Only contractual, unconditional payments count. A delay models cash reaching
 // the account later than the issuer's payment date; no early-sale assumption.
-Decimal receiptsBy(PlanPosition p, String start, String end, int delay) {
+Decimal receiptsBy(
+  PlanPosition p,
+  String start,
+  String end,
+  int delay, {
+  PlanExitOverride? exit,
+}) {
+  if (exit != null) validatePlanExit(p, exit, start);
   var sum = Decimal.zero;
+  final saleDate = exit == null ? null : isoDate(exit.date);
   for (final payment in p.bond.payments) {
     if (!['COUPON', 'REDEMPTION'].contains(payment['kind'])) continue;
     final date = isoDate(payment['date'] as String);
     if (date.isAfter(isoDate(start)) &&
         !date.isAfter(isoDate(p.bond.maturity)) &&
+        (saleDate == null || date.isBefore(saleDate)) &&
         !date.add(Duration(days: delay)).isAfter(isoDate(end))) {
       sum += (money(payment['amount'].toString()) * Decimal.fromInt(p.quantity))
           .round(scale: 2);
     }
+  }
+  if (exit != null &&
+      !saleDate!.add(Duration(days: delay)).isAfter(isoDate(end))) {
+    sum +=
+        (exit.unitPrice * Decimal.fromInt(p.quantity)).round(scale: 2);
   }
   return sum;
 }
@@ -69,8 +83,9 @@ List<ExpenseBalance> expenseCalendar(
   Decimal budget,
   String start,
   List<CashExpense> expenses,
-  int delay,
-) {
+  int delay, {
+  Map<String, PlanExitOverride> exits = const {},
+}) {
   final cost = positions.fold(Decimal.zero, (s, p) => s + p.cost);
   var spent = Decimal.zero;
   final result = <ExpenseBalance>[];
@@ -80,7 +95,15 @@ List<ExpenseBalance> expenseCalendar(
         cost +
         positions.fold(
           Decimal.zero,
-          (s, p) => s + receiptsBy(p, start, e.date, delay),
+          (s, p) =>
+              s +
+              receiptsBy(
+                p,
+                start,
+                e.date,
+                delay,
+                exit: exits[p.bond.isin],
+              ),
         ) -
         spent;
     final remaining = cash - e.amount;
@@ -99,11 +122,16 @@ List<ExpenseBalance> expenseCalendar(
   return List.unmodifiable(result);
 }
 
-Decimal totalProfit(List<PlanPosition> positions, String start) =>
-    positions.fold(
-      Decimal.zero,
-      (s, p) => s + receiptsBy(p, start, p.bond.maturity, 0) - p.cost,
-    );
+Decimal totalProfit(
+  List<PlanPosition> positions,
+  String start, {
+  Map<String, PlanExitOverride> exits = const {},
+}) =>
+    positions.fold(Decimal.zero, (s, p) {
+      final exit = exits[p.bond.isin];
+      final end = exit?.date ?? p.bond.maturity;
+      return s + receiptsBy(p, start, end, 0, exit: exit) - p.cost;
+    });
 
 /// Bounded heuristic: compare several greedy whole-lot allocations, constrained
 /// by cash at every expense date. It is deliberately not a global optimum claim.
