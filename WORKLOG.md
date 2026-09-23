@@ -25,11 +25,12 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **NEXT**
+Статус: **DOING**
 
 Мета: **multiple `PriceObservation` + explicit user source priority**.
 
-- release baseline `main`: `7b19670a2ff621a65685db714022d8819ecff7d4`
+- release baseline `main`: `2030dcfe01304dcd11e443c886ae9d2bc6f6c165`
+- active branch: `feat/price-observation-source-priority`
 - опублікований checkpoint: **v0.8.6 / 0.8.6+14**
 - release workflow: **Publish native prerelease run #34 — success**
 - перевірені assets: Windows / macOS / Android test / iOS unsigned / START / SHA256SUMS / legal notices
@@ -37,7 +38,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-Перевірити поточну модель `PriceObservation` і planner price selection, після чого реалізувати **кілька observations на ISIN** з явним вибором/пріоритетом джерела користувачем. Заборонити будь-який неявний fallback, який перетворює yield-only або nominal estimate на вибрану ринкову ціну.
+Провести audit поточної моделі `PriceObservation`, persistence schema та planner price selection. Після audit реалізувати **кілька observations на ISIN** і явний user-controlled source priority. Жоден yield-only або nominal estimate не може автоматично стати вибраною ринковою ціною.
 
 ## Черга робіт
 
