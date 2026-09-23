@@ -1,6 +1,6 @@
 import 'package:decimal/decimal.dart';
 
-import '../../pricing.dart';
+import '../../models.dart';
 import 'planner_scenario.dart';
 
 class PlannerTaxImpact {
