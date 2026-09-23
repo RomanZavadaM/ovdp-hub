@@ -2,6 +2,7 @@ import 'package:decimal/decimal.dart';
 import '../../pricing.dart';
 import '../../models.dart';
 import 'planner_engine.dart';
+import 'planner_scenario.dart';
 
 class CashExpense {
   final String name, date;
@@ -15,37 +16,62 @@ class ExpenseBalance {
   ExpenseBalance(this.expense, this.available, this.remaining, this.shortfall);
 }
 
-List<CashExpense> readExpenses(Map<String, String> c) {
-  final expenses = <CashExpense>[
-    CashExpense(
-      c['needName'] ?? 'Основна потреба',
-      c['needDate']!,
-      money(c['needAmount']!),
-    ),
-  ];
-  final count = int.parse(c['expenseCount'] ?? '0');
-  if (count < 0 || count > 50) {
-    throw const FormatException('planner.too_many_expenses');
+DateTime addMonthsClamped(DateTime base, int months) {
+  final target = DateTime.utc(base.year, base.month + months, 1);
+  final lastDay = DateTime.utc(target.year, target.month + 1, 0).day;
+  return DateTime.utc(
+    target.year,
+    target.month,
+    base.day > lastDay ? lastDay : base.day,
+  );
+}
+
+List<CashExpense> expandPlannerNeeds(
+  Iterable<PlannerNeed> needs, {
+  required String start,
+}) {
+  final startDate = isoDate(start);
+  final expenses = <CashExpense>[];
+
+  for (final need in needs) {
+    switch (need.type) {
+      case PlannerNeedType.oneOff:
+        expenses.add(CashExpense(need.name, need.date, need.amount));
+      case PlannerNeedType.recurring:
+        final base = isoDate(need.date);
+        for (var i = 0; i < need.occurrences!; i++) {
+          final date = addMonthsClamped(base, need.everyMonths! * i)
+              .toIso8601String()
+              .substring(0, 10);
+          expenses.add(
+            CashExpense(
+              need.occurrences == 1
+                  ? need.name
+                  : '${need.name} · ${i + 1}/${need.occurrences}',
+              date,
+              need.amount,
+            ),
+          );
+        }
+      case PlannerNeedType.reserveFloor:
+        throw const FormatException('planner.reserve_floor_ui_unsupported');
+    }
   }
-  for (var i = 0; i < count; i++) {
-    expenses.add(
-      CashExpense(
-        c['expenseName$i'] ?? 'Витрата ${i + 2}',
-        c['expenseDate$i']!,
-        money(c['expenseAmount$i']!),
-      ),
-    );
-  }
-  for (final e in expenses) {
-    if (isoDate(e.date).isBefore(isoDate(c['start']!))) {
-      throw const FormatException(
-        'planner.expenses_before_start',
-      );
+
+  for (final expense in expenses) {
+    if (isoDate(expense.date).isBefore(startDate)) {
+      throw const FormatException('planner.expenses_before_start');
     }
   }
   expenses.sort((a, b) => a.date.compareTo(b.date));
   return List.unmodifiable(expenses);
 }
+
+List<CashExpense> readExpenses(Map<String, String> c) =>
+    expandPlannerNeeds(
+      plannerNeedsFromCriteria(c),
+      start: c['start']!,
+    );
 
 // Only contractual, unconditional payments count. A delay models cash reaching
 // the account later than the issuer's payment date; no early-sale assumption.
