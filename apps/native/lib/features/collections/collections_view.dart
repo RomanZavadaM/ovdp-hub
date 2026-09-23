@@ -6,6 +6,7 @@ import '../../ui/components.dart';
 import '../navigation/navigation_cubit.dart';
 import '../planner/planner_comparison.dart';
 import '../planner/planner_cubit.dart';
+import '../planner/planner_scenario.dart';
 import '../sellers/sellers_cubit.dart';
 import '../workspace/workspace_cubit.dart';
 import 'collections_cubit.dart';
