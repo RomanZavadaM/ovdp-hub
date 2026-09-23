@@ -414,6 +414,50 @@ void main() {
     await repository.dispose();
   });
 
+  testWidgets('planner needs block exposes recurrence and one-off additions', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 1500);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = FakeRepository(catalog);
+    await tester.pumpWidget(OvdpApp(repository: repository));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Планування'));
+    await tester.pumpAndSettle();
+
+    final heading = find.text('Мої майбутні потреби й витрати');
+    await tester.ensureVisible(heading);
+    expect(heading, findsOneWidget);
+    expect(find.text('Основна потреба'), findsOneWidget);
+    expect(find.text('Додаткові одноразові потреби'), findsOneWidget);
+
+    final recurring = find.text('Повторювати цю потребу');
+    await tester.ensureVisible(recurring);
+    await tester.tap(recurring);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Повторювати кожні, місяців'), findsOneWidget);
+    expect(
+      find.text('Кількість платежів разом із першим'),
+      findsOneWidget,
+    );
+
+    final add = find.text('Додати витрату');
+    await tester.ensureVisible(add);
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Витрата 2'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    await repository.dispose();
+  });
+
   testWidgets('phone layout saves a collection through Cubit and reopens it', (
     tester,
   ) async {
