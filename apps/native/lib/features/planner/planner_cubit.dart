@@ -525,7 +525,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           'manual-price',
           ...priority.sourceIds.where((id) => id != 'manual-price'),
         ]);
-        updated = old.copyWith(
+        updated = updated.copyWith(
           price: price,
           nominalEstimate: false,
           observations: observations,
