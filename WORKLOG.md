@@ -25,37 +25,34 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
 Мета: **exit assumptions → per-position multi-ISIN model → cashflow/profit wiring → persistence → 7-language UI → tests**.
 
-- baseline `main`: `ead759482a2d4be579610fe082a4da368e910fd7`
-- active branch: `feat/planner-exit-assumptions`
-- published checkpoint: **v0.8.7 / 0.8.7+15**
-- audit:
-  - current schema-3 `ExitAssumption` is global (one date + one price) even though `PriceObservation` is ISIN-specific;
-  - active calculations ignore `exit` completely today;
-  - a single global sale price is ambiguous for multi-position scenarios;
-  - contractual receipts currently assume hold-to-maturity;
-  - optimizer currently ranks hold-to-maturity and will not be silently changed in this first exit vertical;
-  - safe direction: additive per-position exits keyed by ISIN; absence means hold-to-maturity;
-  - legacy global early-sale can be adapted only when it maps unambiguously to one position; multi-position legacy early-sale must fail closed.
+- PR: **#51** `Planner: per-position exit assumptions`
+- final head: `0d6c75e505833afd9dbc008ef86653dbec8ebe9f`
+- final verify: **Flutter checks and START run #161 — success**
+- squash merge у `main`: `296fb9e0b53093685ced9e801196616a401582f4`
+- published checkpoint remains **v0.8.7 / 0.8.7+15**
+- completed:
+  - per-position `positionExits` keyed by ISIN;
+  - safe legacy compatibility + ambiguous multi-position legacy exit fail closed;
+  - contractual receipts before sale + sale proceeds, later payments excluded;
+  - settlement delay on sale proceeds in expense coverage;
+  - exit-aware profit feeds fees → tax → FX;
+  - no silent portfolio re-optimization for exit;
+  - BID provenance required, manual assumptions explicit;
+  - persistence/load/save;
+  - UK/EN/FR/DE/ES/KO/JA UI/error coverage;
+  - domain/cubit/persistence/widget regression coverage green.
 
 ### Поточна наступна дія
 
-**DOING — implement per-position early-sale semantics.**
+**NEXT — A/B/C scenario comparison.**
 
-1. additive `positionExits` in schema 3 while retaining legacy `exit` compatibility;
-2. validate unique ISIN, BID/manual sale price, sale date after scenario start and before maturity;
-3. fail closed if sale date equals a contractual payment date (entitlement/ex-date not modeled);
-4. cashflow: include contractual payments before sale, then sale proceeds on sale date; exclude later coupon/redemption;
-5. apply settlement delay to sale proceeds for expense coverage;
-6. compute exit-aware profit for selected positions without silently re-optimizing candidate selection;
-7. retain exits through PlannerState/load/save;
-8. per-position UI for hold / early sale with date, BID/manual full price and source provenance;
-9. UK/EN/FR/DE/ES/KO/JA localization + domain/cubit/persistence/widget tests.
+Почати audit-first vertical від актуального `main`: перевірити наявні `groupId` / `variantLabel` у PlannerScenario, визначити однаковий набір comparison assumptions і побудувати порівняння без змішування різних budget/currency/need assumptions.
 
-A/B/C comparison remains out of this slice.
+Comparison має пояснювати **чому** сценарії відрізняються: position composition, initial cost/fees, tax status, FX comparison, exit assumptions, cashflow, profit та coverage. Не оголошувати «найкращий» сценарій без явного user-defined criterion.
 
 ## Черга робіт
 
@@ -63,8 +60,8 @@ A/B/C comparison remains out of this slice.
 2. **DONE** — purchase fee assumptions → calculation + UI.
 3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
 4. **DONE** — FX assumptions calculation/UI.
-5. **DOING** — exit assumptions redesign/wiring for multi-position scenarios.
-6. **TODO** — A/B/C comparison.
+5. **DONE** — exit assumptions redesign/wiring for multi-position scenarios.
+6. **NEXT** — A/B/C comparison.
 7. **TODO** — generated planner copy / preset labels localization + UX regression.
 8. **TODO** — оцінка готовності formal prerelease 0.9.0.
 
@@ -93,6 +90,9 @@ A/B/C comparison remains out of this slice.
 - поточний опублікований v0.8.7 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — per-position exit assumptions**: PR #51 squash-merged у `main` як `296fb9e0b53093685ced9e801196616a401582f4`; final run #161 success. Multi-ISIN exit model, sale cashflow/profit/coverage, safe legacy compatibility, BID/manual provenance, persistence and 7-language UI integrated.
+
 
 - **DONE — explicit FX comparison assumptions**: PR #48 squash-merged у `main` як `755c328e0d1b15d2d4843f434eaf774d80ff5494`; final run #152 success (88/88 tests). Explicit rate/date/source comparison, single-currency cashflow invariant, persistence, deferred advanced rules and 7-language UI integrated.
 
