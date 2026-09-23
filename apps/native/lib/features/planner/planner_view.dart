@@ -247,9 +247,7 @@ class PlannerView extends StatelessWidget {
           SizedBox(
             width: 300,
             child: TextFormField(
-              key: ValueKey(
-                'aggregate-purchase-fee-${state.revision}-$aggregatePurchaseFee',
-              ),
+              key: ValueKey('aggregate-purchase-fee-${state.revision}'),
               initialValue: aggregatePurchaseFee,
               enabled: !disabled,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
