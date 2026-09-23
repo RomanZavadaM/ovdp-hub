@@ -30,6 +30,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 Мета: **повний test-release checkpoint v0.8.7 / 0.8.7+15** за прямою командою власника «злити у main».
 
 - release branch: `release/v0.8.7`
+- PR: **#42** `Release: v0.8.7 multilingual full checkpoint`
 - base main: `fbe8028ae1f68fcbb9c4c7a7057134c6793c00ae`
 - scope:
   - explicit price-source priority;
