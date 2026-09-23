@@ -6,6 +6,7 @@ import 'package:ovdp_hub/features/planner/planner_engine.dart';
 import 'package:ovdp_hub/features/planner/planner_cubit.dart';
 import 'package:ovdp_hub/features/planner/planner_fees.dart';
 import 'package:ovdp_hub/features/planner/planner_scenario.dart';
+import 'package:ovdp_hub/features/planner/planner_taxes.dart';
 import 'package:ovdp_hub/features/collections/editor_cubit.dart';
 import 'package:ovdp_hub/features/workspace/workspace_cubit.dart';
 import 'support/fake_repository.dart';
@@ -349,6 +350,106 @@ void main() {
     cubit.setFeesUnknown();
     expect(cubit.state.fees.status, FeeAssumptionStatus.unknown);
     expect(cubit.state.feeImpact!.purchaseFee, isNull);
+
+    await cubit.close();
+    await repository.dispose();
+  });
+
+  test('tax impact keeps unknown distinct from verified zero and fails closed', () {
+    final unknown = evaluateTaxImpact(
+      taxes: TaxScenario.unknown(),
+      scenarioDate: '2026-09-23',
+      profitBeforeTax: Decimal.parse('125.50'),
+    );
+    expect(unknown.known, false);
+    expect(unknown.taxAmount, isNull);
+    expect(unknown.profitAfterTax, isNull);
+
+    final verified = TaxScenario.ukraineResidentOvdp2026();
+    expect(verified.rules.length, 4);
+    expect(verified.rules.every((r) => r.ratePercent == Decimal.zero), true);
+    expect(verified.rules.every((r) => r.verifiedOn == '2026-09-23'), true);
+    expect(verified.rules.every((r) => r.sourceUrl.contains('tax.gov.ua')), true);
+
+    final impact = evaluateTaxImpact(
+      taxes: verified,
+      scenarioDate: '2026-09-23',
+      profitBeforeTax: Decimal.parse('125.50'),
+    );
+    expect(impact.known, true);
+    expect(impact.taxAmount, Decimal.zero);
+    expect(impact.profitAfterTax, Decimal.parse('125.50'));
+
+    expect(
+      () => evaluateTaxImpact(
+        taxes: verified,
+        scenarioDate: '2027-01-01',
+        profitBeforeTax: Decimal.parse('125.50'),
+      ),
+      throwsFormatException,
+    );
+
+    final nonZeroRules = verified.rules.map((rule) => TaxRule(
+      id: rule.id,
+      tax: rule.tax,
+      income: rule.income,
+      ratePercent: rule.id == 'ua-2026-pit-investment-profit'
+          ? Decimal.parse('18')
+          : rule.ratePercent,
+      scopeFrom: rule.scopeFrom,
+      scopeTo: rule.scopeTo,
+      verifiedOn: rule.verifiedOn,
+      sourceUrl: rule.sourceUrl,
+    ));
+    expect(
+      () => evaluateTaxImpact(
+        taxes: TaxScenario(
+          status: TaxAssumptionStatus.known,
+          label: 'Unsupported non-zero test',
+          rules: nonZeroRules,
+        ),
+        scenarioDate: '2026-09-23',
+        profitBeforeTax: Decimal.parse('125.50'),
+      ),
+      throwsFormatException,
+    );
+  });
+
+  test('verified OVDP tax preset survives planner save and load', () async {
+    final repository = FakeRepository(data);
+    final cubit = PlannerCubit(
+      repository,
+      clock: () => DateTime.utc(2026, 9, 23),
+    );
+
+    expect(cubit.state.taxes.status, TaxAssumptionStatus.unknown);
+    expect(cubit.state.taxImpact!.known, false);
+
+    cubit.useUkraineResidentOvdp2026Taxes();
+    expect(cubit.state.taxes.status, TaxAssumptionStatus.known);
+    expect(cubit.state.taxImpact!.known, true);
+    expect(cubit.state.taxImpact!.taxAmount, Decimal.zero);
+
+    cubit.generate();
+    expect(cubit.state.error, isNull);
+    expect(await cubit.save(), true);
+
+    final saved = repository.current!.sets.single;
+    final savedTaxes =
+        (saved.scenario!['taxes'] as Map).cast<String, dynamic>();
+    expect(savedTaxes['status'], 'known');
+    expect((savedTaxes['rules'] as List).length, 4);
+
+    cubit.reset();
+    expect(cubit.state.taxes.status, TaxAssumptionStatus.unknown);
+    cubit.load(saved);
+    expect(cubit.state.taxes.status, TaxAssumptionStatus.known);
+    expect(cubit.state.taxImpact!.known, true);
+    expect(cubit.state.taxImpact!.taxAmount, Decimal.zero);
+
+    cubit.setTaxesUnknown();
+    expect(cubit.state.taxes.status, TaxAssumptionStatus.unknown);
+    expect(cubit.state.taxImpact!.known, false);
 
     await cubit.close();
     await repository.dispose();
