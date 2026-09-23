@@ -275,7 +275,20 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final repository = FakeRepository(catalog);
+    final now = DateTime.now();
+    final maturity = DateTime(
+      now.year + 1,
+      now.month,
+      now.day,
+    ).toIso8601String().substring(0, 10);
+    final json = jsonDecode(jsonEncode(catalog.json)) as Map<String, dynamic>;
+    final asset = (json['assets'] as List).single as Map<String, dynamic>;
+    asset['maturityDate'] = maturity;
+    asset['currency'] = 'UAH';
+    asset['payments'] = [
+      {'date': maturity, 'kind': 'REDEMPTION', 'amount': '1000'},
+    ];
+    final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
     await tester.pumpWidget(OvdpApp(repository: repository));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Планування'));
@@ -304,6 +317,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('1 UAH = 0.025 USD'), findsWidgets);
+    final generate = find.text('Розподілити за строками');
+    await tester.ensureVisible(generate);
+    await tester.tap(generate);
+    await tester.pumpAndSettle();
+
     expect(find.text('Порівняльний результат у валюті FX'), findsOneWidget);
     expect(
       find.textContaining('Базові суми та cashflow у валюті сценарію'),
