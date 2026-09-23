@@ -25,33 +25,37 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **FX assumptions → explicit comparison conversion → persistence → 7-language UI → tests**.
+Мета: **exit assumptions → per-position multi-ISIN model → cashflow/profit wiring → persistence → 7-language UI → tests**.
 
-- PR: **#48** `Planner: explicit FX comparison assumptions`
-- final head: `2e5d0f84d60d010a70659f2dcf0fbd27c275b979`
-- final verify: **Flutter checks and START run #152 — success (88/88 tests)**
-- squash merge у `main`: `755c328e0d1b15d2d4843f434eaf774d80ff5494`
-- published checkpoint remains **v0.8.7 / 0.8.7+15**
-- completed:
-  - typed FX retained through state/load/save;
-  - single-currency planner invariant preserved;
-  - explicit manual rate/date/source provenance;
-  - one matching rule produces converted comparison amounts;
-  - zero rules mean no conversion requested;
-  - multiple/non-standard rules preserved and deferred;
-  - base-currency cashflow remains authoritative;
-  - FX UI/errors localized UK/EN/FR/DE/ES/KO/JA;
-  - domain/cubit/persistence/widget regression coverage green.
+- baseline `main`: `ead759482a2d4be579610fe082a4da368e910fd7`
+- active branch: `feat/planner-exit-assumptions`
+- published checkpoint: **v0.8.7 / 0.8.7+15**
+- audit:
+  - current schema-3 `ExitAssumption` is global (one date + one price) even though `PriceObservation` is ISIN-specific;
+  - active calculations ignore `exit` completely today;
+  - a single global sale price is ambiguous for multi-position scenarios;
+  - contractual receipts currently assume hold-to-maturity;
+  - optimizer currently ranks hold-to-maturity and will not be silently changed in this first exit vertical;
+  - safe direction: additive per-position exits keyed by ISIN; absence means hold-to-maturity;
+  - legacy global early-sale can be adapted only when it maps unambiguously to one position; multi-position legacy early-sale must fail closed.
 
 ### Поточна наступна дія
 
-**NEXT — exit assumptions redesign/wiring for multi-position scenarios.**
+**DOING — implement per-position early-sale semantics.**
 
-Почати окремим audit-first slice від актуального `main`: перевірити наявний `ExitAssumption`, його поточне обмеження на одну price/date пару та те, як early sale має працювати для кількох позицій із різними ISIN/датами/BID/manual prices.
+1. additive `positionExits` in schema 3 while retaining legacy `exit` compatibility;
+2. validate unique ISIN, BID/manual sale price, sale date after scenario start and before maturity;
+3. fail closed if sale date equals a contractual payment date (entitlement/ex-date not modeled);
+4. cashflow: include contractual payments before sale, then sale proceeds on sale date; exclude later coupon/redemption;
+5. apply settlement delay to sale proceeds for expense coverage;
+6. compute exit-aware profit for selected positions without silently re-optimizing candidate selection;
+7. retain exits through PlannerState/load/save;
+8. per-position UI for hold / early sale with date, BID/manual full price and source provenance;
+9. UK/EN/FR/DE/ES/KO/JA localization + domain/cubit/persistence/widget tests.
 
-Не припускати одну exit price для всього портфеля. Не змішувати hold-to-maturity та early-sale semantics без явної моделі на рівні позиції або сценарію.
+A/B/C comparison remains out of this slice.
 
 ## Черга робіт
 
@@ -59,7 +63,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 2. **DONE** — purchase fee assumptions → calculation + UI.
 3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
 4. **DONE** — FX assumptions calculation/UI.
-5. **NEXT** — exit assumptions redesign/wiring for multi-position scenarios.
+5. **DOING** — exit assumptions redesign/wiring for multi-position scenarios.
 6. **TODO** — A/B/C comparison.
 7. **TODO** — generated planner copy / preset labels localization + UX regression.
 8. **TODO** — оцінка готовності formal prerelease 0.9.0.

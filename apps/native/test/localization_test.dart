@@ -162,6 +162,38 @@ void main() {
     }
   });
 
+  test('exit controls are localized in every supported language', () {
+    const keys = [
+      'exitEditTitle',
+      'exitAssumptionsInfo',
+      'exitDate',
+      'exitFullPrice',
+      'exitManualPrice',
+      'exitBidPrice',
+      'exitSourceUrlRequired',
+      'exitSourceUrlOptional',
+      'applyExit',
+      'exitHoldToMaturity',
+      'exitEarlySale',
+      'exitSource',
+      'addEarlySale',
+      'changeEarlySale',
+      'returnToMaturity',
+      'exitResultInfo',
+      'saleProceeds',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+    }
+  });
+
   testWidgets('typed error follows the selected UI language', (tester) async {
     final locale = LocaleCubit()..select(AppLanguage.en);
     await tester.pumpWidget(
@@ -200,6 +232,12 @@ void main() {
         const AppError('planner.fx_source_url_required'),
       ),
       'Enter a full http/https URL for the FX rate source.',
+    );
+    expect(
+      HubStrings(AppLanguage.en).error(
+        const AppError('planner.invalid_exit_timing'),
+      ),
+      'The sale date must be after the scenario start, before maturity, and not on a contractual payment date.',
     );
     await locale.close();
   });

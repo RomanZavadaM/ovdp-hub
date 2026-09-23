@@ -343,6 +343,77 @@ void main() {
     await tester.pumpAndSettle();
     await repository.dispose();
   });
+  testWidgets('planner early sale is explicit per position and reversible', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 1500);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final now = DateTime.now();
+    final sale = now.add(const Duration(days: 30));
+    final maturity = DateTime(
+      now.year + 1,
+      now.month,
+      now.day,
+    ).toIso8601String().substring(0, 10);
+    final saleDate = sale.toIso8601String().substring(0, 10);
+    final json = jsonDecode(jsonEncode(catalog.json)) as Map<String, dynamic>;
+    final asset = (json['assets'] as List).single as Map<String, dynamic>;
+    asset['maturityDate'] = maturity;
+    asset['currency'] = 'UAH';
+    asset['payments'] = [
+      {'date': maturity, 'kind': 'REDEMPTION', 'amount': '1000'},
+    ];
+    final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
+
+    await tester.pumpWidget(OvdpApp(repository: repository));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Планування'));
+    await tester.pumpAndSettle();
+
+    final generate = find.text('Розподілити за строками');
+    await tester.ensureVisible(generate);
+    await tester.tap(generate);
+    await tester.pumpAndSettle();
+
+    final addExit = find.text('Задати достроковий продаж');
+    await tester.ensureVisible(addExit);
+    await tester.tap(addExit);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Достроковий продаж позиції'), findsOneWidget);
+    final fields = find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.byType(TextFormField),
+    );
+    expect(fields, findsNWidgets(3));
+    await tester.enterText(fields.at(0), saleDate);
+    await tester.enterText(fields.at(1), '1020');
+    await tester.tap(find.text('Застосувати продаж'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Достроковий продаж:'), findsOneWidget);
+    expect(
+      find.textContaining('Є дострокові продажі: cashflow'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('продаж'), findsWidgets);
+    expect(tester.takeException(), isNull);
+
+    final returnToMaturity = find.text('Повернути до погашення');
+    await tester.ensureVisible(returnToMaturity);
+    await tester.tap(returnToMaturity);
+    await tester.pumpAndSettle();
+    expect(find.text('Утримання до погашення'), findsOneWidget);
+    expect(find.textContaining('Є дострокові продажі: cashflow'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    await repository.dispose();
+  });
+
   testWidgets('phone layout saves a collection through Cubit and reopens it', (
     tester,
   ) async {
