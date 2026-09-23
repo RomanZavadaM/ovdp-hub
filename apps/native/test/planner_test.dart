@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/models.dart';
 import 'package:ovdp_hub/features/planner/planner_engine.dart';
 import 'package:ovdp_hub/features/planner/planner_cubit.dart';
+import 'package:ovdp_hub/features/planner/planner_fees.dart';
+import 'package:ovdp_hub/features/planner/planner_scenario.dart';
 import 'package:ovdp_hub/features/collections/editor_cubit.dart';
 import 'package:ovdp_hub/features/workspace/workspace_cubit.dart';
 import 'support/fake_repository.dart';
@@ -215,6 +217,138 @@ void main() {
     expect(cubit.state.inputs[one.isin]!.selectedSourceId, isNull);
     expect(cubit.state.inputs[one.isin]!.price, '1000');
     expect(cubit.state.summary, isNotNull);
+
+    await cubit.close();
+    await repository.dispose();
+  });
+
+  test('purchase fee calculator keeps unknown distinct from confirmed zero', () {
+    final positions = [
+      PlanPosition(one, 2, Decimal.parse('1000'), nominalEstimate: false),
+    ];
+    expect(
+      purchaseFeeAmount(
+        fees: FeeAssumptions.unknown(),
+        positions: positions,
+        currency: 'UAH',
+      ),
+      isNull,
+    );
+    expect(
+      purchaseFeeAmount(
+        fees: FeeAssumptions.confirmed(const []),
+        positions: positions,
+        currency: 'UAH',
+      ),
+      Decimal.zero,
+    );
+
+    final fees = FeeAssumptions.confirmed([
+      FeeRule(
+        id: 'flat',
+        name: 'Flat',
+        kind: FeeKind.flat,
+        event: FeeEvent.purchase,
+        value: Decimal.parse('25'),
+        currency: 'UAH',
+      ),
+      FeeRule(
+        id: 'unit',
+        name: 'Per unit',
+        kind: FeeKind.perUnit,
+        event: FeeEvent.purchase,
+        value: Decimal.parse('2'),
+        currency: 'UAH',
+      ),
+      FeeRule(
+        id: 'percent',
+        name: 'Percent',
+        kind: FeeKind.percentOfTrade,
+        event: FeeEvent.purchase,
+        value: Decimal.parse('1.5'),
+      ),
+    ]);
+    expect(
+      purchaseFeeAmount(
+        fees: fees,
+        positions: positions,
+        currency: 'UAH',
+      )!.toString(),
+      '59',
+    );
+    expect(
+      () => purchaseFeeAmount(
+        fees: FeeAssumptions.confirmed([
+          FeeRule(
+            id: 'foreign',
+            name: 'Foreign',
+            kind: FeeKind.flat,
+            event: FeeEvent.purchase,
+            value: Decimal.fromInt(1),
+            currency: 'USD',
+          ),
+        ]),
+        positions: positions,
+        currency: 'UAH',
+      ),
+      throwsFormatException,
+    );
+  });
+
+  test('aggregate purchase fee affects plan and survives save load', () async {
+    final repository = FakeRepository(data);
+    final cubit = PlannerCubit(
+      repository,
+      clock: () => DateTime.utc(2026, 9, 23),
+    );
+
+    expect(cubit.state.fees.status, FeeAssumptionStatus.unknown);
+    expect(cubit.state.feeImpact!.known, false);
+
+    cubit.setAggregatePurchaseFee('100');
+    expect(cubit.state.fees.status, FeeAssumptionStatus.known);
+    expect(cubit.state.fees.rules.single.value.toString(), '100');
+    cubit.generate();
+
+    final impact = cubit.state.feeImpact!;
+    expect(impact.known, true);
+    expect(impact.purchaseFee!.toString(), '100');
+    expect(
+      impact.totalInitialCost,
+      impact.grossPositionCost + Decimal.parse('100'),
+    );
+    expect(
+      impact.reserveAfterPurchaseFee,
+      impact.grossReserve - Decimal.parse('100'),
+    );
+    expect(
+      impact.profitAfterPurchaseFee,
+      impact.grossProfit - Decimal.parse('100'),
+    );
+    expect(cubit.state.error, isNull);
+
+    expect(await cubit.save(), true);
+    final saved = repository.current!.sets.single;
+    final savedFees =
+        (saved.scenario!['fees'] as Map).cast<String, dynamic>();
+    expect(savedFees['status'], 'known');
+    expect((savedFees['rules'] as List).single['value'], '100');
+
+    cubit.reset();
+    expect(cubit.state.fees.status, FeeAssumptionStatus.unknown);
+    cubit.load(saved);
+    expect(cubit.state.fees.status, FeeAssumptionStatus.known);
+    expect(cubit.state.fees.rules.single.value.toString(), '100');
+    expect(cubit.state.feeImpact!.purchaseFee!.toString(), '100');
+
+    cubit.confirmZeroPurchaseFees();
+    expect(cubit.state.fees.status, FeeAssumptionStatus.known);
+    expect(cubit.state.fees.rules, isEmpty);
+    expect(cubit.state.feeImpact!.purchaseFee, Decimal.zero);
+
+    cubit.setFeesUnknown();
+    expect(cubit.state.fees.status, FeeAssumptionStatus.unknown);
+    expect(cubit.state.feeImpact!.purchaseFee, isNull);
 
     await cubit.close();
     await repository.dispose();

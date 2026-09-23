@@ -84,6 +84,30 @@ void main() {
     }
   });
 
+  test('purchase fee controls are localized in every supported language', () {
+    const keys = [
+      'feeAssumptionsTitle',
+      'feeAssumptionsInfo',
+      'feesUnknown',
+      'feesKnown',
+      'aggregatePurchaseFee',
+      'advancedFeeRulesPreserved',
+      'purchaseFeeApplied',
+      'unknownFeesResultInfo',
+      'expenseCoverageUnknownFeesInfo',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+    }
+  });
+
   testWidgets('typed error follows the selected UI language', (tester) async {
     final locale = LocaleCubit()..select(AppLanguage.en);
     await tester.pumpWidget(
@@ -104,6 +128,12 @@ void main() {
     expect(
       HubStrings(AppLanguage.en).error(const AppError('model.invalid_date')),
       'The instrument data are invalid.',
+    );
+    expect(
+      HubStrings(AppLanguage.en).error(
+        const AppError('planner.fee_currency_mismatch'),
+      ),
+      'The fee currency does not match the scenario currency.',
     );
     await locale.close();
   });

@@ -4,6 +4,7 @@ import '../../l10n/hub_locale.dart';
 import '../../ui/components.dart';
 import '../navigation/navigation_cubit.dart';
 import 'planner_cubit.dart';
+import 'planner_scenario.dart';
 
 class PlannerView extends StatelessWidget {
   const PlannerView({super.key});
@@ -72,8 +73,21 @@ class PlannerView extends StatelessWidget {
     final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     final c = state.criteria,
         summary = state.summary,
+        feeImpact = state.feeImpact,
         disabled = state.busy || state.locked;
     final currency = c['currency'];
+    final feesKnown = state.fees.status == FeeAssumptionStatus.known;
+    final simpleFeeRules = state.fees.rules.isEmpty ||
+        (state.fees.rules.length == 1 &&
+            state.fees.rules.single.id == 'ui-purchase-fee' &&
+            state.fees.rules.single.kind == FeeKind.flat &&
+            state.fees.rules.single.event == FeeEvent.purchase &&
+            state.fees.rules.single.currency == currency);
+    final aggregatePurchaseFee = state.fees.rules.isEmpty
+        ? '0'
+        : simpleFeeRules
+            ? state.fees.rules.single.value.toString()
+            : '';
     final maximum =
         summary?.months.fold<double>(
           0,
@@ -209,6 +223,46 @@ class PlannerView extends StatelessWidget {
             onChanged: (v) => cubit.edit('delay', v),
           ),
         ),
+        const SizedBox(height: 12),
+        SectionHeading(strings.text('feeAssumptionsTitle')),
+        Text(strings.text('feeAssumptionsInfo')),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ChoiceChip(
+              label: Text(strings.text('feesUnknown')),
+              selected: !feesKnown,
+              onSelected: disabled ? null : (_) => cubit.setFeesUnknown(),
+            ),
+            ChoiceChip(
+              label: Text(strings.text('feesKnown')),
+              selected: feesKnown,
+              onSelected: disabled
+                  ? null
+                  : (_) {
+                      if (!feesKnown) cubit.confirmZeroPurchaseFees();
+                    },
+            ),
+          ],
+        ),
+        if (feesKnown && simpleFeeRules)
+          SizedBox(
+            width: 300,
+            child: TextFormField(
+              key: ValueKey('aggregate-purchase-fee-${state.revision}'),
+              initialValue: aggregatePurchaseFee,
+              enabled: !disabled,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText:
+                    '${strings.text('aggregatePurchaseFee')}, $currency',
+              ),
+              onChanged: cubit.setAggregatePurchaseFee,
+            ),
+          ),
+        if (feesKnown && !simpleFeeRules)
+          Text(strings.text('advancedFeeRulesPreserved')),
         const SizedBox(height: 12),
         FilledButton.icon(
           onPressed: disabled ? null : cubit.generate,
@@ -425,16 +479,39 @@ class PlannerView extends StatelessWidget {
         ),
         if (summary != null) ...[
           SectionHeading(strings.text('scenarioResult')),
-          Text(
-            '${strings.text('invested')}: ${summary.cost.toStringAsFixed(2)} $currency · '
-            '${strings.text('free')}: ${summary.reserve.toStringAsFixed(2)} $currency',
-          ),
-          Text(
-            '${strings.text('expectedProfit')}: ${state.profit} $currency',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          if (feeImpact?.known == true) ...[
+            Text(
+              '${strings.text('invested')}: '
+              '${feeImpact!.totalInitialCost!.toStringAsFixed(2)} $currency · '
+              '${strings.text('free')}: '
+              '${feeImpact.reserveAfterPurchaseFee!.toStringAsFixed(2)} $currency',
+            ),
+            Text(
+              '${strings.text('purchaseFeeApplied')}: '
+              '${feeImpact.purchaseFee!.toStringAsFixed(2)} $currency',
+            ),
+            Text(
+              '${strings.text('expectedProfit')}: '
+              '${feeImpact.profitAfterPurchaseFee!.toStringAsFixed(2)} $currency',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ] else ...[
+            Text(
+              '${strings.text('invested')}: ${summary.cost.toStringAsFixed(2)} $currency · '
+              '${strings.text('free')}: ${summary.reserve.toStringAsFixed(2)} $currency',
+            ),
+            Text(
+              '${strings.text('expectedProfit')}: ${state.profit} $currency',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Text(strings.text('unknownFeesResultInfo')),
+          ],
+          if (feeImpact?.hasDeferredRules == true)
+            Text(strings.text('advancedFeeRulesPreserved')),
           Text(strings.text('resultCaveat')),
           SectionHeading(strings.text('expenseCoverage')),
+          if (feeImpact?.known != true)
+            Text(strings.text('expenseCoverageUnknownFeesInfo')),
           for (final row in state.expenseBalances)
             Card(
               child: ListTile(

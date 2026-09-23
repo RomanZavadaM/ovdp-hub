@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
 import '../../errors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +7,7 @@ import '../../data/hub_repository.dart';
 import '../../models.dart';
 import '../../pricing.dart';
 import 'planner_engine.dart';
+import 'planner_fees.dart';
 import 'planner_goals.dart';
 import 'planner_scenario.dart';
 
@@ -119,6 +121,8 @@ class PlannerState {
   final Map<String, String> criteria;
   final Map<String, PositionInput> inputs;
   final PriceSourcePriority priceSourcePriority;
+  final FeeAssumptions fees;
+  final PlannerFeeImpact? feeImpact;
   final List<Bond> candidates;
   final PlanSummary? summary;
   final List<ExpenseBalance> expenseBalances;
@@ -130,6 +134,8 @@ class PlannerState {
     required Map<String, String> criteria,
     Map<String, PositionInput> inputs = const {},
     PriceSourcePriority? priceSourcePriority,
+    FeeAssumptions? fees,
+    this.feeImpact,
     Iterable<Bond> candidates = const [],
     this.summary,
     Iterable<ExpenseBalance> expenseBalances = const [],
@@ -144,12 +150,15 @@ class PlannerState {
        criteria = Map.unmodifiable(criteria),
        inputs = Map.unmodifiable(inputs),
        priceSourcePriority = priceSourcePriority ?? PriceSourcePriority.none(),
+       fees = fees ?? FeeAssumptions.unknown(),
        candidates = List.unmodifiable(candidates);
   bool get dirty => (changed || inputs.isNotEmpty) && !saved;
   PlannerState copyWith({
     Map<String, String>? criteria,
     Map<String, PositionInput>? inputs,
     PriceSourcePriority? priceSourcePriority,
+    FeeAssumptions? fees,
+    PlannerFeeImpact? feeImpact,
     Iterable<Bond>? candidates,
     PlanSummary? summary,
     Iterable<ExpenseBalance>? expenseBalances,
@@ -165,6 +174,8 @@ class PlannerState {
     criteria: criteria ?? this.criteria,
     inputs: inputs ?? this.inputs,
     priceSourcePriority: priceSourcePriority ?? this.priceSourcePriority,
+    fees: fees ?? this.fees,
+    feeImpact: clearSummary ? null : feeImpact ?? this.feeImpact,
     candidates: candidates ?? this.candidates,
     summary: clearSummary ? null : summary ?? this.summary,
     expenseBalances: clearSummary
@@ -287,6 +298,7 @@ class PlannerCubit extends Cubit<PlannerState> {
       state.copyWith(
         criteria: {...state.criteria, key: value},
         inputs: resetPositions ? {} : null,
+        fees: key == 'currency' ? FeeAssumptions.unknown() : null,
         saved: false,
         clearError: true,
       ),
@@ -317,28 +329,41 @@ class PlannerCubit extends Cubit<PlannerState> {
       }
       final positions = next.inputs.values.map((i) => i.parse()).toList();
       final summary = summarizePlan(
-        positions: next.inputs.values.map((i) => i.parse()).toList(),
+        positions: positions,
         currency: c['currency']!,
         budget: budget,
         start: c['start']!,
         needDate: c['needDate']!,
         needAmount: money(c['needAmount']!),
       );
-      if (summary.reserve < reserve) {
+      final feeImpact = evaluatePurchaseFeeImpact(
+        fees: next.fees,
+        positions: positions,
+        currency: c['currency']!,
+        budget: budget,
+        start: c['start']!,
+      );
+      final reserveForValidation =
+          feeImpact.reserveAfterPurchaseFee ?? summary.reserve;
+      if (reserveForValidation < reserve) {
         throw const FormatException('planner.reserve_spent');
       }
+      final calendarBudget = feeImpact.purchaseFee == null
+          ? budget
+          : budget - feeImpact.purchaseFee!;
       emit(
         next.copyWith(
           candidates: candidates,
           summary: summary,
+          feeImpact: feeImpact,
           expenseBalances: expenseCalendar(
             positions,
-            budget,
+            calendarBudget,
             c['start']!,
             expenses,
             delay,
           ),
-          profit: totalProfit(positions, c['start']!).toStringAsFixed(2),
+          profit: feeImpact.grossProfit.toStringAsFixed(2),
           clearError: true,
         ),
       );
@@ -360,6 +385,18 @@ class PlannerCubit extends Cubit<PlannerState> {
         c['maxDate']!,
       );
       final strategy = c['strategy'] ?? 'ladder';
+      final budget = money(c['budget']!);
+      final reserve = money(c['reserve']!);
+      final explicitAggregateFee = simpleAggregatePurchaseFee(
+        state.fees,
+        c['currency']!,
+      );
+      final planningBudget = explicitAggregateFee == null
+          ? budget
+          : budget - explicitAggregateFee;
+      if (planningBudget < reserve) {
+        throw const FormatException('planner.reserve_spent');
+      }
       final offers = candidates
           .where(
             (b) =>
@@ -384,11 +421,11 @@ class PlannerCubit extends Cubit<PlannerState> {
           })
           .toList();
       final positions = strategy == 'ladder'
-          ? makeLadder(candidates, money(c['budget']!), money(c['reserve']!))
+          ? makeLadder(candidates, planningBudget, reserve)
           : suggestProfitablePlan(
               offers: offers,
-              budget: money(c['budget']!),
-              reserve: money(c['reserve']!),
+              budget: planningBudget,
+              reserve: reserve,
               start: c['start']!,
               expenses: strategy == 'expenses' ? readExpenses(c) : [],
               delay: int.parse(c['delay'] ?? '2'),
@@ -676,6 +713,52 @@ class PlannerCubit extends Cubit<PlannerState> {
     );
   }
 
+  void setFeesUnknown() {
+    if (state.busy || state.locked) return;
+    _recalculate(
+      state.copyWith(
+        fees: FeeAssumptions.unknown(),
+        saved: false,
+        clearError: true,
+      ),
+    );
+  }
+
+  void confirmZeroPurchaseFees() {
+    if (state.busy || state.locked) return;
+    _recalculate(
+      state.copyWith(
+        fees: FeeAssumptions.confirmed(const []),
+        saved: false,
+        clearError: true,
+      ),
+    );
+  }
+
+  void setAggregatePurchaseFee(String value) {
+    if (state.busy || state.locked) return;
+    try {
+      final amount = money(value);
+      final fees = amount == Decimal.zero
+          ? FeeAssumptions.confirmed(const [])
+          : FeeAssumptions.confirmed([
+              FeeRule(
+                id: 'ui-purchase-fee',
+                name: 'Aggregate purchase fee',
+                kind: FeeKind.flat,
+                event: FeeEvent.purchase,
+                value: amount,
+                currency: state.criteria['currency']!,
+              ),
+            ]);
+      _recalculate(
+        state.copyWith(fees: fees, saved: false, clearError: true),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
   void lock(bool value) {
     if (!isClosed) emit(state.copyWith(locked: value));
   }
@@ -709,6 +792,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           criteria: criteria,
           inputs: inputs,
           priceSourcePriority: scenario.priceSourcePriority,
+          fees: scenario.fees,
           saved: true,
           revision: state.revision + 1,
         ),
@@ -745,11 +829,15 @@ class PlannerCubit extends Cubit<PlannerState> {
         ),
         savedAt: savedAt,
         priceSourcePriority: draft.priceSourcePriority,
+        fees: draft.fees,
       );
+      final feeNote = draft.fees.status == FeeAssumptionStatus.unknown
+          ? 'комісії невідомі'
+          : 'комісії задані явно';
       await repository.saveCollection(
         SavedSet(
           draft.criteria['name']!.trim(),
-          'Сценарій у ${draft.criteria['currency']}. Невідомі комісії, податки або FX не підміняються нулем.',
+          'Сценарій у ${draft.criteria['currency']}. $feeNote; невідомі податки або FX не підміняються нулем.',
           savedAt,
           draft.inputs.values.map((i) => i.bond),
           scenario: scenario.toJson(),
