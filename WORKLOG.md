@@ -25,50 +25,38 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
-Мета етапу: **typed fee/tax/FX/exit assumptions → calculations + UI**.
+Мета: **purchase fee assumptions — unknown / confirmed zero / confirmed aggregate fee → persistence → calculation → UI → tests**.
 
-Перший self-contained vertical sub-slice: **purchase fee assumptions — unknown / confirmed zero / confirmed aggregate fee → persistence → calculation → UI → tests**.
-
-- baseline `main`: `3dfd7e6d62a110e733f3ffb738d021cf9966e30c`
-- active branch: `feat/planner-fee-assumptions`
 - PR: **#41** `Planner: explicit purchase fee assumptions`
-- current head: `71c6004b19370ce7bc0577d5e5ecd3bba237571a`
-- verify: **Flutter checks and START run #133 — in progress**; prior run #132: analyze ✅, tests 79/80, one incorrect initial widget expectation fixed at current head
-- опублікований checkpoint: **v0.8.6 / 0.8.6+14**
-- prior slice PR #39: merged as `255d15294105e8d5ae6dfe216f1e900fe0490192`
-- post-merge docs PR #40: merged as `3dfd7e6d62a110e733f3ffb738d021cf9966e30c`, run #125 success
-- audit findings:
-  - schema 3 already persists typed `FeeAssumptions`, `TaxScenario`, `FxAssumption`, `ExitAssumption`;
-  - current PlannerCubit does not retain those assumptions as active state across load/save;
-  - current planner calculations ignore them;
-  - current planner UI has no assumption controls;
-  - tax preset must be re-verified against official effective-dated sources before connecting it to calculations;
-  - current scenario-level early-sale observation is tied to one ISIN, so multi-position exit semantics require a dedicated design pass before activation.
-- fee sub-slice invariant:
-  - `FeeAssumptionStatus.unknown` is **not** the same as confirmed zero;
-  - unknown fees must never be silently presented as a net/after-fee result;
-  - first UI supports an explicit aggregate purchase fee in scenario currency; richer typed fee rules remain preserved and must not be silently rewritten unless the user explicitly replaces them.
+- final head: `f8c03ac25dab3cd2a764f78fe47790f86c30aa5e`
+- final verify: **Flutter checks and START run #135 — success (80/80 tests)**
+- squash merge у `main`: `fbe8028ae1f68fcbb9c4c7a7057134c6793c00ae`
+- published checkpoint лишається **v0.8.6 / 0.8.6+14**
+- completed:
+  - typed `FeeAssumptions` retained in PlannerState/load/save;
+  - unknown fees remain distinct from confirmed zero;
+  - explicit aggregate purchase fee in scenario currency;
+  - known purchase fee reduces planning budget/reserve and calculated profit;
+  - unknown-fee result is explicitly gross/pre-fee, never silently net;
+  - richer typed fee rules are preserved instead of being silently rewritten;
+  - fee UI/errors localized for UK/EN/FR/DE/ES/KO/JA;
+  - domain/cubit/persistence/widget regression coverage green.
 
 ### Поточна наступна дія
 
-**DOING — final verification PR #41.**
+**NEXT — tax assumptions audit before activation.**
 
-Функціональний fee vertical реалізований. Run #132 пройшов analyze і 79/80 tests; єдине падіння було в неправильному початковому очікуванні widget-test: planner уже має розрахований gross result, тому при unknown fees caveat повинен бути видимим. Очікування виправлено без послаблення перевірки переходу unknown → known.
+Створити окрему feature branch від актуального `main` і спочатку провести read-only audit наявного `TaxScenario.ukraineResidentOvdp2026()`: звірити кожне правило PIT / military levy для interest та investment profit з офіційними джерелами, effective period і датою перевірки. Лише після цього підключати tax state → validation → calculation → persistence → 7-language UI → tests.
 
-Поточний head: `71c6004b19370ce7bc0577d5e5ecd3bba237571a`.  
-Run #133: in progress.
-
-Після green: позначити PR #41 ready → squash integrate у `main` → синхронізувати canonical PROJECT_STATE/WORKLOG/roadmap та Issue #18 → перейти до tax assumptions audit з обов'язковою official effective-date verification.
-
-Tax/FX/exit лишаються поза scope PR #41.
+Невідомий податок не вважати нулем. Не активувати застарілий або неперевірений preset.
 
 ## Черга робіт
 
 1. **DONE** — multiple `PriceObservation` + explicit user source priority.
-2. **DOING** — assumptions stage, first sub-slice: purchase fee assumptions → calculation + UI.
-3. **TODO** — tax assumptions calculation + effective-dated verified UI.
+2. **DONE** — purchase fee assumptions → calculation + UI.
+3. **NEXT** — tax assumptions → official effective-date audit → calculation + UI.
 4. **TODO** — FX assumptions calculation/UI.
 5. **TODO** — exit assumptions redesign/wiring for multi-position scenarios.
 6. **TODO** — A/B/C comparison.
@@ -100,6 +88,9 @@ Tax/FX/exit лишаються поза scope PR #41.
 - поточний опублікований v0.8.6 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — explicit purchase fee assumptions**: PR #41 squash-merged у `main` як `fbe8028ae1f68fcbb9c4c7a7057134c6793c00ae`; final run #135 success (80/80 tests). Planner зберігає typed fees, відрізняє unknown від confirmed zero, враховує явну aggregate purchase fee у budget/reserve/profit, показує gross caveat при unknown fees, не перезаписує richer typed rules і має 7-language UI/error coverage.
+
 
 - **DONE — explicit price-source priority**: PR #39 squash-merged у `main` як `255d15294105e8d5ae6dfe216f1e900fe0490192`; final run #123 success. Planner зберігає кілька observations, explicit source priority, UI add/select/reorder + nominal fallback; yield-only/nominal не стають market price автоматично; UI локалізовано 7 мовами, regression/widget coverage зелені.
 
