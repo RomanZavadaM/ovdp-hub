@@ -4,8 +4,24 @@
 
 ## [Unreleased] — 0.9.0 «Ринок» development
 
-- Наступний slice: freshness/status UX у картці ISIN.
-- Далі: multiple price sources, fee/tax/FX/exit UI та A/B/C comparison.
+- Наступний slice: multiple `PriceObservation` + explicit user source priority.
+- Далі: fee/tax/FX/exit UI, A/B/C comparison та generated planner copy localization.
+
+## [0.8.6] — 2026-09-23
+
+### ISIN freshness/status UX
+- Додано typed `officialPublished` status для офіційних NBU/MinFin observations.
+- Seller public quotes лишаються `publicIndicative`; офіційні дані не змішуються з індикативними котируваннями.
+- Для шарів NBU / MinFin / seller уніфіковано source, sourceDate, retrievedAt, freshness, textual data status та evidence URL.
+- Fresh/stale/future/unknown status показується текстом, а не лише кольором.
+- NBU catalog provenance передається безпосередньо в ISIN card.
+- UI/status labels локалізовані UK/EN/FR/DE/ES/KO/JA.
+- Додано unit/widget/full-card wiring tests.
+
+### Release checkpoint
+- Версія застосунку: `0.8.6+14`.
+- Повний prerelease checkpoint для Windows, macOS, Android, iOS і START/source.
+- Multiple price sources та explicit user priority навмисно лишаються наступним окремим slice.
 
 ## [0.8.5] — 2026-09-22
 
