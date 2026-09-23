@@ -319,7 +319,7 @@ class PlannerPositionDraft {
     required this.price,
     Iterable<PriceObservation>? priceObservations,
   }) : priceObservations = List.unmodifiable(
-         priceObservations == null ? [price] : priceObservations,
+         priceObservations ?? [price],
        ) {
     if (isin != price.isin ||
         quantity < 1 ||
@@ -818,10 +818,10 @@ class PlannerScenario {
             this.positions.length) {
       throw const FormatException('planner.duplicate_items');
     }
-    if (!priceSourcePriority.isEmpty) {
+    if (!this.priceSourcePriority.isEmpty) {
       for (final position in this.positions) {
         if (position.price.kind == PriceValueKind.nominalEstimate) continue;
-        final resolved = priceSourcePriority.resolvePurchase(
+        final resolved = this.priceSourcePriority.resolvePurchase(
           position.isin,
           position.priceObservations,
         );
