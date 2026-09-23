@@ -172,13 +172,16 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.tap(find.text('Комісію підтверджено'));
+    final knownFees = find.text('Комісію підтверджено');
+    await tester.ensureVisible(knownFees);
+    await tester.tap(knownFees);
     await tester.pumpAndSettle();
     final feeField = find.widgetWithText(
       TextFormField,
       'Загальна комісія придбання, UAH',
     );
     expect(feeField, findsOneWidget);
+    await tester.ensureVisible(feeField);
     await tester.enterText(feeField, '100');
     await tester.pumpAndSettle();
 
