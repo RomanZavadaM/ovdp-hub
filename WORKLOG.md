@@ -25,39 +25,42 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **tax assumptions → official effective-date audit → calculation → persistence → 7-language UI → tests**.
+Мета: **FX assumptions → explicit comparison conversion → persistence → 7-language UI → tests**.
 
-- PR: **#45** `Planner: verified OVDP tax assumptions`
-- final head: `2cd3ff1ce60000098eceda7f850982cea1427beb`
-- final verify: **Flutter checks and START run #145 — success**
-- squash merge у `main`: `b47fd1360432a8336ca38666064eb46eebbd04f7`
-- published checkpoint remains **v0.8.7 / 0.8.7+15**
-- completed:
-  - official-source audit before activation;
-  - verified Ukraine-resident OVDP 2026 zero-tax preset;
-  - TaxScenario retained in state/load/save;
-  - explicit unknown vs verified-zero impact;
-  - incomplete/out-of-scope/non-zero tax rules fail closed;
-  - post-fee/post-tax result and expense caveats;
-  - tax UI/errors localized UK/EN/FR/DE/ES/KO/JA;
-  - domain/cubit/persistence/widget regression coverage green.
+- baseline `main`: `a7b67e3d72f9cadbab143a3ac29ea484b24930df`
+- active branch: `feat/planner-fx-assumptions`
+- published checkpoint: **v0.8.7 / 0.8.7+15**
+- audit:
+  - schema 3 already persists `List<FxAssumption>`;
+  - active planner remains intentionally single-currency and filters positions by scenario currency;
+  - no existing calculation/UI consumes FX;
+  - empty FX list is safe **no conversion requested**, not a hidden zero/1:1 rate;
+  - first UI will support one explicit user-provided comparison rate; multiple/foreign-base typed assumptions remain preserved and are not silently rewritten;
+  - FX will not authorize mixed-currency positions or needs.
 
 ### Поточна наступна дія
 
-**NEXT — FX assumptions calculation/UI.**
+**DOING — explicit FX comparison vertical.**
 
-Почати окремий vertical slice від актуального `main`: аудит наявного `FxAssumption` domain і поточного single-currency planner path → explicit unknown/no-conversion vs user-provided rate/date/source → persistence → calculation semantics → 7-language UI → tests.
+1. retain `fx` in PlannerState/load/save;
+2. add evaluator for zero/one/deferred FX assumptions;
+3. define rate as **1 scenario-currency unit = rate target-currency units**;
+4. add explicit target/rate/as-of/source URL draft + apply/clear controls;
+5. show converted comparison amounts without changing base-currency cashflow;
+6. preserve advanced/multiple FX rules unless user explicitly replaces them;
+7. localize UK/EN/FR/DE/ES/KO/JA;
+8. domain/cubit/persistence/widget tests → green PR → integrate `main`.
 
-Не змішувати валюти без explicit FX. Не підтягувати довільний live FX курс автоматично без окремого рішення про source/provenance.
+Exit remains out of this slice.
 
 ## Черга робіт
 
 1. **DONE** — multiple `PriceObservation` + explicit user source priority.
 2. **DONE** — purchase fee assumptions → calculation + UI.
 3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
-4. **NEXT** — FX assumptions calculation/UI.
+4. **DOING** — FX assumptions calculation/UI.
 5. **TODO** — exit assumptions redesign/wiring for multi-position scenarios.
 6. **TODO** — A/B/C comparison.
 7. **TODO** — generated planner copy / preset labels localization + UX regression.
