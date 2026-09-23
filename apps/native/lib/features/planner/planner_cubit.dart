@@ -130,6 +130,7 @@ class PlannerState {
   final PlannerTaxImpact? taxImpact;
   final List<FxAssumption> fx;
   final PlannerFxImpact? fxImpact;
+  final List<PositionExitAssumption> positionExits;
   final List<Bond> candidates;
   final PlanSummary? summary;
   final List<ExpenseBalance> expenseBalances;
@@ -147,6 +148,7 @@ class PlannerState {
     this.taxImpact,
     Iterable<FxAssumption> fx = const [],
     this.fxImpact,
+    Iterable<PositionExitAssumption> positionExits = const [],
     Iterable<Bond> candidates = const [],
     this.summary,
     Iterable<ExpenseBalance> expenseBalances = const [],
@@ -164,6 +166,7 @@ class PlannerState {
        fees = fees ?? FeeAssumptions.unknown(),
        taxes = taxes ?? TaxScenario.unknown(),
        fx = List.unmodifiable(fx),
+       positionExits = List.unmodifiable(positionExits),
        candidates = List.unmodifiable(candidates);
   bool get dirty => (changed || inputs.isNotEmpty) && !saved;
   PlannerState copyWith({
@@ -176,6 +179,7 @@ class PlannerState {
     PlannerTaxImpact? taxImpact,
     Iterable<FxAssumption>? fx,
     PlannerFxImpact? fxImpact,
+    Iterable<PositionExitAssumption>? positionExits,
     Iterable<Bond>? candidates,
     PlanSummary? summary,
     Iterable<ExpenseBalance>? expenseBalances,
@@ -197,6 +201,7 @@ class PlannerState {
     taxImpact: clearSummary ? null : taxImpact ?? this.taxImpact,
     fx: fx ?? this.fx,
     fxImpact: clearSummary ? null : fxImpact ?? this.fxImpact,
+    positionExits: positionExits ?? this.positionExits,
     candidates: candidates ?? this.candidates,
     summary: clearSummary ? null : summary ?? this.summary,
     expenseBalances: clearSummary
@@ -321,6 +326,7 @@ class PlannerCubit extends Cubit<PlannerState> {
         inputs: resetPositions ? {} : null,
         fees: key == 'currency' ? FeeAssumptions.unknown() : null,
         fx: key == 'currency' ? const [] : null,
+        positionExits: resetPositions ? const [] : null,
         saved: false,
         clearError: true,
       ),
@@ -350,6 +356,17 @@ class PlannerCubit extends Cubit<PlannerState> {
         throw const FormatException('planner.delay_range');
       }
       final positions = next.inputs.values.map((i) => i.parse()).toList();
+      final activePositionExits = next.positionExits
+          .where((e) => next.inputs.containsKey(e.isin))
+          .toList(growable: false);
+      final exitOverrides = <String, PlanExitOverride>{
+        for (final e in activePositionExits)
+          e.isin: PlanExitOverride(
+            e.isin,
+            e.date,
+            e.price.effectiveUnitCost!,
+          ),
+      };
       final summary = summarizePlan(
         positions: positions,
         currency: c['currency']!,
@@ -357,6 +374,7 @@ class PlannerCubit extends Cubit<PlannerState> {
         start: c['start']!,
         needDate: c['needDate']!,
         needAmount: money(c['needAmount']!),
+        exits: exitOverrides,
       );
       final feeImpact = evaluatePurchaseFeeImpact(
         fees: next.fees,
@@ -364,6 +382,7 @@ class PlannerCubit extends Cubit<PlannerState> {
         currency: c['currency']!,
         budget: budget,
         start: c['start']!,
+        exits: exitOverrides,
       );
       final profitBeforeTax =
           feeImpact.known ? feeImpact.profitAfterPurchaseFee : null;
@@ -399,6 +418,7 @@ class PlannerCubit extends Cubit<PlannerState> {
       emit(
         next.copyWith(
           candidates: candidates,
+          positionExits: activePositionExits,
           summary: summary,
           feeImpact: feeImpact,
           taxImpact: taxImpact,
@@ -409,6 +429,7 @@ class PlannerCubit extends Cubit<PlannerState> {
             c['start']!,
             expenses,
             delay,
+            exits: exitOverrides,
           ),
           profit: feeImpact.grossProfit.toStringAsFixed(2),
           clearError: true,
@@ -889,6 +910,90 @@ class PlannerCubit extends Cubit<PlannerState> {
     );
   }
 
+  void setPositionExit({
+    required String isin,
+    required String date,
+    required String price,
+    required PriceSide side,
+    String sourceUrl = '',
+  }) {
+    if (state.busy || state.locked) return;
+    final input = state.inputs[isin];
+    if (input == null) return;
+    try {
+      if (![PriceSide.bid, PriceSide.manual].contains(side)) {
+        throw const FormatException('planner.early_sale_requires_bid');
+      }
+      final saleDate = isoDate(date.trim());
+      final start = isoDate(state.criteria['start']!);
+      final maturity = isoDate(input.bond.maturity);
+      if (!saleDate.isAfter(start) ||
+          !saleDate.isBefore(maturity) ||
+          input.bond.payments.any(
+            (payment) => isoDate(payment['date'] as String) == saleDate,
+          )) {
+        throw const FormatException('planner.invalid_exit_timing');
+      }
+      final unitPrice = money(price);
+      final cleanUrl = sourceUrl.trim();
+      if (side == PriceSide.bid) {
+        final parsed = Uri.tryParse(cleanUrl);
+        if (parsed == null ||
+            !['http', 'https'].contains(parsed.scheme) ||
+            parsed.host.isEmpty) {
+          throw const FormatException('planner.exit_source_url_required');
+        }
+      }
+      final observedAt = clock().toUtc().toIso8601String();
+      final observation = PriceObservation(
+        isin: input.bond.isin,
+        currency: input.bond.currency,
+        kind: PriceValueKind.fullPrice,
+        side: side,
+        price: unitPrice,
+        meta: SourceObservationMeta(
+          sourceId: side == PriceSide.bid
+              ? 'exit-bid:${input.bond.isin}'
+              : 'exit-manual:${input.bond.isin}',
+          sourceUrl: cleanUrl.isEmpty ? 'local://manual-exit' : cleanUrl,
+          retrievedAt: observedAt,
+          kind: ObservationKind.manual,
+          confidence: ObservationConfidence.userAssumption,
+        ),
+      );
+      final assumption = PositionExitAssumption(
+        isin: isin,
+        date: saleDate.toIso8601String().substring(0, 10),
+        price: observation,
+      );
+      _recalculate(
+        state.copyWith(
+          positionExits: [
+            ...state.positionExits.where((e) => e.isin != isin),
+            assumption,
+          ],
+          saved: false,
+          clearError: true,
+          revision: state.revision + 1,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
+  void clearPositionExit(String isin) {
+    if (state.busy || state.locked) return;
+    _recalculate(
+      state.copyWith(
+        positionExits: state.positionExits.where((e) => e.isin != isin),
+        saved: false,
+        clearError: true,
+        revision: state.revision + 1,
+      ),
+    );
+  }
+
   void lock(bool value) {
     if (!isClosed) emit(state.copyWith(locked: value));
   }
@@ -925,6 +1030,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           fees: scenario.fees,
           taxes: scenario.taxes,
           fx: scenario.fx,
+          positionExits: scenario.effectivePositionExits,
           saved: true,
           revision: state.revision + 1,
         ),
@@ -964,6 +1070,7 @@ class PlannerCubit extends Cubit<PlannerState> {
         fees: draft.fees,
         taxes: draft.taxes,
         fx: draft.fx,
+        positionExits: draft.positionExits,
       );
       final feeNote = draft.fees.status == FeeAssumptionStatus.unknown
           ? 'комісії невідомі'
@@ -974,10 +1081,13 @@ class PlannerCubit extends Cubit<PlannerState> {
       final fxNote = draft.fx.isEmpty
           ? 'FX-порівняння не задане'
           : 'FX-порівняння задане явно';
+      final exitNote = draft.positionExits.isEmpty
+          ? 'утримання до погашення'
+          : 'достроковий продаж задано для ${draft.positionExits.length} позицій';
       await repository.saveCollection(
         SavedSet(
           draft.criteria['name']!.trim(),
-          'Сценарій у ${draft.criteria['currency']}. $feeNote; $taxNote; $fxNote.',
+          'Сценарій у ${draft.criteria['currency']}. $feeNote; $taxNote; $fxNote; $exitNote.',
           savedAt,
           draft.inputs.values.map((i) => i.bond),
           scenario: scenario.toJson(),
