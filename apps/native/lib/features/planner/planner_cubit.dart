@@ -4,10 +4,12 @@ import 'package:flutter/foundation.dart';
 import '../../errors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/hub_repository.dart';
+import '../../data/source_observation.dart';
 import '../../models.dart';
 import '../../pricing.dart';
 import 'planner_engine.dart';
 import 'planner_fees.dart';
+import 'planner_fx.dart';
 import 'planner_goals.dart';
 import 'planner_scenario.dart';
 import 'planner_taxes.dart';
@@ -126,6 +128,8 @@ class PlannerState {
   final PlannerFeeImpact? feeImpact;
   final TaxScenario taxes;
   final PlannerTaxImpact? taxImpact;
+  final List<FxAssumption> fx;
+  final PlannerFxImpact? fxImpact;
   final List<Bond> candidates;
   final PlanSummary? summary;
   final List<ExpenseBalance> expenseBalances;
@@ -141,6 +145,8 @@ class PlannerState {
     this.feeImpact,
     TaxScenario? taxes,
     this.taxImpact,
+    Iterable<FxAssumption> fx = const [],
+    this.fxImpact,
     Iterable<Bond> candidates = const [],
     this.summary,
     Iterable<ExpenseBalance> expenseBalances = const [],
@@ -157,6 +163,7 @@ class PlannerState {
        priceSourcePriority = priceSourcePriority ?? PriceSourcePriority.none(),
        fees = fees ?? FeeAssumptions.unknown(),
        taxes = taxes ?? TaxScenario.unknown(),
+       fx = List.unmodifiable(fx),
        candidates = List.unmodifiable(candidates);
   bool get dirty => (changed || inputs.isNotEmpty) && !saved;
   PlannerState copyWith({
@@ -167,6 +174,8 @@ class PlannerState {
     PlannerFeeImpact? feeImpact,
     TaxScenario? taxes,
     PlannerTaxImpact? taxImpact,
+    Iterable<FxAssumption>? fx,
+    PlannerFxImpact? fxImpact,
     Iterable<Bond>? candidates,
     PlanSummary? summary,
     Iterable<ExpenseBalance>? expenseBalances,
@@ -186,6 +195,8 @@ class PlannerState {
     feeImpact: clearSummary ? null : feeImpact ?? this.feeImpact,
     taxes: taxes ?? this.taxes,
     taxImpact: clearSummary ? null : taxImpact ?? this.taxImpact,
+    fx: fx ?? this.fx,
+    fxImpact: clearSummary ? null : fxImpact ?? this.fxImpact,
     candidates: candidates ?? this.candidates,
     summary: clearSummary ? null : summary ?? this.summary,
     expenseBalances: clearSummary
@@ -309,6 +320,7 @@ class PlannerCubit extends Cubit<PlannerState> {
         criteria: {...state.criteria, key: value},
         inputs: resetPositions ? {} : null,
         fees: key == 'currency' ? FeeAssumptions.unknown() : null,
+        fx: key == 'currency' ? const [] : null,
         saved: false,
         clearError: true,
       ),
@@ -360,6 +372,22 @@ class PlannerCubit extends Cubit<PlannerState> {
         scenarioDate: c['start']!,
         profitBeforeTax: profitBeforeTax,
       );
+      final profitForFx = taxImpact.known && taxImpact.profitAfterTax != null
+          ? taxImpact.profitAfterTax!
+          : feeImpact.known && feeImpact.profitAfterPurchaseFee != null
+              ? feeImpact.profitAfterPurchaseFee!
+              : feeImpact.grossProfit;
+      final investedForFx = feeImpact.known && feeImpact.totalInitialCost != null
+          ? feeImpact.totalInitialCost!
+          : summary.cost;
+      final reserveForFx = feeImpact.reserveAfterPurchaseFee ?? summary.reserve;
+      final fxImpact = evaluateFxImpact(
+        fx: next.fx,
+        scenarioCurrency: c['currency']!,
+        invested: investedForFx,
+        reserve: reserveForFx,
+        profit: profitForFx,
+      );
       final reserveForValidation =
           feeImpact.reserveAfterPurchaseFee ?? summary.reserve;
       if (reserveForValidation < reserve) {
@@ -374,6 +402,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           summary: summary,
           feeImpact: feeImpact,
           taxImpact: taxImpact,
+          fxImpact: fxImpact,
           expenseBalances: expenseCalendar(
             positions,
             calendarBudget,
@@ -799,6 +828,67 @@ class PlannerCubit extends Cubit<PlannerState> {
     );
   }
 
+  void setFxComparison({
+    required String targetCurrency,
+    required String rate,
+    required String asOf,
+    required String sourceUrl,
+  }) {
+    if (state.busy || state.locked) return;
+    try {
+      final base = state.criteria['currency']!;
+      final cleanTarget = targetCurrency.trim().toUpperCase();
+      final cleanUrl = sourceUrl.trim();
+      final parsedUrl = Uri.tryParse(cleanUrl);
+      if (parsedUrl == null ||
+          !['http', 'https'].contains(parsedUrl.scheme) ||
+          parsedUrl.host.isEmpty) {
+        throw const FormatException('planner.fx_source_url_required');
+      }
+      final parsedRate = Decimal.parse(rate.trim());
+      if (parsedRate <= Decimal.zero) {
+        throw const FormatException('planner.invalid_fx');
+      }
+      final date = isoDate(asOf.trim()).toIso8601String().substring(0, 10);
+      final assumption = FxAssumption(
+        fromCurrency: base,
+        toCurrency: cleanTarget,
+        rate: parsedRate,
+        asOf: date,
+        source: SourceObservationMeta(
+          sourceId: 'manual-fx:$cleanTarget',
+          sourceUrl: cleanUrl,
+          sourceDate: date,
+          retrievedAt: clock().toUtc().toIso8601String(),
+          kind: ObservationKind.manual,
+          confidence: ObservationConfidence.userAssumption,
+        ),
+      );
+      _recalculate(
+        state.copyWith(
+          fx: [assumption],
+          saved: false,
+          clearError: true,
+          revision: state.revision + 1,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: AppError.from(e)));
+    }
+  }
+
+  void clearFxComparison() {
+    if (state.busy || state.locked) return;
+    _recalculate(
+      state.copyWith(
+        fx: const [],
+        saved: false,
+        clearError: true,
+        revision: state.revision + 1,
+      ),
+    );
+  }
+
   void lock(bool value) {
     if (!isClosed) emit(state.copyWith(locked: value));
   }
@@ -834,6 +924,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           priceSourcePriority: scenario.priceSourcePriority,
           fees: scenario.fees,
           taxes: scenario.taxes,
+          fx: scenario.fx,
           saved: true,
           revision: state.revision + 1,
         ),
@@ -872,6 +963,7 @@ class PlannerCubit extends Cubit<PlannerState> {
         priceSourcePriority: draft.priceSourcePriority,
         fees: draft.fees,
         taxes: draft.taxes,
+        fx: draft.fx,
       );
       final feeNote = draft.fees.status == FeeAssumptionStatus.unknown
           ? 'комісії невідомі'
@@ -879,10 +971,13 @@ class PlannerCubit extends Cubit<PlannerState> {
       final taxNote = draft.taxes.status == TaxAssumptionStatus.unknown
           ? 'податки невідомі'
           : 'податкові правила перевірені';
+      final fxNote = draft.fx.isEmpty
+          ? 'FX-порівняння не задане'
+          : 'FX-порівняння задане явно';
       await repository.saveCollection(
         SavedSet(
           draft.criteria['name']!.trim(),
-          'Сценарій у ${draft.criteria['currency']}. $feeNote; $taxNote; невідомий FX не підміняється нулем.',
+          'Сценарій у ${draft.criteria['currency']}. $feeNote; $taxNote; $fxNote.',
           savedAt,
           draft.inputs.values.map((i) => i.bond),
           scenario: scenario.toJson(),
