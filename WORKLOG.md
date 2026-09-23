@@ -21,34 +21,40 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 **0.9.0 «Ринок»**.
 
-Поточний опублікований checkpoint: **v0.8.6 / 0.8.6+14**.
+Поточний опублікований checkpoint: **v0.8.7 / 0.8.7+15**.
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
-Мета: **повний test-release checkpoint v0.8.7 / 0.8.7+15** за прямою командою власника «злити у main».
+Мета: **повний test-release checkpoint v0.8.7 / 0.8.7+15**.
 
-- release branch: `release/v0.8.7`
-- PR: **#42** `Release: v0.8.7 multilingual full checkpoint`
-- base main: `fbe8028ae1f68fcbb9c4c7a7057134c6793c00ae`
-- scope:
+- release PR: **#42** `Release: v0.8.7 multilingual full checkpoint`
+- squash merge у `main`: `6ab844fd3063fbfa9fcf54ab875539241c459845`
+- release workflow: **Publish native prerelease run #37 — success**
+- published tag: **v0.8.7**
+- published prerelease: **OVDP Hub 0.8.7**
+- release description: **UK / EN / FR / DE / ES / KO / JA**
+- published assets:
+  - Windows x64;
+  - macOS;
+  - Android test;
+  - iOS unsigned;
+  - START/source;
+  - `SHA256SUMS.txt`;
+  - legal notices.
+- release scope:
   - explicit price-source priority;
-  - explicit purchase-fee assumptions;
-  - release description UK / EN / FR / DE / ES / KO / JA;
-  - Windows / macOS / Android / iOS / START;
-  - SHA256SUMS + legal notices;
-  - immutable tag `v0.8.7`.
+  - explicit purchase-fee assumptions.
 - version/build: **0.8.7+15**
-- prior functional verify: PR #41 run #135 — success (80/80 tests)
 
 ### Поточна наступна дія
 
-**DOING — release PR v0.8.7.**
+**NEXT — tax assumptions audit with official effective-date verification.**
 
-Завершити release metadata/docs, відкрити PR, отримати green checks, squash merge у `main`, дочекатися `Publish native prerelease`, перевірити всі assets/tag/release і лише після цього закрити checkpoint.
+Створити окрему feature branch від актуального `main` і спочатку провести read-only audit `TaxScenario.ukraineResidentOvdp2026()`: для PIT і military levy окремо перевірити interest та investment profit, офіційне джерело, effective period і дату перевірки. Лише після підтвердження джерел підключати tax state → validation → calculation → persistence → 7-language UI → tests.
 
-Після успішної публікації рівно одна наступна функціональна дія: **tax assumptions audit with official effective-date verification**.
+Невідомий податок не вважати нулем. Неперевірений або застарілий preset не активувати.
 
 ## Черга робіт
 
@@ -86,6 +92,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.6 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — v0.8.7 full multilingual cross-platform checkpoint**: PR #42 squash-merged у `main` як `6ab844fd3063fbfa9fcf54ab875539241c459845`; `Publish native prerelease` run #37 success. Опубліковано Windows/macOS/Android/iOS/START + SHA256SUMS + legal notices під tag `v0.8.7`; release notes доступні UK/EN/FR/DE/ES/KO/JA.
+
 
 - **DONE — explicit purchase fee assumptions**: PR #41 squash-merged у `main` як `fbe8028ae1f68fcbb9c4c7a7057134c6793c00ae`; final run #135 success (80/80 tests). Planner зберігає typed fees, відрізняє unknown від confirmed zero, враховує явну aggregate purchase fee у budget/reserve/profit, показує gross caveat при unknown fees, не перезаписує richer typed rules і має 7-language UI/error coverage.
 
