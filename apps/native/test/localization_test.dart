@@ -131,6 +131,34 @@ void main() {
     }
   });
 
+  test('Planner needs block is localized in every supported language', () {
+    const keys = [
+      'futureExpenses',
+      'futureExpensesIntro',
+      'primaryNeedTitle',
+      'primaryNeedName',
+      'primaryNeedRecurring',
+      'primaryNeedRecurringInfo',
+      'repeatEveryMonths',
+      'repeatOccurrences',
+      'additionalNeedsTitle',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+      expect(
+        strings.error(const AppError('planner.invalid_repeat')),
+        isNot('planner.invalid_repeat'),
+      );
+    }
+  });
+
   test('FX controls are localized in every supported language', () {
     const keys = [
       'fxAssumptionsTitle',

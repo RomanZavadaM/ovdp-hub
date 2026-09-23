@@ -230,8 +230,12 @@ class PlannerCubit extends Cubit<PlannerState> {
       'start': date(now),
       'minDate': date(now.add(const Duration(days: 1))),
       'maxDate': date(DateTime(now.year + 2, now.month, now.day)),
+      'needName': 'Основна потреба',
       'needDate': date(DateTime(now.year, now.month + 6, now.day)),
       'needAmount': '10000',
+      'needRecurring': 'false',
+      'needEveryMonths': '1',
+      'needOccurrences': '6',
       'name': 'Мій план',
       'strategy': 'ladder',
       'expenseCount': '0',
@@ -541,34 +545,6 @@ class PlannerCubit extends Cubit<PlannerState> {
         saved: false,
       ),
     );
-  }
-
-  void repeatMonthly() {
-    if (state.busy || state.locked) return;
-    try {
-      final c = {...state.criteria};
-      final base = isoDate(c['needDate']!);
-      money(c['needAmount']!);
-      final n = int.parse(c['expenseCount'] ?? '0');
-      if (n > 45) throw const FormatException('planner.too_many_expenses');
-      for (var j = 1; j <= 5; j++) {
-        final month = DateTime.utc(base.year, base.month + j);
-        final lastDay = DateTime.utc(month.year, month.month + 1, 0).day;
-        final date = DateTime.utc(
-          month.year,
-          month.month,
-          base.day > lastDay ? lastDay : base.day,
-        );
-        final i = n + j - 1;
-        c['expenseName$i'] = 'Щомісячна потреба ${j + 1}';
-        c['expenseDate$i'] = date.toIso8601String().substring(0, 10);
-        c['expenseAmount$i'] = c['needAmount']!;
-      }
-      c['expenseCount'] = '${n + 5}';
-      _recalculate(state.copyWith(criteria: c, saved: false));
-    } catch (e) {
-      emit(state.copyWith(error: AppError.from(e)));
-    }
   }
 
   void removeExpense(int index) {
