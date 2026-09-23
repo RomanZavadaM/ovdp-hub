@@ -25,42 +25,50 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **multiple `PriceObservation` + explicit user source priority**.
+Мета етапу: **typed fee/tax/FX/exit assumptions → calculations + UI**.
 
-- PR: **#39** `Planner: multiple price observations with explicit source priority`
-- squash merge у `main`: `255d15294105e8d5ae6dfe216f1e900fe0490192`
-- final PR head: `ba26ee63bc25b82e220582ee4c4572cee39eb61e`
-- final verify: **Flutter checks and START run #123 — success**
-- published checkpoint лишається **v0.8.6 / 0.8.6+14**
-- completed:
-  - additive schema-3 `priceObservations` + `priceSourcePriority`;
-  - explicit purchase-price resolver: full/clean ASK/manual only;
-  - yield-only і nominal estimate не є market-price candidates;
-  - add/select/reorder source controls + explicit nominal fallback;
-  - persistence/load/save observations + source priority;
-  - duplicate eligible observations per source fail closed;
-  - simultaneous quantity+price edit regression fixed;
-  - price-source dialog controller-lifetime race fixed;
-  - 9 UI keys localized in UK/EN/FR/DE/ES/KO/JA;
-  - domain, cubit/persistence, localization and widget-flow tests passing.
+Перший self-contained vertical sub-slice: **purchase fee assumptions — unknown / confirmed zero / confirmed aggregate fee → persistence → calculation → UI → tests**.
+
+- baseline `main`: `3dfd7e6d62a110e733f3ffb738d021cf9966e30c`
+- active branch: `feat/planner-fee-assumptions`
+- опублікований checkpoint: **v0.8.6 / 0.8.6+14**
+- prior slice PR #39: merged as `255d15294105e8d5ae6dfe216f1e900fe0490192`
+- post-merge docs PR #40: merged as `3dfd7e6d62a110e733f3ffb738d021cf9966e30c`, run #125 success
+- audit findings:
+  - schema 3 already persists typed `FeeAssumptions`, `TaxScenario`, `FxAssumption`, `ExitAssumption`;
+  - current PlannerCubit does not retain those assumptions as active state across load/save;
+  - current planner calculations ignore them;
+  - current planner UI has no assumption controls;
+  - tax preset must be re-verified against official effective-dated sources before connecting it to calculations;
+  - current scenario-level early-sale observation is tied to one ISIN, so multi-position exit semantics require a dedicated design pass before activation.
+- fee sub-slice invariant:
+  - `FeeAssumptionStatus.unknown` is **not** the same as confirmed zero;
+  - unknown fees must never be silently presented as a net/after-fee result;
+  - first UI supports an explicit aggregate purchase fee in scenario currency; richer typed fee rules remain preserved and must not be silently rewritten unless the user explicitly replaces them.
 
 ### Поточна наступна дія
 
-**NEXT — typed fee/tax/FX/exit assumptions → calculations + UI.**
+Implement the fee vertical in this branch:
+1. retain `FeeAssumptions` in PlannerState/load/save;
+2. calculate explicit purchase fee impact without treating unknown as zero;
+3. add unknown/known aggregate purchase-fee UI with 7-language strings;
+4. add domain/cubit/widget/persistence tests;
+5. green verify → PR → integrate into `main`.
 
-Перший крок нового functional slice: створити окрему feature branch від актуального `main`, провести audit вже наявних `FeeAssumptions`, `TaxScenario`, `FxAssumption`, `ExitAssumption` та всіх місць, де planner calculations/UI їх ще не використовують. Після audit реалізувати вертикально: typed input → validation → calculation → persistence → 7-language UI → tests.
-
-Перед використанням будь-якого податкового preset обов'язково перевірити офіційне джерело та effective date.
+Tax/FX/exit remain unchanged in this sub-slice.
 
 ## Черга робіт
 
 1. **DONE** — multiple `PriceObservation` + explicit user source priority.
-2. **NEXT** — typed fee/tax/FX/exit assumptions → calculations + UI.
-3. **TODO** — A/B/C comparison.
-4. **TODO** — generated planner copy / preset labels localization + UX regression.
-5. **TODO** — оцінка готовності formal prerelease 0.9.0.
+2. **DOING** — assumptions stage, first sub-slice: purchase fee assumptions → calculation + UI.
+3. **TODO** — tax assumptions calculation + effective-dated verified UI.
+4. **TODO** — FX assumptions calculation/UI.
+5. **TODO** — exit assumptions redesign/wiring for multi-position scenarios.
+6. **TODO** — A/B/C comparison.
+7. **TODO** — generated planner copy / preset labels localization + UX regression.
+8. **TODO** — оцінка готовності formal prerelease 0.9.0.
 
 ## Продуктова логіка цієї черги
 
