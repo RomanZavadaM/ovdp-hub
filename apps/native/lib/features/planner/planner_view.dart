@@ -400,8 +400,6 @@ class PlannerView extends StatelessWidget {
               'start': strings.text('startField'),
               'minDate': strings.text('minDateField'),
               'maxDate': strings.text('maxDateField'),
-              'needDate': strings.text('needDateField'),
-              'needAmount': strings.text('needAmountField'),
             }.entries)
               SizedBox(
                 width: 280,
@@ -446,6 +444,121 @@ class PlannerView extends StatelessWidget {
           ),
         SectionHeading(strings.text('futureExpenses')),
         Text(strings.text('futureExpensesIntro')),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  strings.text('primaryNeedTitle'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    SizedBox(
+                      width: 260,
+                      child: TextFormField(
+                        key: ValueKey('needName-${state.revision}'),
+                        initialValue: c['needName'] ?? '',
+                        enabled: !disabled,
+                        decoration: InputDecoration(
+                          labelText: strings.text('primaryNeedName'),
+                        ),
+                        onChanged: (v) => cubit.edit('needName', v),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 220,
+                      child: TextFormField(
+                        key: ValueKey('needDate-${state.revision}'),
+                        initialValue: c['needDate'],
+                        enabled: !disabled,
+                        decoration: InputDecoration(
+                          labelText: strings.text('needDateField'),
+                        ),
+                        onChanged: (v) => cubit.edit('needDate', v),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 220,
+                      child: TextFormField(
+                        key: ValueKey('needAmount-${state.revision}'),
+                        initialValue: c['needAmount'],
+                        enabled: !disabled,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText:
+                              '${strings.text('needAmountField')}, $currency',
+                        ),
+                        onChanged: (v) => cubit.edit('needAmount', v),
+                      ),
+                    ),
+                  ],
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(strings.text('primaryNeedRecurring')),
+                  subtitle: Text(strings.text('primaryNeedRecurringInfo')),
+                  value: c['needRecurring'] == 'true',
+                  onChanged: disabled
+                      ? null
+                      : (value) =>
+                          cubit.edit('needRecurring', value.toString()),
+                ),
+                if (c['needRecurring'] == 'true')
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      SizedBox(
+                        width: 220,
+                        child: TextFormField(
+                          key: ValueKey(
+                            'needEveryMonths-${state.revision}',
+                          ),
+                          initialValue: c['needEveryMonths'] ?? '1',
+                          enabled: !disabled,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: strings.text('repeatEveryMonths'),
+                          ),
+                          onChanged: (v) =>
+                              cubit.edit('needEveryMonths', v),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 220,
+                        child: TextFormField(
+                          key: ValueKey(
+                            'needOccurrences-${state.revision}',
+                          ),
+                          initialValue: c['needOccurrences'] ?? '6',
+                          enabled: !disabled,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: strings.text('repeatOccurrences'),
+                          ),
+                          onChanged: (v) =>
+                              cubit.edit('needOccurrences', v),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          strings.text('additionalNeedsTitle'),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         for (var i = 0; i < int.parse(c['expenseCount'] ?? '0'); i++)
           Card(
             child: Padding(
@@ -482,11 +595,6 @@ class PlannerView extends StatelessWidget {
           onPressed: disabled ? null : cubit.addExpense,
           icon: const Icon(Icons.add),
           label: Text(strings.text('addExpense')),
-        ),
-        TextButton.icon(
-          onPressed: disabled ? null : cubit.repeatMonthly,
-          icon: const Icon(Icons.repeat),
-          label: Text(strings.text('repeatNeed')),
         ),
         SizedBox(
           width: 300,
