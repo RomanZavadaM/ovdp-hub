@@ -742,6 +742,41 @@ class ExitAssumption {
   }
 }
 
+@immutable
+class PositionExitAssumption {
+  final String isin;
+  final String date;
+  final PriceObservation price;
+
+  PositionExitAssumption({
+    required this.isin,
+    required this.date,
+    required this.price,
+  }) {
+    if (isin != price.isin ||
+        price.effectiveUnitCost == null ||
+        ![PriceSide.bid, PriceSide.manual].contains(price.side)) {
+      throw const FormatException('planner.invalid_position_exit');
+    }
+    isoDate(date);
+  }
+
+  Map<String, dynamic> toJson() => {
+    'isin': isin,
+    'date': date,
+    'price': price.toJson(),
+  };
+
+  factory PositionExitAssumption.fromJson(Map<String, dynamic> json) =>
+      PositionExitAssumption(
+        isin: json['isin'] as String? ?? '',
+        date: _date(json['date']),
+        price: PriceObservation.fromJson(
+          Map<String, dynamic>.from(json['price'] as Map),
+        ),
+      );
+}
+
 enum PlannerStrategy { ladder, profit, expenses }
 
 @immutable
@@ -768,6 +803,7 @@ class PlannerScenario {
   final TaxScenario taxes;
   final List<FxAssumption> fx;
   final ExitAssumption exit;
+  final List<PositionExitAssumption> positionExits;
 
   PlannerScenario({
     required this.id,
@@ -788,13 +824,15 @@ class PlannerScenario {
     required this.taxes,
     Iterable<FxAssumption> fx = const [],
     ExitAssumption? exit,
+    Iterable<PositionExitAssumption> positionExits = const [],
     this.groupId,
     this.variantLabel = 'A',
   }) : needs = List.unmodifiable(needs),
        positions = List.unmodifiable(positions),
        priceSourcePriority = priceSourcePriority ?? PriceSourcePriority.none(),
        fx = List.unmodifiable(fx),
-       exit = exit ?? ExitAssumption.holdToMaturity() {
+       exit = exit ?? ExitAssumption.holdToMaturity(),
+       positionExits = List.unmodifiable(positionExits) {
     if (id.trim().isEmpty ||
         name.trim().isEmpty ||
         variantLabel.trim().isEmpty ||
@@ -818,6 +856,26 @@ class PlannerScenario {
             this.positions.length) {
       throw const FormatException('planner.duplicate_items');
     }
+    final positionIsins = this.positions.map((e) => e.isin).toSet();
+    final exitIsins = this.positionExits.map((e) => e.isin).toList();
+    if (exitIsins.toSet().length != exitIsins.length ||
+        this.positionExits.any(
+          (e) =>
+              !positionIsins.contains(e.isin) ||
+              e.price.currency != currency ||
+              !isoDate(e.date).isAfter(start),
+        )) {
+      throw const FormatException('planner.invalid_position_exit');
+    }
+    if (this.exit.mode == ExitMode.earlySale) {
+      if (this.positionExits.isNotEmpty ||
+          this.positions.length != 1 ||
+          this.exit.price!.isin != this.positions.single.isin ||
+          this.exit.price!.currency != currency ||
+          !isoDate(this.exit.date!).isAfter(start)) {
+        throw const FormatException('planner.legacy_exit_ambiguous');
+      }
+    }
     if (!this.priceSourcePriority.isEmpty) {
       for (final position in this.positions) {
         if (position.price.kind == PriceValueKind.nominalEstimate) continue;
@@ -830,6 +888,20 @@ class PlannerScenario {
         }
       }
     }
+  }
+
+  List<PositionExitAssumption> get effectivePositionExits {
+    if (positionExits.isNotEmpty) return positionExits;
+    if (exit.mode == ExitMode.earlySale) {
+      return [
+        PositionExitAssumption(
+          isin: exit.price!.isin,
+          date: exit.date!,
+          price: exit.price!,
+        ),
+      ];
+    }
+    return const [];
   }
 
   Map<String, dynamic> toJson() => {
@@ -853,7 +925,13 @@ class PlannerScenario {
     'fees': fees.toJson(),
     'taxes': taxes.toJson(),
     'fx': fx.map((e) => e.toJson()).toList(),
-    'exit': exit.toJson(),
+    // Keep the legacy field safe for older schema-3 readers. New per-position
+    // exits are additive and authoritative when present.
+    'exit': positionExits.isEmpty
+        ? exit.toJson()
+        : ExitAssumption.holdToMaturity().toJson(),
+    if (positionExits.isNotEmpty)
+      'positionExits': positionExits.map((e) => e.toJson()).toList(),
   };
 
   factory PlannerScenario.fromJson(Map<String, dynamic> json) {
@@ -861,6 +939,23 @@ class PlannerScenario {
       throw const FormatException('planner.unsupported_schema');
     }
     final range = Map<String, dynamic>.from(json['maturityRange'] as Map);
+    final positions = (json['positions'] as List? ?? const [])
+        .map(
+          (e) => PlannerPositionDraft.fromJson(
+            Map<String, dynamic>.from(e as Map),
+          ),
+        )
+        .toList();
+    final legacyExit = ExitAssumption.fromJson(
+      Map<String, dynamic>.from(json['exit'] as Map),
+    );
+    final positionExits = (json['positionExits'] as List? ?? const [])
+        .map(
+          (e) => PositionExitAssumption.fromJson(
+            Map<String, dynamic>.from(e as Map),
+          ),
+        )
+        .toList();
     return PlannerScenario(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
@@ -880,13 +975,7 @@ class PlannerScenario {
             ),
           )
           .toList(),
-      positions: (json['positions'] as List? ?? const [])
-          .map(
-            (e) => PlannerPositionDraft.fromJson(
-              Map<String, dynamic>.from(e as Map),
-            ),
-          )
-          .toList(),
+      positions: positions,
       priceSourcePriority: json['priceSourcePriority'] == null
           ? PriceSourcePriority.none()
           : PriceSourcePriority.fromJson(
@@ -907,9 +996,8 @@ class PlannerScenario {
             ),
           )
           .toList(),
-      exit: ExitAssumption.fromJson(
-        Map<String, dynamic>.from(json['exit'] as Map),
-      ),
+      exit: legacyExit,
+      positionExits: positionExits,
     );
   }
 
@@ -921,6 +1009,7 @@ class PlannerScenario {
     TaxScenario? taxes,
     Iterable<FxAssumption> fx = const [],
     ExitAssumption? exit,
+    Iterable<PositionExitAssumption> positionExits = const [],
     PriceSourcePriority? priceSourcePriority,
     String? groupId,
     String variantLabel = 'A',
@@ -982,6 +1071,7 @@ class PlannerScenario {
       taxes: taxes ?? TaxScenario.unknown(),
       fx: fx,
       exit: exit,
+      positionExits: positionExits,
     );
   }
 
@@ -994,6 +1084,7 @@ class PlannerScenario {
     TaxScenario? taxes,
     Iterable<FxAssumption> fx = const [],
     ExitAssumption? exit,
+    Iterable<PositionExitAssumption> positionExits = const [],
     String? groupId,
     String variantLabel = 'A',
   }) {
@@ -1047,6 +1138,7 @@ class PlannerScenario {
       taxes: taxes ?? TaxScenario.unknown(),
       fx: fx,
       exit: exit,
+      positionExits: positionExits,
     );
   }
 
