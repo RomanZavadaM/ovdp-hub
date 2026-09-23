@@ -39,7 +39,8 @@ Weg zu 0.9.0:
 2. **DONE** — Kaufgebühren-Annahmen;
 3. **DONE** — geprüfte Steuerannahmen;
 4. **DONE** — FX-Annahmen;
-5. **NEXT** — Exit-Annahmen; danach A/B/C-Vergleich und UX-/Lokalisierungs-Polish.
+5. **DONE** — Exit-Annahmen;
+6. **NEXT** — A/B/C-Vergleich; danach UX-/Lokalisierungs-Polish.
 
 OVDP Hub führt keine Käufe oder Verkäufe aus und bestätigt keine Verfügbarkeit bei Verkäufern.
 

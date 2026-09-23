@@ -39,7 +39,8 @@ Road to 0.9.0:
 2. **DONE** — purchase-fee assumptions;
 3. **DONE** — verified tax assumptions;
 4. **DONE** — FX assumptions;
-5. **NEXT** — exit assumptions; then A/B/C comparison and UX/localization polish.
+5. **DONE** — exit assumptions;
+6. **NEXT** — A/B/C comparison; then UX/localization polish.
 
 OVDP Hub does not execute trades and does not confirm seller availability.
 

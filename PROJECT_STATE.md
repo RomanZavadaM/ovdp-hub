@@ -193,10 +193,25 @@ PR **#48 — Planner: explicit FX comparison assumptions** squash-merged у `mai
 
 Final PR verification: **Flutter checks and START run #152 — success (88/88 tests)**.
 
+PR **#51 — Planner: per-position exit assumptions** squash-merged у `main` як `296fb9e0b53093685ced9e801196616a401582f4`.
+
+Інтегровано, але ще не видано окремим GitHub release:
+- additive `positionExits` keyed by ISIN поверх schema 3;
+- legacy global `exit` збережений лише для compatibility та приймається тільки коли однозначно відповідає одній позиції;
+- multi-position legacy early-sale fail closed;
+- sale date має бути після start, до maturity і не може збігатися з датою контрактної виплати;
+- cashflow включає контрактні виплати до продажу + sale proceeds, а пізніші coupon/redemption відсікаються;
+- settlement delay застосовується до sale proceeds у expense coverage;
+- exit-aware profit проходить далі через purchase fees → tax → FX;
+- optimizer не переоптимізує портфель під exit у цьому slice;
+- BID exit вимагає source URL; manual assumption може бути локальним;
+- per-position UI/status/errors локалізовано UK/EN/FR/DE/ES/KO/JA.
+
+Final PR verification: **Flutter checks and START run #161 — success**.
+
 ## Чому 0.8.7, а не 0.9.0
 
-Після v0.8.7 у `main` уже інтегровано verified tax assumptions та explicit FX comparison assumptions, але **ще не завершені**:
-- exit assumptions → redesign/wiring для multi-position scenarios;
+Після v0.8.7 у `main` уже інтегровано verified tax assumptions, explicit FX comparison assumptions та per-position exit assumptions, але **ще не завершені**:
 - A/B/C comparison;
 - generated planner copy / preset labels localization.
 
@@ -204,9 +219,8 @@ Final PR verification: **Flutter checks and START run #152 — success (88/88 te
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. exit assumptions → multi-position redesign/wiring;
-2. A/B/C comparison;
-3. generated planner copy / preset labels localization.
+1. A/B/C comparison;
+2. generated planner copy / preset labels localization.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
 
