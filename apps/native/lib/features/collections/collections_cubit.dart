@@ -11,22 +11,22 @@ class CollectionsState {
   final List<SavedSet> sets;
   final bool busy;
   final AppError? error;
-  final Set<String> selectedComparisonKeys;
+  final List<String> selectedComparisonKeys;
   final ScenarioComparison? comparison;
   CollectionsState({
     Iterable<SavedSet> sets = const [],
     this.busy = false,
     this.error,
-    Set<String> selectedComparisonKeys = const {},
+    Iterable<String> selectedComparisonKeys = const [],
     this.comparison,
   }) : sets = List.unmodifiable(sets),
-       selectedComparisonKeys = Set.unmodifiable(selectedComparisonKeys);
+       selectedComparisonKeys = List.unmodifiable(selectedComparisonKeys);
   CollectionsState copyWith({
     Iterable<SavedSet>? sets,
     bool? busy,
     AppError? error,
     bool clearError = false,
-    Set<String>? selectedComparisonKeys,
+    Iterable<String>? selectedComparisonKeys,
     ScenarioComparison? comparison,
     bool clearComparison = false,
   }) => CollectionsState(
@@ -53,7 +53,7 @@ class CollectionsCubit extends Cubit<CollectionsState> {
       final available = snapshot.sets.map(_comparisonKey).toSet();
       final selected = state.selectedComparisonKeys
           .where(available.contains)
-          .toSet();
+          .toList(growable: false);
       _emitComparison(
         sets: snapshot.sets,
         selectedKeys: selected,
@@ -66,12 +66,16 @@ class CollectionsCubit extends Cubit<CollectionsState> {
 
   void _emitComparison({
     required Iterable<SavedSet> sets,
-    required Set<String> selectedKeys,
+    required List<String> selectedKeys,
     bool clearError = false,
   }) {
     final materialized = sets.toList(growable: false);
-    final selected = materialized
-        .where((set) => selectedKeys.contains(_comparisonKey(set)))
+    final byKey = {
+      for (final set in materialized) _comparisonKey(set): set,
+    };
+    final selected = selectedKeys
+        .map((key) => byKey[key])
+        .whereType<SavedSet>()
         .toList(growable: false);
     if (selected.length < 2) {
       emit(
@@ -109,8 +113,10 @@ class CollectionsCubit extends Cubit<CollectionsState> {
   void toggleComparison(SavedSet set) {
     if (state.busy || set.scenario == null) return;
     final key = _comparisonKey(set);
-    final selected = {...state.selectedComparisonKeys};
-    if (!selected.remove(key)) {
+    final selected = [...state.selectedComparisonKeys];
+    if (selected.contains(key)) {
+      selected.remove(key);
+    } else {
       if (selected.length >= 3) {
         emit(
           state.copyWith(
@@ -127,7 +133,7 @@ class CollectionsCubit extends Cubit<CollectionsState> {
   void clearComparison() {
     emit(
       state.copyWith(
-        selectedComparisonKeys: const {},
+        selectedComparisonKeys: const [],
         clearComparison: true,
         clearError: true,
       ),
