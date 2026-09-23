@@ -97,11 +97,12 @@ PlannerFeeImpact evaluatePurchaseFeeImpact({
   required String currency,
   required Decimal budget,
   required String start,
+  Map<String, PlanExitOverride> exits = const {},
 }) {
   final materialized = positions.toList(growable: false);
   final grossCost = _sumPositionCost(materialized);
   final grossReserve = budget - grossCost;
-  final grossProfit = totalProfit(materialized, start);
+  final grossProfit = totalProfit(materialized, start, exits: exits);
   final fee = purchaseFeeAmount(
     fees: fees,
     positions: materialized,
