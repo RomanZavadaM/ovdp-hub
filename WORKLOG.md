@@ -25,43 +25,41 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
 Мета: **FX assumptions → explicit comparison conversion → persistence → 7-language UI → tests**.
 
-- baseline `main`: `a7b67e3d72f9cadbab143a3ac29ea484b24930df`
-- active branch: `feat/planner-fx-assumptions`
-- published checkpoint: **v0.8.7 / 0.8.7+15**
-- audit:
-  - schema 3 already persists `List<FxAssumption>`;
-  - active planner remains intentionally single-currency and filters positions by scenario currency;
-  - no existing calculation/UI consumes FX;
-  - empty FX list is safe **no conversion requested**, not a hidden zero/1:1 rate;
-  - first UI will support one explicit user-provided comparison rate; multiple/foreign-base typed assumptions remain preserved and are not silently rewritten;
-  - FX will not authorize mixed-currency positions or needs.
+- PR: **#48** `Planner: explicit FX comparison assumptions`
+- final head: `2e5d0f84d60d010a70659f2dcf0fbd27c275b979`
+- final verify: **Flutter checks and START run #152 — success (88/88 tests)**
+- squash merge у `main`: `755c328e0d1b15d2d4843f434eaf774d80ff5494`
+- published checkpoint remains **v0.8.7 / 0.8.7+15**
+- completed:
+  - typed FX retained through state/load/save;
+  - single-currency planner invariant preserved;
+  - explicit manual rate/date/source provenance;
+  - one matching rule produces converted comparison amounts;
+  - zero rules mean no conversion requested;
+  - multiple/non-standard rules preserved and deferred;
+  - base-currency cashflow remains authoritative;
+  - FX UI/errors localized UK/EN/FR/DE/ES/KO/JA;
+  - domain/cubit/persistence/widget regression coverage green.
 
 ### Поточна наступна дія
 
-**DOING — explicit FX comparison vertical.**
+**NEXT — exit assumptions redesign/wiring for multi-position scenarios.**
 
-1. retain `fx` in PlannerState/load/save;
-2. add evaluator for zero/one/deferred FX assumptions;
-3. define rate as **1 scenario-currency unit = rate target-currency units**;
-4. add explicit target/rate/as-of/source URL draft + apply/clear controls;
-5. show converted comparison amounts without changing base-currency cashflow;
-6. preserve advanced/multiple FX rules unless user explicitly replaces them;
-7. localize UK/EN/FR/DE/ES/KO/JA;
-8. domain/cubit/persistence/widget tests → green PR → integrate `main`.
+Почати окремим audit-first slice від актуального `main`: перевірити наявний `ExitAssumption`, його поточне обмеження на одну price/date пару та те, як early sale має працювати для кількох позицій із різними ISIN/датами/BID/manual prices.
 
-Exit remains out of this slice.
+Не припускати одну exit price для всього портфеля. Не змішувати hold-to-maturity та early-sale semantics без явної моделі на рівні позиції або сценарію.
 
 ## Черга робіт
 
 1. **DONE** — multiple `PriceObservation` + explicit user source priority.
 2. **DONE** — purchase fee assumptions → calculation + UI.
 3. **DONE** — tax assumptions → official effective-date audit → calculation + UI.
-4. **DOING** — FX assumptions calculation/UI.
-5. **TODO** — exit assumptions redesign/wiring for multi-position scenarios.
+4. **DONE** — FX assumptions calculation/UI.
+5. **NEXT** — exit assumptions redesign/wiring for multi-position scenarios.
 6. **TODO** — A/B/C comparison.
 7. **TODO** — generated planner copy / preset labels localization + UX regression.
 8. **TODO** — оцінка готовності formal prerelease 0.9.0.
@@ -91,6 +89,9 @@ Exit remains out of this slice.
 - поточний опублікований v0.8.7 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — explicit FX comparison assumptions**: PR #48 squash-merged у `main` як `755c328e0d1b15d2d4843f434eaf774d80ff5494`; final run #152 success (88/88 tests). Explicit rate/date/source comparison, single-currency cashflow invariant, persistence, deferred advanced rules and 7-language UI integrated.
+
 
 - **DONE — verified OVDP tax assumptions**: PR #45 squash-merged у `main` як `b47fd1360432a8336ca38666064eb46eebbd04f7`; final run #145 success. Official-source-audited 2026 zero-tax preset, unknown/verified-zero semantics, fail-closed non-zero tax base, persistence, post-fee/post-tax result UI and 7-language coverage integrated.
 

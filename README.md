@@ -42,8 +42,8 @@
 1. **DONE** — явний пріоритет джерел ціни;
 2. **DONE** — purchase-fee assumptions;
 3. **DONE** — verified tax assumptions;
-4. **DOING** — FX assumptions;
-5. далі — exit assumptions, A/B/C comparison і UX/localization polish.
+4. **DONE** — FX assumptions;
+5. **NEXT** — exit assumptions; далі A/B/C comparison і UX/localization polish.
 
 OVDP Hub не виконує купівлю чи продаж і не підтверджує доступність інструмента у продавця.
 
@@ -115,8 +115,8 @@ Road to 0.9.0:
 1. **DONE** — explicit price-source priority;
 2. **DONE** — purchase-fee assumptions;
 3. **DONE** — verified tax assumptions;
-4. **DOING** — FX assumptions;
-5. next — exit assumptions, A/B/C comparison, and UX/localization polish.
+4. **DONE** — FX assumptions;
+5. **NEXT** — exit assumptions; then A/B/C comparison and UX/localization polish.
 
 OVDP Hub does not execute trades and does not confirm seller availability.
 
@@ -188,8 +188,8 @@ Route vers 0.9.0 :
 1. **DONE** — priorité explicite des sources de prix;
 2. **DONE** — hypothèses de frais d’achat;
 3. **DONE** — hypothèses fiscales vérifiées;
-4. **DOING** — hypothèses FX;
-5. ensuite — hypothèses de sortie, comparaison A/B/C et finition UX/localisation.
+4. **DONE** — hypothèses FX;
+5. **NEXT** — hypothèses de sortie; ensuite comparaison A/B/C et finition UX/localisation.
 
 OVDP Hub n’exécute aucune transaction et ne confirme pas la disponibilité d’un instrument chez un vendeur.
 
@@ -261,8 +261,8 @@ Weg zu 0.9.0:
 1. **DONE** — explizite Preisquellen-Priorität;
 2. **DONE** — Kaufgebühren-Annahmen;
 3. **DONE** — geprüfte Steuerannahmen;
-4. **DOING** — FX-Annahmen;
-5. danach — Exit-Annahmen, A/B/C-Vergleich und UX-/Lokalisierungs-Polish.
+4. **DONE** — FX-Annahmen;
+5. **NEXT** — Exit-Annahmen; danach A/B/C-Vergleich und UX-/Lokalisierungs-Polish.
 
 OVDP Hub führt keine Käufe oder Verkäufe aus und bestätigt keine Verfügbarkeit bei Verkäufern.
 
@@ -334,8 +334,8 @@ Camino a 0.9.0:
 1. **DONE** — prioridad explícita de fuentes de precio;
 2. **DONE** — supuestos de comisión de compra;
 3. **DONE** — supuestos fiscales verificados;
-4. **DOING** — supuestos FX;
-5. después — supuestos de salida, comparación A/B/C y mejora UX/localización.
+4. **DONE** — supuestos FX;
+5. **NEXT** — supuestos de salida; después comparación A/B/C y mejora UX/localización.
 
 OVDP Hub no ejecuta operaciones ni confirma disponibilidad con un vendedor.
 
@@ -407,8 +407,8 @@ Estado del proyecto: [START_HERE.md](START_HERE.md), [PROJECT_STATE.md](PROJECT_
 1. **DONE** — 가격 출처 우선순위;
 2. **DONE** — 매수 수수료 가정;
 3. **DONE** — 검증된 세금 가정;
-4. **DOING** — FX 가정;
-5. 이후 — exit 가정, A/B/C 비교, UX/현지화 마무리.
+4. **DONE** — FX 가정;
+5. **NEXT** — exit 가정; 이후 A/B/C 비교, UX/현지화 마무리.
 
 OVDP Hub는 실제 매매를 실행하지 않으며 판매자의 실제 재고를 확인하지 않습니다.
 
@@ -480,8 +480,8 @@ flutter build windows --release
 1. **DONE** — 明示的な価格ソース優先順位;
 2. **DONE** — 購入手数料前提;
 3. **DONE** — 検証済み税務前提;
-4. **DOING** — FX 前提;
-5. 次に — exit 前提、A/B/C 比較、UX/ローカライズ調整.
+4. **DONE** — FX 前提;
+5. **NEXT** — exit 前提; その後 A/B/C 比較、UX/ローカライズ調整.
 
 OVDP Hub は実際の売買を実行せず、販売者の在庫を確認しません。
 
