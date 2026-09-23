@@ -7,6 +7,66 @@ import 'planner_cubit.dart';
 
 class PlannerView extends StatelessWidget {
   const PlannerView({super.key});
+
+  String _sourceLabel(HubStrings strings, String sourceId) {
+    if (sourceId == 'manual-price') return strings.text('manualPrice');
+    if (sourceId.startsWith('user:')) return sourceId.substring(5);
+    return sourceId;
+  }
+
+  Future<void> _addPriceSource(
+    BuildContext context,
+    PlannerCubit cubit,
+    PositionInput input,
+    HubStrings strings,
+  ) async {
+    final source = TextEditingController();
+    final price = TextEditingController();
+    final submitted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(strings.text('addPriceSource')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: source,
+              decoration: InputDecoration(
+                labelText: strings.text('priceSourceName'),
+              ),
+            ),
+            TextField(
+              controller: price,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: strings.text('priceSourceFullPrice'),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(strings.text('close')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(strings.text('addPriceSource')),
+          ),
+        ],
+      ),
+    );
+    if (submitted == true && context.mounted) {
+      cubit.addManualPriceSource(
+        input.bond.isin,
+        source.text,
+        price.text,
+      );
+    }
+    source.dispose();
+    price.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PlannerCubit>(),
