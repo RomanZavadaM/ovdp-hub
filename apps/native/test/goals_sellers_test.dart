@@ -118,15 +118,20 @@ void main() {
     await repo.dispose();
   });
   test(
-    'monthly repeats clamp month ends and protect expense-only draft',
+    'monthly recurrence clamps month ends and protects expense-only draft',
     () async {
       final repo = FakeRepository(fixture.catalog([bond]));
       final cubit = PlannerCubit(repo, clock: () => DateTime(2026, 9, 21));
       cubit.edit('needDate', '2027-01-31');
-      cubit.repeatMonthly();
-      expect(cubit.state.criteria['expenseDate0'], '2027-02-28');
-      expect(cubit.state.criteria['expenseDate1'], '2027-03-31');
-      expect(cubit.state.criteria['expenseCount'], '5');
+      cubit.edit('needRecurring', 'true');
+      cubit.edit('needEveryMonths', '1');
+      cubit.edit('needOccurrences', '6');
+      expect(
+        cubit.state.expenseBalances.take(3).map((e) => e.expense.date).toList(),
+        ['2027-01-31', '2027-02-28', '2027-03-31'],
+      );
+      expect(cubit.state.expenseBalances, hasLength(6));
+      expect(cubit.state.criteria['expenseCount'], '0');
       expect(cubit.state.dirty, true);
       await cubit.close();
       await repo.dispose();
