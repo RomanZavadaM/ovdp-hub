@@ -6,6 +6,7 @@ import 'package:ovdp_hub/features/planner/planner_engine.dart';
 import 'package:ovdp_hub/features/planner/planner_cubit.dart';
 import 'package:ovdp_hub/features/planner/planner_fees.dart';
 import 'package:ovdp_hub/features/planner/planner_fx.dart';
+import 'package:ovdp_hub/features/planner/planner_goals.dart';
 import 'package:ovdp_hub/features/planner/planner_scenario.dart';
 import 'package:ovdp_hub/features/planner/planner_taxes.dart';
 import 'package:ovdp_hub/features/collections/editor_cubit.dart';
@@ -546,6 +547,117 @@ void main() {
     cubit.clearFxComparison();
     expect(cubit.state.fx, isEmpty);
     expect(cubit.state.fxImpact!.active, false);
+
+    await cubit.close();
+    await repository.dispose();
+  });
+
+  test('per-position exit replaces later receipts and respects settlement delay', () {
+    final position = PlanPosition(
+      one,
+      2,
+      Decimal.parse('1010'),
+      nominalEstimate: false,
+    );
+    final exit = PlanExitOverride(
+      one.isin,
+      '2027-03-01',
+      Decimal.parse('1020'),
+    );
+
+    final summary = summarizePlan(
+      positions: [position],
+      currency: 'UAH',
+      budget: Decimal.parse('2500'),
+      start: '2026-09-21',
+      needDate: '2027-04-01',
+      needAmount: Decimal.parse('1000'),
+      exits: {one.isin: exit},
+    );
+    expect(summary.couponsByNeed.toString(), '100');
+    expect(summary.principalByNeed, Decimal.zero);
+    expect(summary.salesByNeed.toString(), '2040');
+    expect(summary.availableByNeed.toString(), '2620');
+    expect(
+      summary.months.firstWhere((m) => m.month == '2027-03').sales.toString(),
+      '2040',
+    );
+    expect(summary.months.any((m) => m.month == '2027-09'), false);
+
+    expect(
+      receiptsBy(
+        position,
+        '2026-09-21',
+        '2027-03-02',
+        2,
+        exit: exit,
+      ).toString(),
+      '100',
+    );
+    expect(
+      receiptsBy(
+        position,
+        '2026-09-21',
+        '2027-03-03',
+        2,
+        exit: exit,
+      ).toString(),
+      '2140',
+    );
+    expect(
+      totalProfit(
+        [position],
+        '2026-09-21',
+        exits: {one.isin: exit},
+      ).toString(),
+      '120',
+    );
+  });
+
+  test('per-position exit survives planner save load and clear', () async {
+    final repository = FakeRepository(data);
+    final cubit = PlannerCubit(
+      repository,
+      clock: () => DateTime.utc(2026, 9, 23, 12),
+    );
+
+    cubit.generate();
+    expect(cubit.state.inputs.containsKey(one.isin), true);
+    final baseProfit = cubit.state.profit;
+
+    cubit.setPositionExit(
+      isin: one.isin,
+      date: '2027-03-01',
+      price: '1020',
+      side: PriceSide.manual,
+    );
+    expect(cubit.state.error, isNull);
+    expect(cubit.state.positionExits, hasLength(1));
+    expect(cubit.state.positionExits.single.isin, one.isin);
+    expect(cubit.state.positionExits.single.price.side, PriceSide.manual);
+    expect(cubit.state.profit, isNot(baseProfit));
+    expect(
+      cubit.state.summary!.months
+          .firstWhere((m) => m.month == '2027-03')
+          .sales >
+          Decimal.zero,
+      true,
+    );
+
+    expect(await cubit.save(), true);
+    final saved = repository.current!.sets.single;
+    final savedExits = saved.scenario!['positionExits'] as List;
+    expect(savedExits, hasLength(1));
+    expect((saved.scenario!['exit'] as Map)['mode'], 'holdToMaturity');
+
+    cubit.reset();
+    expect(cubit.state.positionExits, isEmpty);
+    cubit.load(saved);
+    expect(cubit.state.positionExits, hasLength(1));
+    expect(cubit.state.positionExits.single.date, '2027-03-01');
+
+    cubit.clearPositionExit(one.isin);
+    expect(cubit.state.positionExits, isEmpty);
 
     await cubit.close();
     await repository.dispose();
