@@ -25,14 +25,16 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **A/B/C scenario comparison → current-main port → strict comparability → explanatory metrics → regression coverage → 7-language UI**.
 
 - published checkpoint: **v0.8.8 / 0.8.8+16**;
 - baseline `main`: `0602405ab9c1d0735fcb7e60bced447494d10d4f`;
 - active branch: `feat/planner-abc-comparison-v2`;
-- active PR: **#58** `Planner: strict A/B/C scenario comparison v2` (draft until latest-head verify is green);
+- active PR: **#58** `Planner: strict A/B/C scenario comparison v2`;
+- verified code head: `80f07d7fc1cf23708972596b504efffe0b6aca15`;
+- verify: **Flutter checks and START run #182 — success, 108/108 tests**;
 - old draft PR **#53** was diverged (9 commits ahead / 3 behind at audit), is closed without merge and is **not** a code source;
 - useful comparison logic from #53 is being ported selectively onto current main;
 - current recurring-needs model from PR #54 must be preserved;
@@ -40,7 +42,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — port and verify A/B/C on top of v0.8.8 main.**
+**VERIFIED — A/B/C comparison is ready for final docs-only-head verify and integration.**
 
 1. port pure comparison evaluator and Collections selection/UI;
 2. update comparison need handling for current typed recurring-needs model;
@@ -49,8 +51,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 5. explanatory differences may include strategy, composition, price, fees, tax, FX and per-position exits;
 6. add dedicated domain/Cubit/widget/localization tests;
 7. stale comparison errors must clear when selection becomes valid or drops below two scenarios;
-8. green latest-head verify → new PR → integrate into `main`;
-9. old PR #53 closed as superseded by PR #58.
+8. code head `80f07d7f…` passed run #182 with 108/108 tests;
+9. old PR #53 closed as superseded by PR #58;
+10. run final verify on this WORKLOG-only head → mark PR #58 ready → squash merge.
 
 ## Черга робіт
 
