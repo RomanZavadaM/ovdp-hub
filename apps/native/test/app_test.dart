@@ -167,7 +167,10 @@ void main() {
 
     expect(find.text('Комісії придбання'), findsOneWidget);
     expect(find.text('Комісії невідомі'), findsOneWidget);
-    expect(find.textContaining('Комісії невідомі: показані суми'), findsNothing);
+    expect(
+      find.textContaining('Комісії невідомі: показані суми'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Комісію підтверджено'));
     await tester.pumpAndSettle();
