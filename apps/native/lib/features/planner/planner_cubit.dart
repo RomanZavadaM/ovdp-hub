@@ -482,12 +482,12 @@ class PlannerCubit extends Cubit<PlannerState> {
     if (state.busy || state.locked) return;
     final inputs = {...state.inputs};
     if (selected) {
-      inputs[bond.isin] = PositionInput(
+      final explicit = state.criteria['unitPrice:${bond.isin}'];
+      inputs[bond.isin] = _legacyInput(
         bond,
-        '1',
-        state.criteria['unitPrice:${bond.isin}'] ??
-            bond.json['nominal'].toString(),
-        nominalEstimate: !state.criteria.containsKey('unitPrice:${bond.isin}'),
+        1,
+        explicit ?? bond.json['nominal'].toString(),
+        nominalEstimate: explicit == null,
       );
     } else {
       inputs.remove(bond.isin);
