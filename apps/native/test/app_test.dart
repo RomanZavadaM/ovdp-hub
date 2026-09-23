@@ -322,7 +322,10 @@ void main() {
     await tester.tap(generate);
     await tester.pumpAndSettle();
 
-    expect(find.text('Порівняльний результат у валюті FX'), findsOneWidget);
+    expect(
+      find.textContaining('Порівняльний результат у валюті FX:'),
+      findsOneWidget,
+    );
     expect(
       find.textContaining('Базові суми та cashflow у валюті сценарію'),
       findsOneWidget,
