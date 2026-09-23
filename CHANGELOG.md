@@ -4,8 +4,46 @@
 
 ## [Unreleased] — 0.9.0 «Ринок» development
 
-- Наступний slice: tax assumptions → official effective-date audit → calculation + UI.
-- Далі: FX assumptions, exit redesign/wiring, A/B/C comparison та generated planner copy localization.
+- Наступний slice після v0.8.8: A/B/C comparison.
+- Далі: reserve-floor/minimum-balance needs, generated planner copy localization та UX/regression review.
+
+## [0.8.8] — 2026-09-23
+
+### Verified tax assumptions
+- Додано явно вибираний 2026 profile для фізособи-резидента України / ОВДП.
+- Unknown tax не прирівнюється до нуля.
+- Неповні, поза effective period або ненульові правила без explicit tax-base model fail closed.
+- Tax state проходить PlannerState/load/save і має UK/EN/FR/DE/ES/KO/JA UI/errors.
+
+### Explicit FX comparison
+- Додано ручний FX comparison: target currency, rate, as-of date та source URL.
+- Основний cashflow лишається single-currency; FX не дозволяє змішувати позиції різних валют.
+- Multiple/non-standard FX rules зберігаються без тихого переписування.
+
+### Per-position early sale
+- Додано `positionExits` keyed by ISIN поверх schema 3.
+- Кожна позиція може мати власні sale date + BID/manual exit price.
+- Cashflow враховує contract payments до sale date, sale proceeds та settlement delay; пізніші coupon/redemption відсікаються.
+- Exit-aware profit проходить через fees → tax → FX.
+- Multi-position legacy global exit fail closed, якщо його не можна однозначно зіставити з однією позицією.
+
+### Typed recurring needs
+- Основна потреба винесена в окремий UI-блок із name/date/amount.
+- Додано recurring interval у місяцях і загальну кількість платежів.
+- Recurring need зберігається як typed `PlannerNeedType.recurring` без schema bump.
+- Cashflow/coverage розгортає повторення з month-end clamping.
+- Видалено hard-coded поведінку «повторити ще 5 місяців».
+- Додаткові потреби лишаються явними one-off записами.
+
+### Documentation and localization
+- Нові tax/FX/exit/needs flows локалізовані UK/EN/FR/DE/ES/KO/JA.
+- README розділено на повноцінні мовні сторінки.
+- A/B/C comparison лишається draft і не входить до v0.8.8.
+
+### Release checkpoint
+- Версія застосунку: `0.8.8+16`.
+- Повний prerelease checkpoint для Windows, macOS, Android, iOS і START/source.
+- GitHub Release description підготовлено всіма сімома мовами інтерфейсу.
 
 ## [0.8.7] — 2026-09-23
 
