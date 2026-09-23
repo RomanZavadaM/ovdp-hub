@@ -284,7 +284,7 @@ void main() {
             name: 'Foreign',
             kind: FeeKind.flat,
             event: FeeEvent.purchase,
-            value: Decimal.one,
+            value: Decimal.fromInt(1),
             currency: 'USD',
           ),
         ]),
