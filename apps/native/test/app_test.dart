@@ -487,7 +487,7 @@ void main() {
 
     await tester.pumpWidget(OvdpApp(repository: repository));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Мій план'));
+    await tester.tap(find.text('Добірки'));
     await tester.pumpAndSettle();
 
     final choices = find.widgetWithText(
