@@ -224,18 +224,37 @@ PR **#54 — Planner: implement recurring needs block** squash-merged у `main` 
 
 Final PR verification: **Flutter checks and START run #168 — success**.
 
+PR **#58 — Planner: strict A/B/C scenario comparison v2** squash-merged у `main` як `25123ceb049534c67b9d284ee0f79e5cc8694e28`.
+
+Інтегровано після опублікованого v0.8.8:
+- порівняння рівно 2–3 збережених PlannerScenario у «Добірки»;
+- A/B/C — нейтральні мітки за порядком вибору користувача, без автоматичного winner/best/worst;
+- hard comparability: однакові currency, budget, reserve, start/horizon, settlement delay та економічні потреби;
+- strategy, position composition, selected prices, purchase fees, tax state, FX та per-position exits можуть відрізнятися й пояснюються в таблиці;
+- показуються position cost, fee/tax state, reserve, profit basis/value, coverage shortfall, exit count та FX comparison;
+- typed recurring needs підтримуються, якщо їхній графік однаковий між сценаріями;
+- reserve-floor need лишається explicit fail-closed до окремої реалізації;
+- selection state відновлюється коректно після помилки/зняття вибору;
+- UI/errors локалізовано UK/EN/FR/DE/ES/KO/JA;
+- domain/Cubit/widget/localization regression coverage пройдено.
+
+Старий diverged draft PR #53 закрито без merge й не використано як кодове джерело.
+
+Final latest-head verification: **Flutter checks and START run #183 — success (108/108 tests)**.
+
 ## Чому 0.8.7, а не 0.9.0
 
-Після v0.8.7 у `main` уже інтегровано verified tax assumptions, explicit FX comparison assumptions, per-position exit assumptions та typed recurring Planner needs, але **ще не завершені**:
-- A/B/C comparison;
-- generated planner copy / preset labels localization.
+Після опублікованого v0.8.8 у `main` уже додано A/B/C comparison. До оцінки готовності 0.9.0 ще треба завершити:
+- generated planner copy / preset labels localization;
+- UX/regression review поточного наскрізного Planner flow.
 
 Тому 0.9.0 «Ринок» лишається активною ціллю.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. A/B/C comparison;
-2. generated planner copy / preset labels localization.
+1. generated planner copy / preset labels localization;
+2. UX/regression review;
+3. оцінка готовності formal prerelease 0.9.0.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
 
@@ -271,7 +290,7 @@ Release pipeline **Publish native prerelease run #37** успішно завер
 - typed recurring primary needs + additional one-off needs;
 - multilingual README pages та документаційна синхронізація.
 
-A/B/C comparison PR #53 лишається draft/paused і **не входить до v0.8.8**.
+A/B/C comparison **не входить до незмінного v0.8.8**; його інтегровано пізніше через PR #58 у поточний `main`.
 
 Release notes опубліковано сімома мовами: UK / EN / FR / DE / ES / KO / JA.
 
