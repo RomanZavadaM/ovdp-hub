@@ -129,6 +129,12 @@ void main() {
       HubStrings(AppLanguage.en).error(const AppError('model.invalid_date')),
       'The instrument data are invalid.',
     );
+    expect(
+      HubStrings(AppLanguage.en).error(
+        const AppError('planner.fee_currency_mismatch'),
+      ),
+      'The fee currency does not match the scenario currency.',
+    );
     await locale.close();
   });
 
