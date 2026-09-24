@@ -28,11 +28,12 @@
 
 ### Readiness and release checkpoint
 - Formal readiness assessment: PR #63, run #193, merge `f80c7d8e87b4fb494cf37712627bc12277a2fa73`.
-- Assessment result: **READY TO PREPARE v0.9.0 PRERELEASE CHECKPOINT**; product blockers не знайдено.
-- Версія кандидата: **0.9.0+17**.
-- Release notes підготовлено UK / EN / FR / DE / ES / KO / JA.
-- Повний checkpoint має пройти Windows/macOS/Android/iOS/START, checksums і legal notices.
-- v0.9.0 не вважається опублікованим, доки повний gated release workflow не завершиться успішно.
+- Assessment result: product blockers не знайдено; GO до release checkpoint.
+- Версія: **0.9.0+17**.
+- Release notes: UK / EN / FR / DE / ES / KO / JA.
+- PR **#65** squash-merged у `main` як `21698ae34f9438f7c5ab49724e47dc13014b7daa`.
+- **Publish native prerelease run #45 — success**: verify, Windows, macOS, Android, iOS unsigned, START/source та final publish.
+- GitHub prerelease **v0.9.0** опубліковано з SHA256SUMS і legal notices; tag/release не пересувати й не переписувати.
 
 ## [0.8.8] — 2026-09-23
 
