@@ -230,13 +230,13 @@ class PlannerCubit extends Cubit<PlannerState> {
       'start': date(now),
       'minDate': date(now.add(const Duration(days: 1))),
       'maxDate': date(DateTime(now.year + 2, now.month, now.day)),
-      'needName': 'Основна потреба',
+      'needName': PlannerGeneratedCopy.primaryNeedName,
       'needDate': date(DateTime(now.year, now.month + 6, now.day)),
       'needAmount': '10000',
       'needRecurring': 'false',
       'needEveryMonths': '1',
       'needOccurrences': '6',
-      'name': 'Мій план',
+      'name': PlannerGeneratedCopy.planName,
       'strategy': 'ladder',
       'expenseCount': '0',
       'delay': '2',
@@ -538,7 +538,7 @@ class PlannerCubit extends Cubit<PlannerState> {
         criteria: {
           ...state.criteria,
           'expenseCount': '${n + 1}',
-          'expenseName$n': 'Витрата ${n + 2}',
+          'expenseName$n': PlannerGeneratedCopy.expenseName(n + 2),
           'expenseDate$n': state.criteria['needDate']!,
           'expenseAmount$n': '0',
         },
@@ -788,7 +788,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           : FeeAssumptions.confirmed([
               FeeRule(
                 id: 'ui-purchase-fee',
-                name: 'Aggregate purchase fee',
+                name: PlannerGeneratedCopy.aggregatePurchaseFeeRuleName,
                 kind: FeeKind.flat,
                 event: FeeEvent.purchase,
                 value: amount,
@@ -1048,22 +1048,10 @@ class PlannerCubit extends Cubit<PlannerState> {
         fx: draft.fx,
         positionExits: draft.positionExits,
       );
-      final feeNote = draft.fees.status == FeeAssumptionStatus.unknown
-          ? 'комісії невідомі'
-          : 'комісії задані явно';
-      final taxNote = draft.taxes.status == TaxAssumptionStatus.unknown
-          ? 'податки невідомі'
-          : 'податкові правила перевірені';
-      final fxNote = draft.fx.isEmpty
-          ? 'FX-порівняння не задане'
-          : 'FX-порівняння задане явно';
-      final exitNote = draft.positionExits.isEmpty
-          ? 'утримання до погашення'
-          : 'достроковий продаж задано для ${draft.positionExits.length} позицій';
       await repository.saveCollection(
         SavedSet(
           draft.criteria['name']!.trim(),
-          'Сценарій у ${draft.criteria['currency']}. $feeNote; $taxNote; $fxNote; $exitNote.',
+          PlannerGeneratedCopy.scenarioNote,
           savedAt,
           draft.inputs.values.map((i) => i.bond),
           scenario: scenario.toJson(),
