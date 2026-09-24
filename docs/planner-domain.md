@@ -33,7 +33,20 @@ Planner 0.7/0.8 виріс із швидкої карти `Map<String,String>`. 
 - основну `recurring` потребу з `everyMonths` + `occurrences`;
 - додаткові `oneOff` потреби.
 
-Recurring primary need зберігається як typed `PlannerNeed` у schema 3 і детерміновано розгортається в cashflow/coverage з month-end clamping. `reserveFloor` ще не редагується активним UI; adapter має fail-closed замість тихого спрощення.
+Recurring primary need зберігається як typed `PlannerNeed` у schema 3 і детерміновано розгортається в cashflow/coverage з month-end clamping.
+
+### Семантика reserve floor
+
+`reserveFloor` — **не витрата** і не зовнішнє поповнення. Це мінімальний ліквідний залишок, який має бути доступним починаючи з указанної дати.
+
+- у дату активації перевіряється, що ліквідний cash не нижчий за floor;
+- floor не віднімається з cash і не збільшує cumulative spent;
+- для кожної наступної one-off/recurring потреби shortfall рахується від залишку **після** витрати відносно активного floor;
+- генератор варіанта використовує жорсткішу межу між базовим scenario `reserve` та активним `reserveFloor`;
+- current UI підтримує один reserve-floor rule; typed schema 3 не змінюється;
+- A/B/C сценарії порівнюються лише за однакових reserve-floor type/date/amount, так само як для інших економічних needs.
+
+Це не можна тихо спрощувати до one-off expense, бо тоді floor був би помилково «витрачений».
 
 ### Ціни
 
