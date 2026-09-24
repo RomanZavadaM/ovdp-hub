@@ -25,32 +25,28 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **VERIFIED**
 
-Мета: **encrypted vault lifecycle controls — recovery enable/rotate/remove + local delete semantics**.
+Мета: **private portfolio / encrypted payload foundation — factual domain schema before migration or UI**.
 
-- base `main`: **`093e9c51fb2c4f8f2eba27669d553b1eddbc3528`**;
-- branch: **`feat/encrypted-vault-lifecycle-controls`**;
-- storage/session sources: PR #81 / `16cd6f33…` + PR #84 / `51fb9286…`;
-- enable recovery on an existing device-openable vault without changing the DEK;
-- rotate recovery secret/slot atomically and verify the new slot before commit;
-- remove recovery explicitly while preserving device-key access and disabling portable backup until re-enabled;
-- local delete removes active encrypted file + app-owned pending/backup artifacts + device key/revision metadata;
-- external backup files are never deleted by local delete;
-- failure paths must preserve the last usable active vault/key state;
-- no secure-erase claims;
-- lifecycle contract: **`docs/security-vault-lifecycle-controls.md`**;
-- PR #86 earlier exact head `4fe7bf741e51ed4304e25d54a69f6d72f202e597` passed **run #297 — success**;
-- manual review then found a concurrent store-operation race; session serialization + regression coverage added;
-- hardened code head **`110c4d984800b243c25a62e34fd0070088463d19`** passed **Flutter checks and START run #299 — success**;
-- final exact PR head **`fa0b42ceacadbed73926acb6ba065921c2ae1fee`** passed **run #301 — success**;
-- squash merge `main`: **`3dc1f53dc87e741730115f786798fa5e409007ff`**;
-- post-merge `main` **run #302 — success**;
-- no legacy `sets/*.json` migration/deletion, holdings schema or user-facing vault UI.
+- base `main`: **`ee48b98485717f06d8ae81b9440912ab029004e3`**;
+- branch: **`feat/private-portfolio-payload`**;
+- define private payload schema v1 independent from the outer vault envelope;
+- acquisition lots are factual source records with stable id, ISIN, units, acquisition date, currency, unit price, explicit factual fee state and optional private broker/account label;
+- factual cash events: coupon / redemption with stable id, ISIN, date, amount/currency; redemption also records units redeemed;
+- current holdings are **derived**, never a second mutable list: acquisitions minus represented redemptions;
+- semantic validation must reject duplicate ids, invalid ISIN/currency/date/amount, redemption-before-acquisition and negative derived units;
+- canonical ordering + fixed-key JSON → deterministic payload bytes;
+- integration test stores only encoded private-payload bytes inside existing LocalVaultStore encryption and decodes after open;
+- public NBU/MinFin/seller data remains outside private payload and is referenced by ISIN;
+- schema contract: **`docs/private-portfolio-payload.md`**;
+- clean functional head **`db291909ae17e4c87c346c9d3245c5534c0f879b`** passed **Flutter checks and START run #307 — success**;
+- exact latest schema/docs head **`8396eb5db7e1336beb49c1c888206505632c89cc`** passed **Flutter checks and START run #309 — success**;
+- no legacy `sets/*.json` migration/import/delete and no user-facing portfolio UI.
 
 ### Поточна наступна дія
 
-**NEXT — private portfolio/encrypted payload foundation: versioned private payload schema, acquisition lots, derived holdings and factual coupon/redemption events. No legacy migration or user-facing portfolio UI in this slice.**
+**VERIFIED — private payload schema/domain, deterministic codec and encrypted LocalVaultStore round-trip passed run #309. Run one exact latest-head CI after this WORKLOG-only checkpoint; if green, mark PR #88 Ready and integrate into `main`.**
 
 ## Черга робіт
 
@@ -74,7 +70,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 18. **DONE** — Encrypted vault local store/lifecycle; PR #81 → merge `16cd6f33…`; final run #274 and post-merge run #275 green.
 19. **DONE** — Encrypted vault session/locking foundation; replacement PR #84 → merge `51fb9286…`; hardened run #285, final run #286 and post-merge run #287 green.
 20. **DONE** — Encrypted vault lifecycle controls; PR #86 → merge `3dc1f53d…`; final run #301 and post-merge run #302 green.
-21. **NEXT** — Private portfolio/encrypted payload foundation: acquisition lots + derived holdings + factual coupon/redemption events.
+21. **VERIFIED** — Private portfolio/encrypted payload foundation: acquisition lots + derived balances + factual coupon/redemption events; run #309 green, awaiting exact latest-head WORKLOG verification.
 
 ## Продуктова логіка цієї черги
 
