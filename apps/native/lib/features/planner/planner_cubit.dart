@@ -1030,7 +1030,9 @@ class PlannerCubit extends Cubit<PlannerState> {
     }
   }
 
-  Future<bool> exportCsvIcs() async {
+  Future<bool> exportCsvIcs({
+    String Function(String)? displayLabel,
+  }) async {
     if (state.busy ||
         state.locked ||
         state.summary == null ||
@@ -1059,13 +1061,15 @@ class PlannerCubit extends Cubit<PlannerState> {
         fx: draft.fx,
         positionExits: draft.positionExits,
       );
+      String resolve(String value) => displayLabel?.call(value) ?? value;
       final bundle = buildPlannerExportBundle(
         scenario: scenario,
         bonds: draft.inputs.values.map((input) => input.bond),
         expenseBalances: draft.expenseBalances,
+        displayLabel: resolve,
       );
       final folder = plannerExportFolderName(
-        draft.criteria['name']!.trim(),
+        resolve(draft.criteria['name']!.trim()),
         generatedAt,
       );
       final path = await repository.saveExportBundle(folder, bundle.files);
