@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 
 import 'vault_store.dart';
@@ -17,11 +15,25 @@ class VaultSessionPolicy {
   final Duration inactivityTimeout;
   final Duration backgroundGrace;
 
-  const VaultSessionPolicy({
+  VaultSessionPolicy({
     required this.inactivityTimeout,
     required this.backgroundGrace,
-  }) : assert(inactivityTimeout > Duration.zero),
-       assert(!backgroundGrace.isNegative);
+  }) {
+    if (inactivityTimeout <= Duration.zero) {
+      throw ArgumentError.value(
+        inactivityTimeout,
+        'inactivityTimeout',
+        'must be greater than zero',
+      );
+    }
+    if (backgroundGrace.isNegative) {
+      throw ArgumentError.value(
+        backgroundGrace,
+        'backgroundGrace',
+        'must not be negative',
+      );
+    }
+  }
 }
 
 abstract interface class VaultSessionTimer {
