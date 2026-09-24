@@ -25,30 +25,29 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **VERIFIED**
 
-Мета: **encrypted vault foundation implementation — crypto/storage primitives and adapters only**.
+Мета: **encrypted vault local store/lifecycle — recovery slot + atomic encrypted file + rollback/backup primitives**.
 
-- base `main`: **`d9a845886da8002dcf654716083a2abe61a361f2`**;
-- branch: **`feat/encrypted-vault-foundation`**;
-- governing contracts: `docs/security-vault.md` + `docs/security-vault-dependency-review.md`;
-- Dart floor: >=3.13;
-- approved exact direct dependencies: `sodium 4.1.0+1`, `flutter_secure_storage 11.2.0`, `win32 6.4.0`;
-- implementation targets: app-owned `VaultCrypto`, versioned authenticated envelope primitives, explicit Argon2id recovery derivation, `VaultDeviceKeyStore` abstraction, hardened Android/Apple adapter, non-destructive Windows DPAPI adapter;
-- security tests: corrupt/AAD/wrong-key fail closed, explicit KDF parameters, platform option invariants, Windows non-destructive error/rollback behavior;
-- functional code head **`0631b7eff997785482cf5fae1351261fcec7e020`** passed **Flutter checks and START run #256 — success**;
-- platform verification head **`57749cc10ee7bfea262edbe312f83f3e702d63c9`** passed **Vault foundation platform compile run #2**: Windows/macOS/Android/iOS release builds success + real Windows DPAPI smoke success;
-- same helper-only head passed **Flutter checks and START run #257 — success**;
-- exact latest PR head **`684c374ac5a4aff48f89365fe5da30f5defe565e`** passed **Flutter checks and START run #260 — success**;
-- squash merge `main`: **`d61a1245d0cded27187d06186fcba0df0921dd05`**;
-- post-merge `main` **Flutter checks and START run #261 — success**;
-- post-merge Publish native prerelease preflight **#66 — success** with publication skipped for the existing immutable v0.9.0 checkpoint;
-- macOS Data Protection Keychain runtime/provisioning remains an explicit gate before user-facing vault unlock; compile success is not treated as runtime proof;
-- no Planner/portfolio migration, legacy plaintext deletion, private-data UI, backup UX or “encrypted” product claim in this slice.
+- base `main`: **`614c60215b8571ca9317c5e21b55991db3766e10`**;
+- branch: **`feat/encrypted-vault-local-store`**;
+- PR: **#81** `Vault: add local encrypted store and recovery lifecycle`;
+- foundation source: merged PR #79 / `d61a1245d0cded27187d06186fcba0df0921dd05`;
+- implement a versioned recovery-wrapped DEK slot using approved Argon2id13 parameters + XChaCha20-Poly1305;
+- implement app-managed local `VaultStore`: pending write → flush → authenticated read-back → known-good replace;
+- validate `vaultId` / revision / envelope consistency;
+- wire device highest-accepted revision into open/save/restore to detect rollback;
+- add explicit encrypted backup and validated restore primitives;
+- tests: wrong recovery secret, corrupt slot/file, interrupted/failed replace preserves prior vault, lower revision fails closed, backup restore validates before replace;
+- functional/security head **`b5c90e0a82e6571ce224d833f631aebb911d3521`** passed **Flutter checks and START run #271 — success**;
+- exact latest functional/docs head **`cd2651c2d31221c3a9f64bbe9d5045b9a384cc7c`** passed **Flutter checks and START run #273 — success**;
+- lifecycle contract: **`docs/security-vault-local-store.md`**;
+- recovery-slot presence/content is bound into payload AEAD AAD, so strip/replace attempts fail closed;
+- no legacy `sets/*.json` migration/deletion, portfolio/private-data model or user-facing vault UI.
 
 ### Поточна наступна дія
 
-**NEXT — encrypted vault local store/lifecycle: app-managed encrypted file, versioned recovery-wrapped DEK slot, atomic known-good writes/restore and rollback detection. No legacy `sets/*.json` migration, private-data UI or legacy deletion in this slice.**
+**VERIFIED — run #273 is green on the exact reviewed local-store head. Run one exact latest-head CI after this WORKLOG-only status commit; if green, mark PR #81 Ready and integrate into `main`. No legacy migration or private-data UI in this slice.**
 
 ## Черга робіт
 
@@ -69,7 +68,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 15. **DONE** — Encrypted vault threat-model review/approval; PR #75 → merge `8403bec3…`; final exact-head run #236 green.
 16. **DONE** — Encrypted vault dependency/security review and implementation-stack decision; PR #77 → merge `3e4171e7…`; final exact-head run #239 green.
 17. **DONE** — Encrypted vault foundation; PR #79 → merge `d61a1245…`; final exact-head run #260 and post-merge run #261 green.
-18. **NEXT** — Encrypted vault local store/lifecycle: recovery slot + atomic file/backup/rollback primitives.
+18. **VERIFIED** — Encrypted vault local store/lifecycle; run #273 green, awaiting exact latest-head WORKLOG verification.
 
 ## Продуктова логіка цієї черги
 
