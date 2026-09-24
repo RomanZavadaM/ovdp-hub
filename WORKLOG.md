@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **private portfolio / encrypted payload foundation — factual domain schema before migration or UI**.
 
@@ -39,11 +39,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - canonical ordering + fixed-key JSON → deterministic payload bytes;
 - integration test stores only encoded private-payload bytes inside existing LocalVaultStore encryption and decodes after open;
 - public NBU/MinFin/seller data remains outside private payload and is referenced by ISIN;
+- schema contract: **`docs/private-portfolio-payload.md`**;
+- clean functional head **`db291909ae17e4c87c346c9d3245c5534c0f879b`** passed **Flutter checks and START run #307 — success**;
+- exact latest schema/docs head **`8396eb5db7e1336beb49c1c888206505632c89cc`** passed **Flutter checks and START run #309 — success**;
 - no legacy `sets/*.json` migration/import/delete and no user-facing portfolio UI.
 
 ### Поточна наступна дія
 
-**DOING — implement schema-v1 domain + deterministic codec and semantic tests, then verify an encrypted LocalVaultStore round-trip.**
+**VERIFIED — private payload schema/domain, deterministic codec and encrypted LocalVaultStore round-trip passed run #309. Run one exact latest-head CI after this WORKLOG-only checkpoint; if green, mark PR #88 Ready and integrate into `main`.**
 
 ## Черга робіт
 
@@ -67,7 +70,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 18. **DONE** — Encrypted vault local store/lifecycle; PR #81 → merge `16cd6f33…`; final run #274 and post-merge run #275 green.
 19. **DONE** — Encrypted vault session/locking foundation; replacement PR #84 → merge `51fb9286…`; hardened run #285, final run #286 and post-merge run #287 green.
 20. **DONE** — Encrypted vault lifecycle controls; PR #86 → merge `3dc1f53d…`; final run #301 and post-merge run #302 green.
-21. **DOING** — Private portfolio/encrypted payload foundation: acquisition lots + derived holdings + factual coupon/redemption events.
+21. **VERIFIED** — Private portfolio/encrypted payload foundation: acquisition lots + derived balances + factual coupon/redemption events; run #309 green, awaiting exact latest-head WORKLOG verification.
 
 ## Продуктова логіка цієї черги
 
