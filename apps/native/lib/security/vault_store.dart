@@ -131,13 +131,13 @@ abstract interface class VaultLifecycleStore implements VaultContentStore {
   Future<VaultLifecycleResult> enableRecovery({
     required String vaultId,
     required String recoverySecret,
-    VaultRecoveryKdfParameters recoveryParameters,
+    required VaultRecoveryKdfParameters recoveryParameters,
   });
 
   Future<VaultLifecycleResult> rotateRecovery({
     required String vaultId,
     required String recoverySecret,
-    VaultRecoveryKdfParameters recoveryParameters,
+    required VaultRecoveryKdfParameters recoveryParameters,
   });
 
   Future<VaultLifecycleResult> removeRecovery({
