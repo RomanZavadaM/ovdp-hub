@@ -2,9 +2,9 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · **🇫🇷 Français** · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.1) (0.9.1+18)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.1) (0.9.1+18)**
 >
-> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/SHA256SUMS.txt)
+> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/SHA256SUMS.txt)
 
 ---
 
@@ -59,7 +59,7 @@ Développement après le checkpoint 0.9.0 publié :
 8. **DONE** — checkpoint prerelease v0.9.0;
 9. **DONE** — reserve floor / solde minimum;
 10. **DONE** — exports locaux déterministes CSV/ICS ; PDF différé;
-11. **NEXT** — revoir/approuver le threat model du coffre chiffré avant l’implémentation cryptographique.
+11. **DONE** — fondation coffre chiffré / domaine privé / migration non destructive; 12. **DONE** — checkpoint v0.9.1+18; 13. **NEXT** — Android SAF / accès iOS security-scoped aux dossiers externes; l’UX vault/migration reste un gate séparé.
 
 OVDP Hub n’exécute aucune transaction et ne confirme pas la disponibilité d’un instrument chez un vendeur.
 
@@ -67,7 +67,7 @@ OVDP Hub n’exécute aucune transaction et ne confirme pas la disponibilité d�
 
 Les catalogues et scénarios sont stockés sur l’appareil. Sur desktop, l’utilisateur peut ouvrir ou copier un dossier de travail. OVDP Hub ne dispose pas d’un serveur central de données privées de portefeuille.
 
-Le stockage JSON actuel **n’est pas chiffré**. Il n’est donc pas destiné aux clés de signature, documents KYC ou secrets. Un coffre chiffré et le stockage sécurisé des plateformes constituent une étape ultérieure séparée.
+Le JSON legacy utilisé par le flux utilisateur actuel des sélections reste **en clair** jusqu’à ce qu’un futur flux explicite vault/migration soit raccordé et exécuté avec succès. v0.9.1 contient la fondation vérifiée du coffre chiffré, du payload privé et de la migration, mais ne réécrit ni ne supprime automatiquement les `sets/*.json` existants. N’y stockez pas de clés de signature, documents KYC ou autres secrets.
 
 ### Test rapide
 
