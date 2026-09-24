@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -15,12 +16,16 @@ import 'private_portfolio.dart';
 
 abstract interface class PortfolioGateway {
   bool get supported;
+  bool get unlocked;
+  Stream<bool> get unlockChanges;
   Future<bool> exists();
   Future<PrivatePortfolioPayload> create({required String recoverySecret});
   Future<PrivatePortfolioPayload> open();
   Future<void> save(PrivatePortfolioPayload payload);
   Future<void> lock();
-  void dispose();
+  void onBackground();
+  Future<void> onForeground();
+  Future<void> dispose();
 }
 
 class LocalEncryptedPortfolioGateway implements PortfolioGateway {
@@ -29,10 +34,17 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
 
   LocalVaultStore? _store;
   VaultSessionController? _session;
+  final _unlockChanges = StreamController<bool>.broadcast(sync: true);
 
   @override
   bool get supported =>
       Platform.isWindows || Platform.isAndroid || Platform.isIOS;
+
+  @override
+  bool get unlocked => _session?.state.isUnlocked ?? false;
+
+  @override
+  Stream<bool> get unlockChanges => _unlockChanges.stream;
 
   Future<void> _ensureReady() async {
     if (!supported) {
@@ -57,13 +69,21 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
       deviceKeyStore: keyStore,
     );
     _store = store;
-    _session = VaultSessionController(
+    final session = VaultSessionController(
       store: store,
       policy: VaultSessionPolicy(
         inactivityTimeout: const Duration(minutes: 15),
         backgroundGrace: const Duration(seconds: 15),
       ),
     );
+    session.addListener(_publishLockState);
+    _session = session;
+  }
+
+  void _publishLockState() {
+    if (!_unlockChanges.isClosed) {
+      _unlockChanges.add(unlocked);
+    }
   }
 
   @override
@@ -136,9 +156,24 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   }
 
   @override
-  void dispose() {
-    _session?.dispose();
+  void onBackground() {
+    _session?.onBackground();
+  }
+
+  @override
+  Future<void> onForeground() async {
+    await _session?.onForeground();
+  }
+
+  @override
+  Future<void> dispose() async {
+    final session = _session;
+    if (session != null) {
+      session.removeListener(_publishLockState);
+      session.dispose();
+    }
     _session = null;
     _store = null;
+    await _unlockChanges.close();
   }
 }
