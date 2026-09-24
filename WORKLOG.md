@@ -31,6 +31,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - base `main`: **`614c60215b8571ca9317c5e21b55991db3766e10`**;
 - branch: **`feat/encrypted-vault-local-store`**;
+- PR: **#81** `Vault: add local encrypted store and recovery lifecycle`;
 - foundation source: merged PR #79 / `d61a1245d0cded27187d06186fcba0df0921dd05`;
 - implement a versioned recovery-wrapped DEK slot using approved Argon2id13 parameters + XChaCha20-Poly1305;
 - implement app-managed local `VaultStore`: pending write → flush → authenticated read-back → known-good replace;
@@ -38,11 +39,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - wire device highest-accepted revision into open/save/restore to detect rollback;
 - add explicit encrypted backup and validated restore primitives;
 - tests: wrong recovery secret, corrupt slot/file, interrupted/failed replace preserves prior vault, lower revision fails closed, backup restore validates before replace;
+- functional/security head **`b5c90e0a82e6571ce224d833f631aebb911d3521`** passed **Flutter checks and START run #271 — success**;
+- lifecycle contract: **`docs/security-vault-local-store.md`**;
+- recovery-slot presence/content is bound into payload AEAD AAD, so strip/replace attempts fail closed;
 - no legacy `sets/*.json` migration/deletion, portfolio/private-data model or user-facing vault UI.
 
 ### Поточна наступна дія
 
-**DOING — extend the crypto contract with a recovery-wrapped DEK slot, then implement the local file store and regression tests.**
+**DOING — functional/security code passed run #271. Run exact latest-head CI after the lifecycle-doc/WORKLOG checkpoint; if green, mark PR #81 VERIFIED/Ready and integrate. No legacy migration or private-data UI in this slice.**
 
 ## Черга робіт
 
