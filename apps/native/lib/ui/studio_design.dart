@@ -87,6 +87,7 @@ class StudioSidebar extends StatelessWidget {
       (5, Icons.storefront_outlined, strings.text('sellers')),
     ];
     final decisionItems = [
+      (6, Icons.account_balance_wallet_outlined, strings.text('portfolio')),
       (4, Icons.event_available_outlined, strings.text('planning')),
       (1, Icons.bookmarks_outlined, strings.text('collections')),
       (2, Icons.calculate_outlined, strings.text('calculator')),
