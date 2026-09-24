@@ -173,14 +173,7 @@ class FileHubRepository implements HubRepository {
     if (raw is! String) {
       throw const FormatException('pulse.invalid_nbu_date');
     }
-    final match = RegExp(r'^(\\d{2})\\.(\\d{2})\\.(\\d{4})
-    await _tail;
-    _disposed = true;
-    _client.close();
-    await _changes.close();
-  }
-}
-).firstMatch(raw);
+    final match = RegExp(r'^(\d{2})\.(\d{2})\.(\d{4})$').firstMatch(raw);
     if (match == null) {
       throw const FormatException('pulse.invalid_nbu_date');
     }
@@ -188,7 +181,6 @@ class FileHubRepository implements HubRepository {
     isoDate(result);
     return result;
   }
-
   Future<(EconomicFxQuote?, EconomicFxQuote?)> _safeNbuFx() async {
     try {
       final response = await _client
