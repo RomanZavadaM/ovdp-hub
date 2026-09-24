@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **private portfolio factual sale/disposal foundation — explicit lot allocation and realized factual economics**.
 
@@ -45,11 +45,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - schema contract updated: **`docs/private-portfolio-payload.md`**;
 - functional head **`cabf0735188ae52352e5d15ebd25ba1c8a26542b`** passed **Flutter checks and START run #314 — success**;
 - final draft-PR head **`e9b26461d5b6a028adbaf33b64ead0e7de6fd6ac`** passed **run #316 — success**;
+- replacement PR #92 exact head **`c3e63967ee245a39a6e6ea044cf425aae66086dc`** passed **run #317 — success**;
+- squash merge `main`: **`d8de5c9f1d144c8f816a65877b86bcd79058b432`**;
+- post-merge `main` **run #318 — success**;
 - no legacy `sets/*.json` migration/import/delete and no user-facing portfolio UI.
 
 ### Поточна наступна дія
 
-**VERIFIED — schema v2 disposal/allocation domain and docs are green through run #316. Open a non-draft replacement PR from this same branch, require its own exact-head CI, then integrate if green.**
+**NEXT — non-destructive legacy plaintext migration: inventory/map existing `sets/*.json`, copy only explicit private facts into the encrypted payload, validate the encrypted result, produce a migration report and never auto-delete legacy plaintext.**
 
 ## Черга робіт
 
@@ -74,7 +77,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 19. **DONE** — Encrypted vault session/locking foundation; replacement PR #84 → merge `51fb9286…`; hardened run #285, final run #286 and post-merge run #287 green.
 20. **DONE** — Encrypted vault lifecycle controls; PR #86 → merge `3dc1f53d…`; final run #301 and post-merge run #302 green.
 21. **DONE** — Private portfolio/encrypted payload foundation; replacement PR #89 → merge `a516310f…`; final replacement run #311 and post-merge run #312 green.
-22. **VERIFIED** — Private portfolio factual sale/disposal + explicit lot-allocation foundation; functional run #314 green, awaiting exact latest-head docs verification.
+22. **DONE** — Private portfolio factual sale/disposal + explicit lot-allocation foundation; replacement PR #92 → merge `d8de5c9f…`; exact-head run #317 and post-merge run #318 green.
+23. **NEXT** — Non-destructive legacy plaintext migration into encrypted private payload.
 
 ## Продуктова логіка цієї черги
 
@@ -101,6 +105,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — private portfolio factual disposals / lot allocation**: replacement PR #92 exact head `c3e63967…` passed run #317 and was squash-merged into `main` as `d8de5c9f1d144c8f816a65877b86bcd79058b432`; post-merge run #318 green. Schema v2 adds explicit factual disposals, explicit acquisition-lot allocation, realized factual cost/proceeds and holdings net of represented disposals; legacy migration/UI remain absent.
 
 - **DONE — private portfolio/encrypted payload foundation**: replacement PR #89 exact head `af6153b0…` passed run #311 and was squash-merged into `main` as `a516310f71c6414018d3f398c42ba88f553f5244`; post-merge run #312 green with START/source artifact. Schema v1 stores factual acquisition lots plus coupon/redemption events, deterministic encrypted payload bytes and derived holdings; sale/disposal, legacy migration and portfolio UI remain deferred.
 

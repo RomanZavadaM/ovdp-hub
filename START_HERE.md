@@ -129,5 +129,6 @@ Slice не є `DONE`, доки:
 - Інтегровано після v0.9.0 також: **encrypted vault session/locking foundation** — explicit locked/unlocking/unlocked/locking/error state, manual/inactivity/background lock, stale async completion guards and pending-unlock/background race coverage
 - Інтегровано після v0.9.0 також: **encrypted vault lifecycle controls** — recovery enable/rotate/remove, non-destructive local delete/crash recovery, external-backup preservation and serialized session store operations
 - Інтегровано після v0.9.0 також: **private encrypted payload/domain foundation** — schema v1, factual acquisition lots, explicit fee state, factual coupon/redemption events, deterministic encrypted codec and derived holdings
-- Наступний активний slice: **Private portfolio factual disposals — sale/disposal records, lot allocation and realized cost-basis foundation; без legacy migration та без user-facing portfolio UI**
+- Інтегровано після v0.9.0 також: **private factual disposals / lot allocation** — schema v2, explicit sale/disposal records, explicit acquisition-lot allocation, realized factual cost/proceeds and holdings net of represented disposals
+- Наступний активний slice: **Non-destructive legacy plaintext migration — inventory existing `sets/*.json`, import only explicitly mappable private facts into encrypted payload, verify before any delete offer; без auto-delete та без user-facing portfolio claim**
 - Live ledger: GitHub Issue **#18**
