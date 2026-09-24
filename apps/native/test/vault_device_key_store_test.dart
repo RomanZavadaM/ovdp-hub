@@ -86,6 +86,10 @@ void main() {
 
     await store.deleteDek(vaultId: 'vault-android');
     expect(await store.loadDek(vaultId: 'vault-android'), isNull);
+    expect(
+      await store.loadHighestAcceptedRevision(vaultId: 'vault-android'),
+      isNull,
+    );
   });
 
   test('Windows protected record survives decrypt failure without deletion', () async {
