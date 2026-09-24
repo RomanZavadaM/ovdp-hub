@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **encrypted vault foundation implementation — crypto/storage primitives and adapters only**.
 
@@ -39,12 +39,16 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - functional code head **`0631b7eff997785482cf5fae1351261fcec7e020`** passed **Flutter checks and START run #256 — success**;
 - platform verification head **`57749cc10ee7bfea262edbe312f83f3e702d63c9`** passed **Vault foundation platform compile run #2**: Windows/macOS/Android/iOS release builds success + real Windows DPAPI smoke success;
 - same helper-only head passed **Flutter checks and START run #257 — success**;
+- exact latest PR head **`684c374ac5a4aff48f89365fe5da30f5defe565e`** passed **Flutter checks and START run #260 — success**;
+- squash merge `main`: **`d61a1245d0cded27187d06186fcba0df0921dd05`**;
+- post-merge `main` **Flutter checks and START run #261 — success**;
+- post-merge Publish native prerelease preflight **#66 — success** with publication skipped for the existing immutable v0.9.0 checkpoint;
 - macOS Data Protection Keychain runtime/provisioning remains an explicit gate before user-facing vault unlock; compile success is not treated as runtime proof;
 - no Planner/portfolio migration, legacy plaintext deletion, private-data UI, backup UX or “encrypted” product claim in this slice.
 
 ### Поточна наступна дія
 
-**VERIFIED — functional tests and four-platform compile gate are green. Record verification, remove the temporary platform helper, run exact latest-head CI, then mark PR #79 Ready and integrate if green. No portfolio migration/UI in this slice.**
+**NEXT — encrypted vault local store/lifecycle: app-managed encrypted file, versioned recovery-wrapped DEK slot, atomic known-good writes/restore and rollback detection. No legacy `sets/*.json` migration, private-data UI or legacy deletion in this slice.**
 
 ## Черга робіт
 
@@ -64,7 +68,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 14. **DONE** — deterministic local CSV + ICS Planner exports; PR #73 → merge `3e8e7fbc…`; branch runs #229/#231 and main run #232 green.
 15. **DONE** — Encrypted vault threat-model review/approval; PR #75 → merge `8403bec3…`; final exact-head run #236 green.
 16. **DONE** — Encrypted vault dependency/security review and implementation-stack decision; PR #77 → merge `3e4171e7…`; final exact-head run #239 green.
-17. **NEXT** — Encrypted vault foundation: dependencies + Dart floor + crypto/device-key adapters + security tests.
+17. **DONE** — Encrypted vault foundation; PR #79 → merge `d61a1245…`; final exact-head run #260 and post-merge run #261 green.
+18. **NEXT** — Encrypted vault local store/lifecycle: recovery slot + atomic file/backup/rollback primitives.
 
 ## Продуктова логіка цієї черги
 
@@ -91,6 +96,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — encrypted vault foundation**: PR #79 exact latest head `684c374a…` passed run #260 and was squash-merged into `main` as `d61a1245d0cded27187d06186fcba0df0921dd05`; post-merge run #261 green. Added Dart >=3.13, pinned sodium/flutter_secure_storage/win32/ffi, XChaCha20-Poly1305 + Argon2id primitives, hardened Android/Apple key storage, non-destructive Windows DPAPI, four-platform compile gate and Windows DPAPI smoke. No legacy migration/private-data UI.
 
 - **DONE — encrypted vault dependency/security review**: PR #77 exact latest head `dea8cc33…` passed run #239 and was squash-merged into `main` as `3e4171e7bc700f6f844e4b27f89222e49feb40cb`. Approved: sodium/libsodium for XChaCha20-Poly1305 + Argon2id, hardened flutter_secure_storage on Android/Apple, app-owned Windows DPAPI via win32; no dependency/feature code was added in the review.
 

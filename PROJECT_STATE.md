@@ -328,15 +328,42 @@ Approved implementation inputs:
 
 **У PR #77 не додавались dependencies або feature code.**
 
+## Encrypted vault — foundation integrated
+
+PR **#79 — Vault: add encrypted storage foundation** squash-merged у `main` як **`d61a1245d0cded27187d06186fcba0df0921dd05`**.
+
+Інтегровано:
+- Dart SDK floor >=3.13;
+- exact direct dependencies + lockfile: `sodium 4.1.0+1`, `flutter_secure_storage 11.2.0`, `win32 6.4.0`, `ffi 2.2.0`;
+- app-owned `VaultCrypto` із XChaCha20-Poly1305-IETF envelope primitives, random DEK/nonce та explicit Argon2id13 recovery derivation;
+- `VaultDeviceKeyStore` contract;
+- hardened Android/iOS/macOS secure-storage options;
+- app-owned current-user Windows DPAPI protector/store з non-destructive failure/rollback behavior;
+- security regression tests for wrong key/ciphertext/AAD, KDF parameters, device-store invariants and Windows known-good preservation;
+- third-party notices;
+- four-platform release compile gate (Windows/macOS/Android/iOS) + real Windows DPAPI smoke.
+
+Verification evidence:
+- functional head `0631b7ef…` — Flutter checks and START run #256 success;
+- platform gate head `57749cc1…` — Vault foundation platform compile run #2 success on Windows/macOS/Android/iOS + Windows DPAPI smoke;
+- exact latest PR head `684c374ac5a4aff48f89365fe5da30f5defe565e` — Flutter checks and START run #260 success;
+- post-merge `main` run **#261 — success**;
+- Publish native prerelease preflight #66 — success/skipped publication because the immutable v0.9.0 checkpoint already exists.
+
+macOS Data Protection Keychain runtime/provisioning remains an explicit gate before user-facing vault unlock. Compile success is not treated as runtime proof.
+
+**No legacy plaintext migration, portfolio/private-data UI, backup UX or product claim that user data is encrypted was added in PR #79.**
+
 ## Наступний етап
 
-**Encrypted vault foundation implementation**:
+**Encrypted vault local store / lifecycle**:
 
-1. підняти Dart SDK floor до >=3.13 і додати exact approved dependencies + lockfile;
-2. додати app-owned `VaultCrypto` abstraction: DEK/CSPRNG, XChaCha20-Poly1305 envelope crypto, explicit Argon2id recovery KDF;
-3. додати `VaultDeviceKeyStore` adapters: hardened flutter_secure_storage для Android/iOS/macOS та non-destructive DPAPI для Windows;
-4. додати security regression tests: authentication/AAD corruption, missing key, Windows non-destructive error, platform option invariants;
-5. пройти analyze/tests і compile gates; **не** робити portfolio migration, private-data UI або legacy delete у цьому slice.
+1. implement app-managed local encrypted vault file store around the approved envelope/crypto primitives;
+2. add a versioned recovery-wrapped DEK slot using the approved Argon2id13 parameters;
+3. enforce temp → flush → authenticated read-back → atomic replace with previous known-good encrypted copy preserved on failure;
+4. wire highest-accepted revision / rollback detection into the local store lifecycle;
+5. add explicit encrypted backup/restore primitives and corruption/interrupted-write tests;
+6. **do not** migrate `sets/*.json`, delete legacy plaintext, or expose private-data vault UI in this slice.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
