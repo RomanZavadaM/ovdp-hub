@@ -2,9 +2,9 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · [🇫🇷 Français](README.fr.md) · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · **🇯🇵 日本語**
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.8](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.8)**
+> **Release candidate / Кандидат prerelease: OVDP Hub v0.9.0 (0.9.0+17). Current published / Поточний опублікований: [v0.8.8](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.8)**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/SHA256SUMS.txt)
+> Expected after successful gated publish / Очікується після успішного pipeline: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/SHA256SUMS.txt)
 
 ---
 
@@ -27,6 +27,8 @@
 - 基準 cashflow の通貨を混在させない、手動レート・日付・情報源 URL による明示的 FX 比較;
 - 各ポジションごとの売却日と BID/手動 exit 価格による満期前売却;
 - typed ルールとして保存される定期的な主な必要額と、個別の一回限り追加必要額;
+- 厳密な比較条件と自動的な勝者判定なしで、保存済みシナリオ 2～3 件を中立的に比較する **A/B/C** 機能;
+- Planner の生成文言 / preset label は安定した ID として保存し表示時にローカライズし、ユーザー入力の名称はそのまま保持;
 - ポータブルな JSON ワークスペースへのシナリオ保存;
 - アクティブ UI と主要なユーザー向けエラーを **UK / EN / FR / DE / ES / KO / JA** にローカライズ.
 
@@ -43,7 +45,9 @@
 3. **DONE** — 検証済み税務前提;
 4. **DONE** — FX 前提;
 5. **DONE** — exit 前提;
-6. **NEXT** — A/B/C 比較; その後 UX/ローカライズ調整.
+6. **DONE** — 中立的な A/B/C 比較;
+7. **DONE** — Planner 生成文言 / preset label のローカライズ + 回帰テスト;
+8. **READY** — 0.9.0 の正式 readiness 評価完了: prerelease checkpoint 準備へ GO.
 
 OVDP Hub は実際の売買を実行せず、販売者の在庫を確認しません。
 
