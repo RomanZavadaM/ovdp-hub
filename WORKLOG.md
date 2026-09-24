@@ -31,6 +31,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - base `main`: **`0044ac58fcd0b1e61a3c5818225d4581c4aad765`**;
 - branch: **`docs/encrypted-vault-threat-model-review`**;
+- PR: **#75** `Security: approve encrypted vault threat model`;
+- design head: **`bc759e649b7b7ba846a98ae36832b40d6be89369`**;
 - implementation gate: **docs/design only — no crypto or secure-storage dependency changes in this slice**;
 - review targets: private-data boundary, vault file/envelope versioning, authenticated-encryption requirements, key ownership/wrapping, recovery/backup, lock/auto-lock/deletion UX, rollback/corruption behavior, Windows/macOS/iOS/Android secure-storage matrix;
 - acceptance: `docs/security-vault.md` is explicit enough to serve as a security contract; unresolved choices are marked as dependency-review gates rather than silently assumed;
@@ -39,7 +41,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — audit current plaintext workspace boundaries against the product model, then turn `docs/security-vault.md` into the approved implementation contract. After docs verification, open/verify a PR and integrate only if green. No crypto/plugin code in this slice.**
+**DOING — run exact-head CI for PR #75. If green, record VERIFIED status, mark Ready and integrate the docs-only security checkpoint into `main`. No crypto/plugin code in this slice.**
 
 ## Черга робіт
 
