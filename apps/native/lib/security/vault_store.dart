@@ -106,9 +106,18 @@ class VaultOpenResult {
   }) : plainText = Uint8List.fromList(plainText);
 }
 
+abstract interface class VaultContentStore {
+  Future<VaultOpenResult> open({required String vaultId});
+
+  Future<VaultOpenResult> save({
+    required String vaultId,
+    required Uint8List plainText,
+  });
+}
+
 typedef VaultCommitProbe = FutureOr<void> Function(File committedFile);
 
-class LocalVaultStore {
+class LocalVaultStore implements VaultContentStore {
   final Directory directory;
   final VaultCrypto crypto;
   final VaultDeviceKeyStore deviceKeyStore;
@@ -197,6 +206,7 @@ class LocalVaultStore {
     }
   }
 
+  @override
   Future<VaultOpenResult> open({required String vaultId}) async {
     final rawDek = await deviceKeyStore.loadDek(vaultId: vaultId);
     if (rawDek == null) {
@@ -223,6 +233,7 @@ class LocalVaultStore {
     }
   }
 
+  @override
   Future<VaultOpenResult> save({
     required String vaultId,
     required Uint8List plainText,
