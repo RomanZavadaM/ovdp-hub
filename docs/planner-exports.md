@@ -43,7 +43,7 @@ All exported items are all-day `VEVENT` entries:
 
 Positions and purchase fees are not calendar events and therefore are CSV-only.
 
-UIDs and ordering are derived from scenario/event content; repeated generation from identical input creates the same ICS event identities.
+UIDs and ordering are derived from stable scenario/event content, not localized display text. Repeated generation from identical input creates the same ICS event identities even after the UI language changes. Generated Planner copy is resolved to the current interface language at export time; user-authored labels remain literal.
 
 ## Local storage
 
@@ -63,5 +63,6 @@ If the human-readable folder name already exists, a numeric suffix is added. Wri
 - yield-only is not turned into a price;
 - reserve floor is never turned into spending;
 - unknown fees are not exported as zero;
-- user-authored labels are preserved literally;
+- contractual receipt rows are gross instrument receipts; tax timing is not invented when no dated tax-cashflow model exists;
+- generated labels are localized at display/export time while user-authored labels are preserved literally;
 - export generation does not mutate or save the Planner scenario.
