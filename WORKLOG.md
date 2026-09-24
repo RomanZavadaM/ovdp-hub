@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **encrypted vault dependency/security review — choose the implementation stack without adding dependencies or feature code yet**.
 
@@ -36,13 +36,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - required evidence: current release/maintenance, license, platform implementation semantics, known advisory posture, threat-model mapping, testability;
 - no `pubspec.yaml` change and no vault feature implementation in this slice;
 - output: one documented stack decision with accepted/rejected alternatives, platform adapter matrix, dependency pinning policy and implementation test gates;
+- reviewed head `b6efabd65049cd231455e48d0e26c01c0e890154` passed **Flutter checks and START run #238 — success**;
 - review document: **`docs/security-vault-dependency-review.md`**;
 - proposed stack: **`sodium 4.1.0+1` / libsodium 1.0.22 + `flutter_secure_storage 11.2.0` on Android/Apple + app-owned Windows DPAPI adapter via `win32 6.4.0`**;
 - Windows generic `flutter_secure_storage_windows` is explicitly rejected for DEK storage because its current decrypt/parse error path deletes the encrypted storage file.
 
 ### Поточна наступна дія
 
-**DOING — dependency/security decision is documented. Review the branch diff for scope, update Issue #18 with the decision rationale, then open a docs-only PR for exact-head verification. No dependency or feature code yet.**
+**VERIFIED — reviewed head passed run #238. Run exact latest-head CI after this approval/WORKLOG-only checkpoint; if green, mark PR #77 Ready and integrate into `main`. No dependency or feature code before merge.**
 
 ## Черга робіт
 
@@ -61,7 +62,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
 14. **DONE** — deterministic local CSV + ICS Planner exports; PR #73 → merge `3e8e7fbc…`; branch runs #229/#231 and main run #232 green.
 15. **DONE** — Encrypted vault threat-model review/approval; PR #75 → merge `8403bec3…`; final exact-head run #236 green.
-16. **DOING** — Encrypted vault dependency/security review and implementation-stack decision.
+16. **VERIFIED** — Encrypted vault dependency/security review and implementation-stack decision; run #238 green, awaiting exact latest-head verification.
 
 ## Продуктова логіка цієї черги
 
