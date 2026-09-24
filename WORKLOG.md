@@ -25,24 +25,24 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **VERIFIED**
 
-Мета: **deterministic local Planner exports: CSV + ICS; PDF deferred**.
+Мета: **encrypted vault threat-model review / design approval before any crypto or secure-storage plugin implementation**.
 
-- branch: `feat/planner-exports`;
-- PR: **#73** `Planner: add deterministic CSV and ICS exports`;
-- verified code head `55a0b0c043ea656fcd5612be2d8906c4f6209b41` — run **#229 success (117/117 tests)**;
-- exact latest PR head `81bfc0473b71bdc7ff0b74dfc0a831bf4ea5c9db` — run **#231 success**;
-- squash merge `main`: **`3e8e7fbc08f3d2a305e8eb6d92bfb9428a34dedc`**;
-- post-merge **Flutter checks and START run #232 — success**, including START/source artifact;
-- deterministic CSV schema v1 + ICS calendar semantics documented in `docs/planner-exports.md`;
-- local-only writes to `<workspace>/exports/`, deterministic file stem/UID/DTSTAMP, settlement-delay receipt dates;
-- UK/EN/FR/DE/ES/KO/JA UI/errors; PDF remains deferred;
+- base `main`: **`0044ac58fcd0b1e61a3c5818225d4581c4aad765`**;
+- branch: **`docs/encrypted-vault-threat-model-review`**;
+- PR: **#75** `Security: approve encrypted vault threat model`;
+- design head: **`bc759e649b7b7ba846a98ae36832b40d6be89369`**;
+- PR #75 latest functional/docs head `67ac8a6eb4b20adb7dbea200160d9f2d37d6eea7` passed **Flutter checks and START run #235 — success**;
+- implementation gate: **docs/design only — no crypto or secure-storage dependency changes in this slice**;
+- review targets: private-data boundary, vault file/envelope versioning, authenticated-encryption requirements, key ownership/wrapping, recovery/backup, lock/auto-lock/deletion UX, rollback/corruption behavior, Windows/macOS/iOS/Android secure-storage matrix;
+- acceptance: `docs/security-vault.md` is explicit enough to serve as a security contract; unresolved choices are marked as dependency-review gates rather than silently assumed;
+- stale duplicate export PR #71 is closed without merge; merged PR #73 remains the only export code source;
 - published checkpoint remains immutable **v0.9.0 / 0.9.0+17**.
 
 ### Поточна наступна дія
 
-**NEXT — review and approve the existing `docs/security-vault.md` threat model before any encryption implementation: freeze the private-data boundary, vault file/envelope requirements, key ownership, recovery/backup model, lock/auto-lock behavior and Windows/macOS/iOS/Android secure-storage matrix. No crypto/plugin code until this design checkpoint is approved.**
+**VERIFIED — run #235 is green on the reviewed threat-model head. Run exact latest-head CI after this WORKLOG-only checkpoint; if green, mark PR #75 Ready and integrate into `main`. Next product action after merge: dependency/security review of candidate crypto + secure-storage stack; no feature implementation before that review.**
 
 ## Черга робіт
 
@@ -60,7 +60,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
 14. **DONE** — deterministic local CSV + ICS Planner exports; PR #73 → merge `3e8e7fbc…`; branch runs #229/#231 and main run #232 green.
-15. **NEXT** — Encrypted vault threat-model review/approval before crypto implementation.
+15. **VERIFIED** — Encrypted vault threat-model review/approval; run #235 green, awaiting exact latest-head docs-only verification.
 
 ## Продуктова логіка цієї черги
 
