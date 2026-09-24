@@ -52,15 +52,26 @@ try {
   }
 
   $contractFile = Join-Path $verifyRoot 'runtime-release-contract.json'
-  if ($Platform -eq 'windows') {
-    $process = Start-Process -FilePath $binary.FullName -ArgumentList @("--release-contract-file=$contractFile") -Wait -PassThru
-    if ($process.ExitCode -ne 0) {
-      throw "Packaged executable release-contract failed with exit code $($process.ExitCode)"
+  $previousContractFile = $env:OVDP_RELEASE_CONTRACT_FILE
+  try {
+    $env:OVDP_RELEASE_CONTRACT_FILE = $contractFile
+    if ($Platform -eq 'windows') {
+      $process = Start-Process -FilePath $binary.FullName -Wait -PassThru
+      if ($process.ExitCode -ne 0) {
+        throw "Packaged executable release-contract failed with exit code $($process.ExitCode)"
+      }
+    } else {
+      & $binary.FullName
+      if ($LASTEXITCODE -ne 0) {
+        throw "Packaged executable release-contract failed with exit code $LASTEXITCODE"
+      }
     }
-  } else {
-    & $binary.FullName "--release-contract-file=$contractFile"
-    if ($LASTEXITCODE -ne 0) {
-      throw "Packaged executable release-contract failed with exit code $LASTEXITCODE"
+  }
+  finally {
+    if ($null -eq $previousContractFile) {
+      Remove-Item Env:OVDP_RELEASE_CONTRACT_FILE -ErrorAction SilentlyContinue
+    } else {
+      $env:OVDP_RELEASE_CONTRACT_FILE = $previousContractFile
     }
   }
   if (!(Test-Path -LiteralPath $contractFile)) {
