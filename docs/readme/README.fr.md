@@ -2,24 +2,24 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · **🇫🇷 Français** · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.1) (0.9.1+18)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.2](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.2) (0.9.2+19)**
 >
-> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/SHA256SUMS.txt)
+> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/SHA256SUMS.txt)
 
 ---
 
-### Checkpoint v0.9.1
+### Checkpoint v0.9.2
 
-**v0.9.1+18** ajoute le Tableau clair, le reserve floor du Planner, les exports CSV/ICS déterministes et la fondation interne vérifiée du coffre chiffré / portefeuille privé : stockage local authentifié, recovery/backup, détection de rollback, verrouillage de session, schémas factuels privés, allocation explicite des cessions et cœur de migration legacy non destructive.
+**v0.9.2+19** ajoute le **Pouls économique** permanent et le premier flux utilisateur **Mon portefeuille** : créer/ouvrir/verrouiller un portefeuille local chiffré, ajouter un achat factuel d’OVDP et afficher les positions dérivées. Un nouveau gate vérifie aussi le ZIP/exécutable desktop réellement distribué.
 
-**Limite de confidentialité :** l’interface vault/migration/portfolio n’est pas encore raccordée. Les `sets/*.json` legacy ne deviennent **pas** automatiquement chiffrés après la mise à jour. Le cœur de migration n’a aucune API de suppression et ne transforme jamais une sélection enregistrée en holdings factuels. Étape suivante : Android SAF / accès iOS security-scoped aux dossiers externes; l’UX vault/migration reste un gate séparé.
+**Limite de confidentialité :** les `sets/*.json` legacy ne sont toujours pas chiffrés automatiquement. Le wizard migration/nettoyage reste une étape utilisateur séparée; Android SAF / iOS security-scoped est différé.
 
 
 ### Présentation
 
 **OVDP Hub** est une application Flutter/Dart installable pour consulter les obligations d’État ukrainiennes (OVDP), leurs sources de marché et créer des scénarios d’investissement personnels. Plateformes cibles : **Windows, macOS, Android et iOS**. Web/PWA ne fait pas partie du produit actif.
 
-Code actif : `apps/native`. Le checkpoint actuel est **0.9.1+18**. Il inclut les améliorations UI/Planner/exports après 0.9.0 ainsi que la fondation interne vérifiée du coffre chiffré, du domaine privé et de la migration. L’interface utilisateur vault/migration/portfolio reste différée.
+Code actif : `apps/native`. Le checkpoint actuel est **0.9.2+19**. Il inclut les améliorations UI/Planner/exports après 0.9.0 ainsi que la fondation interne vérifiée du coffre chiffré, du domaine privé et de la migration. L’interface utilisateur vault/migration/portfolio reste différée.
 
 ### Fonctions disponibles
 
@@ -59,7 +59,7 @@ Développement après le checkpoint 0.9.0 publié :
 8. **DONE** — checkpoint prerelease v0.9.0;
 9. **DONE** — reserve floor / solde minimum;
 10. **DONE** — exports locaux déterministes CSV/ICS ; PDF différé;
-11. **DONE** — fondation coffre chiffré / domaine privé / migration non destructive; 12. **DONE** — checkpoint v0.9.1+18; 13. **NEXT** — Android SAF / accès iOS security-scoped aux dossiers externes; l’UX vault/migration reste un gate séparé.
+11. **DONE** — fondation coffre chiffré / domaine privé / migration non destructive; 12. **DONE** — checkpoint v0.9.2+18; 13. **NEXT** — Android SAF / accès iOS security-scoped aux dossiers externes; l’UX vault/migration reste un gate séparé.
 
 OVDP Hub n’exécute aucune transaction et ne confirme pas la disponibilité d’un instrument chez un vendeur.
 
@@ -67,7 +67,7 @@ OVDP Hub n’exécute aucune transaction et ne confirme pas la disponibilité d�
 
 Les catalogues et scénarios sont stockés sur l’appareil. Sur desktop, l’utilisateur peut ouvrir ou copier un dossier de travail. OVDP Hub ne dispose pas d’un serveur central de données privées de portefeuille.
 
-Le JSON legacy utilisé par le flux utilisateur actuel des sélections reste **en clair** jusqu’à ce qu’un futur flux explicite vault/migration soit raccordé et exécuté avec succès. v0.9.1 contient la fondation vérifiée du coffre chiffré, du payload privé et de la migration, mais ne réécrit ni ne supprime automatiquement les `sets/*.json` existants. N’y stockez pas de clés de signature, documents KYC ou autres secrets.
+Le JSON legacy utilisé par le flux utilisateur actuel des sélections reste **en clair** jusqu’à ce qu’un futur flux explicite vault/migration soit raccordé et exécuté avec succès. v0.9.2 contient la fondation vérifiée du coffre chiffré, du payload privé et de la migration, mais ne réécrit ni ne supprime automatiquement les `sets/*.json` existants. N’y stockez pas de clés de signature, documents KYC ou autres secrets.
 
 ### Test rapide
 
