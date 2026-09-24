@@ -2,9 +2,9 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · [🇫🇷 Français](README.fr.md) · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · **🇰🇷 한국어** · [🇯🇵 日本語](README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.1) (0.9.1+18)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.1) (0.9.1+18)**
 >
-> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/SHA256SUMS.txt)
+> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/SHA256SUMS.txt)
 
 ---
 
@@ -59,7 +59,7 @@
 8. **DONE** — v0.9.0 prerelease checkpoint;
 9. **DONE** — reserve floor / 최소 잔액;
 10. **DONE** — 결정적 로컬 CSV/ICS 내보내기; PDF 연기;
-11. **NEXT** — 암호화 구현 전에 encrypted-vault threat model 검토/승인.
+11. **DONE** — encrypted-vault/private-domain/비파괴 migration 기반; 12. **DONE** — v0.9.1+18 체크포인트; 13. **NEXT** — Android SAF / iOS security-scoped 외부 폴더 접근; 사용자용 vault/migration UX는 별도 gate.
 
 OVDP Hub는 실제 매매를 실행하지 않으며 판매자의 실제 재고를 확인하지 않습니다.
 
@@ -67,7 +67,7 @@ OVDP Hub는 실제 매매를 실행하지 않으며 판매자의 실제 재고�
 
 카탈로그와 시나리오는 사용자 기기에 저장됩니다. 데스크톱에서는 작업 폴더를 열거나 복사할 수 있습니다. OVDP Hub는 개인 포트폴리오 데이터를 위한 중앙 서버를 운영하지 않습니다.
 
-현재 JSON 저장소는 **암호화되지 않았으므로** 서명 키, KYC 문서, 비밀정보 저장용이 아닙니다. 암호화 vault와 플랫폼 secure storage는 별도 단계로 계획되어 있습니다.
+현재 사용자용 선택 흐름에서 사용하는 legacy workspace JSON은 향후 명시적인 vault/migration 흐름이 연결되고 성공적으로 실행되기 전까지 **평문**입니다. v0.9.1에는 검증된 encrypted-vault/private-payload/migration 기반이 있지만 기존 `sets/*.json`을 자동으로 다시 쓰거나 삭제하지 않습니다. Legacy workspace에는 서명 키, KYC 문서 또는 기타 비밀정보를 저장하지 마십시오.
 
 ### 빠른 테스트
 
