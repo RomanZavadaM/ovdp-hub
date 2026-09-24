@@ -25,27 +25,24 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **deterministic local Planner exports: CSV + ICS; PDF deferred**.
 
-- base `main`: **`b1507a0caac416d4f4b275f7508c46ccea1fbdeb`**;
-- branch: **`feat/planner-exports`**;
-- export model first: stable machine-readable CSV schema + calendar ICS semantics;
-- source: current generated/saved Planner scenario, positions, typed needs and derived coverage/cashflow;
-- file handling: local `exports/` inside the active workspace with validated deterministic filenames and atomic text writes;
-- CSV: UTF-8, stable English machine headers, Decimal dot, RFC4180 escaping, explicit record types;
-- ICS: all-day events for needs/reserve-floor and expected cash-availability dates for coupon/redemption/sale events; deterministic UID/DTSTAMP; no network;
-- PDF remains deferred until report structure stabilizes;
-- UI labels/messages: UK/EN/FR/DE/ES/KO/JA;
-- regression: identical input → identical bytes; save path; CSV escaping; ICS escaping/dates; desktop/phone Planner buttons;
-- draft PR: **#73** `Planner: add deterministic CSV and ICS exports`;
-- verified code head: **`55a0b0c043ea656fcd5612be2d8906c4f6209b41`**;
-- **Flutter checks and START run #229 — success (117/117 tests)**.
+- branch: `feat/planner-exports`;
+- PR: **#73** `Planner: add deterministic CSV and ICS exports`;
+- verified code head `55a0b0c043ea656fcd5612be2d8906c4f6209b41` — run **#229 success (117/117 tests)**;
+- exact latest PR head `81bfc0473b71bdc7ff0b74dfc0a831bf4ea5c9db` — run **#231 success**;
+- squash merge `main`: **`3e8e7fbc08f3d2a305e8eb6d92bfb9428a34dedc`**;
+- post-merge **Flutter checks and START run #232 — success**, including START/source artifact;
+- deterministic CSV schema v1 + ICS calendar semantics documented in `docs/planner-exports.md`;
+- local-only writes to `<workspace>/exports/`, deterministic file stem/UID/DTSTAMP, settlement-delay receipt dates;
+- UK/EN/FR/DE/ES/KO/JA UI/errors; PDF remains deferred;
+- published checkpoint remains immutable **v0.9.0 / 0.9.0+17**.
 
 ### Поточна наступна дія
 
-**VERIFIED — code head passed run #229. Run exact latest-head CI after this docs-only checkpoint, then integrate PR #73 into `main` if green. PDF remains deferred.**
+**NEXT — review and approve the existing `docs/security-vault.md` threat model before any encryption implementation: freeze the private-data boundary, vault file/envelope requirements, key ownership, recovery/backup model, lock/auto-lock behavior and Windows/macOS/iOS/Android secure-storage matrix. No crypto/plugin code until this design checkpoint is approved.**
 
 ## Черга робіт
 
@@ -62,7 +59,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
-14. **VERIFIED** — deterministic local CSV + ICS Planner exports; PR #73, code run #229 green; awaiting latest-head docs-only verification.
+14. **DONE** — deterministic local CSV + ICS Planner exports; PR #73 → merge `3e8e7fbc…`; branch runs #229/#231 and main run #232 green.
+15. **NEXT** — Encrypted vault threat-model review/approval before crypto implementation.
 
 ## Продуктова логіка цієї черги
 
@@ -89,6 +87,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — deterministic Planner CSV + ICS exports**: PR #73 squash-merged у `main` як `3e8e7fbc08f3d2a305e8eb6d92bfb9428a34dedc`; exact-head run #231 і post-merge run #232 success; CSV/ICS local-only exports integrated, PDF deferred.
+
 
 - **DONE — Planner reserve-floor / minimum-balance**: PR #69 final head `0cf2f513…` passed run #210; squash-merged у `main` as `37b8120db0dd64fa81dc4f06e3e2a44a2ec21206`; post-merge run #211 success. Floor is a non-consuming minimum-liquid-cash constraint, schema 3 compatible, included in coverage/generator/A-B-C/UI and 7 languages.
 

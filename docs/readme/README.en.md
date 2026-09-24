@@ -12,7 +12,7 @@
 
 **OVDP Hub** is an installable Flutter/Dart application for exploring Ukrainian government bonds (OVDP), market sources, and personal investment scenarios. Target platforms are **Windows, macOS, Android, and iOS**. Web/PWA is not part of the active product.
 
-Active code: `apps/native`. The current published checkpoint is **0.9.0 “Market”**. The next slice adds an optional **“Light Dashboard”** appearance while keeping Classic and “Studio” available.
+Active code: `apps/native`. The current published checkpoint is **0.9.0 “Market”**. Since then, `main` has integrated Light Dashboard, Planner reserve floor, and deterministic local CSV/ICS exports. Next: **review/approve the encrypted-vault threat model before any crypto implementation**.
 
 ### What already works
 
@@ -29,6 +29,7 @@ Active code: `apps/native`. The current published checkpoint is **0.9.0 “Marke
 - a recurring primary future need stored as a typed rule, while additional needs remain one-off items;
 - neutral **A/B/C** comparison for 2–3 saved scenarios with strict comparability and no automatic winner;
 - typed reserve-floor / minimum-balance rule: from its effective date the amount must remain liquid and is not treated as an expense;
+- deterministic local Planner CSV/ICS exports for scenario/needs/coverage/cashflow into the active workspace `exports/` folder; PDF remains deferred until the report structure stabilizes;
 - generated Planner copy / preset labels are stored as stable IDs and localized at display time; user-authored names remain literal;
 - portable JSON workspace persistence;
 - active UI and main user-facing errors localized for **UK / EN / FR / DE / ES / KO / JA**.
@@ -50,7 +51,8 @@ Development after the published 0.9.0 checkpoint:
 7. **DONE** — generated Planner copy / preset-label localization + regression;
 8. **DONE** — v0.9.0 prerelease checkpoint;
 9. **DONE** — reserve-floor / minimum-balance need;
-10. **NEXT** — local CSV/ICS exports; PDF after report structure stabilizes.
+10. **DONE** — deterministic local CSV/ICS exports; PDF deferred;
+11. **NEXT** — review/approve the encrypted-vault threat model before crypto implementation.
 
 OVDP Hub does not execute trades and does not confirm seller availability.
 

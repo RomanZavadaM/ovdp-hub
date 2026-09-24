@@ -12,7 +12,7 @@
 
 **OVDP Hub** est une application Flutter/Dart installable pour consulter les obligations d’État ukrainiennes (OVDP), leurs sources de marché et créer des scénarios d’investissement personnels. Plateformes cibles : **Windows, macOS, Android et iOS**. Web/PWA ne fait pas partie du produit actif.
 
-Code actif : `apps/native`. Checkpoint publié actuel : **0.9.0 « Marché »**. Le prochain slice ajoute l’apparence optionnelle **« Tableau clair »**, tout en conservant Classic et « Studio ».
+Code actif : `apps/native`. Le checkpoint publié actuel est **0.9.0 « Marché »**. Depuis, `main` a intégré « Tableau clair », le solde minimum du Planner et les exports locaux déterministes CSV/ICS. Prochaine étape : **revoir et approuver le threat model du coffre chiffré avant tout code cryptographique**.
 
 ### Fonctions disponibles
 
@@ -29,6 +29,7 @@ Code actif : `apps/native`. Checkpoint publié actuel : **0.9.0 « Marché »**.
 - un besoin futur principal récurrent conservé comme règle typée, les besoins supplémentaires restant ponctuels;
 - comparaison neutre **A/B/C** de 2 à 3 scénarios enregistrés, avec comparabilité stricte et sans gagnant automatique;
 - règle typée de solde minimum / reserve floor : à partir de sa date d’effet, le montant doit rester liquide et n’est pas traité comme une dépense;
+- exports locaux déterministes CSV/ICS du Planner pour scénario/besoins/couverture/cash-flow dans le dossier `exports` de l’espace de travail actif ; le PDF reste différé jusqu’à stabilisation du rapport ;
 - le texte généré du planificateur / les libellés prédéfinis sont stockés comme identifiants stables puis localisés à l’affichage; les noms saisis par l’utilisateur restent littéraux;
 - sauvegarde portable des scénarios au format JSON;
 - interface active et principales erreurs utilisateur localisées en **UK / EN / FR / DE / ES / KO / JA**.
@@ -48,7 +49,10 @@ Développement après le checkpoint 0.9.0 publié :
 5. **DONE** — hypothèses de sortie;
 6. **DONE** — comparaison neutre A/B/C;
 7. **DONE** — localisation du texte généré / des libellés prédéfinis + régression;
-8. **READY** — évaluation formelle 0.9.0 terminée : GO pour préparer le checkpoint prerelease.
+8. **DONE** — checkpoint prerelease v0.9.0;
+9. **DONE** — reserve floor / solde minimum;
+10. **DONE** — exports locaux déterministes CSV/ICS ; PDF différé;
+11. **NEXT** — revoir/approuver le threat model du coffre chiffré avant l’implémentation cryptographique.
 
 OVDP Hub n’exécute aucune transaction et ne confirme pas la disponibilité d’un instrument chez un vendeur.
 

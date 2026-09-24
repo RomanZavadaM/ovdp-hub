@@ -12,7 +12,7 @@
 
 **OVDP Hub** ist eine installierbare Flutter/Dart-Anwendung zur Analyse ukrainischer Staatsanleihen (OVDP), ihrer Marktquellen und eigener Anlageszenarien. Zielplattformen: **Windows, macOS, Android und iOS**. Web/PWA gehört nicht zum aktiven Produkt.
 
-Aktiver Code: `apps/native`. Der aktuell veröffentlichte Checkpoint ist **0.9.0 „Markt“**. Als Nächstes kommt das optionale Design **„Helles Dashboard“**; Classic und „Studio“ bleiben erhalten.
+Aktiver Code: `apps/native`. Der aktuell veröffentlichte Checkpoint ist **0.9.0 „Markt“**. Danach wurden „Helles Dashboard“, Planner-Mindestbestand und deterministische lokale CSV/ICS-Exporte in `main` integriert. Als Nächstes: **Threat Model des verschlüsselten Vaults prüfen und freigeben, bevor Kryptografie-Code entsteht**.
 
 ### Bereits verfügbar
 
@@ -29,6 +29,7 @@ Aktiver Code: `apps/native`. Der aktuell veröffentlichte Checkpoint ist **0.9.0
 - wiederkehrender Hauptbedarf als typisierte Regel; zusätzliche Bedarfe bleiben einmalige Einträge;
 - neutraler **A/B/C**-Vergleich für 2–3 gespeicherte Szenarien mit strenger Vergleichbarkeit und ohne automatischen Gewinner;
 - typisierte Mindestbestand-/Reserve-Floor-Regel: Ab dem Wirksamkeitsdatum muss der Betrag liquide bleiben und wird nicht als Ausgabe behandelt;
+- deterministische lokale Planner-CSV/ICS-Exporte für Szenario/Bedarfe/Deckung/Cashflow in den `exports`-Ordner des aktiven Arbeitsbereichs; PDF bleibt bis zur Stabilisierung der Berichtsstruktur zurückgestellt;
 - generierter Planner-Text / Preset-Labels werden als stabile IDs gespeichert und erst bei der Anzeige lokalisiert; benutzerdefinierte Namen bleiben unverändert;
 - portable JSON-Workspaces für gespeicherte Szenarien;
 - aktive UI und wichtigste benutzerseitige Fehler in **UK / EN / FR / DE / ES / KO / JA** lokalisiert.
@@ -50,7 +51,8 @@ Entwicklung nach dem veröffentlichten 0.9.0-Checkpoint:
 7. **DONE** — Lokalisierung von generated Planner copy / Preset-Labels + Regression;
 8. **DONE** — v0.9.0-Prerelease-Checkpoint;
 9. **DONE** — Reserve Floor / Mindestbestand;
-10. **NEXT** — lokale CSV/ICS-Exporte; PDF nach Stabilisierung der Berichtsstruktur.
+10. **DONE** — deterministische lokale CSV/ICS-Exporte; PDF zurückgestellt;
+11. **NEXT** — Threat Model des verschlüsselten Vaults vor Kryptografie-Implementierung prüfen/freigeben.
 
 OVDP Hub führt keine Käufe oder Verkäufe aus und bestätigt keine Verfügbarkeit bei Verkäufern.
 

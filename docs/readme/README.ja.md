@@ -12,7 +12,7 @@
 
 **OVDP Hub** は、ウクライナ国債（OVDP）、市場データの情報源、個人向け投資シナリオを確認するためのインストール型 Flutter/Dart アプリです。対象プラットフォームは **Windows、macOS、Android、iOS** です。Web/PWA は現在の製品範囲には含まれません。
 
-アクティブなコードは `apps/native` です。現在公開済みのチェックポイントは **0.9.0「市場」** です。次の slice では Classic と「Studio」を残したまま、任意選択の **「ライトダッシュボード」** デザインを追加します。
+アクティブなコードは `apps/native` です。現在公開済みのチェックポイントは **0.9.0「市場」** です。その後 `main` に「ライトダッシュボード」、Planner の最低残高、決定的なローカル CSV/ICS エクスポートを統合しました。次は **暗号化コードの実装前に encrypted vault の threat model をレビュー・承認**します。
 
 ### 現在利用できる機能
 
@@ -29,6 +29,7 @@
 - typed ルールとして保存される定期的な主な必要額と、個別の一回限り追加必要額;
 - 厳密な比較条件と自動的な勝者判定なしで、保存済みシナリオ 2～3 件を中立的に比較する **A/B/C** 機能;
 - typed reserve floor / 最低残高ルール。適用日以降はその金額を流動資金として残し、支出として扱わない;
+- 現在のワークスペースの `exports` フォルダーへ scenario/needs/coverage/cashflow を保存する決定的なローカル Planner CSV/ICS エクスポート。PDF はレポート構造安定後まで延期;
 - Planner の生成文言 / preset label は安定した ID として保存し表示時にローカライズし、ユーザー入力の名称はそのまま保持;
 - ポータブルな JSON ワークスペースへのシナリオ保存;
 - アクティブ UI と主要なユーザー向けエラーを **UK / EN / FR / DE / ES / KO / JA** にローカライズ.
@@ -50,7 +51,8 @@
 7. **DONE** — Planner 生成文言 / preset label のローカライズ + 回帰テスト;
 8. **DONE** — v0.9.0 prerelease checkpoint;
 9. **DONE** — reserve floor / 最低残高;
-10. **NEXT** — ローカル CSV/ICS エクスポート; PDF はレポート構造安定後.
+10. **DONE** — 決定的なローカル CSV/ICS エクスポート。PDF は延期;
+11. **NEXT** — 暗号化実装前に encrypted-vault threat model をレビュー・承認.
 
 OVDP Hub は実際の売買を実行せず、販売者の在庫を確認しません。
 

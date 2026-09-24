@@ -12,7 +12,7 @@
 - Export доступний для поточного generated/reopened Planner scenario; PDF відкладено до стабілізації структури звіту.
 - UI/errors локалізовано UK/EN/FR/DE/ES/KO/JA.
 - Regression coverage: deterministic bytes, CSV/ICS escaping, settlement dates, reserve-floor, workspace containment/overwrite та Cubit actions.
-- Draft PR #73; code head `55a0b0c043ea656fcd5612be2d8906c4f6209b41`; Flutter checks and START run #229 — success (117/117 tests).
+- PR #73: code head `55a0b0c043ea656fcd5612be2d8906c4f6209b41` passed run #229 (117/117 tests); exact latest-head `81bfc0473b71bdc7ff0b74dfc0a831bf4ea5c9db` passed run #231; squash-merged як `3e8e7fbc08f3d2a305e8eb6d92bfb9428a34dedc`; post-merge main run #232 — success.
 
 
 ### Planner reserve floor

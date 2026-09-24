@@ -12,7 +12,7 @@
 
 **OVDP Hub** es una aplicación instalable en Flutter/Dart para consultar bonos soberanos ucranianos (OVDP), fuentes de mercado y escenarios personales de inversión. Plataformas objetivo: **Windows, macOS, Android e iOS**. Web/PWA no forma parte del producto activo.
 
-Código activo: `apps/native`. El checkpoint publicado actual es **0.9.0 «Mercado»**. El siguiente slice añade el diseño opcional **«Panel claro»**, manteniendo Classic y «Studio».
+Código activo: `apps/native`. El checkpoint publicado actual es **0.9.0 «Mercado»**. Después se integraron en `main` «Panel claro», el saldo mínimo del Planner y exportaciones locales deterministas CSV/ICS. Siguiente paso: **revisar y aprobar el modelo de amenazas del vault cifrado antes de implementar criptografía**.
 
 ### Funciones disponibles
 
@@ -29,6 +29,7 @@ Código activo: `apps/native`. El checkpoint publicado actual es **0.9.0 «Merca
 - necesidad futura principal recurrente guardada como regla tipada; las necesidades adicionales siguen siendo elementos únicos;
 - comparación neutral **A/B/C** de 2–3 escenarios guardados con comparabilidad estricta y sin ganador automático;
 - regla tipada de reserve floor / saldo mínimo: desde su fecha efectiva el importe debe permanecer líquido y no se trata como un gasto;
+- exportaciones locales deterministas CSV/ICS del Planner para escenario/necesidades/cobertura/flujo de caja en la carpeta `exports` del espacio de trabajo activo; PDF queda aplazado hasta estabilizar el informe;
 - el texto generado del planificador / etiquetas predefinidas se guarda como IDs estables y se localiza al mostrarlo; los nombres del usuario permanecen literales;
 - persistencia portable de escenarios en JSON;
 - interfaz activa y principales errores para el usuario localizados en **UK / EN / FR / DE / ES / KO / JA**.
@@ -50,7 +51,8 @@ Desarrollo después del checkpoint 0.9.0 publicado:
 7. **DONE** — localización del texto generado / etiquetas predefinidas + regresión;
 8. **DONE** — checkpoint prerelease v0.9.0;
 9. **DONE** — reserve floor / saldo mínimo;
-10. **NEXT** — exportaciones locales CSV/ICS; PDF cuando se estabilice la estructura del informe.
+10. **DONE** — exportaciones locales deterministas CSV/ICS; PDF aplazado;
+11. **NEXT** — revisar/aprobar el modelo de amenazas del vault cifrado antes de implementar criptografía.
 
 OVDP Hub no ejecuta operaciones ni confirma disponibilidad con un vendedor.
 
