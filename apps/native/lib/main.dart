@@ -34,6 +34,17 @@ import 'ui/dashboard_design.dart';
 import 'ui/studio_design.dart';
 
 void main(List<String> args) {
+  final contractFileFromEnvironment =
+      Platform.environment['OVDP_RELEASE_CONTRACT_FILE'];
+  if (contractFileFromEnvironment != null &&
+      contractFileFromEnvironment.isNotEmpty) {
+    File(contractFileFromEnvironment).writeAsStringSync(
+      releaseContractJson(),
+      flush: true,
+    );
+    return;
+  }
+
   const contractFilePrefix = '--release-contract-file=';
   final contractFileArg = args.where(
     (arg) => arg.startsWith(contractFilePrefix),
