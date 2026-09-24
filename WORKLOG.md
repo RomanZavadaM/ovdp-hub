@@ -25,32 +25,40 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **formal 0.9.0 prerelease readiness assessment**.
+Мета: **full prerelease checkpoint v0.9.0 / 0.9.0+17 — release preparation only**.
 
-- base `main`: `1ae98503c48776ebfd790b837e9a30d889eeb54e`;
-- branch: **`docs/0.9.0-prerelease-readiness`**;
-- PR: **#63** `Docs: complete formal 0.9.0 prerelease readiness assessment` — squash-merged;
-- merge `main`: `f80c7d8e87b4fb494cf37712627bc12277a2fa73`;
-- final verify: **Flutter checks and START run #193 — success**;
-- published checkpoint remains immutable: **v0.8.8 / 0.8.8+16**;
-- this slice is an audit/documentation decision gate; it does **not** publish 0.9.0 by itself.
+- readiness gate: PR **#63**, merge `f80c7d8e87b4fb494cf37712627bc12277a2fa73`, run #193 — GO;
+- canonical readiness sync: PR **#64**, merge `aaeb08cb24145cdea38739f22b660ac28fca15b5`, run #194;
+- release branch: **`release/v0.9.0`**;
+- base `main`: `aaeb08cb24145cdea38739f22b660ac28fca15b5`;
+- target version/build: **0.9.0+17**;
+- target tag after an explicit checkpoint merge: **v0.9.0**;
+- current published checkpoint remains **v0.8.8 / 0.8.8+16** until the full release workflow succeeds;
+- this branch may prepare links/metadata for v0.9.0, but **must not be described as published before the release pipeline finishes**.
 
-### Readiness checklist
+### Included since v0.8.8
 
-1. compare implemented 0.9 scope against roadmap and unresolved intentional deferrals;
-2. verify scenario schema/backward compatibility and migration policy;
-3. verify UK/EN/FR/DE/ES/KO/JA localization completeness for the active user path;
-4. verify legal/copyright/third-party notices and package metadata;
-5. verify release workflow can produce Windows/macOS/Android/iOS/START + checksums without changing published tags;
-6. verify tests/analyze and current cross-platform packaging assumptions;
-7. classify findings as **BLOCKER**, **DEFERRED/NON-BLOCKING**, or **READY**;
-8. record an explicit go/no-go recommendation for a formal 0.9.0 prerelease checkpoint; do not publish until this gate is complete.
+- strict neutral A/B/C comparison for 2–3 saved Planner scenarios;
+- generated Planner copy / preset-label localization with stable persisted IDs;
+- seven-language generated scenario descriptions;
+- persistence/localization regressions and current readiness documentation.
+
+### Release-prep checklist
+
+1. bump `apps/native/pubspec.yaml` to `0.9.0+17`;
+2. add immutable 7-language `docs/releases/RELEASE_NOTES_v0_9_0.md`;
+3. update changelog / PROJECT_STATE / START_HERE for release-candidate state;
+4. update release links/status in UK/EN/FR/DE/ES/KO/JA README pages;
+5. open release PR;
+6. require green PR preflight + Flutter checks on exact head;
+7. **do not merge/publish from this preparation step**;
+8. after an explicit checkpoint merge, require full release workflow success for Windows/macOS/Android/iOS/START + checksums/legal before marking v0.9.0 published.
 
 ### Поточна наступна дія
 
-**NEXT — prepare the v0.9.0 release-checkpoint PR: bump to `0.9.0+17`, add seven-language `docs/releases/RELEASE_NOTES_v0_9_0.md`, synchronize release-facing docs, run PR checks; do not treat v0.9.0 as published until the full gated release workflow succeeds after merge.**
+**DOING — prepare v0.9.0+17 release metadata, seven-language release notes and release-facing documentation; then open a verified release PR without merging it.**
 
 ## Черга робіт
 
@@ -64,7 +72,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 8. **DONE** — full test checkpoint v0.8.8 from current main.
 9. **DONE** — generated planner copy / preset labels localization + UX regression — PR #61, run #189 (110/110), final run #190, merge `1e6849f7…`.
 10. **DONE** — formal prerelease readiness assessment 0.9.0 — PR #63, run #193, merge `f80c7d8e…`; GO to release preparation.
-11. **NEXT** — prepare v0.9.0 release-checkpoint PR (`0.9.0+17` + seven-language release notes).
+11. **DOING** — prepare v0.9.0 release-checkpoint PR (`0.9.0+17` + seven-language release notes); publication not yet authorized in this slice.
 
 ## Продуктова логіка цієї черги
 
