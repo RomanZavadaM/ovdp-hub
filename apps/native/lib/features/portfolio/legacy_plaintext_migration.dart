@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:path/path.dart' as p;
 
 import '../../models.dart';
@@ -393,8 +391,8 @@ class LegacyPlaintextMigrator {
 
   String _migrationErrorCode(Object error) {
     if (error is FormatException) {
-      final message = error.message;
-      if (message is String && message.isNotEmpty) return message;
+      final message = error.message.toString();
+      if (message.isNotEmpty) return message;
       return 'migration.invalid_legacy_record';
     }
     if (error is FileSystemException) {
