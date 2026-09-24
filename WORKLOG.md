@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **encrypted vault session/locking foundation — explicit state + manual/inactivity/background lock semantics**.
 
@@ -42,11 +42,13 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - implementation contract: **`docs/security-vault-session.md`**;
 - code head **`9869cfdaec91694b5cd49ad4040cab36b6cd75c0`** passed **run #279 — success**;
 - security review then found a pending-unlock/background race not covered by the first suite; fix + regression tests added on top of that verified head;
+- replacement PR **#84** supersedes closed-without-merge PR #83 after a stuck Actions concurrency run;
+- exact hardened head **`0a69362b3fb954719c665bc73771e82569006a3d`** passed **Flutter checks and START run #285 — success**, including the new pending-unlock background/foreground regression tests;
 - no legacy migration, private portfolio schema or user-facing vault UI.
 
 ### Поточна наступна дія
 
-**DOING — verify the pending-unlock/background race fix and its new deterministic regressions on the exact latest PR head. If green, record VERIFIED and run the final latest-head gate before merge.**
+**VERIFIED — hardened session/locking head passed run #285. Run one final exact-latest-head CI after this WORKLOG-only status commit; if green, mark replacement PR #84 Ready and integrate into `main`.**
 
 ## Черга робіт
 
@@ -68,7 +70,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 16. **DONE** — Encrypted vault dependency/security review and implementation-stack decision; PR #77 → merge `3e4171e7…`; final exact-head run #239 green.
 17. **DONE** — Encrypted vault foundation; PR #79 → merge `d61a1245…`; final exact-head run #260 and post-merge run #261 green.
 18. **DONE** — Encrypted vault local store/lifecycle; PR #81 → merge `16cd6f33…`; final run #274 and post-merge run #275 green.
-19. **DOING** — Encrypted vault session/locking foundation; run #279 green before pending-unlock/background race hardening, latest fix awaiting exact-head verification.
+19. **VERIFIED** — Encrypted vault session/locking foundation; hardened exact head passed run #285, awaiting final WORKLOG-only latest-head gate.
 
 ## Продуктова логіка цієї черги
 
