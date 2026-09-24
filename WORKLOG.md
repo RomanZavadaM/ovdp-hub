@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **encrypted vault threat-model review / design approval before any crypto or secure-storage plugin implementation**.
 
@@ -33,7 +33,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - branch: **`docs/encrypted-vault-threat-model-review`**;
 - PR: **#75** `Security: approve encrypted vault threat model`;
 - design head: **`bc759e649b7b7ba846a98ae36832b40d6be89369`**;
-- PR #75 latest functional/docs head `67ac8a6eb4b20adb7dbea200160d9f2d37d6eea7` passed **Flutter checks and START run #235 — success**;
+- PR #75 head `67ac8a6eb4b20adb7dbea200160d9f2d37d6eea7` passed **run #235 — success**;
+- exact latest PR head `13b628e7dd9604f3f1924d744dd8455d0b18ff91` passed **Flutter checks and START run #236 — success**;
+- squash merge `main`: **`8403bec33ec911a0f7c6a7a766fd585828f3a207`**;
 - implementation gate: **docs/design only — no crypto or secure-storage dependency changes in this slice**;
 - review targets: private-data boundary, vault file/envelope versioning, authenticated-encryption requirements, key ownership/wrapping, recovery/backup, lock/auto-lock/deletion UX, rollback/corruption behavior, Windows/macOS/iOS/Android secure-storage matrix;
 - acceptance: `docs/security-vault.md` is explicit enough to serve as a security contract; unresolved choices are marked as dependency-review gates rather than silently assumed;
@@ -42,7 +44,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**VERIFIED — run #235 is green on the reviewed threat-model head. Run exact latest-head CI after this WORKLOG-only checkpoint; if green, mark PR #75 Ready and integrate into `main`. Next product action after merge: dependency/security review of candidate crypto + secure-storage stack; no feature implementation before that review.**
+**NEXT — encrypted vault dependency/security review: evaluate current AEAD/KDF libraries and Windows/macOS/iOS/Android secure-storage adapters against `docs/security-vault.md`, document maintenance/license/advisory/platform semantics and choose the implementation stack. No feature implementation or dependency addition before that review is merged.**
 
 ## Черга робіт
 
@@ -60,7 +62,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
 14. **DONE** — deterministic local CSV + ICS Planner exports; PR #73 → merge `3e8e7fbc…`; branch runs #229/#231 and main run #232 green.
-15. **VERIFIED** — Encrypted vault threat-model review/approval; run #235 green, awaiting exact latest-head docs-only verification.
+15. **DONE** — Encrypted vault threat-model review/approval; PR #75 → merge `8403bec3…`; final exact-head run #236 green.
+16. **NEXT** — Encrypted vault dependency/security review and implementation-stack decision.
 
 ## Продуктова логіка цієї черги
 
@@ -87,6 +90,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — encrypted vault threat-model checkpoint**: PR #75 final head `13b628e7…` passed run #236 and was squash-merged into `main` as `8403bec33ec911a0f7c6a7a766fd585828f3a207`. Private-data boundary, random DEK + authenticated envelope, device/recovery key ownership, rollback/lock/migration/export semantics and platform requirements are frozen; no crypto/plugin code was added.
 
 - **DONE — deterministic Planner CSV + ICS exports**: PR #73 squash-merged у `main` як `3e8e7fbc08f3d2a305e8eb6d92bfb9428a34dedc`; exact-head run #231 і post-merge run #232 success; CSV/ICS local-only exports integrated, PDF deferred.
 
