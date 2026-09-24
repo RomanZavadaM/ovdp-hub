@@ -23,6 +23,9 @@ class PlannerView extends StatelessWidget {
     if (stored == PlannerGeneratedCopy.primaryNeedName) {
       return strings.text('generatedPrimaryNeedName');
     }
+    if (stored == PlannerGeneratedCopy.reserveFloorName) {
+      return strings.text('generatedReserveFloorName');
+    }
     final ordinal = PlannerGeneratedCopy.expenseOrdinal(stored);
     if (ordinal != null) {
       return strings
@@ -617,6 +620,74 @@ class PlannerView extends StatelessWidget {
           icon: const Icon(Icons.add),
           label: Text(strings.text('addExpense')),
         ),
+        const SizedBox(height: 8),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(strings.text('reserveFloorTitle')),
+          subtitle: Text(strings.text('reserveFloorInfo')),
+          value: c['reserveFloorEnabled'] == 'true',
+          onChanged: disabled
+              ? null
+              : (value) =>
+                  cubit.edit('reserveFloorEnabled', value.toString()),
+        ),
+        if (c['reserveFloorEnabled'] == 'true')
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  SizedBox(
+                    width: 260,
+                    child: TextFormField(
+                      key: ValueKey(
+                        'reserveFloorName-${state.revision}-${strings.language.code}',
+                      ),
+                      initialValue: _generatedCopy(
+                        strings,
+                        c['reserveFloorName'],
+                      ),
+                      enabled: !disabled,
+                      decoration: InputDecoration(
+                        labelText: strings.text('reserveFloorName'),
+                      ),
+                      onChanged: (v) => cubit.edit('reserveFloorName', v),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 220,
+                    child: TextFormField(
+                      key: ValueKey('reserveFloorDate-${state.revision}'),
+                      initialValue: c['reserveFloorDate'],
+                      enabled: !disabled,
+                      decoration: InputDecoration(
+                        labelText: strings.text('reserveFloorDate'),
+                      ),
+                      onChanged: (v) => cubit.edit('reserveFloorDate', v),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 220,
+                    child: TextFormField(
+                      key: ValueKey('reserveFloorAmount-${state.revision}'),
+                      initialValue: c['reserveFloorAmount'],
+                      enabled: !disabled,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: InputDecoration(
+                        labelText:
+                            '${strings.text('reserveFloorAmount')}, $currency',
+                      ),
+                      onChanged: (v) => cubit.edit('reserveFloorAmount', v),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         SizedBox(
           width: 300,
           child: TextFormField(
@@ -1043,12 +1114,18 @@ class PlannerView extends StatelessWidget {
                       : Icons.check_circle_outline,
                 ),
                 title: Text(
-                  '${row.expense.date} · ${row.expense.name} · ${row.expense.amount.toStringAsFixed(2)} $currency',
+                  row.expense.type == PlannerNeedType.reserveFloor
+                      ? '${row.expense.date} · ${_generatedCopy(strings, row.expense.name)}'
+                      : '${row.expense.date} · ${_generatedCopy(strings, row.expense.name)} · ${row.expense.amount.toStringAsFixed(2)} $currency',
                 ),
                 subtitle: Text(
-                  '${strings.text('beforeExpense')}: ${row.available.toStringAsFixed(2)} · '
-                  '${strings.text('afterExpense')}: ${row.remaining.toStringAsFixed(2)} · '
-                  '${strings.text('shortfall')}: ${row.shortfall.toStringAsFixed(2)} $currency',
+                  row.expense.type == PlannerNeedType.reserveFloor
+                      ? '${strings.text('beforeExpense')}: ${row.available.toStringAsFixed(2)} · '
+                          '${strings.text('reserveFloorRequired')}: ${row.expense.amount.toStringAsFixed(2)} · '
+                          '${strings.text('shortfall')}: ${row.shortfall.toStringAsFixed(2)} $currency'
+                      : '${strings.text('beforeExpense')}: ${row.available.toStringAsFixed(2)} · '
+                          '${strings.text('afterExpense')}: ${row.remaining.toStringAsFixed(2)} · '
+                          '${strings.text('shortfall')}: ${row.shortfall.toStringAsFixed(2)} $currency',
                 ),
               ),
             ),
