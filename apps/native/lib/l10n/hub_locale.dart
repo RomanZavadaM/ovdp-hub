@@ -503,6 +503,8 @@ class HubStrings {
       'expenseCalendarInfo':'Календар витрат ураховує попередні витрати й задану затримку зарахування. Графік нижче показує дати виплат емітента без цієї затримки.',
       'containsEstimates':'У складі є ціни за номіналом: бюджет і залишок попередні.','conditionalPayments':'Умовні дострокові погашення не включено в календар, щоб не подвоювати повернення номіналу.',
       'monthlyReceipts':'Помесячні надходження','monthlyIntro':'Купони — дохід за графіком. Погашення — повернення вкладеного номіналу. Місяці без виплат теж показано.','coupons':'купони','principal':'погашення',
+      'generatedPlanName':'Мій план','generatedPrimaryNeedName':'Основна потреба','generatedExpenseName':'Витрата {n}',
+      'generatedScenarioDescription':'Сценарій у {currency}. {fee}; {tax}; {fx}; {exit}.','generatedScenarioFeesUnknown':'комісії невідомі','generatedScenarioFeesKnown':'комісії задані явно','generatedScenarioTaxesUnknown':'податки невідомі','generatedScenarioTaxesKnown':'податкові правила перевірені','generatedScenarioFxNone':'FX-порівняння не задане','generatedScenarioFxKnown':'FX-порівняння задане явно','generatedScenarioExitHold':'утримання до погашення','generatedScenarioExitEarly':'достроковий продаж задано ({count})',
       'scenarioName':'Назва сценарію','saveNewVariant':'Зберегти новий варіант','saveScenario':'Зберегти сценарій із кількістю та цінами',
     },
     'en': {
@@ -522,6 +524,8 @@ class HubStrings {
       'expenseCalendarInfo':'The expense calendar includes earlier expenses and the selected settlement delay. The chart below shows issuer payment dates without that delay.',
       'containsEstimates':'Some positions use nominal-value estimates; budget and free balance are preliminary.','conditionalPayments':'Conditional early redemptions are excluded from the calendar to avoid double-counting principal return.',
       'monthlyReceipts':'Monthly receipts','monthlyIntro':'Coupons are scheduled income. Redemption is return of invested principal. Months without payments are shown too.','coupons':'coupons','principal':'principal',
+      'generatedPlanName':'My plan','generatedPrimaryNeedName':'Primary need','generatedExpenseName':'Expense {n}',
+      'generatedScenarioDescription':'Scenario in {currency}. {fee}; {tax}; {fx}; {exit}.','generatedScenarioFeesUnknown':'fees unknown','generatedScenarioFeesKnown':'fees specified explicitly','generatedScenarioTaxesUnknown':'taxes unknown','generatedScenarioTaxesKnown':'tax rules verified','generatedScenarioFxNone':'FX comparison not set','generatedScenarioFxKnown':'FX comparison set explicitly','generatedScenarioExitHold':'hold to maturity','generatedScenarioExitEarly':'early sale set ({count})',
       'scenarioName':'Scenario name','saveNewVariant':'Save new variant','saveScenario':'Save scenario with quantities and prices',
     },
     'fr': {
@@ -541,6 +545,8 @@ class HubStrings {
       'expenseCalendarInfo':'Le calendrier des dépenses tient compte des dépenses antérieures et du délai de règlement choisi. Le graphique ci-dessous montre les dates de paiement de l’émetteur sans ce délai.',
       'containsEstimates':'Certaines positions utilisent le nominal; le budget et le solde disponible sont provisoires.','conditionalPayments':'Les remboursements anticipés conditionnels sont exclus pour éviter de compter deux fois le principal.',
       'monthlyReceipts':'Encaissements mensuels','monthlyIntro':'Les coupons sont les revenus prévus. Le remboursement restitue le principal investi. Les mois sans paiement sont également affichés.','coupons':'coupons','principal':'principal',
+      'generatedPlanName':'Mon plan','generatedPrimaryNeedName':'Besoin principal','generatedExpenseName':'Dépense {n}',
+      'generatedScenarioDescription':'Scénario en {currency}. {fee}; {tax}; {fx}; {exit}.','generatedScenarioFeesUnknown':'frais inconnus','generatedScenarioFeesKnown':'frais définis explicitement','generatedScenarioTaxesUnknown':'impôts inconnus','generatedScenarioTaxesKnown':'règles fiscales vérifiées','generatedScenarioFxNone':'comparaison FX non définie','generatedScenarioFxKnown':'comparaison FX définie explicitement','generatedScenarioExitHold':'conservation jusqu’à l’échéance','generatedScenarioExitEarly':'vente anticipée définie ({count})',
       'scenarioName':'Nom du scénario','saveNewVariant':'Enregistrer une nouvelle variante','saveScenario':'Enregistrer le scénario avec quantités et prix',
     },
     'de': {
@@ -560,6 +566,8 @@ class HubStrings {
       'expenseCalendarInfo':'Der Ausgabenkalender berücksichtigt frühere Ausgaben und die gewählte Abrechnungsverzögerung. Die Grafik zeigt Emittentenzahlungen ohne diese Verzögerung.',
       'containsEstimates':'Einige Positionen nutzen Nominalwert-Schätzungen; Budget und freier Saldo sind vorläufig.','conditionalPayments':'Bedingte vorzeitige Rückzahlungen sind ausgeschlossen, um den Nominalbetrag nicht doppelt zu zählen.',
       'monthlyReceipts':'Monatliche Einnahmen','monthlyIntro':'Kupons sind planmäßige Erträge. Rückzahlung ist die Rückgabe des investierten Nominalbetrags. Monate ohne Zahlungen werden ebenfalls angezeigt.','coupons':'Kupons','principal':'Rückzahlung',
+      'generatedPlanName':'Mein Plan','generatedPrimaryNeedName':'Hauptbedarf','generatedExpenseName':'Ausgabe {n}',
+      'generatedScenarioDescription':'Szenario in {currency}. {fee}; {tax}; {fx}; {exit}.','generatedScenarioFeesUnknown':'Gebühren unbekannt','generatedScenarioFeesKnown':'Gebühren ausdrücklich angegeben','generatedScenarioTaxesUnknown':'Steuern unbekannt','generatedScenarioTaxesKnown':'Steuerregeln geprüft','generatedScenarioFxNone':'FX-Vergleich nicht festgelegt','generatedScenarioFxKnown':'FX-Vergleich ausdrücklich festgelegt','generatedScenarioExitHold':'bis zur Fälligkeit halten','generatedScenarioExitEarly':'vorzeitiger Verkauf gesetzt ({count})',
       'scenarioName':'Szenarioname','saveNewVariant':'Neue Variante speichern','saveScenario':'Szenario mit Mengen und Preisen speichern',
     },
     'es': {
@@ -579,6 +587,8 @@ class HubStrings {
       'expenseCalendarInfo':'El calendario de gastos incluye gastos anteriores y el retraso de liquidación elegido. El gráfico muestra fechas de pago del emisor sin ese retraso.',
       'containsEstimates':'Algunas posiciones usan estimaciones por nominal; presupuesto y saldo libre son provisionales.','conditionalPayments':'Las amortizaciones anticipadas condicionales se excluyen para evitar contar dos veces el principal.',
       'monthlyReceipts':'Ingresos mensuales','monthlyIntro':'Los cupones son ingresos programados. La amortización devuelve el principal invertido. También se muestran meses sin pagos.','coupons':'cupones','principal':'principal',
+      'generatedPlanName':'Mi plan','generatedPrimaryNeedName':'Necesidad principal','generatedExpenseName':'Gasto {n}',
+      'generatedScenarioDescription':'Escenario en {currency}. {fee}; {tax}; {fx}; {exit}.','generatedScenarioFeesUnknown':'comisiones desconocidas','generatedScenarioFeesKnown':'comisiones definidas explícitamente','generatedScenarioTaxesUnknown':'impuestos desconocidos','generatedScenarioTaxesKnown':'reglas fiscales verificadas','generatedScenarioFxNone':'comparación FX no configurada','generatedScenarioFxKnown':'comparación FX configurada explícitamente','generatedScenarioExitHold':'mantener hasta vencimiento','generatedScenarioExitEarly':'venta anticipada configurada ({count})',
       'scenarioName':'Nombre del escenario','saveNewVariant':'Guardar nueva variante','saveScenario':'Guardar escenario con cantidades y precios',
     },
     'ko': {
@@ -598,6 +608,8 @@ class HubStrings {
       'expenseCalendarInfo':'지출 달력은 이전 지출과 선택한 정산 지연을 반영합니다. 아래 그래프는 그 지연 없이 발행자의 지급일을 보여줍니다.',
       'containsEstimates':'일부 포지션은 액면가 추정을 사용하므로 예산과 여유 잔액은 잠정치입니다.','conditionalPayments':'조건부 조기상환은 원금 반환의 이중 계산을 막기 위해 달력에서 제외됩니다.',
       'monthlyReceipts':'월별 수입','monthlyIntro':'쿠폰은 예정 수익이고 상환은 투자 원금 반환입니다. 지급이 없는 달도 표시됩니다.','coupons':'쿠폰','principal':'상환',
+      'generatedPlanName':'나의 계획','generatedPrimaryNeedName':'주요 필요','generatedExpenseName':'지출 {n}',
+      'generatedScenarioDescription':'{currency} 시나리오. {fee}; {tax}; {fx}; {exit}.','generatedScenarioFeesUnknown':'수수료 미확인','generatedScenarioFeesKnown':'수수료 명시 설정','generatedScenarioTaxesUnknown':'세금 미확인','generatedScenarioTaxesKnown':'세금 규칙 확인됨','generatedScenarioFxNone':'FX 비교 미설정','generatedScenarioFxKnown':'FX 비교 명시 설정','generatedScenarioExitHold':'만기 보유','generatedScenarioExitEarly':'조기 매도 설정 ({count})',
       'scenarioName':'시나리오 이름','saveNewVariant':'새 변형 저장','saveScenario':'수량과 가격이 포함된 시나리오 저장',
     },
     'ja': {
@@ -617,6 +629,8 @@ class HubStrings {
       'expenseCalendarInfo':'支出カレンダーは以前の支出と選択した入金遅延を反映します。下のグラフはその遅延を除いた発行体の支払日です。',
       'containsEstimates':'一部ポジションは額面推定を使用しているため、予算と余裕資金は暫定値です。','conditionalPayments':'条件付き早期償還は元本返還の二重計上を避けるためカレンダーから除外されます。',
       'monthlyReceipts':'月別受取額','monthlyIntro':'クーポンは予定収益、償還は投資元本の返還です。支払いのない月も表示します。','coupons':'クーポン','principal':'償還',
+      'generatedPlanName':'私のプラン','generatedPrimaryNeedName':'主な必要額','generatedExpenseName':'支出 {n}',
+      'generatedScenarioDescription':'{currency} のシナリオ。{fee}; {tax}; {fx}; {exit}。','generatedScenarioFeesUnknown':'手数料不明','generatedScenarioFeesKnown':'手数料を明示設定','generatedScenarioTaxesUnknown':'税金不明','generatedScenarioTaxesKnown':'税務ルール確認済み','generatedScenarioFxNone':'FX比較未設定','generatedScenarioFxKnown':'FX比較を明示設定','generatedScenarioExitHold':'満期まで保有','generatedScenarioExitEarly':'満期前売却を設定 ({count})',
       'scenarioName':'シナリオ名','saveNewVariant':'新しい案を保存','saveScenario':'数量と価格を含めてシナリオを保存',
     },
   };
