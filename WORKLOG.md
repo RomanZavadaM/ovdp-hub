@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **formal 0.9.0 prerelease readiness assessment**.
 
@@ -47,7 +47,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — audit current `main` against the checklist and record evidence-backed blockers/non-blockers.**
+**VERIFIED — assessment result: GO to prepare a formal v0.9.0 prerelease checkpoint. No product blocker found. Next after merge: release-prep PR with `0.9.0+17` + seven-language `RELEASE_NOTES_v0_9_0.md`; publication only through the full gated release workflow.**
 
 ## Черга робіт
 
@@ -60,7 +60,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 7. **DONE** — Planner needs/future-expenses block requested by owner.
 8. **DONE** — full test checkpoint v0.8.8 from current main.
 9. **DONE** — generated planner copy / preset labels localization + UX regression — PR #61, run #189 (110/110), final run #190, merge `1e6849f7…`.
-10. **NEXT** — formal prerelease readiness assessment 0.9.0.
+10. **VERIFIED** — formal prerelease readiness assessment 0.9.0: GO to release preparation; evidence in `docs/READINESS_0_9_0.md`.
 
 ## Продуктова логіка цієї черги
 
