@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **encrypted vault local store/lifecycle — recovery slot + atomic encrypted file + rollback/backup primitives**.
 
@@ -41,13 +41,16 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - tests: wrong recovery secret, corrupt slot/file, interrupted/failed replace preserves prior vault, lower revision fails closed, backup restore validates before replace;
 - functional/security head **`b5c90e0a82e6571ce224d833f631aebb911d3521`** passed **Flutter checks and START run #271 — success**;
 - exact latest functional/docs head **`cd2651c2d31221c3a9f64bbe9d5045b9a384cc7c`** passed **Flutter checks and START run #273 — success**;
+- final latest PR head **`d6abeb86214171237220ee2f3081b7f724e79042`** passed **Flutter checks and START run #274 — success**;
+- squash merge `main`: **`16cd6f33496104d630a8bf05582dcf8514c4f1b1`**;
+- post-merge `main` **run #275 — success**;
 - lifecycle contract: **`docs/security-vault-local-store.md`**;
 - recovery-slot presence/content is bound into payload AEAD AAD, so strip/replace attempts fail closed;
 - no legacy `sets/*.json` migration/deletion, portfolio/private-data model or user-facing vault UI.
 
 ### Поточна наступна дія
 
-**VERIFIED — run #273 is green on the exact reviewed local-store head. Run one exact latest-head CI after this WORKLOG-only status commit; if green, mark PR #81 Ready and integrate into `main`. No legacy migration or private-data UI in this slice.**
+**NEXT — encrypted vault session/locking foundation: locked/unlocking/unlocked/locking/error state, manual lock, injected inactivity/background auto-lock policy and decrypted-state disposal. No legacy migration/private portfolio UI in this slice.**
 
 ## Черга робіт
 
@@ -68,7 +71,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 15. **DONE** — Encrypted vault threat-model review/approval; PR #75 → merge `8403bec3…`; final exact-head run #236 green.
 16. **DONE** — Encrypted vault dependency/security review and implementation-stack decision; PR #77 → merge `3e4171e7…`; final exact-head run #239 green.
 17. **DONE** — Encrypted vault foundation; PR #79 → merge `d61a1245…`; final exact-head run #260 and post-merge run #261 green.
-18. **VERIFIED** — Encrypted vault local store/lifecycle; run #273 green, awaiting exact latest-head WORKLOG verification.
+18. **DONE** — Encrypted vault local store/lifecycle; PR #81 → merge `16cd6f33…`; final run #274 and post-merge run #275 green.
+19. **NEXT** — Encrypted vault session/locking foundation.
 
 ## Продуктова логіка цієї черги
 
@@ -95,6 +99,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — encrypted vault local store/lifecycle**: PR #81 final head `d6abeb86…` passed run #274 and was squash-merged into `main` as `16cd6f33496104d630a8bf05582dcf8514c4f1b1`; post-merge run #275 green. Recovery slot binding, encrypted local file, atomic known-good recovery, rollback detection and portable encrypted backup/restore are integrated; no legacy migration/private UI.
 
 - **DONE — encrypted vault foundation**: PR #79 exact latest head `684c374a…` passed run #260 and was squash-merged into `main` as `d61a1245d0cded27187d06186fcba0df0921dd05`; post-merge run #261 green. Added Dart >=3.13, pinned sodium/flutter_secure_storage/win32/ffi, XChaCha20-Poly1305 + Argon2id primitives, hardened Android/Apple key storage, non-destructive Windows DPAPI, four-platform compile gate and Windows DPAPI smoke. No legacy migration/private-data UI.
 

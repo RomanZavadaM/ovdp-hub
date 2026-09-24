@@ -125,5 +125,6 @@ Slice не є `DONE`, доки:
 - Інтегровано після v0.9.0 також: **approved encrypted-vault threat model** — private-data boundary, key/recovery/rollback/lock/platform contract
 - Інтегровано після v0.9.0 також: **approved vault dependency/security stack** — `sodium 4.1.0+1` / libsodium 1.0.22, `flutter_secure_storage 11.2.0` для Android/Apple, app-owned Windows DPAPI через `win32 6.4.0`
 - Інтегровано після v0.9.0 також: **encrypted vault foundation** — Dart >=3.13, exact security dependencies/lockfile, XChaCha20-Poly1305 envelope primitives, Argon2id recovery derivation, hardened device-key adapters, four-platform compile gate + Windows DPAPI smoke
-- Наступний активний slice: **Encrypted vault local store/lifecycle — app-managed encrypted vault file, wrapped recovery slot, atomic known-good writes/restore and rollback detection; без legacy migration/private-data UI**
+- Інтегровано після v0.9.0 також: **encrypted vault local store/lifecycle** — recovery-wrapped DEK slot, authenticated slot binding, app-managed encrypted file, known-good atomic replace/restart recovery, rollback detection, portable encrypted backup/restore
+- Наступний активний slice: **Encrypted vault session/locking foundation — locked/unlocking/unlocked/locking/error state, manual lock, inactivity/background auto-lock policy and decrypted-state disposal; без legacy migration/private portfolio UI**
 - Live ledger: GitHub Issue **#18**
