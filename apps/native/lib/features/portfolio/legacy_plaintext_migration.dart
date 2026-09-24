@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -106,7 +107,9 @@ class LegacyPlaintextMigrator {
     for (final file in files) {
       final sourceId = p.basenameWithoutExtension(file.path);
       try {
-        final savedSet = SavedSet.parse(await Workspace.readLimited(file));
+        final content = await Workspace.readLimited(file);
+        _validateLegacyEnvelope(content);
+        final savedSet = SavedSet.parse(content);
         final record = _mapLegacySet(sourceId, savedSet);
         publicSnapshotsOmitted += savedSet.bonds.length;
         final existing = existingBySourceId[sourceId];
@@ -261,6 +264,33 @@ class LegacyPlaintextMigrator {
       encryptedCopyVerified: encryptedCopyVerified,
       items: preliminary,
     );
+  }
+
+  void _validateLegacyEnvelope(String content) {
+    final decoded = jsonDecode(content);
+    if (decoded is! Map) {
+      throw const FormatException('migration.invalid_legacy_record');
+    }
+    final json = Map<String, dynamic>.from(decoded);
+    final version = json['schemaVersion'];
+    final allowed = switch (version) {
+      1 => const {'schemaVersion', 'name', 'note', 'savedAt', 'assets'},
+      2 => const {
+          'schemaVersion',
+          'name',
+          'note',
+          'savedAt',
+          'assets',
+          'scenario',
+        },
+      _ => throw const FormatException('collection.invalid'),
+    };
+    if (json.keys.any((key) => !allowed.contains(key))) {
+      throw const FormatException('migration.unsupported_legacy_fields');
+    }
+    if (version == 1 && json.containsKey('scenario')) {
+      throw const FormatException('migration.unsupported_legacy_fields');
+    }
   }
 
   PrivateLegacyCollectionRecord _mapLegacySet(
