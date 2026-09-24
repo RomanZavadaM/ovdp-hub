@@ -1,6 +1,6 @@
 # Roadmap OVDP Hub
 
-Оновлено: 23.09.2026. Цей roadmap стосується лише активного Flutter-продукту.
+Оновлено: 24.09.2026. Цей roadmap стосується лише активного Flutter-продукту.
 
 ## Продуктовий напрямок до 0.9.0
 
@@ -13,13 +13,13 @@
 3. **Явний вибір ринкової ціни — DONE**: кілька `PriceObservation`, explicit user priority, add/select/reorder controls і nominal fallback інтегровані без прихованої підміни yield/nominal ціною.
 4. **Повна економіка сценарію — DONE**: purchase-fee, verified-tax, explicit-FX та per-position exit vertical інтегровані. Невідомі значення не вважати нулем.
 5. **Порівняння рішень — DONE**: neutral A/B/C comparison для 2–3 saved scenarios із strict baseline comparability, recurring-needs support, explanatory metrics і no-winner semantics — PR #58, final run #183.
-6. **Готовність 0.9.0** — UX-polish, generated-copy localization, regression review, cross-platform prerelease.
+6. **Готовність 0.9.0 — NEXT**: generated-copy localization і regression review завершені; провести formal prerelease readiness assessment, потім вирішити щодо cross-platform prerelease.
 
 Принцип пріоритезації: спочатку завершувати вертикальний користувацький шлях, а не додавати нові ізольовані джерела чи екрани.
 
 ## Опублікований checkpoint v0.8.8
 
-**v0.8.8 / 0.8.8+16** опубліковано 23.09.2026 з verified-tax, explicit-FX, per-position exit та typed recurring-needs verticals. Повний release pipeline run #40 успішний для Windows/macOS/Android/iOS/START. A/B/C comparison інтегровано після v0.8.8 через PR #58; наступний продуктовий крок — generated Planner copy / preset labels localization + UX regression.
+**v0.8.8 / 0.8.8+16** опубліковано 23.09.2026 з verified-tax, explicit-FX, per-position exit та typed recurring-needs verticals. Повний release pipeline run #40 успішний для Windows/macOS/Android/iOS/START. Після v0.8.8 у `main` інтегровано A/B/C comparison через PR #58 і generated Planner copy / preset-label localization через PR #61. Наступний продуктовий крок — formal 0.9.0 prerelease readiness assessment.
 
 ## Ритм інтеграції та тестових checkpoint
 
@@ -104,4 +104,4 @@
 - [x] Добірки + редактор — UK/EN/FR/DE/ES/KO/JA.
 - [x] Планувальник — статичний UI UK/EN/FR/DE/ES/KO/JA.
 - [x] Domain/error повідомлення з Cubit/Repository/parser/domain validation переведені на typed коди й локалізоване відображення UK/EN/FR/DE/ES/KO/JA.
-- [ ] Generated planner copy / preset labels локалізувати під час підключення typed fee/tax/FX/exit UI.
+- [x] Generated planner copy / preset labels: stable persisted generated-copy IDs + display-time `HubStrings` для UK/EN/FR/DE/ES/KO/JA; user-authored text literal — PR #61, run #189 (110/110), final run #190.

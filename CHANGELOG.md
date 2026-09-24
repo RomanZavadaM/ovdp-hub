@@ -13,9 +13,18 @@
 - UI/errors локалізовано UK/EN/FR/DE/ES/KO/JA.
 - PR #58; final latest-head run #183; 108/108 tests.
 
+### Generated Planner copy / preset labels localization
+- Generated default plan, primary-need та additional-expense names зберігаються як stable identifiers, а не як рядки конкретної UI-мови.
+- Generated scenario note зберігається language-neutral marker і формується локалізовано під час відображення.
+- Aggregate purchase-fee і tax preset labels відокремлено від persisted UI copy.
+- User-authored plan/need/expense names зберігаються literal і не перекладаються автоматично.
+- Planner та Collections generated copy локалізовано UK/EN/FR/DE/ES/KO/JA.
+- Existing Planner save/reopen, needs, A/B/C, phone/desktop regressions лишаються green.
+- PR #61; code run #189 — 110/110 tests; final latest-head run #190; merge `1e6849f78134d9654b0bf08b54ceebda4100ba4d`.
+
 ### Next
-- generated Planner copy / preset labels localization + UX/regression review.
-- після цього — оцінка готовності formal prerelease 0.9.0.
+- formal 0.9.0 prerelease readiness assessment: roadmap/scope, schema/backward compatibility, localization, legal/package metadata, cross-platform release workflow and concrete blockers.
+- після assessment — або підготувати 0.9.0 prerelease checkpoint, або закрити знайдені blockers окремими slice.
 - reserve-floor/minimum-balance needs лишаються окремим незавершеним типом потреби і не підміняються автоматично.
 
 ## [0.8.8] — 2026-09-23
