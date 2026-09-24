@@ -110,34 +110,16 @@ class Workspace {
 
   Future<String> writeTextExport(String fileName, String content) async {
     await checkAvailable();
-    final validName = RegExp(r'^[A-Za-z0-9._-]{1,160}\.(csv|ics)
-  Future<Workspace> copyTo(Directory destination) async {
-    final sourcePath = p.normalize(p.absolute(directory.path));
-    final targetPath = p.normalize(p.absolute(destination.path));
-    if (p.equals(sourcePath, targetPath) ||
-        p.isWithin(sourcePath, targetPath)) {
-      throw const FileSystemException('workspace.destination_outside');
-    }
-    if (await destination.exists() && !await destination.list().isEmpty) {
-      throw const FileSystemException('workspace.destination_empty');
-    }
-    final catalogs = <Catalog>[];
-    for (final file in await records('catalogs')) {
-      catalogs.add(Catalog.parse(await readLimited(file)));
-    }
-    final savedSets = await sets();
-    final target = await Workspace.open(destination, create: true);
-    for (final catalog in catalogs.reversed) {
-      await target.saveCatalog(catalog);
-    }
-    for (final set in savedSets.reversed) {
-      await target.saveSet(set);
-    }
-    return target;
-  }
-}
-);
-    if (!validName.hasMatch(fileName) || fileName.contains('..')) {
+    final safeCharacters = RegExp(r'^[A-Za-z0-9._-]+');
+    final lower = fileName.toLowerCase();
+    final supportedExtension =
+        lower.endsWith('.csv') || lower.endsWith('.ics');
+    if (fileName.isEmpty ||
+        fileName.length > 160 ||
+        !safeCharacters.hasMatch(fileName) ||
+        safeCharacters.firstMatch(fileName)!.group(0) != fileName ||
+        !supportedExtension ||
+        fileName.contains('..')) {
       throw const FormatException('workspace.invalid_export_name');
     }
     final folder = Directory(p.join(directory.path, 'exports'));
