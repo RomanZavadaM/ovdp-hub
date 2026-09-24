@@ -28,6 +28,7 @@ Código activo: `apps/native`. El checkpoint publicado actual es **0.9.0 «Merca
 - venta anticipada por posición con fecha y precio de salida BID/manual propios;
 - necesidad futura principal recurrente guardada como regla tipada; las necesidades adicionales siguen siendo elementos únicos;
 - comparación neutral **A/B/C** de 2–3 escenarios guardados con comparabilidad estricta y sin ganador automático;
+- regla tipada de reserve floor / saldo mínimo: desde su fecha efectiva el importe debe permanecer líquido y no se trata como un gasto;
 - el texto generado del planificador / etiquetas predefinidas se guarda como IDs estables y se localiza al mostrarlo; los nombres del usuario permanecen literales;
 - persistencia portable de escenarios en JSON;
 - interfaz activa y principales errores para el usuario localizados en **UK / EN / FR / DE / ES / KO / JA**.
@@ -38,7 +39,7 @@ El cupón nominal no se trata como rentabilidad de mercado, una observación sol
 
 El planificador sigue siendo de una sola moneda por diseño. Permite distribución por vencimientos, modo de beneficio calculado y cobertura de gastos futuros. La cantidad y el precio total pueden editarse manualmente.
 
-Camino a 0.9.0:
+Desarrollo después del checkpoint 0.9.0 publicado:
 
 1. **DONE** — prioridad explícita de fuentes de precio;
 2. **DONE** — supuestos de comisión de compra;
@@ -47,7 +48,9 @@ Camino a 0.9.0:
 5. **DONE** — supuestos de salida;
 6. **DONE** — comparación neutral A/B/C;
 7. **DONE** — localización del texto generado / etiquetas predefinidas + regresión;
-8. **READY** — evaluación formal de preparación 0.9.0: GO para preparar el checkpoint prerelease.
+8. **DONE** — checkpoint prerelease v0.9.0;
+9. **DONE** — reserve floor / saldo mínimo;
+10. **NEXT** — exportaciones locales CSV/ICS; PDF cuando se estabilice la estructura del informe.
 
 OVDP Hub no ejecuta operaciones ni confirma disponibilidad con un vendedor.
 
