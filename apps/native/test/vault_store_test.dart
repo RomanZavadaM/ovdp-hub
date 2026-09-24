@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 class MemoryVaultDeviceKeyStore implements VaultDeviceKeyStore {
   final Map<String, Uint8List> keys = {};
   final Map<String, int> revisions = {};
+  bool failRevisionStore = false;
 
   @override
   Future<void> storeDek({
@@ -45,6 +46,9 @@ class MemoryVaultDeviceKeyStore implements VaultDeviceKeyStore {
     required int revision,
   }) async {
     validateRevision(revision);
+    if (failRevisionStore) {
+      throw StateError('test.revision_store_failure');
+    }
     final previous = revisions[vaultId];
     if (previous != null && revision < previous) {
       throw StateError('vault.revision_regression');
@@ -198,7 +202,10 @@ void main() {
       plainText: bytes('r2'),
     );
     expect(device.revisions['vault-rollback'], 2);
+    final r2 = await store.fileFor('vault-rollback').readAsBytes();
 
+    final backup = File('${store.fileFor('vault-rollback').path}.backup');
+    await backup.writeAsBytes(r2, flush: true);
     await store.fileFor('vault-rollback').writeAsBytes(r1, flush: true);
     await expectLater(
       store.open(vaultId: 'vault-rollback'),
@@ -208,6 +215,36 @@ void main() {
             .having((e) => e.highestAcceptedRevision, 'highest', 2),
       ),
     );
+    expect(await backup.exists(), true);
+    expect(await backup.readAsBytes(), r2);
+  });
+
+  test('revision-state failure after create keeps encrypted file and device key', () async {
+    final device = MemoryVaultDeviceKeyStore()..failRevisionStore = true;
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+    );
+
+    await expectLater(
+      store.create(
+        vaultId: 'vault-revision-failure',
+        plainText: bytes('committed data'),
+        recoverySecret: 'revision failure recovery secret',
+        recoveryParameters: VaultRecoveryKdfParameters.interactive,
+      ),
+      throwsStateError,
+    );
+
+    expect(await store.fileFor('vault-revision-failure').exists(), true);
+    expect(device.keys['vault-revision-failure'], isNotNull);
+
+    device.failRevisionStore = false;
+    final reopened = await store.open(vaultId: 'vault-revision-failure');
+    expect(reopened.revision, 1);
+    expect(String.fromCharCodes(reopened.plainText), 'committed data');
+    expect(device.revisions['vault-revision-failure'], 1);
   });
 
   test('portable encrypted backup restores on fresh device key store', () async {
