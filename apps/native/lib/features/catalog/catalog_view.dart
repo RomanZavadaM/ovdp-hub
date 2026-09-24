@@ -17,7 +17,9 @@ class CatalogView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CatalogCubit>().state;
-    final studio = context.watch<AppearanceCubit>().state.studio;
+    final appearance = context.watch<AppearanceCubit>().state;
+    final studio = appearance.studio;
+    final dashboard = appearance.dashboard;
     final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     final cubit = context.read<CatalogCubit>();
     final editor = context.watch<CollectionEditorCubit>().state;
