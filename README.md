@@ -4,7 +4,7 @@
 
 > **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.2](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.2) (0.9.2+19)**
 >
-> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/SHA256SUMS.txt)
+> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/SHA256SUMS.txt)
 
 ---
 
@@ -31,6 +31,8 @@
 - reserve floor / мінімальний залишок як typed правило: з указаної дати сума має лишатися ліквідною й не вважається витратою;
 - локальні deterministic CSV/ICS exports із Planner scenario/needs/coverage/cashflow у папку `exports/` активного workspace; PDF відкладено до стабілізації звіту;
 - generated Planner copy / preset labels зберігаються як stable IDs і локалізуються при показі; власні назви користувача лишаються literal;
+- постійний **«Економічний пульс»** з NBU FX і MinFin auction indicators, source/date та fail-closed unavailable state;
+- **«Мій портфель»**: локальний encrypted portfolio, create/open/lock, factual purchase та derived holdings;
 - збереження сценаріїв у переносній робочій папці JSON;
 - активний UI та основні user-facing помилки локалізовані **UK / EN / FR / DE / ES / KO / JA**.
 
@@ -57,8 +59,9 @@
 13. **DONE** — recovery lifecycle + non-destructive local delete controls;
 14. **DONE** — private portfolio factual domain: acquisitions/cash events/disposals + explicit lot allocation;
 15. **DONE** — non-destructive legacy plaintext migration core / private payload schema v3;
-16. **DONE** — v0.9.2+18 full prerelease checkpoint;
-17. **NEXT** — platform/user-facing integration work: mobile external-folder permissions і окремий vault/migration UX gate.
+16. **DONE** — v0.9.1+18 full prerelease checkpoint;
+17. **DONE** — persistent «Економічний пульс» + first encrypted «Мій портфель» flow у v0.9.2+19;
+18. **NEXT** — factual sale/redemption/history + explicit legacy migration wizard; mobile external-folder permissions deferred.
 
 OVDP Hub не виконує купівлю чи продаж і не підтверджує доступність інструмента у продавця.
 
