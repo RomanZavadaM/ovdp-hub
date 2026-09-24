@@ -94,8 +94,8 @@ class LegacyPlaintextMigrator {
       opened.plainText.fillRange(0, opened.plainText.length, 0);
     }
 
-    final files = await workspace.records('sets')
-      ..sort((a, b) => a.path.compareTo(b.path));
+    final files = await workspace.records('sets');
+    files.sort((a, b) => a.path.compareTo(b.path));
     final existingBySourceId = {
       for (final record in before.legacyCollections) record.sourceId: record,
     };
@@ -173,7 +173,7 @@ class LegacyPlaintextMigrator {
     }
 
     var revisionAfter = opened.revision;
-    var encryptedCopyVerified = true;
+    const encryptedCopyVerified = true;
 
     if (pendingBySourceId.isNotEmpty) {
       final expected = PrivatePortfolioPayload(
