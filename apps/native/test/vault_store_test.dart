@@ -219,6 +219,33 @@ void main() {
     expect(await backup.readAsBytes(), r2);
   });
 
+  test('startup recovers authenticated backup when active file is corrupt', () async {
+    final device = MemoryVaultDeviceKeyStore();
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+    );
+
+    await store.create(
+      vaultId: 'vault-restart-recovery',
+      plainText: bytes('known-good'),
+      recoverySecret: 'restart recovery secret',
+      recoveryParameters: VaultRecoveryKdfParameters.interactive,
+    );
+
+    final target = store.fileFor('vault-restart-recovery');
+    final backup = File('${target.path}.backup');
+    await backup.writeAsBytes(await target.readAsBytes(), flush: true);
+    await target.writeAsString('{"corrupt":true}', flush: true);
+
+    final reopened = await store.open(vaultId: 'vault-restart-recovery');
+    expect(reopened.revision, 1);
+    expect(String.fromCharCodes(reopened.plainText), 'known-good');
+    expect(await target.readAsString(), isNot(contains('corrupt')));
+    expect(await backup.exists(), false);
+  });
+
   test('revision-state failure after create keeps encrypted file and device key', () async {
     final device = MemoryVaultDeviceKeyStore()..failRevisionStore = true;
     final store = LocalVaultStore(
