@@ -32,6 +32,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - readiness gate: PR **#63**, merge `f80c7d8e87b4fb494cf37712627bc12277a2fa73`, run #193 — GO;
 - canonical readiness sync: PR **#64**, merge `aaeb08cb24145cdea38739f22b660ac28fca15b5`, run #194;
 - release branch: **`release/v0.9.0`**;
+- release PR: **#65** `Release: v0.9.0 full prerelease checkpoint` (draft);
+- prepared candidate head before WORKLOG sync: `374403898c27df6d07e6bcd5ac852b888eda1b06`;
 - base `main`: `aaeb08cb24145cdea38739f22b660ac28fca15b5`;
 - target version/build: **0.9.0+17**;
 - target tag after an explicit checkpoint merge: **v0.9.0**;
@@ -58,7 +60,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — prepare v0.9.0+17 release metadata, seven-language release notes and release-facing documentation; then open a verified release PR without merging it.**
+**DOING — release PR #65 is open as draft. Verify the exact latest head with Flutter checks + release preflight, fix any findings, then mark #65 ready without merging/publishing it.**
 
 ## Черга робіт
 
