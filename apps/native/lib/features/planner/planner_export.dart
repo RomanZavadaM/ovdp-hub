@@ -28,6 +28,7 @@ class _ExportRow {
   final String eventDate;
   final String eventType;
   final String label;
+  final String stableKey;
   final Decimal? amount;
   final String? isin;
   final int? quantity;
@@ -40,6 +41,7 @@ class _ExportRow {
     required this.eventDate,
     required this.eventType,
     required this.label,
+    required this.stableKey,
     this.amount,
     this.isin,
     this.quantity,
@@ -57,7 +59,7 @@ int _rowCompare(_ExportRow a, _ExportRow b) {
   if (type != 0) return type;
   final isin = (a.isin ?? '').compareTo(b.isin ?? '');
   if (isin != 0) return isin;
-  return a.label.compareTo(b.label);
+  return a.stableKey.compareTo(b.stableKey);
 }
 
 String _csvCell(String value) {
@@ -116,6 +118,7 @@ List<_ExportRow> _rows({
         eventDate: scenario.startDate,
         eventType: 'POSITION',
         label: position.bond.isin,
+        stableKey: 'position:${position.bond.isin}',
         amount: position.cost,
         isin: position.bond.isin,
         quantity: position.quantity,
@@ -147,6 +150,8 @@ List<_ExportRow> _rows({
           ),
           eventType: kind,
           label: 'OVDP $kind · ${position.bond.isin}',
+          stableKey:
+              '${kind.toLowerCase()}:${position.bond.isin}:${payment['date']}',
           amount: amount,
           isin: position.bond.isin,
           quantity: position.quantity,
@@ -162,6 +167,7 @@ List<_ExportRow> _rows({
           ),
           eventType: 'SALE',
           label: 'OVDP SALE · ${position.bond.isin}',
+          stableKey: 'sale:${position.bond.isin}:${exit.date}',
           amount:
               (exit.price.effectiveUnitCost! *
                       Decimal.fromInt(position.quantity))
@@ -185,6 +191,7 @@ List<_ExportRow> _rows({
         eventDate: scenario.startDate,
         eventType: 'PURCHASE_FEE',
         label: 'Purchase fee',
+        stableKey: 'purchase-fee',
         amount: fee,
       ),
     );
@@ -196,6 +203,8 @@ List<_ExportRow> _rows({
         eventDate: balance.expense.date,
         eventType: _needEventType(balance.expense.type),
         label: displayLabel(balance.expense.name),
+        stableKey:
+            '${balance.expense.type.name}:${balance.expense.date}:${balance.expense.name}',
         amount: balance.expense.amount,
         available: balance.available,
         remaining: balance.remaining,
@@ -344,8 +353,7 @@ String _ics(
     'METHOD:PUBLISH',
   ];
 
-  for (var i = 0; i < events.length; i++) {
-    final row = events[i];
+  for (final row in events) {
     final amount = row.amount == null
         ? ''
         : '${row.amount} ${scenario.currency}';
@@ -356,8 +364,9 @@ String _ics(
     ].join(' · ');
     lines.addAll([
       'BEGIN:VEVENT',
-      'UID:ovdp-hub-$scenarioHash-${i + 1}-'
-          '${_icsDate(row.eventDate)}@local',
+      'UID:ovdp-hub-$scenarioHash-'
+          '${_stableHash('${row.eventDate}|${row.eventType}|${row.stableKey}|${row.amount ?? ''}')}'
+          '@local',
       'DTSTAMP:$stamp',
       'DTSTART;VALUE=DATE:${_icsDate(row.eventDate)}',
       'SUMMARY:${_icsText(row.label)}',
