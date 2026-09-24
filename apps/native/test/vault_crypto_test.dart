@@ -7,8 +7,8 @@ import 'package:ovdp_hub/security/vault_crypto.dart';
 void main() {
   late SodiumVaultCrypto crypto;
 
-  setUpAll(() {
-    crypto = SodiumVaultCrypto.create();
+  setUpAll(() async {
+    crypto = await SodiumVaultCrypto.create();
   });
 
   test('XChaCha20 envelope round-trips and authenticates header', () {
