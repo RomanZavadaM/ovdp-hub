@@ -25,28 +25,31 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **private portfolio / encrypted payload foundation — factual domain schema before migration or UI**.
 
 - base `main`: **`ee48b98485717f06d8ae81b9440912ab029004e3`**;
 - branch: **`feat/private-portfolio-payload`**;
-- define private payload schema v1 independent from the outer vault envelope;
-- acquisition lots are factual source records with stable id, ISIN, units, acquisition date, currency, unit price, explicit factual fee state and optional private broker/account label;
-- factual cash events: coupon / redemption with stable id, ISIN, date, amount/currency; redemption also records units redeemed;
-- current holdings are **derived**, never a second mutable list: acquisitions minus represented redemptions;
-- semantic validation must reject duplicate ids, invalid ISIN/currency/date/amount, redemption-before-acquisition and negative derived units;
-- canonical ordering + fixed-key JSON → deterministic payload bytes;
-- integration test stores only encoded private-payload bytes inside existing LocalVaultStore encryption and decodes after open;
-- public NBU/MinFin/seller data remains outside private payload and is referenced by ISIN;
+- private payload schema v1 is independent from the outer vault envelope;
+- acquisition lots are factual source records with stable id, ISIN, units, acquisition date, currency, factual whole-lot trade amount, explicit factual fee state and optional private broker/account label;
+- factual coupon/redemption events use stable IDs and factual date/amount/currency; redemption also records units;
+- holdings are derived only: acquisitions minus represented redemptions; no second mutable holdings list;
+- deterministic ordering + fixed-key JSON/UTF-8 codec; public market/reference data remains outside private payload;
 - schema contract: **`docs/private-portfolio-payload.md`**;
-- clean functional head **`db291909ae17e4c87c346c9d3245c5534c0f879b`** passed **Flutter checks and START run #307 — success**;
-- exact latest schema/docs head **`8396eb5db7e1336beb49c1c888206505632c89cc`** passed **Flutter checks and START run #309 — success**;
+- functional head **`db291909ae17e4c87c346c9d3245c5534c0f879b`** passed run #307;
+- schema/docs head **`8396eb5db7e1336beb49c1c888206505632c89cc`** passed run #309;
+- final branch head **`af6153b0b559da8b184ebd843a3aea29221335bf`** passed run #310;
+- PR #88 was closed without merge only because its draft state could not be changed through the available permission path;
+- replacement PR **#89** on the same exact head passed **Flutter checks and START run #311 — success**;
+- squash merge `main`: **`a516310f71c6414018d3f398c42ba88f553f5244`**;
+- post-merge `main` **run #312 — success**, including START/source artifact;
+- no factual sale/disposal records yet; therefore derived holdings are not yet a complete real-world portfolio;
 - no legacy `sets/*.json` migration/import/delete and no user-facing portfolio UI.
 
 ### Поточна наступна дія
 
-**VERIFIED — private payload schema/domain, deterministic codec and encrypted LocalVaultStore round-trip passed run #309. Run one exact latest-head CI after this WORKLOG-only checkpoint; if green, mark PR #88 Ready and integrate into `main`.**
+**NEXT — private portfolio factual sale/disposal foundation: stable disposal facts + deterministic allocation to acquisition lots + realized cost basis/proceeds with explicit unknown-fee semantics. Extend schema compatibly; no legacy migration or user-facing portfolio UI in this slice.**
 
 ## Черга робіт
 
@@ -70,7 +73,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 18. **DONE** — Encrypted vault local store/lifecycle; PR #81 → merge `16cd6f33…`; final run #274 and post-merge run #275 green.
 19. **DONE** — Encrypted vault session/locking foundation; replacement PR #84 → merge `51fb9286…`; hardened run #285, final run #286 and post-merge run #287 green.
 20. **DONE** — Encrypted vault lifecycle controls; PR #86 → merge `3dc1f53d…`; final run #301 and post-merge run #302 green.
-21. **VERIFIED** — Private portfolio/encrypted payload foundation: acquisition lots + derived balances + factual coupon/redemption events; run #309 green, awaiting exact latest-head WORKLOG verification.
+21. **DONE** — Private portfolio/encrypted payload foundation; replacement PR #89 → merge `a516310f…`; final replacement run #311 and post-merge run #312 green.
+22. **NEXT** — Private portfolio factual sale/disposal + lot-allocation / realized-cost foundation.
 
 ## Продуктова логіка цієї черги
 
@@ -97,6 +101,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — private portfolio/encrypted payload foundation**: replacement PR #89 exact head `af6153b0…` passed run #311 and was squash-merged into `main` as `a516310f71c6414018d3f398c42ba88f553f5244`; post-merge run #312 green with START/source artifact. Schema v1 stores factual acquisition lots plus coupon/redemption events, deterministic encrypted payload bytes and derived holdings; sale/disposal, legacy migration and portfolio UI remain deferred.
 
 - **DONE — encrypted vault lifecycle controls**: PR #86 final head `fa0b42ce…` passed run #301 and was squash-merged into `main` as `3dc1f53dc87e741730115f786798fa5e409007ff`; post-merge run #302 green. Recovery enable/rotate/remove, non-destructive local delete/crash recovery, external-backup preservation and session-level store serialization are integrated; no legacy migration/private UI.
 
