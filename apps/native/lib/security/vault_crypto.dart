@@ -89,12 +89,14 @@ class VaultEnvelopeV1 {
   final int revision;
   final Uint8List nonce;
   final Uint8List cipherText;
+  final String? recoverySlotBinding;
 
   VaultEnvelopeV1({
     required this.vaultId,
     required this.revision,
     required Uint8List nonce,
     required Uint8List cipherText,
+    this.recoverySlotBinding,
   }) : nonce = Uint8List.fromList(nonce),
        cipherText = Uint8List.fromList(cipherText) {
     validateVaultId(vaultId);
@@ -109,6 +111,8 @@ class VaultEnvelopeV1 {
     'vaultId': vaultId,
     'revision': revision,
     'algorithm': vaultAeadAlgorithm,
+    if (recoverySlotBinding != null)
+      'recoverySlotBinding': recoverySlotBinding!,
   };
 
   Uint8List authenticatedHeader() =>
@@ -138,6 +142,11 @@ class VaultEnvelopeV1 {
       revision: revision,
       nonce: _decodeB64(json['nonce']),
       cipherText: _decodeB64(json['ciphertext']),
+      recoverySlotBinding: json['recoverySlotBinding'] == null
+          ? null
+          : json['recoverySlotBinding'] is String
+          ? json['recoverySlotBinding'] as String
+          : throw const FormatException('vault.invalid_envelope'),
     );
   }
 }
@@ -222,6 +231,7 @@ abstract interface class VaultCrypto {
     required int revision,
     required Uint8List plainText,
     required SecureKey dek,
+    String? recoverySlotBinding,
   });
 
   Uint8List decrypt({
@@ -281,6 +291,7 @@ class SodiumVaultCrypto implements VaultCrypto {
     required int revision,
     required Uint8List plainText,
     required SecureKey dek,
+    String? recoverySlotBinding,
   }) {
     validateVaultId(vaultId);
     if (revision < 1 || dek.length != _aead.keyBytes) {
@@ -292,6 +303,7 @@ class SodiumVaultCrypto implements VaultCrypto {
       revision: revision,
       nonce: nonce,
       cipherText: Uint8List.fromList(const [1]),
+      recoverySlotBinding: recoverySlotBinding,
     );
     final cipherText = _aead.encrypt(
       message: plainText,
@@ -304,6 +316,7 @@ class SodiumVaultCrypto implements VaultCrypto {
       revision: revision,
       nonce: nonce,
       cipherText: cipherText,
+      recoverySlotBinding: recoverySlotBinding,
     );
   }
 
