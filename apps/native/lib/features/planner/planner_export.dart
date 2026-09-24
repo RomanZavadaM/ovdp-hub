@@ -392,7 +392,7 @@ String plannerExportFolderName(
   safe = safe.replaceAll(RegExp(r'[. ]+$'), '');
   if (safe.isEmpty) safe = 'Scenario';
   if (safe.length > 60) safe = safe.substring(0, 60).trimRight();
-  final local = now.toLocal();
+  final local = now;
   String two(int value) => value.toString().padLeft(2, '0');
   final stamp = '${local.year}-${two(local.month)}-${two(local.day)}_'
       '${two(local.hour)}${two(local.minute)}${two(local.second)}';
