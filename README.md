@@ -2,9 +2,9 @@
 
 **🇺🇦 Українська** · [🇬🇧 English](docs/readme/README.en.md) · [🇫🇷 Français](docs/readme/README.fr.md) · [🇩🇪 Deutsch](docs/readme/README.de.md) · [🇪🇸 Español](docs/readme/README.es.md) · [🇰🇷 한국어](docs/readme/README.ko.md) · [🇯🇵 日本語](docs/readme/README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.1) (0.9.1+18)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.2](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.2) (0.9.2+19)**
 >
-> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/SHA256SUMS.txt)
+> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/SHA256SUMS.txt)
 
 ---
 
@@ -12,7 +12,7 @@
 
 **OVDP Hub** — встановлюваний Flutter/Dart-застосунок для огляду українських ОВДП, ринкових джерел та власних інвестиційних сценаріїв. Цільові платформи: **Windows, macOS, Android, iOS**. Web/PWA не входить до активного продукту.
 
-Активний код: `apps/native`. Поточний опублікований checkpoint — **0.9.1+18**. Він включає зміни після 0.9.0: «Світлу панель», Planner reserve floor, deterministic CSV/ICS exports та перевірену внутрішню encrypted-vault/private-portfolio foundation. User-facing vault/migration/portfolio UI ще не підключено.
+Активний код: `apps/native`. Поточний опублікований checkpoint — **0.9.2+19**. Він включає «Світлу панель», Planner reserve floor, deterministic CSV/ICS exports, encrypted-vault/private-portfolio foundation, а також нові user-facing **«Економічний пульс»** і **«Мій портфель»** з першою фактичною encrypted purchase/holdings flow. Legacy migration wizard ще не підключено.
 
 ### Що вже працює
 
@@ -57,7 +57,7 @@
 13. **DONE** — recovery lifecycle + non-destructive local delete controls;
 14. **DONE** — private portfolio factual domain: acquisitions/cash events/disposals + explicit lot allocation;
 15. **DONE** — non-destructive legacy plaintext migration core / private payload schema v3;
-16. **DONE** — v0.9.1+18 full prerelease checkpoint;
+16. **DONE** — v0.9.2+18 full prerelease checkpoint;
 17. **NEXT** — platform/user-facing integration work: mobile external-folder permissions і окремий vault/migration UX gate.
 
 OVDP Hub не виконує купівлю чи продаж і не підтверджує доступність інструмента у продавця.
@@ -66,7 +66,7 @@ OVDP Hub не виконує купівлю чи продаж і не підтв
 
 Каталоги й сценарії зберігаються на пристрої. На desktop можна відкрити або скопіювати робочу папку. OVDP Hub не має сервера приватних портфельних даних.
 
-У v0.9.1 уже є перевірена внутрішня encrypted-vault foundation (authenticated encryption, platform device keys, recovery/backup, rollback/session lifecycle) і non-destructive migration core. **Але поточні legacy `sets/*.json` у звичайному workspace все ще plaintext, доки user-facing migration/vault flow не буде окремо підключено.** Migration core не має delete API й не видаляє source JSON автоматично. Не використовуйте legacy workspace для ключів підпису, KYC-документів чи інших секретів.
+У v0.9.2 уже є перевірена внутрішня encrypted-vault foundation (authenticated encryption, platform device keys, recovery/backup, rollback/session lifecycle) і non-destructive migration core. **Але поточні legacy `sets/*.json` у звичайному workspace все ще plaintext, доки user-facing migration/vault flow не буде окремо підключено.** Migration core не має delete API й не видаляє source JSON автоматично. Не використовуйте legacy workspace для ключів підпису, KYC-документів чи інших секретів.
 
 ### Швидке тестування
 
