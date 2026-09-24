@@ -221,7 +221,11 @@ class VaultSessionController extends ChangeNotifier {
   }
 
   void onBackground() {
-    if (!_state.isUnlocked || _disposed) return;
+    if (_disposed ||
+        (_state.phase != VaultSessionPhase.unlocked &&
+            _state.phase != VaultSessionPhase.unlocking)) {
+      return;
+    }
     _backgroundedAt = now();
     _backgroundTimer?.cancel();
     _backgroundTimer = timerFactory(
@@ -231,12 +235,28 @@ class VaultSessionController extends ChangeNotifier {
   }
 
   Future<void> onForeground() async {
-    if (!_state.isUnlocked || _disposed) return;
-    _backgroundTimer?.cancel();
-    _backgroundTimer = null;
+    if (_disposed) return;
 
     final current = now();
     final backgroundedAt = _backgroundedAt;
+
+    if (_state.phase == VaultSessionPhase.unlocking) {
+      _backgroundTimer?.cancel();
+      _backgroundTimer = null;
+      final backgroundExpired = backgroundedAt != null &&
+          current.difference(backgroundedAt) >= policy.backgroundGrace;
+      if (backgroundExpired) {
+        await lock();
+        return;
+      }
+      _backgroundedAt = null;
+      return;
+    }
+
+    if (!_state.isUnlocked) return;
+
+    _backgroundTimer?.cancel();
+    _backgroundTimer = null;
     final lastActivityAt = _lastActivityAt;
     final backgroundExpired = backgroundedAt != null &&
         current.difference(backgroundedAt) >= policy.backgroundGrace;
