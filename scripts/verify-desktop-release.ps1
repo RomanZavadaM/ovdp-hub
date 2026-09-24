@@ -52,9 +52,16 @@ try {
   }
 
   $contractFile = Join-Path $verifyRoot 'runtime-release-contract.json'
-  & $binary.FullName "--release-contract-file=$contractFile"
-  if ($LASTEXITCODE -ne 0) {
-    throw "Packaged executable release-contract failed with exit code $LASTEXITCODE"
+  if ($Platform -eq 'windows') {
+    $process = Start-Process -FilePath $binary.FullName -ArgumentList @("--release-contract-file=$contractFile") -Wait -PassThru
+    if ($process.ExitCode -ne 0) {
+      throw "Packaged executable release-contract failed with exit code $($process.ExitCode)"
+    }
+  } else {
+    & $binary.FullName "--release-contract-file=$contractFile"
+    if ($LASTEXITCODE -ne 0) {
+      throw "Packaged executable release-contract failed with exit code $LASTEXITCODE"
+    }
   }
   if (!(Test-Path -LiteralPath $contractFile)) {
     throw 'Packaged executable did not write release-contract JSON'
