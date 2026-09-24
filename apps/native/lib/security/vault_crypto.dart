@@ -173,8 +173,8 @@ class SodiumVaultCrypto implements VaultCrypto {
 
   SodiumVaultCrypto(this.sodium);
 
-  factory SodiumVaultCrypto.create() =>
-      SodiumVaultCrypto(SodiumSumoInit.init());
+  static Future<SodiumVaultCrypto> create() async =>
+      SodiumVaultCrypto(await SodiumSumoInit.init());
 
   Aead get _aead => sodium.crypto.aeadXChaCha20Poly1305IETF;
   Pwhash get _pwhash => sodium.crypto.pwhash;
