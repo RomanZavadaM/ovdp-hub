@@ -750,4 +750,49 @@ void main() {
     expect(device.keys['vault-delete-crash-after-key'], isNull);
   });
 
+
+  test('portable backup and restore reject app-owned reserved paths', () async {
+    final device = MemoryVaultDeviceKeyStore();
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+    );
+    await store.create(
+      vaultId: 'vault-reserved-paths',
+      plainText: bytes('private'),
+      recoverySecret: 'reserved path recovery secret',
+      recoveryParameters: VaultRecoveryKdfParameters.interactive,
+    );
+
+    final target = store.fileFor('vault-reserved-paths');
+    final reserved = [
+      target,
+      File('${target.path}.pending'),
+      File('${target.path}.backup'),
+      File('${target.path}.deleting'),
+    ];
+
+    for (final file in reserved) {
+      await expectLater(
+        store.createEncryptedBackup(
+          vaultId: 'vault-reserved-paths',
+          destination: file,
+        ),
+        throwsStateError,
+      );
+      await expectLater(
+        store.restoreEncryptedBackup(
+          vaultId: 'vault-reserved-paths',
+          source: file,
+          recoverySecret: 'reserved path recovery secret',
+        ),
+        throwsStateError,
+      );
+    }
+
+    final opened = await store.open(vaultId: 'vault-reserved-paths');
+    expect(String.fromCharCodes(opened.plainText), 'private');
+  });
+
 }
