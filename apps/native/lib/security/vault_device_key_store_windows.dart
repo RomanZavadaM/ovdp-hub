@@ -3,10 +3,15 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ffi/ffi.dart';
 import 'package:path/path.dart' as p;
 import 'package:win32/win32.dart';
 
+import 'vault_crypto.dart';
 import 'vault_device_key_store.dart';
+
+// Win32 DPAPI flag documented by CryptProtectData/CryptUnprotectData.
+const int _cryptProtectUiForbidden = 0x1;
 
 abstract interface class DpapiProtector {
   Uint8List protect(Uint8List plainText);
@@ -50,7 +55,7 @@ class Win32DpapiProtector implements DpapiProtector {
                 null,
                 null,
                 null,
-                CRYPTPROTECT_UI_FORBIDDEN,
+                _cryptProtectUiForbidden,
                 outputBlob,
               )
             : CryptUnprotectData(
@@ -58,7 +63,7 @@ class Win32DpapiProtector implements DpapiProtector {
                 null,
                 null,
                 null,
-                CRYPTPROTECT_UI_FORBIDDEN,
+                _cryptProtectUiForbidden,
                 outputBlob,
               );
         if (!result.value) {
