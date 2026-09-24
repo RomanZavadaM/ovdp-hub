@@ -399,17 +399,40 @@ Verification:
 
 **No legacy plaintext migration, private portfolio schema or user-facing vault UI was added.**
 
+## Encrypted vault — lifecycle controls integrated
+
+PR **#86 — Vault: add recovery and local-delete lifecycle controls** squash-merged у `main` як **`3dc1f53dc87e741730115f786798fa5e409007ff`**.
+
+Інтегровано:
+- recovery enable для existing device-openable vault без зміни DEK;
+- recovery secret/slot rotation з verify-before-commit;
+- explicit recovery removal зі збереженням device-key access;
+- local delete active file + app-owned lifecycle artifacts + device key/revision metadata;
+- external encrypted backups не видаляються local delete;
+- interrupted/failed delete rollback/crash recovery;
+- reserved internal paths для backup/restore;
+- session-level serialization store operations після manual race review: overlapping save/lifecycle/re-unlock → `vault.session_busy`;
+- lifecycle contract: `docs/security-vault-lifecycle-controls.md`.
+
+Verification:
+- pre-hardening head `4fe7bf74…` — run #297 success;
+- serialized mutation head `110c4d98…` — run #299 success;
+- final exact head `fa0b42ceacadbed73926acb6ba065921c2ae1fee` — run #301 success;
+- post-merge `main` run **#302 — success**.
+
+No legacy plaintext migration, holdings schema or user-facing vault UI was added.
+
 ## Наступний етап
 
-**Encrypted vault lifecycle controls**:
+**Private portfolio / encrypted payload foundation**:
 
-1. add/enable recovery slot for an existing local vault without re-encrypting private payload with a new DEK;
-2. rotate recovery secret/slot atomically and verify the new slot before replacing the old one;
-3. remove recovery slot explicitly while preserving the device-key-openable vault and making portable backup unavailable until recovery is re-enabled;
-4. implement local vault deletion semantics: active encrypted file + app-owned pending/backup artifacts + device key/revision metadata, but never external backups;
-5. define clear failure semantics so partial recovery/delete operations do not silently destroy the last usable local state;
-6. add deterministic regression tests for enable/rotate/remove/delete;
-7. **do not** migrate legacy `sets/*.json`, add holdings/private schema, or expose vault UI in this slice.
+1. define a versioned private payload schema independent from the outer vault envelope;
+2. model holdings as derived/validated positions rather than a second mutable source of truth;
+3. add acquisition lots with ISIN, quantity, acquisition date, price/cost basis, explicit fees and optional private broker/account label;
+4. add factual cash events for coupon/redemption with date, amount/currency and stable identifiers, without inventing missing history;
+5. encode/decode the private payload deterministically inside the existing encrypted vault bytes and add semantic validation/duplicate-id tests;
+6. keep public NBU/MinFin/seller reference data outside this private payload and reference public instruments by ISIN;
+7. **do not** migrate legacy `sets/*.json`, add portfolio UI, or auto-import user data in this slice.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
