@@ -12,6 +12,9 @@ import 'vault_device_key_store.dart';
 const String vaultFileMagic = 'OVDP-HUB-VAULT-FILE';
 const int vaultFileVersion = 1;
 
+String? _recoveryBinding(VaultRecoverySlotV1? slot) =>
+    slot == null ? null : jsonEncode(slot.toJson());
+
 class VaultRollbackException implements Exception {
   final String vaultId;
   final int foundRevision;
@@ -45,7 +48,8 @@ class VaultFileV1 {
     if (revision < 1 ||
         payload.vaultId != vaultId ||
         payload.revision != revision ||
-        (recoverySlot != null && recoverySlot!.vaultId != vaultId)) {
+        (recoverySlot != null && recoverySlot!.vaultId != vaultId) ||
+        payload.recoverySlotBinding != _recoveryBinding(recoverySlot)) {
       throw const FormatException('vault.invalid_file');
     }
   }
@@ -160,6 +164,7 @@ class LocalVaultStore {
         revision: 1,
         plainText: plainText,
         dek: dek,
+        recoverySlotBinding: _recoveryBinding(recoverySlot),
       );
       final vaultFile = VaultFileV1(
         vaultId: vaultId,
@@ -241,6 +246,7 @@ class LocalVaultStore {
           revision: nextRevision,
           plainText: plainText,
           dek: dek,
+          recoverySlotBinding: _recoveryBinding(current.recoverySlot),
         ),
         recoverySlot: current.recoverySlot,
       );
