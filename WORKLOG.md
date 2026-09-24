@@ -32,11 +32,13 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - readiness gate: PR **#63**, merge `f80c7d8e87b4fb494cf37712627bc12277a2fa73`, run #193 — GO;
 - canonical readiness sync: PR **#64**, merge `aaeb08cb24145cdea38739f22b660ac28fca15b5`, run #194;
 - release branch: **`release/v0.9.0`**;
-- release PR: **#65** `Release: v0.9.0 full prerelease checkpoint` (draft at verification checkpoint);
+- release PR: **#65** `Release: v0.9.0 full prerelease checkpoint` — **Ready for review**, not merged;
 - prepared candidate head before WORKLOG sync: `374403898c27df6d07e6bcd5ac852b888eda1b06`;
 - exact verified PR head: `ca0a8908c9c316da6e503f16997d95a73aa9afcc`;
 - **Flutter checks and START run #196 — success** on exact verified head;
-- **Publish native prerelease run #42 — preflight success** on the PR; gated verify/platform/publish jobs were skipped as intended for an unmerged PR;
+- **Publish native prerelease run #42 — preflight success** on candidate head `ca0a8908c9c316da6e503f16997d95a73aa9afcc`; gated verify/platform/publish jobs were skipped as intended for an unmerged PR;
+- WORKLOG checkpoint head `3972d61782999ebb5a5d827295906a812dbf08f8` passed **Flutter checks and START run #197** and **release preflight run #43**;
+- PR #65 was then marked **Ready for review**; it remains unmerged and unpublished;
 - base `main`: `aaeb08cb24145cdea38739f22b660ac28fca15b5`;
 - target version/build: **0.9.0+17**;
 - target tag after an explicit checkpoint merge: **v0.9.0**;
@@ -63,7 +65,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**VERIFIED — release PR #65 passed exact-head Flutter checks (#196) and release preflight (#42). Run final latest-head verification after this WORKLOG-only checkpoint, then mark #65 ready without merging/publishing it.**
+**NEXT — PR #65 is Ready and verified. Do not merge or publish it without an explicit owner command for the full release checkpoint. When authorized, merge #65 and require the gated workflow to complete verify + Windows + macOS + Android + iOS + START + checksums/legal + final prerelease publication before v0.9.0 is marked published.**
 
 ## Черга робіт
 
