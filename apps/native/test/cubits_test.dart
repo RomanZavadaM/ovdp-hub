@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/models.dart';
+import 'package:ovdp_hub/features/navigation/navigation_cubit.dart';
 import 'package:ovdp_hub/features/catalog/catalog_cubit.dart';
 import 'package:ovdp_hub/features/collections/editor_cubit.dart';
 import 'package:ovdp_hub/features/collections/collections_cubit.dart';
@@ -10,6 +11,16 @@ import 'package:ovdp_hub/features/calculator/calculator_cubit.dart';
 import 'support/fake_repository.dart';
 
 void main() {
+  test('navigation accepts the seventh user-facing portfolio destination', () {
+    final cubit = NavigationCubit();
+    cubit.select(6);
+    expect(cubit.state.index, 6);
+    cubit.select(7);
+    expect(cubit.state.index, 6);
+    cubit.close();
+  });
+
+
   late Catalog catalog;
   late FakeRepository repository;
   setUp(() async {
