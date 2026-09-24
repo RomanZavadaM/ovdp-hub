@@ -4,7 +4,16 @@
 
 ## [Unreleased]
 
-Після опублікованого checkpoint v0.9.0 відкривається user-visible UI slice: додатковий дизайн «Світла панель» із збереженням Classic та «Робочий кабінет». Після нього за roadmap — reserve-floor/minimum-balance needs. Exports, encrypted vault/actual holdings і production signing лишаються окремими майбутніми етапами.
+### Light Dashboard appearance
+- Додано третє необов'язкове оформлення **«Світла панель»** за візуальним напрямком наданих owner reference screenshots.
+- Existing **Classic** та **«Робочий кабінет»** збережені; Studio лишається default.
+- Додано explicit three-mode appearance selector замість двостанової кнопки.
+- Desktop shell: light-blue header/sidebar/status bar та OVDP-specific watermarking; mobile bottom navigation збережена.
+- Appearance labels локалізовано UK / EN / FR / DE / ES / KO / JA.
+- Regression coverage перевіряє перемикання всіх трьох режимів без втрати Planner input.
+- PR #67; code run #205 success; final latest-head run #206 success; merge `90bea96f5be1b28d980a3846341dbfe90b32e8e8`.
+
+Наступний продуктовий slice — **Planner reserve-floor / minimum-balance needs**. Exports, encrypted vault/actual holdings і production signing лишаються окремими майбутніми етапами.
 
 ## [0.9.0] — 2026-09-24
 

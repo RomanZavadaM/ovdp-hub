@@ -25,23 +25,26 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **додатковий дизайн «Світла панель» без заміни наявних оформлень**.
 
-- base `main`: **`a588b933ce165f6a7f6142f54502656c5a139cdd`**;
-- branch: **`feat/light-dashboard-appearance`**;
-- owner references: supplied light-blue desktop dashboard/help/about screenshots from Taxo;
-- keep existing appearances: **Classic** and **«Робочий кабінет»**;
-- add third appearance: **«Світла панель»**;
-- scope: appearance state/selector, light dashboard theme, wide desktop header/sidebar/status shell, compact mobile compatibility, 7-language labels, design regression tests;
-- do not change Planner financial semantics, schema or published v0.9.0 tag/release;
-- verified code head: **`f27140db68b881089724c9c717c261a96cc563d1`**;
-- **Flutter checks and START run #205 — success**: `flutter pub get --enforce-lockfile`, `flutter analyze`, full Flutter test suite and START gate green after analyzer + layout-overflow fixes.
+- base `main`: `a588b933ce165f6a7f6142f54502656c5a139cdd`;
+- branch: `feat/light-dashboard-appearance`;
+- PR: **#67** `UI: add optional Light Dashboard appearance`;
+- existing Classic preserved;
+- existing «Робочий кабінет» / Studio preserved as default;
+- third mode **«Світла панель»** added;
+- UK/EN/FR/DE/ES/KO/JA appearance labels;
+- desktop light-blue header/sidebar/status shell + mobile navigation compatibility;
+- code head `f27140db68b881089724c9c717c261a96cc563d1` passed run **#205**;
+- final latest-head `ededde2237a427c56aa56d45af10767e46d93895` passed run **#206**;
+- squash merge `main`: **`90bea96f5be1b28d980a3846341dbfe90b32e8e8`**;
+- published checkpoint remains immutable **v0.9.0 / 0.9.0+17**.
 
 ### Поточна наступна дія
 
-**VERIFIED — PR #67 code head passed run #205. Record this checkpoint, require final exact latest-head CI for this WORKLOG-only change, then mark PR #67 Ready and integrate it into `main` if green. After merge, canonical next = Planner reserve-floor / minimum-balance needs.**
+**NEXT — start Planner reserve-floor / minimum-balance need as a typed schema-3-compatible assumption: define domain semantics first, then persistence, cashflow/coverage behavior, strict A/B/C comparability, UI and UK/EN/FR/DE/ES/KO/JA regression coverage. Do not silently treat reserve-floor as a one-off expense.**
 
 ## Черга робіт
 
@@ -56,8 +59,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 9. **DONE** — generated planner copy / preset labels localization + UX regression — PR #61, run #189 (110/110), final run #190, merge `1e6849f7…`.
 10. **DONE** — formal prerelease readiness assessment 0.9.0 — PR #63, run #193, merge `f80c7d8e…`; GO to release preparation.
 11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
-12. **VERIFIED** — optional third appearance «Світла панель» implemented while preserving Classic and «Робочий кабінет»; code head `f27140db…`, run #205 success.
-13. **NEXT AFTER UI** — Planner reserve-floor / minimum-balance needs.
+12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
+13. **NEXT** — Planner reserve-floor / minimum-balance needs.
 
 ## Продуктова логіка цієї черги
 
@@ -84,6 +87,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — Light Dashboard appearance**: PR #67 final latest-head run #206 success; squash-merged у `main` як `90bea96f5be1b28d980a3846341dbfe90b32e8e8`. Classic + Studio preserved, third «Світла панель» mode added with 7-language selector and desktop/phone regression coverage.
+
 
 - **DONE — v0.9.0 full cross-platform checkpoint**: PR #65 squash-merged у `main` як `21698ae34f9438f7c5ab49724e47dc13014b7daa`; Publish native prerelease run #45 success. Опубліковано Windows/macOS/Android/iOS/START + SHA256SUMS + legal notices під tag `v0.9.0`.
 

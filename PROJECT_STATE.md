@@ -271,13 +271,26 @@ Assessment від 24.09.2026 зафіксовано в `docs/READINESS_0_9_0.md`
 - exact-current-main Windows/macOS/Android/iOS compile лишається обов'язковим release gate і має пройти в повному release workflow до publication;
 - reserve-floor, exports, encrypted vault і production signing лишаються explicit deferred/non-blocking roadmap work.
 
-## Наступний етап після v0.9.0
+## Інтегровано після v0.9.0
 
-1. реалізувати окремий **додатковий дизайн «Світла панель»** за візуальним напрямком, наданим власником;
-2. **не замінювати** наявні Classic та «Робочий кабінет» — усі три режими мають бути доступні користувачу;
-3. зберегти функціональну поведінку, локалізацію UK/EN/FR/DE/ES/KO/JA та phone/desktop regressions;
-4. після завершення UI-slice повернутися до roadmap Planner: **reserve-floor / мінімальний залишок**;
-5. exports, encrypted vault/actual holdings і production signing лишаються наступними окремими етапами.
+PR **#67 — UI: add optional Light Dashboard appearance** squash-merged у `main` як `90bea96f5be1b28d980a3846341dbfe90b32e8e8`.
+
+- Classic збережено;
+- «Робочий кабінет» / Studio збережено як default;
+- додано третій режим **«Світла панель»**;
+- three-mode appearance selector замінив двостановий toggle;
+- light-blue desktop header/sidebar/status shell + OVDP-specific watermark;
+- mobile bottom navigation збережена;
+- appearance labels локалізовано UK/EN/FR/DE/ES/KO/JA;
+- design regression перевіряє всі три режими та збереження Planner input;
+- code verification run #205 — success; final latest-head run #206 — success.
+
+## Наступний етап після Light Dashboard
+
+1. Planner **reserve-floor / мінімальний залишок** як typed need без домислювання;
+2. persistence + cashflow/coverage semantics + UI + UK/EN/FR/DE/ES/KO/JA;
+3. strict A/B/C comparability для reserve-floor assumptions;
+4. після завершення — повернутися до exports / encrypted vault / distribution roadmap за пріоритетом.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
