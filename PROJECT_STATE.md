@@ -470,17 +470,53 @@ Verification:
 
 **No legacy `sets/*.json` migration/import/delete and no user-facing portfolio UI was added.**
 
-## Наступний етап
+## Non-destructive legacy plaintext migration integrated
 
-**Non-destructive legacy plaintext migration**:
+PR **#95 — Portfolio: migrate legacy plaintext collections non-destructively** squash-merged у `main` як **`36191546229ad3146fce84a1846a24a0529de3b7`**.
 
-1. inventory the existing legacy `sets/*.json` records and classify which fields are public references, user-authored notes/scenario data, or private facts;
-2. define an explicit migration mapping into the encrypted private payload; unsupported/ambiguous legacy fields must remain unmigrated and be reported, not guessed;
-3. migration flow: read legacy → map/copy into a new encrypted payload → validate/decode/open from vault → compare semantic record IDs/counts → only then mark migration complete;
-4. never overwrite or delete the legacy plaintext automatically; deletion is a separate explicit user action after successful verification;
-5. repeated/cancelled/crashed migration must be idempotent and must not duplicate private records;
-6. expose machine-readable migration status/report for later UI, but **do not** add user-facing portfolio claim/UI yet;
-7. keep public NBU/MinFin/seller reference data outside the private payload.
+Інтегровано:
+- private payload schema v3 з backward decode schema v1/v2;
+- encrypted `legacyCollections` records для immutable legacy `sets/*.json` source identity;
+- mapping лише user-specific fields: name, note, savedAt, selected ISIN references та raw canonicalized Planner scenario;
+- full public Bond snapshots навмисно не копіюються в private payload;
+- SavedSet ніколи не перетворюється на acquisition/holding/disposal facts; migration створює **0 portfolio facts**;
+- unknown legacy top-level fields fail closed, щоб майбутні/private fields не губилися мовчки;
+- idempotent rerun: same source + same private mapped content → no write/revision bump;
+- same source id + changed private content → conflict, never overwrite;
+- valid files можуть мігрувати навіть при окремому corrupt/unsupported peer file;
+- після encrypted save vault повторно відкривається, а весь canonical schema-v3 payload перевіряється;
+- migration core не має delete API; legacy source JSON не змінюються і не видаляються.
+
+Verification:
+- hardened code/docs head `bcc79168…` — run #328 success;
+- final exact branch head `093c3ada…` — run #329 success;
+- PR #95 merge `36191546229ad3146fce84a1846a24a0529de3b7`;
+- post-merge `main` run **#331 — success**.
+
+Contracts:
+- `docs/private-portfolio-payload.md` — schema v3;
+- `docs/private-legacy-migration.md` — mapping/idempotence/verification/no-delete rules.
+
+**Important boundary:** user-facing vault/migration/portfolio UI is still not wired. Existing legacy workspace `sets/*.json` remain plaintext until a future explicit migration flow is connected and successfully run.
+
+## Release candidate v0.9.1
+
+- App version/build: **0.9.1+18**.
+- Scope: Light Dashboard, reserve floor, deterministic CSV/ICS exports, encrypted-vault/security foundation, private factual portfolio domain, factual disposals/lot allocation, non-destructive legacy migration core.
+- Required publication: Windows x64, macOS, Android test, unsigned iOS, START/source, SHA256SUMS and legal notices.
+- Status: **release preparation / publication pending**.
+- v0.9.0 remains immutable and is not rewritten.
+
+## Наступний етап після v0.9.1
+
+**Android SAF / iOS security-scoped external-folder access**:
+
+1. replace unrestricted path assumptions with platform-supported external-folder access on Android/iOS;
+2. preserve workspace portability without copying private data to a server;
+3. fail closed when provider permission/bookmark access is unavailable or revoked;
+4. add deterministic persistence/reopen tests around platform access handles;
+5. keep live provider-backed mutable vault deferred;
+6. user-facing vault/migration UX remains a separate explicit gate before claiming legacy private data is encrypted/migrated.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
