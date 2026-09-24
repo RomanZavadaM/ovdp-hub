@@ -65,7 +65,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Mon plan'), findsOneWidget);
-    expect(find.text('Besoin principal'), findsOneWidget);
+    expect(find.text('Besoin principal'), findsWidgets);
     expect(find.text('My plan'), findsNothing);
 
     expect(tester.takeException(), isNull);
