@@ -2,17 +2,24 @@
 
 [🇺🇦 Українська](../../README.md) · **🇬🇧 English** · [🇫🇷 Français](README.fr.md) · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.0) (0.9.0+17)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.1) (0.9.1+18)**
 >
-> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/SHA256SUMS.txt)
+> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/SHA256SUMS.txt)
 
 ---
+
+### v0.9.1 checkpoint
+
+**v0.9.1+18** adds the post-0.9.0 Light Dashboard, Planner reserve floor, deterministic CSV/ICS exports, and the verified internal encrypted-vault/private-portfolio foundation: authenticated local vault storage, recovery/backup, rollback/session lifecycle, factual private portfolio schemas, explicit disposal lot allocation, and a non-destructive legacy migration core.
+
+**Privacy boundary:** the user-facing vault/migration/portfolio flow is not wired yet. Existing legacy `sets/*.json` do **not** become encrypted automatically after updating. The migration core has no delete API and never converts a saved collection into factual holdings. Next after this checkpoint: Android SAF / iOS security-scoped external-folder access, with user-facing vault/migration UX as a separate gate.
+
 
 ### What it is
 
 **OVDP Hub** is an installable Flutter/Dart application for exploring Ukrainian government bonds (OVDP), market sources, and personal investment scenarios. Target platforms are **Windows, macOS, Android, and iOS**. Web/PWA is not part of the active product.
 
-Active code: `apps/native`. The current published checkpoint is **0.9.0 “Market”**. Since then, `main` has integrated Light Dashboard, Planner reserve floor, and deterministic local CSV/ICS exports. Next: **review/approve the encrypted-vault threat model before any crypto implementation**.
+Active code: `apps/native`. The current checkpoint is **0.9.1+18**. It includes the post-0.9.0 UI/Planner/export work plus the verified internal encrypted-vault/private-domain/migration foundation. User-facing vault/migration/portfolio wiring remains deferred.
 
 ### What already works
 
