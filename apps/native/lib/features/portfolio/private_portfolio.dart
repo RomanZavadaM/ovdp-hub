@@ -124,10 +124,12 @@ class PrivateAcquisitionLot {
         if (feeTotal != null) {
           throw const FormatException('portfolio.unknown_fee_has_value');
         }
+        break;
       case AcquisitionFeeStatus.known:
         if (feeTotal == null || feeTotal! < Decimal.zero) {
           throw const FormatException('portfolio.known_fee_missing_value');
         }
+        break;
     }
     final label = brokerAccountLabel;
     if (label != null && (label.trim().isEmpty || label.length > 160)) {
@@ -226,10 +228,12 @@ class PrivateCashEvent {
         if (units != null) {
           throw const FormatException('portfolio.coupon_has_units');
         }
+        break;
       case PrivateCashEventKind.redemption:
         if (units == null || units! < 1 || units! > 1000000000) {
           throw const FormatException('portfolio.redemption_units_required');
         }
+        break;
     }
     final value = note;
     if (value != null && value.length > 2000) {
