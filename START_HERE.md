@@ -121,5 +121,6 @@ Slice не є `DONE`, доки:
 - Поточний опублікований checkpoint: **v0.9.0 / 0.9.0+17**
 - Інтегровано після v0.9.0: **додатковий дизайн «Світла панель»**, Classic та «Робочий кабінет» збережені
 - Інтегровано після v0.9.0 також: **Planner reserve-floor / мінімальний залишок**
-- Наступний активний slice: **deterministic local Planner CSV + ICS exports; PDF deferred**
+- Інтегровано після v0.9.0 також: **deterministic local Planner CSV + ICS exports**; PDF лишається deferred
+- Наступний активний slice: **Encrypted vault threat-model review/approval перед будь-яким crypto-кодом**
 - Live ledger: GitHub Issue **#18**
