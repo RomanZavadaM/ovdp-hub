@@ -15,6 +15,23 @@ class PlannerView extends StatelessWidget {
     return sourceId;
   }
 
+  String _generatedCopy(HubStrings strings, String? value) {
+    final stored = value ?? '';
+    if (stored == PlannerGeneratedCopy.planName) {
+      return strings.text('generatedPlanName');
+    }
+    if (stored == PlannerGeneratedCopy.primaryNeedName) {
+      return strings.text('generatedPrimaryNeedName');
+    }
+    final ordinal = PlannerGeneratedCopy.expenseOrdinal(stored);
+    if (ordinal != null) {
+      return strings
+          .text('generatedExpenseName')
+          .replaceAll('{n}', ordinal.toString());
+    }
+    return stored;
+  }
+
   Future<void> _addPriceSource(
     BuildContext context,
     PlannerCubit cubit,
@@ -404,8 +421,10 @@ class PlannerView extends StatelessWidget {
               SizedBox(
                 width: 280,
                 child: TextFormField(
-                  key: ValueKey('${field.key}-${state.revision}'),
-                  initialValue: c[field.key],
+                  key: ValueKey('${field.key}-${state.revision}-${strings.language.code}'),
+                  initialValue: field.key.startsWith('expenseName')
+                            ? _generatedCopy(strings, c[field.key])
+                            : c[field.key],
                   enabled: !disabled,
                   decoration: InputDecoration(labelText: field.value),
                   onChanged: (v) => cubit.edit(field.key, v),
@@ -462,8 +481,8 @@ class PlannerView extends StatelessWidget {
                     SizedBox(
                       width: 260,
                       child: TextFormField(
-                        key: ValueKey('needName-${state.revision}'),
-                        initialValue: c['needName'] ?? '',
+                        key: ValueKey('needName-${state.revision}-${strings.language.code}'),
+                        initialValue: _generatedCopy(strings, c['needName']),
                         enabled: !disabled,
                         decoration: InputDecoration(
                           labelText: strings.text('primaryNeedName'),
@@ -1060,8 +1079,8 @@ class PlannerView extends StatelessWidget {
         ],
         const SizedBox(height: 16),
         TextFormField(
-          key: ValueKey('plan-name-${state.revision}'),
-          initialValue: c['name'],
+          key: ValueKey('plan-name-${state.revision}-${strings.language.code}'),
+          initialValue: _generatedCopy(strings, c['name']),
           enabled: !disabled,
           decoration: InputDecoration(labelText: strings.text('scenarioName')),
           onChanged: (v) => cubit.edit('name', v),
