@@ -106,6 +106,18 @@ class VaultOpenResult {
   }) : plainText = Uint8List.fromList(plainText);
 }
 
+class VaultLifecycleResult {
+  final String vaultId;
+  final int revision;
+  final bool recoveryEnabled;
+
+  const VaultLifecycleResult({
+    required this.vaultId,
+    required this.revision,
+    required this.recoveryEnabled,
+  });
+}
+
 abstract interface class VaultContentStore {
   Future<VaultOpenResult> open({required String vaultId});
 
@@ -116,18 +128,21 @@ abstract interface class VaultContentStore {
 }
 
 typedef VaultCommitProbe = FutureOr<void> Function(File committedFile);
+typedef VaultDeleteProbe = FutureOr<void> Function(File stagedForDeletion);
 
 class LocalVaultStore implements VaultContentStore {
   final Directory directory;
   final VaultCrypto crypto;
   final VaultDeviceKeyStore deviceKeyStore;
   final VaultCommitProbe? afterReplaceBeforeValidation;
+  final VaultDeleteProbe? afterDeviceKeyDeleteBeforeFileDelete;
 
   LocalVaultStore({
     required this.directory,
     required this.crypto,
     required this.deviceKeyStore,
     this.afterReplaceBeforeValidation,
+    this.afterDeviceKeyDeleteBeforeFileDelete,
   });
 
   File fileFor(String vaultId) {
@@ -137,6 +152,7 @@ class LocalVaultStore implements VaultContentStore {
 
   File _pending(String vaultId) => File('${fileFor(vaultId).path}.pending');
   File _backup(String vaultId) => File('${fileFor(vaultId).path}.backup');
+  File _deleting(String vaultId) => File('${fileFor(vaultId).path}.deleting');
 
   Future<VaultOpenResult> create({
     required String vaultId,
