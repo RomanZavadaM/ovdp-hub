@@ -20,6 +20,7 @@ dependencies:
   sodium: 4.1.0+1
   flutter_secure_storage: 11.2.0
   win32: 6.4.0
+  ffi: 2.2.0
   pdf_document: ^4.5.0
   pdf_graphics: ^4.5.0
 dev_dependencies:
