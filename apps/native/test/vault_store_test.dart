@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -142,6 +143,44 @@ void main() {
     expect(saved.revision, 2);
     expect(device.revisions['vault-main'], 2);
     expect(String.fromCharCodes((await store.open(vaultId: 'vault-main')).plainText), 'second');
+  });
+
+  test('recovery slot removal or replacement is authenticated by payload', () async {
+    final device = MemoryVaultDeviceKeyStore();
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+    );
+
+    await store.create(
+      vaultId: 'vault-slot-binding',
+      plainText: bytes('bound payload'),
+      recoverySecret: 'slot binding recovery secret',
+      recoveryParameters: VaultRecoveryKdfParameters.interactive,
+    );
+    final target = store.fileFor('vault-slot-binding');
+    final original = await target.readAsString();
+
+    final stripped = Map<String, dynamic>.from(
+      jsonDecode(original) as Map,
+    )..['recoverySlot'] = null;
+    await target.writeAsString(jsonEncode(stripped), flush: true);
+    await expectLater(
+      store.open(vaultId: 'vault-slot-binding'),
+      throwsFormatException,
+    );
+
+    await target.writeAsString(original, flush: true);
+    final replaced = Map<String, dynamic>.from(jsonDecode(original) as Map);
+    final slot = Map<String, dynamic>.from(replaced['recoverySlot'] as Map)
+      ..['wrappedDek'] = 'AQIDBA==';
+    replaced['recoverySlot'] = slot;
+    await target.writeAsString(jsonEncode(replaced), flush: true);
+    await expectLater(
+      store.open(vaultId: 'vault-slot-binding'),
+      throwsFormatException,
+    );
   });
 
   test('failed post-replace validation restores previous known-good vault', () async {
