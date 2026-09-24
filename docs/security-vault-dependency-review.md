@@ -16,7 +16,7 @@ Scope: вибір crypto / KDF / device-key stack **до** зміни `pubspec.y
 | Android device-key storage | `flutter_secure_storage 11.2.0`, explicit Android options | **SELECT WITH HARDENING** |
 | iOS device-key storage | `flutter_secure_storage 11.2.0`, Keychain | **SELECT WITH HARDENING** |
 | macOS device-key storage | `flutter_secure_storage 11.2.0`, Data Protection Keychain | **SELECT WITH HARDENING** |
-| Windows device-key storage | app-owned adapter over Windows DPAPI via `win32 6.4.0` | **SELECT** |
+| Windows device-key storage | app-owned adapter over Windows DPAPI via `win32 6.4.0` + `ffi 2.2.0` allocator | **SELECT** |
 | Windows `flutter_secure_storage` backend | current DPAPI JSON-file implementation | **DO NOT USE FOR VAULT KEY** |
 | Pure-Dart `cryptography 2.9.0` | alternative AEAD/Argon2 implementation | **NOT SELECTED FOR VAULT CORE** |
 | Live vault in external provider folder | SAF / security-scoped persistent access | **DEFER FROM FIRST IMPLEMENTATION** |
@@ -203,6 +203,14 @@ Reviewed properties:
 
 It is an API binding, not a cryptographic implementation. The cryptographic primitive remains Windows DPAPI.
 
+## 8.1. `ffi` implementation helper
+
+The Windows adapter uses `ffi 2.2.0` directly for scoped native-memory allocation around DPAPI structures. It is therefore declared as an exact direct dependency rather than relying on `win32`'s transitive dependency.
+
+- license: BSD-3-Clause;
+- role: native memory/lifetime utility only;
+- it does **not** replace DPAPI, libsodium or any cryptographic primitive.
+
 ## 9. Alternative reviewed: `cryptography 2.9.0`
 
 Positive:
@@ -227,6 +235,7 @@ Initial implementation must use exact direct constraints:
 sodium: 4.1.0+1
 flutter_secure_storage: 11.2.0
 win32: 6.4.0
+ffi: 2.2.0
 ```
 
 and keep `pubspec.lock` committed/enforced.
@@ -332,6 +341,18 @@ The first code PR is blocked until it satisfies all gates below.
 - lower known revision produces rollback warning;
 - interrupted vault write preserves prior known-good file;
 - release/source artifact scan contains no fixture DEK/recovery secret/private vault.
+
+## 13.1. Foundation verification evidence
+
+The first foundation implementation was verified before integration with:
+- Flutter dependency lock + analyze + full test suite on the functional code head;
+- Windows release build;
+- macOS release build;
+- Android release APK build;
+- iOS unsigned release build;
+- a real Windows-runner DPAPI protect/unprotect + device-state round-trip smoke.
+
+This evidence validates buildability and the Windows DPAPI path. It does **not** claim runtime Keychain/Keystore behavior on physical Apple/Android devices; those remain mandatory gates before user-facing vault unlock is declared ready.
 
 ## 14. Explicit non-decisions
 
