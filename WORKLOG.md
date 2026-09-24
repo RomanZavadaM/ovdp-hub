@@ -25,13 +25,16 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **generated Planner copy / preset labels localization + UX regression**.
 
 - base `main`: `02284169c069de0bb11a2c3eb628ff1956f8059f`;
 - branch: **`feat/planner-generated-copy-localization`**;
 - PR: **#61** `Planner: localize generated copy and preset labels` (draft);
+- verified code head: `b832af8eba70526cd872893a9cf2edb25d407771`;
+- verify: **Flutter checks and START run #189 — success**;
+- regression result: **110/110 tests passed**;
 - published checkpoint remains: **v0.8.8 / 0.8.8+16**;
 - audit confirmed hard-coded generated copy in Planner domain/state:
   - default plan name `Мій план`;
@@ -55,7 +58,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — code + regression tests committed; PR #61 opened. Await latest-head CI, then fix any findings, mark ready and integrate.**
+**VERIFIED — code head passed run #189 (110/110). Record this checkpoint, verify the resulting WORKLOG-only latest head, then mark PR ready and integrate into `main`.**
 
 ## Черга робіт
 
