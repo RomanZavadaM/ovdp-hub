@@ -25,24 +25,27 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **v0.9.1+18 full prerelease checkpoint**.
+Мета: **user-visible 0.9.2 direction — «Мій портфель» + постійний «Економічний пульс»**.
 
-- release PR #97 → squash merge **`bf9b358b73ce84ea333a09978a4607c0505d30fb`**;
-- exact PR head **run #337 — success**;
-- post-merge `main` **run #338 — success**;
-- full **Publish native prerelease run #72 — success**;
-- immutable tag **`v0.9.1`** → `bf9b358b73ce84ea333a09978a4607c0505d30fb`;
-- GitHub prerelease **OVDP Hub 0.9.1** published;
-- Windows x64 / macOS / Android test / unsigned iOS / START-source all built successfully;
-- `SHA256SUMS.txt` and legal notices published;
-- release notes and README/guides synchronized for UK/EN/FR/DE/ES/KO/JA;
-- privacy boundary explicitly documented: legacy `sets/*.json` are not auto-encrypted and migration core has no delete API.
+- base `main`: **`1ce61b46e9e8673c6b8f81511e7b0c139fc61760`**;
+- branch: **`feat/portfolio-economic-pulse`**;
+- пріоритет власника: кожен наступний цикл має давати помітний користувацький результат, а не серію лише внутрішніх infrastructure slices;
+- перший slice: додати постійний market/economy pulse з офіційним provenance та окрему навігаційну точку «Мій портфель», не створюючи паралельного plaintext-сховища;
+- vault/private-portfolio core лишається єдиною основою для фактичного портфеля;
+- Android SAF / iOS security-scoped access відкладено нижче до мобільного storage gate, а не видалено з roadmap.
+
+Критерії готовності першого slice:
+1. «Економічний пульс» видимий незалежно від активного розділу та не маскує відсутні/застарілі дані.
+2. Дані мають явні офіційні джерела/дати; перша версія використовує надійні NBU FX + наявний MinFin auction pipeline.
+3. «Мій портфель» з'являється у навігації як user-facing напрям, але фактичні holdings не зберігаються поза encrypted vault.
+4. UK/EN/FR/DE/ES/KO/JA localization + desktop/phone regressions.
+5. analyze/tests green; PR → integration to `main`.
 
 ### Поточна наступна дія
 
-**NEXT — Android SAF / iOS security-scoped external-folder access. Keep user-facing vault/migration UX as a separate gate and do not claim legacy private data is encrypted until that explicit flow is wired and succeeds.**
+**DOING — implement persistent «Економічний пульс» + first safe user-facing «Мій портфель» entrypoint on the existing encrypted portfolio foundation.**
 
 ## Черга робіт
 
@@ -70,7 +73,10 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 22. **DONE** — Private portfolio factual sale/disposal + explicit lot-allocation foundation; replacement PR #92 → merge `d8de5c9f…`; exact-head run #317 and post-merge run #318 green.
 23. **DONE** — Non-destructive legacy plaintext migration; PR #95 → merge `36191546…`; exact-head run #329 and post-merge run #331 green.
 24. **DONE** — v0.9.1+18 full prerelease checkpoint; PR #97 → `bf9b358b…`; run #337, main run #338 and release run #72 green; immutable `v0.9.1` published with all platform assets.
-25. **NEXT** — Android SAF / iOS security-scoped external-folder access.
+25. **DOING** — User-visible 0.9.2 direction: «Мій портфель» + persistent «Економічний пульс».
+26. **NEXT** — User-facing factual acquisition flow + holdings summary on encrypted vault.
+27. **NEXT** — User-facing factual sale/redemption/history + legacy migration wizard.
+28. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
 
 ## Продуктова логіка цієї черги
 
