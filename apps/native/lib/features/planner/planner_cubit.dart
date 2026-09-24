@@ -8,6 +8,7 @@ import '../../data/source_observation.dart';
 import '../../models.dart';
 import '../../pricing.dart';
 import 'planner_engine.dart';
+import 'planner_export.dart';
 import 'planner_fees.dart';
 import 'planner_fx.dart';
 import 'planner_goals.dart';
@@ -135,6 +136,7 @@ class PlannerState {
   final PlanSummary? summary;
   final List<ExpenseBalance> expenseBalances;
   final String profit;
+  final String? lastExportPath;
   final AppError? error;
   final bool busy, locked, saved, changed;
   final int revision;
@@ -153,6 +155,7 @@ class PlannerState {
     this.summary,
     Iterable<ExpenseBalance> expenseBalances = const [],
     this.profit = '0',
+    this.lastExportPath,
     this.error,
     this.busy = false,
     this.locked = false,
@@ -184,6 +187,7 @@ class PlannerState {
     PlanSummary? summary,
     Iterable<ExpenseBalance>? expenseBalances,
     String? profit,
+    String? lastExportPath,
     AppError? error,
     bool clearSummary = false,
     bool clearError = false,
@@ -208,6 +212,7 @@ class PlannerState {
         ? []
         : expenseBalances ?? this.expenseBalances,
     profit: clearSummary ? '0' : profit ?? this.profit,
+    lastExportPath: lastExportPath ?? this.lastExportPath,
     error: clearError ? null : error ?? this.error,
     busy: busy ?? this.busy,
     locked: locked ?? this.locked,
@@ -1022,6 +1027,68 @@ class PlannerCubit extends Cubit<PlannerState> {
           clearSummary: true,
         ),
       );
+    }
+  }
+
+  Future<bool> exportCsvIcs() async {
+    if (state.busy ||
+        state.locked ||
+        state.summary == null ||
+        state.inputs.isEmpty) {
+      return false;
+    }
+    if ((state.criteria['name'] ?? '').trim().isEmpty) {
+      emit(state.copyWith(error: const AppError('planner.name_required')));
+      return false;
+    }
+
+    final draft = state;
+    emit(state.copyWith(busy: true, clearError: true));
+    try {
+      final generatedAt = clock();
+      final observedAt = generatedAt.toUtc().toIso8601String();
+      final scenario = PlannerScenario.fromCurrentUiDrafts(
+        criteria: draft.criteria,
+        positions: draft.inputs.values.map(
+          (input) => input.toDraft(observedAt: observedAt),
+        ),
+        savedAt: observedAt,
+        priceSourcePriority: draft.priceSourcePriority,
+        fees: draft.fees,
+        taxes: draft.taxes,
+        fx: draft.fx,
+        positionExits: draft.positionExits,
+      );
+      final bundle = buildPlannerExportBundle(
+        scenario: scenario,
+        bonds: draft.inputs.values.map((input) => input.bond),
+        expenseBalances: draft.expenseBalances,
+      );
+      final folder = plannerExportFolderName(
+        draft.criteria['name']!.trim(),
+        generatedAt,
+      );
+      final path = await repository.saveExportBundle(folder, bundle.files);
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            busy: false,
+            lastExportPath: path,
+            clearError: true,
+          ),
+        );
+      }
+      return true;
+    } catch (_) {
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            busy: false,
+            error: const AppError('planner.export_failed'),
+          ),
+        );
+      }
+      return false;
     }
   }
 
