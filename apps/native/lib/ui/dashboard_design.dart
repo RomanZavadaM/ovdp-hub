@@ -241,7 +241,13 @@ class DashboardHeader extends StatelessWidget {
                                 )
                               else
                                 const SizedBox(width: 26),
-                              Text(strings.text(appearanceTranslationKey(mode))),
+                              Flexible(
+                        child: Text(
+                          strings.text(appearanceTranslationKey(mode)),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                             ],
                           ),
                         ),
