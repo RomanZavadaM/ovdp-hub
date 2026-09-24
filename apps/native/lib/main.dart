@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'build_info.dart';
 import 'data/hub_repository.dart';
 import 'features/appearance/appearance_cubit.dart';
 import 'features/calculator/calculator_cubit.dart';
@@ -25,11 +28,16 @@ import 'features/sellers/sellers_view.dart';
 import 'features/workspace/workspace_cubit.dart';
 import 'features/workspace/workspace_view.dart';
 import 'l10n/hub_locale.dart';
+import 'release_contract.dart';
 import 'ui/components.dart';
 import 'ui/dashboard_design.dart';
 import 'ui/studio_design.dart';
 
-void main() {
+void main(List<String> args) {
+  if (args.contains('--release-contract')) {
+    stdout.writeln(releaseContractJson());
+    return;
+  }
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const OvdpApp());
 }
@@ -205,6 +213,7 @@ class Home extends StatelessWidget {
       showAboutDialog(
         context: context,
         applicationName: 'OVDP Hub',
+        applicationVersion: appDisplayVersion,
         applicationLegalese:
             'Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.',
         children: [
