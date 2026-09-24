@@ -364,16 +364,6 @@ class LegacyPlaintextMigrator {
     }
   }
 
-  bool _sameIds(Iterable<String> a, Iterable<String> b) {
-    final left = a.toList()..sort();
-    final right = b.toList()..sort();
-    if (left.length != right.length) return false;
-    for (var i = 0; i < left.length; i++) {
-      if (left[i] != right[i]) return false;
-    }
-    return true;
-  }
-
   String _migrationErrorCode(Object error) {
     if (error is FormatException) {
       final message = error.message.toString();
