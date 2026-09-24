@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../build_info.dart';
 import '../l10n/hub_locale.dart';
 
 ThemeData hubTheme(bool studio) {
@@ -170,7 +171,7 @@ class StudioSidebar extends StatelessWidget {
                   child: Text(
                     "${strings.text('noAccount')}\n"
                     "${strings.text('scenariosLocal')}\n\n"
-                    "${strings.text('testVersion')} 0.9.1",
+                    "${strings.text('testVersion')} $appDisplayVersion",
                     style: const TextStyle(
                       color: Color(0xffb5c5dc),
                       height: 1.7,
