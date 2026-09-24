@@ -60,12 +60,12 @@ class CatalogView extends StatelessWidget {
           spacing: 12,
           runSpacing: 12,
           children: [
-            if (studio)
+            if (studio || dashboard)
               MetricTile(strings.text('issuesSelected'), '${state.visible.length}')
             else
               Chip(label: Text('${state.visible.length} ${strings.text('issuesSelected')}')),
             for (final c in state.currencyCounts.entries)
-              if (studio)
+              if (studio || dashboard)
                 MetricTile('${strings.text('issuesIn')} ${c.key}', '${c.value}')
               else
                 Chip(label: Text('${c.key}: ${c.value}')),
