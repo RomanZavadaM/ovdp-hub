@@ -7,6 +7,7 @@ const String vaultMagic = 'OVDP-HUB-VAULT';
 const int vaultEnvelopeVersion = 1;
 const String vaultAeadAlgorithm = 'xchacha20poly1305-ietf';
 const String vaultRecoveryKdfAlgorithm = 'argon2id13';
+const int vaultRecoverySlotVersion = 1;
 
 final RegExp _vaultIdPattern = RegExp(r'^[A-Za-z0-9._-]{1,96}$');
 
@@ -141,6 +142,73 @@ class VaultEnvelopeV1 {
   }
 }
 
+class VaultRecoverySlotV1 {
+  final String vaultId;
+  final VaultRecoveryKdfParameters kdf;
+  final Uint8List salt;
+  final Uint8List nonce;
+  final Uint8List wrappedDek;
+
+  VaultRecoverySlotV1({
+    required this.vaultId,
+    required this.kdf,
+    required Uint8List salt,
+    required Uint8List nonce,
+    required Uint8List wrappedDek,
+  }) : salt = Uint8List.fromList(salt),
+       nonce = Uint8List.fromList(nonce),
+       wrappedDek = Uint8List.fromList(wrappedDek) {
+    validateVaultId(vaultId);
+    if (this.salt.isEmpty || this.nonce.isEmpty || this.wrappedDek.isEmpty) {
+      throw const FormatException('vault.invalid_recovery_slot');
+    }
+  }
+
+  Map<String, Object> headerJson() => {
+    'application': vaultMagic,
+    'slotType': 'recovery',
+    'slotVersion': vaultRecoverySlotVersion,
+    'vaultId': vaultId,
+    'algorithm': vaultAeadAlgorithm,
+    'kdf': kdf.toJson(),
+    'salt': _b64(salt),
+    'nonce': _b64(nonce),
+  };
+
+  Uint8List authenticatedHeader() =>
+      Uint8List.fromList(utf8.encode(jsonEncode(headerJson())));
+
+  Map<String, Object> toJson() => {
+    ...headerJson(),
+    'wrappedDek': _b64(wrappedDek),
+  };
+
+  factory VaultRecoverySlotV1.fromJson(Map<String, dynamic> json) {
+    if (json['application'] != vaultMagic ||
+        json['slotType'] != 'recovery' ||
+        json['slotVersion'] != vaultRecoverySlotVersion) {
+      throw const FormatException('vault.unsupported_recovery_slot');
+    }
+    if (json['algorithm'] != vaultAeadAlgorithm) {
+      throw const FormatException('vault.unsupported_algorithm');
+    }
+    final vaultId = json['vaultId'];
+    final kdfJson = json['kdf'];
+    if (vaultId is! String || kdfJson is! Map) {
+      throw const FormatException('vault.invalid_recovery_slot');
+    }
+    return VaultRecoverySlotV1(
+      vaultId: vaultId,
+      kdf: VaultRecoveryKdfParameters.fromJson(
+        Map<String, dynamic>.from(kdfJson),
+      ),
+      salt: _decodeB64(json['salt']),
+      nonce: _decodeB64(json['nonce']),
+      wrappedDek: _decodeB64(json['wrappedDek']),
+    );
+  }
+}
+
 abstract interface class VaultCrypto {
   int get dekBytes;
   int get nonceBytes;
@@ -165,6 +233,18 @@ abstract interface class VaultCrypto {
     required String recoverySecret,
     required Uint8List salt,
     required VaultRecoveryKdfParameters parameters,
+  });
+
+  VaultRecoverySlotV1 wrapDekForRecovery({
+    required String vaultId,
+    required SecureKey dek,
+    required String recoverySecret,
+    required VaultRecoveryKdfParameters parameters,
+  });
+
+  SecureKey unwrapDekFromRecovery({
+    required VaultRecoverySlotV1 slot,
+    required String recoverySecret,
   });
 }
 
@@ -270,5 +350,87 @@ class SodiumVaultCrypto implements VaultCrypto {
       memLimit: parameters.memLimit,
       alg: CryptoPwhashAlgorithm.argon2id13,
     );
+  }
+
+  @override
+  VaultRecoverySlotV1 wrapDekForRecovery({
+    required String vaultId,
+    required SecureKey dek,
+    required String recoverySecret,
+    required VaultRecoveryKdfParameters parameters,
+  }) {
+    validateVaultId(vaultId);
+    if (dek.length != _aead.keyBytes) {
+      throw const FormatException('vault.invalid_device_key');
+    }
+    final salt = generateRecoverySalt();
+    final nonce = sodium.randombytes.buf(_aead.nonceBytes);
+    final kek = deriveRecoveryKey(
+      recoverySecret: recoverySecret,
+      salt: salt,
+      parameters: parameters,
+    );
+    try {
+      final template = VaultRecoverySlotV1(
+        vaultId: vaultId,
+        kdf: parameters,
+        salt: salt,
+        nonce: nonce,
+        wrappedDek: Uint8List.fromList(const [1]),
+      );
+      final wrapped = dek.runUnlockedSync(
+        (data) => _aead.encrypt(
+          message: data,
+          nonce: nonce,
+          key: kek,
+          additionalData: template.authenticatedHeader(),
+        ),
+      );
+      return VaultRecoverySlotV1(
+        vaultId: vaultId,
+        kdf: parameters,
+        salt: salt,
+        nonce: nonce,
+        wrappedDek: wrapped,
+      );
+    } finally {
+      kek.dispose();
+    }
+  }
+
+  @override
+  SecureKey unwrapDekFromRecovery({
+    required VaultRecoverySlotV1 slot,
+    required String recoverySecret,
+  }) {
+    if (slot.nonce.length != _aead.nonceBytes ||
+        slot.salt.length != _pwhash.saltBytes) {
+      throw const FormatException('vault.invalid_recovery_slot');
+    }
+    final kek = deriveRecoveryKey(
+      recoverySecret: recoverySecret,
+      salt: slot.salt,
+      parameters: slot.kdf,
+    );
+    Uint8List? rawDek;
+    try {
+      try {
+        rawDek = _aead.decrypt(
+          cipherText: slot.wrappedDek,
+          nonce: slot.nonce,
+          key: kek,
+          additionalData: slot.authenticatedHeader(),
+        );
+      } on SodiumException {
+        throw const FormatException('vault.recovery_authentication_failed');
+      }
+      if (rawDek.length != _aead.keyBytes) {
+        throw const FormatException('vault.invalid_recovery_slot');
+      }
+      return sodium.secureCopy(rawDek);
+    } finally {
+      kek.dispose();
+      rawDek?.fillRange(0, rawDek.length, 0);
+    }
   }
 }
