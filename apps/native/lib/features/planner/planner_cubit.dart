@@ -8,6 +8,7 @@ import '../../data/source_observation.dart';
 import '../../models.dart';
 import '../../pricing.dart';
 import 'planner_engine.dart';
+import 'planner_export.dart';
 import 'planner_fees.dart';
 import 'planner_fx.dart';
 import 'planner_goals.dart';
@@ -1024,6 +1025,63 @@ class PlannerCubit extends Cubit<PlannerState> {
       );
     }
   }
+
+  PlannerScenario _currentExportScenario(PlannerState draft) {
+    if (draft.summary == null || draft.inputs.isEmpty) {
+      throw StateError('planner.export_requires_generated');
+    }
+    final stableObservedAt = '${draft.criteria['start']}T00:00:00.000Z';
+    return PlannerScenario.fromCurrentUiDrafts(
+      criteria: draft.criteria,
+      positions: draft.inputs.values.map(
+        (input) => input.toDraft(observedAt: stableObservedAt),
+      ),
+      savedAt: stableObservedAt,
+      priceSourcePriority: draft.priceSourcePriority,
+      fees: draft.fees,
+      taxes: draft.taxes,
+      fx: draft.fx,
+      positionExits: draft.positionExits,
+    );
+  }
+
+  Future<String?> _export(String extension) async {
+    if (state.busy || state.locked) return null;
+    final draft = state;
+    emit(state.copyWith(busy: true, clearError: true));
+    try {
+      final scenario = _currentExportScenario(draft);
+      final bonds = {
+        for (final input in draft.inputs.values) input.bond.isin: input.bond,
+      };
+      final content = switch (extension) {
+        'csv' => buildPlannerCsv(
+            scenario: scenario,
+            bonds: bonds,
+            coverage: draft.expenseBalances,
+          ),
+        'ics' => buildPlannerIcs(
+            scenario: scenario,
+            bonds: bonds,
+            coverage: draft.expenseBalances,
+          ),
+        _ => throw const FormatException('planner.export_format_unsupported'),
+      };
+      final fileName = '${plannerExportStem(scenario)}.$extension';
+      final path = await repository.saveTextExport(fileName, content);
+      if (!isClosed) emit(state.copyWith(busy: false, clearError: true));
+      return path;
+    } catch (e) {
+      if (!isClosed) {
+        emit(state.copyWith(busy: false, error: AppError.from(e)));
+      }
+      return null;
+    }
+  }
+
+  Future<String?> exportCsv() => _export('csv');
+
+  Future<String?> exportIcs() => _export('ics');
 
   Future<bool> save() async {
     if (state.busy ||
