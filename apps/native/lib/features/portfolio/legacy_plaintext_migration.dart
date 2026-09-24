@@ -203,7 +203,6 @@ class LegacyPlaintextMigrator {
           verifiedOpen.plainText,
         );
         _verifyMigration(
-          before: before,
           expected: expected,
           verified: verified,
           migratedSourceIds: pendingBySourceId.keys.toSet(),
@@ -325,45 +324,31 @@ class LegacyPlaintextMigrator {
       );
 
   void _verifyMigration({
-    required PrivatePortfolioPayload before,
     required PrivatePortfolioPayload expected,
     required PrivatePortfolioPayload verified,
     required Set<String> migratedSourceIds,
   }) {
-    if (verified.portfolioId != before.portfolioId ||
-        !_sameIds(
-          before.acquisitionLots.map((record) => record.id),
-          verified.acquisitionLots.map((record) => record.id),
-        ) ||
-        !_sameIds(
-          before.cashEvents.map((record) => record.id),
-          verified.cashEvents.map((record) => record.id),
-        ) ||
-        !_sameIds(
-          before.disposals.map((record) => record.id),
-          verified.disposals.map((record) => record.id),
-        )) {
-      throw StateError('migration.portfolio_semantics_changed');
-    }
-
-    final expectedById = {
-      for (final record in expected.legacyCollections)
-        record.sourceId: record.canonicalJson,
-    };
-    final verifiedById = {
-      for (final record in verified.legacyCollections)
-        record.sourceId: record.canonicalJson,
-    };
-    if (expectedById.length != verifiedById.length) {
-      throw StateError('migration.verification_failed');
-    }
-    for (final entry in expectedById.entries) {
-      if (verifiedById[entry.key] != entry.value) {
+    final expectedBytes = PrivatePortfolioPayloadCodec.encode(expected);
+    final verifiedBytes = PrivatePortfolioPayloadCodec.encode(verified);
+    try {
+      if (expectedBytes.length != verifiedBytes.length) {
         throw StateError('migration.verification_failed');
       }
-    }
-    if (!migratedSourceIds.every(verifiedById.containsKey)) {
-      throw StateError('migration.verification_failed');
+      for (var i = 0; i < expectedBytes.length; i++) {
+        if (expectedBytes[i] != verifiedBytes[i]) {
+          throw StateError('migration.verification_failed');
+        }
+      }
+
+      final verifiedSourceIds = verified.legacyCollections
+          .map((record) => record.sourceId)
+          .toSet();
+      if (!migratedSourceIds.every(verifiedSourceIds.contains)) {
+        throw StateError('migration.verification_failed');
+      }
+    } finally {
+      expectedBytes.fillRange(0, expectedBytes.length, 0);
+      verifiedBytes.fillRange(0, verifiedBytes.length, 0);
     }
   }
 
