@@ -128,5 +128,6 @@ Slice не є `DONE`, доки:
 - Інтегровано після v0.9.0 також: **encrypted vault local store/lifecycle** — recovery-wrapped DEK slot, authenticated slot binding, app-managed encrypted file, known-good atomic replace/restart recovery, rollback detection, portable encrypted backup/restore
 - Інтегровано після v0.9.0 також: **encrypted vault session/locking foundation** — explicit locked/unlocking/unlocked/locking/error state, manual/inactivity/background lock, stale async completion guards and pending-unlock/background race coverage
 - Інтегровано після v0.9.0 також: **encrypted vault lifecycle controls** — recovery enable/rotate/remove, non-destructive local delete/crash recovery, external-backup preservation and serialized session store operations
-- Наступний активний slice: **Private portfolio/domain foundation — versioned encrypted payload schema for holdings, acquisition lots and factual coupons/redemptions; без legacy migration та без user-facing portfolio UI**
+- Інтегровано після v0.9.0 також: **private encrypted payload/domain foundation** — schema v1, factual acquisition lots, explicit fee state, factual coupon/redemption events, deterministic encrypted codec and derived holdings
+- Наступний активний slice: **Private portfolio factual disposals — sale/disposal records, lot allocation and realized cost-basis foundation; без legacy migration та без user-facing portfolio UI**
 - Live ledger: GitHub Issue **#18**
