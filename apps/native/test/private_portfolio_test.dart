@@ -736,6 +736,22 @@ void main() {
           amount: '123.45',
         ),
       ],
+      disposals: [
+        disposal(
+          id: 'sale-secret',
+          isin: isinA,
+          date: '2026-05-01',
+          units: 2,
+          proceeds: '2100',
+          fee: '7.25',
+          allocations: [
+            PrivateDisposalLotAllocation(
+              lotId: 'lot-secret',
+              units: 2,
+            ),
+          ],
+        ),
+      ],
     );
 
     await store.create(
@@ -749,6 +765,7 @@ void main() {
     expect(physical, isNot(contains('portfolio-secret')));
     expect(physical, isNot(contains(isinA)));
     expect(physical, isNot(contains('Private Broker Account')));
+    expect(physical, isNot(contains('sale-secret')));
 
     final opened = await store.open(vaultId: 'vault-private-payload');
     final decoded = PrivatePortfolioPayloadCodec.decode(opened.plainText);
@@ -757,6 +774,8 @@ void main() {
     expect(decoded.portfolioId, 'portfolio-secret');
     expect(decoded.acquisitionLots.single.id, 'lot-secret');
     expect(decoded.cashEvents.single.id, 'coupon-secret');
-    expect(decoded.holdings.single.units, 7);
+    expect(decoded.disposals.single.id, 'sale-secret');
+    expect(decoded.disposals.single.allocations.single.lotId, 'lot-secret');
+    expect(decoded.holdings.single.units, 5);
   });
 }
