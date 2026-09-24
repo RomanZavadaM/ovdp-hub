@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../l10n/hub_locale.dart';
+import '../../models.dart';
 import '../../ui/components.dart';
 import '../navigation/navigation_cubit.dart';
 import '../planner/planner_comparison.dart';
@@ -14,6 +15,65 @@ import 'editor_cubit.dart';
 
 class CollectionsView extends StatelessWidget {
   const CollectionsView({super.key});
+
+  String _generatedCopy(HubStrings strings, String value) {
+    if (value == PlannerGeneratedCopy.planName) {
+      return strings.text('generatedPlanName');
+    }
+    if (value == PlannerGeneratedCopy.primaryNeedName) {
+      return strings.text('generatedPrimaryNeedName');
+    }
+    final ordinal = PlannerGeneratedCopy.expenseOrdinal(value);
+    if (ordinal != null) {
+      return strings
+          .text('generatedExpenseName')
+          .replaceAll('{n}', ordinal.toString());
+    }
+    return value;
+  }
+
+  String _scenarioNote(HubStrings strings, SavedSet set) {
+    if (set.note != PlannerGeneratedCopy.scenarioNote) {
+      return set.note.isEmpty ? strings.text('noNotes') : set.note;
+    }
+    final scenario = set.scenario;
+    if (scenario == null) return strings.text('noNotes');
+
+    final fees = scenario['fees'];
+    final taxes = scenario['taxes'];
+    final fx = scenario['fx'];
+    final positionExits = scenario['positionExits'];
+    var exitCount = positionExits is List ? positionExits.length : 0;
+    if (exitCount == 0) {
+      final legacyExit = scenario['exit'];
+      if (legacyExit is Map && legacyExit['mode'] == 'earlySale') {
+        exitCount = 1;
+      }
+    }
+
+    final feeText = fees is Map && fees['status'] == 'unknown'
+        ? strings.text('generatedScenarioFeesUnknown')
+        : strings.text('generatedScenarioFeesKnown');
+    final taxText = taxes is Map && taxes['status'] == 'unknown'
+        ? strings.text('generatedScenarioTaxesUnknown')
+        : strings.text('generatedScenarioTaxesKnown');
+    final fxText = fx is List && fx.isNotEmpty
+        ? strings.text('generatedScenarioFxKnown')
+        : strings.text('generatedScenarioFxNone');
+    final exitText = exitCount == 0
+        ? strings.text('generatedScenarioExitHold')
+        : strings
+              .text('generatedScenarioExitEarly')
+              .replaceAll('{count}', exitCount.toString());
+
+    return strings
+        .text('generatedScenarioDescription')
+        .replaceAll('{currency}', scenario['currency']?.toString() ?? '')
+        .replaceAll('{fee}', feeText)
+        .replaceAll('{tax}', taxText)
+        .replaceAll('{fx}', fxText)
+        .replaceAll('{exit}', exitText);
+  }
 
   String _strategy(HubStrings strings, ComparisonVariant variant) =>
       switch (variant.strategy) {
@@ -105,7 +165,10 @@ class CollectionsView extends StatelessWidget {
                     DataColumn(label: Text(variant.label)),
                 ],
                 rows: [
-                  row(strings.text('comparisonScenarioName'), (v) => v.name),
+                  row(
+                    strings.text('comparisonScenarioName'),
+                    (v) => _generatedCopy(strings, v.name),
+                  ),
                   row(strings.text('comparisonStrategy'), (v) => _strategy(strings, v)),
                   row(
                     strings.text('comparisonComposition'),
@@ -209,7 +272,7 @@ class CollectionsView extends StatelessWidget {
         ...state.sets.map(
           (s) => Card(
             child: ExpansionTile(
-              title: Text(s.name),
+              title: Text(_generatedCopy(strings, s.name)),
               subtitle: Text(
                 '${s.bonds.length} ${strings.text('issuesWord')} · ${s.savedAt}',
               ),
@@ -217,7 +280,7 @@ class CollectionsView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    s.note.isEmpty ? strings.text('noNotes') : s.note,
+                    _scenarioNote(strings, s),
                   ),
                 ),
                 ...s.bonds.map(
