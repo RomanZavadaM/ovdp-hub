@@ -166,7 +166,7 @@ jobs:
 
   macos:
     needs: [preflight, verify]
-    if: github.event_name != 'pull_request' && needs.preflight.outputs.exists != 'true'
+    if: github.event_name == 'pull_request' || needs.preflight.outputs.exists != 'true'
     runs-on: macos-latest
     defaults:
       run:
