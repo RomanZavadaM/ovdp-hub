@@ -11,6 +11,8 @@ import 'features/catalog/catalog_view.dart';
 import 'features/collections/collections_cubit.dart';
 import 'features/collections/collections_view.dart';
 import 'features/collections/editor_cubit.dart';
+import 'features/economy/economic_pulse_cubit.dart';
+import 'features/economy/economic_pulse_view.dart';
 import 'features/navigation/navigation_cubit.dart';
 import 'features/planner/planner_cubit.dart';
 import 'features/planner/planner_view.dart';
@@ -55,6 +57,11 @@ class OvdpApp extends StatelessWidget {
         BlocProvider(create: (_) => CalculatorCubit()),
         BlocProvider(create: (_) => AppearanceCubit()),
         BlocProvider(create: (_) => LocaleCubit()),
+        BlocProvider(
+          create: (context) =>
+              EconomicPulseCubit(context.read<HubRepository>())..load(),
+          lazy: false,
+        ),
         BlocProvider(create: (_) => SellersCubit(SellerRepository())),
         BlocProvider(create: (_) => NavigationCubit()),
         BlocProvider(
@@ -197,6 +204,7 @@ class Home extends StatelessWidget {
           workspace.error,
           context.read<WorkspaceCubit>().dismissError,
         ),
+        EconomicPulseBar(compact: !wide),
         Expanded(
           child: SingleChildScrollView(
             key: ValueKey(screen),
