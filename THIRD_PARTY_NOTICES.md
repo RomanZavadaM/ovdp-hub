@@ -16,7 +16,12 @@ Direct Flutter/Dart dependencies currently declared by the active native applica
 - archive — MIT, ZIP/DOCX container decoding for official MinFin auction-result documents
 - pdf_document — Apache-2.0, pure-Dart PDF document model used by the calendar PDF reader
 - pdf_graphics — Apache-2.0, pure-Dart PDF text extraction used by the calendar PDF reader
+- sodium 4.1.0+1 — BSD-3-Clause Dart bindings; bundles/uses libsodium 1.0.22 (ISC) for the encrypted-vault cryptographic foundation
+- flutter_secure_storage 11.2.0 — BSD-3-Clause, OS-backed device-key storage adapter for Android/iOS/macOS
+- win32 6.4.0 — BSD-3-Clause, Windows API bindings used by the app-owned current-user DPAPI device-key adapter
 - flutter_lints (development dependency)
+
+`libsodium` remains governed by its own ISC license and copyright notices; the `sodium` Dart wrapper remains governed by BSD-3-Clause. `flutter_secure_storage` and `win32` retain their BSD-3-Clause terms and upstream copyright notices.
 
 Platform runtimes, operating-system libraries, build tools, transitive dependencies and packaging/signing tools may have separate copyright and licensing terms. The authoritative dependency versions for a source/build checkpoint are recorded in `apps/native/pubspec.yaml` and `apps/native/pubspec.lock`.
 
