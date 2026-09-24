@@ -25,15 +25,18 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **full prerelease checkpoint v0.9.0 / 0.9.0+17 — release preparation only**.
 
 - readiness gate: PR **#63**, merge `f80c7d8e87b4fb494cf37712627bc12277a2fa73`, run #193 — GO;
 - canonical readiness sync: PR **#64**, merge `aaeb08cb24145cdea38739f22b660ac28fca15b5`, run #194;
 - release branch: **`release/v0.9.0`**;
-- release PR: **#65** `Release: v0.9.0 full prerelease checkpoint` (draft);
+- release PR: **#65** `Release: v0.9.0 full prerelease checkpoint` (draft at verification checkpoint);
 - prepared candidate head before WORKLOG sync: `374403898c27df6d07e6bcd5ac852b888eda1b06`;
+- exact verified PR head: `ca0a8908c9c316da6e503f16997d95a73aa9afcc`;
+- **Flutter checks and START run #196 — success** on exact verified head;
+- **Publish native prerelease run #42 — preflight success** on the PR; gated verify/platform/publish jobs were skipped as intended for an unmerged PR;
 - base `main`: `aaeb08cb24145cdea38739f22b660ac28fca15b5`;
 - target version/build: **0.9.0+17**;
 - target tag after an explicit checkpoint merge: **v0.9.0**;
@@ -60,7 +63,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — release PR #65 is open as draft. Verify the exact latest head with Flutter checks + release preflight, fix any findings, then mark #65 ready without merging/publishing it.**
+**VERIFIED — release PR #65 passed exact-head Flutter checks (#196) and release preflight (#42). Run final latest-head verification after this WORKLOG-only checkpoint, then mark #65 ready without merging/publishing it.**
 
 ## Черга робіт
 
@@ -74,7 +77,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 8. **DONE** — full test checkpoint v0.8.8 from current main.
 9. **DONE** — generated planner copy / preset labels localization + UX regression — PR #61, run #189 (110/110), final run #190, merge `1e6849f7…`.
 10. **DONE** — formal prerelease readiness assessment 0.9.0 — PR #63, run #193, merge `f80c7d8e…`; GO to release preparation.
-11. **DOING** — prepare v0.9.0 release-checkpoint PR (`0.9.0+17` + seven-language release notes); publication not yet authorized in this slice.
+11. **VERIFIED** — v0.9.0 release-checkpoint PR #65 prepared (`0.9.0+17` + seven-language release notes); exact candidate head passed Flutter checks #196 and release preflight #42; publication not yet authorized in this slice.
 
 ## Продуктова логіка цієї черги
 
