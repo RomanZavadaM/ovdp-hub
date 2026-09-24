@@ -6,6 +6,27 @@ import '../../models.dart';
 import '../../pricing.dart';
 import 'planner_engine.dart';
 
+abstract final class PlannerGeneratedCopy {
+  static const planName = '@ovdp-hub:planner:generated-plan-name';
+  static const primaryNeedName = '@ovdp-hub:planner:generated-primary-need';
+  static const aggregatePurchaseFeeRuleName =
+      '@ovdp-hub:planner:aggregate-purchase-fee';
+  static const taxUnknownLabel = '@ovdp-hub:planner:tax-unknown';
+  static const taxUkraineResidentOvdp2026Label =
+      '@ovdp-hub:planner:tax-ua-resident-ovdp-2026';
+  static const scenarioNote = '@ovdp-hub:planner:generated-scenario-note-v1';
+
+  static String expenseName(int ordinal) =>
+      '@ovdp-hub:planner:generated-expense:$ordinal';
+
+  static int? expenseOrdinal(String value) {
+    const prefix = '@ovdp-hub:planner:generated-expense:';
+    if (!value.startsWith(prefix)) return null;
+    final ordinal = int.tryParse(value.substring(prefix.length));
+    return ordinal != null && ordinal >= 2 ? ordinal : null;
+  }
+}
+
 T _readEnum<T extends Enum>(List<T> values, Object? raw) {
   if (raw is String) {
     for (final value in values) {
@@ -117,7 +138,7 @@ List<PlannerNeed> plannerNeedsFromCriteria(Map<String, String> criteria) {
   final needs = <PlannerNeed>[
     PlannerNeed(
       id: 'need-0',
-      name: (criteria['needName'] ?? 'Основна потреба').trim(),
+      name: (criteria['needName'] ?? PlannerGeneratedCopy.primaryNeedName).trim(),
       type: recurring ? PlannerNeedType.recurring : PlannerNeedType.oneOff,
       date: criteria['needDate']!,
       amount: money(criteria['needAmount']!),
@@ -130,7 +151,7 @@ List<PlannerNeed> plannerNeedsFromCriteria(Map<String, String> criteria) {
     needs.add(
       PlannerNeed(
         id: 'need-${i + 1}',
-        name: (criteria['expenseName$i'] ?? 'Витрата ${i + 2}').trim(),
+        name: (criteria['expenseName$i'] ?? PlannerGeneratedCopy.expenseName(i + 2)).trim(),
         type: PlannerNeedType.oneOff,
         date: criteria['expenseDate$i']!,
         amount: money(criteria['expenseAmount$i']!),
@@ -624,12 +645,12 @@ class TaxScenario {
 
   factory TaxScenario.unknown() => TaxScenario(
     status: TaxAssumptionStatus.unknown,
-    label: 'Податкові правила не задані',
+    label: PlannerGeneratedCopy.taxUnknownLabel,
   );
 
   factory TaxScenario.ukraineResidentOvdp2026() => TaxScenario(
     status: TaxAssumptionStatus.known,
-    label: 'Фізособа-резидент України — ОВДП (перевірено 23.09.2026)',
+    label: PlannerGeneratedCopy.taxUkraineResidentOvdp2026Label,
     rules: [
       TaxRule(
         id: 'ua-2026-pit-interest',
@@ -1233,13 +1254,13 @@ class PlannerScenario {
       'start': date(now),
       'minDate': date(now.add(const Duration(days: 1))),
       'maxDate': date(DateTime(now.year + 2, now.month, now.day)),
-      'needName': 'Основна потреба',
+      'needName': PlannerGeneratedCopy.primaryNeedName,
       'needDate': date(DateTime(now.year, now.month + 6, now.day)),
       'needAmount': '10000',
       'needRecurring': 'false',
       'needEveryMonths': '1',
       'needOccurrences': '6',
-      'name': 'Мій план',
+      'name': PlannerGeneratedCopy.planName,
       'strategy': 'ladder',
       'expenseCount': '0',
       'delay': '2',

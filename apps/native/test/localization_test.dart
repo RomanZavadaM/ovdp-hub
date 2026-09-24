@@ -56,6 +56,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Goals and income planner'), findsOneWidget);
     expect(find.text('Budget in selected currency'), findsOneWidget);
+    expect(find.text('My plan'), findsOneWidget);
+    expect(find.text('Primary need'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Language'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Français'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Mon plan'), findsOneWidget);
+    expect(find.text('Besoin principal'), findsWidgets);
+    expect(find.text('My plan'), findsNothing);
 
     expect(tester.takeException(), isNull);
   });
@@ -202,6 +213,33 @@ void main() {
         strings.error(const AppError('planner.invalid_repeat')),
         isNot('planner.invalid_repeat'),
       );
+    }
+  });
+
+  test('generated Planner copy is localized in every supported language', () {
+    const keys = [
+      'generatedPlanName',
+      'generatedPrimaryNeedName',
+      'generatedExpenseName',
+      'generatedScenarioDescription',
+      'generatedScenarioFeesUnknown',
+      'generatedScenarioFeesKnown',
+      'generatedScenarioTaxesUnknown',
+      'generatedScenarioTaxesKnown',
+      'generatedScenarioFxNone',
+      'generatedScenarioFxKnown',
+      'generatedScenarioExitHold',
+      'generatedScenarioExitEarly',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
     }
   });
 
