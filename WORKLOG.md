@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **encrypted vault session/locking foundation — explicit state + manual/inactivity/background lock semantics**.
 
@@ -39,11 +39,13 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - foreground transition checks elapsed inactivity/background time before private rendering may resume;
 - no claim of guaranteed Dart heap zeroization;
 - tests use an injected clock/timer scheduler for deterministic transitions;
+- implementation contract: **`docs/security-vault-session.md`**;
+- exact code head **`9869cfdaec91694b5cd49ad4040cab36b6cd75c0`** passed **Flutter checks and START run #279 — success**;
 - no legacy migration, private portfolio schema or user-facing vault UI.
 
 ### Поточна наступна дія
 
-**DOING — implement the app-owned session controller and deterministic lock/auto-lock regression tests.**
+**VERIFIED — session controller, race handling and deterministic manual/inactivity/background/error tests are green on run #279. Run exact latest-head CI after this docs/WORKLOG checkpoint; if green, mark PR #83 Ready and integrate into `main`.**
 
 ## Черга робіт
 
@@ -65,7 +67,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 16. **DONE** — Encrypted vault dependency/security review and implementation-stack decision; PR #77 → merge `3e4171e7…`; final exact-head run #239 green.
 17. **DONE** — Encrypted vault foundation; PR #79 → merge `d61a1245…`; final exact-head run #260 and post-merge run #261 green.
 18. **DONE** — Encrypted vault local store/lifecycle; PR #81 → merge `16cd6f33…`; final run #274 and post-merge run #275 green.
-19. **DOING** — Encrypted vault session/locking foundation.
+19. **VERIFIED** — Encrypted vault session/locking foundation; code run #279 green, awaiting exact latest-head verification.
 
 ## Продуктова логіка цієї черги
 
