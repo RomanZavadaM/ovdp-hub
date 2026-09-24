@@ -774,4 +774,39 @@ void main() {
     final old = SavedSet('old', '', '2026-09-21T00:00:00Z', [one]);
     expect(SavedSet.parse(jsonEncode(old.toJson())).scenario, isNull);
   });
+  test('PlannerCubit exports current generated scenario as stable CSV and ICS', () async {
+    final repository = FakeRepository(data);
+    final cubit = PlannerCubit(
+      repository,
+      clock: () => DateTime.utc(2026, 9, 24, 15, 30),
+    );
+
+    expect(await cubit.exportCsv(), isNull);
+    expect(cubit.state.error?.code, 'planner.export_requires_generated');
+
+    cubit.generate();
+    expect(cubit.state.error, isNull);
+
+    final csvPath = await cubit.exportCsv();
+    final icsPath = await cubit.exportIcs();
+    expect(csvPath, isNotNull);
+    expect(icsPath, isNotNull);
+    expect(csvPath, endsWith('.csv'));
+    expect(icsPath, endsWith('.ics'));
+    expect(repository.exports, 2);
+    expect(repository.exportedFiles.keys.any((e) => e.endsWith('.csv')), true);
+    expect(repository.exportedFiles.keys.any((e) => e.endsWith('.ics')), true);
+
+    final csvName = repository.exportedFiles.keys.singleWhere(
+      (e) => e.endsWith('.csv'),
+    );
+    final firstCsv = repository.exportedFiles[csvName];
+    final repeatedPath = await cubit.exportCsv();
+    expect(repeatedPath, 'local/exports/$csvName');
+    expect(repository.exportedFiles[csvName], firstCsv);
+
+    await cubit.close();
+    await repository.dispose();
+  });
+
 }
