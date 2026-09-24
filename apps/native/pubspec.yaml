@@ -1,7 +1,7 @@
 name: ovdp_hub
 description: ОВДП Hub — локальний каталог і сценарії інвестування.
 publish_to: none
-version: 0.8.8+16
+version: 0.9.0+17
 environment:
   sdk: '>=3.9.0 <4.0.0'
 dependencies:
