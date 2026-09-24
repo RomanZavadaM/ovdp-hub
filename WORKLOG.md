@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DOING**
 
 Мета: **encrypted vault session/locking foundation — explicit state + manual/inactivity/background lock semantics**.
 
@@ -40,12 +40,13 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - no claim of guaranteed Dart heap zeroization;
 - tests use an injected clock/timer scheduler for deterministic transitions;
 - implementation contract: **`docs/security-vault-session.md`**;
-- exact code head **`9869cfdaec91694b5cd49ad4040cab36b6cd75c0`** passed **Flutter checks and START run #279 — success**;
+- code head **`9869cfdaec91694b5cd49ad4040cab36b6cd75c0`** passed **run #279 — success**;
+- security review then found a pending-unlock/background race not covered by the first suite; fix + regression tests added on top of that verified head;
 - no legacy migration, private portfolio schema or user-facing vault UI.
 
 ### Поточна наступна дія
 
-**VERIFIED — session controller, race handling and deterministic manual/inactivity/background/error tests are green on run #279. Run exact latest-head CI after this docs/WORKLOG checkpoint; if green, mark PR #83 Ready and integrate into `main`.**
+**DOING — verify the pending-unlock/background race fix and its new deterministic regressions on the exact latest PR head. If green, record VERIFIED and run the final latest-head gate before merge.**
 
 ## Черга робіт
 
@@ -67,7 +68,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 16. **DONE** — Encrypted vault dependency/security review and implementation-stack decision; PR #77 → merge `3e4171e7…`; final exact-head run #239 green.
 17. **DONE** — Encrypted vault foundation; PR #79 → merge `d61a1245…`; final exact-head run #260 and post-merge run #261 green.
 18. **DONE** — Encrypted vault local store/lifecycle; PR #81 → merge `16cd6f33…`; final run #274 and post-merge run #275 green.
-19. **VERIFIED** — Encrypted vault session/locking foundation; code run #279 green, awaiting exact latest-head verification.
+19. **DOING** — Encrypted vault session/locking foundation; run #279 green before pending-unlock/background race hardening, latest fix awaiting exact-head verification.
 
 ## Продуктова логіка цієї черги
 
