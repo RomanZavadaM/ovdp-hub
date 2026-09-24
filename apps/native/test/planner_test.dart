@@ -178,6 +178,84 @@ void main() {
       await repository.dispose();
     },
   );
+  test('generated Planner copy uses stable ids and preserves user text', () async {
+    final repository = FakeRepository(data);
+    final cubit = PlannerCubit(
+      repository,
+      clock: () => DateTime.utc(2026, 9, 23),
+    );
+
+    expect(cubit.state.criteria['name'], PlannerGeneratedCopy.planName);
+    expect(
+      cubit.state.criteria['needName'],
+      PlannerGeneratedCopy.primaryNeedName,
+    );
+
+    cubit.addExpense();
+    expect(
+      cubit.state.criteria['expenseName0'],
+      PlannerGeneratedCopy.expenseName(2),
+    );
+
+    cubit.setAggregatePurchaseFee('100');
+    expect(
+      cubit.state.fees.rules.single.name,
+      PlannerGeneratedCopy.aggregatePurchaseFeeRuleName,
+    );
+    cubit.useUkraineResidentOvdp2026Taxes();
+    expect(
+      cubit.state.taxes.label,
+      PlannerGeneratedCopy.taxUkraineResidentOvdp2026Label,
+    );
+
+    cubit.generate();
+    expect(await cubit.save(), true);
+    final generated = repository.current!.sets.first;
+    expect(generated.name, PlannerGeneratedCopy.planName);
+    expect(generated.note, PlannerGeneratedCopy.scenarioNote);
+
+    final generatedScenario = PlannerScenario.fromSavedSet(
+      generated,
+      now: DateTime.utc(2026, 9, 23),
+    );
+    expect(generatedScenario.name, PlannerGeneratedCopy.planName);
+    expect(
+      generatedScenario.needs.first.name,
+      PlannerGeneratedCopy.primaryNeedName,
+    );
+    expect(
+      generatedScenario.needs[1].name,
+      PlannerGeneratedCopy.expenseName(2),
+    );
+    expect(
+      generatedScenario.fees.rules.single.name,
+      PlannerGeneratedCopy.aggregatePurchaseFeeRuleName,
+    );
+    expect(
+      generatedScenario.taxes.label,
+      PlannerGeneratedCopy.taxUkraineResidentOvdp2026Label,
+    );
+
+    cubit.load(generated);
+    cubit.edit('name', 'Literal user plan');
+    cubit.edit('needName', 'Literal user need');
+    cubit.edit('expenseName0', 'Literal user expense');
+    expect(await cubit.save(), true);
+
+    final literal = repository.current!.sets.first;
+    final literalScenario = PlannerScenario.fromSavedSet(
+      literal,
+      now: DateTime.utc(2026, 9, 23),
+    );
+    expect(literal.name, 'Literal user plan');
+    expect(literalScenario.name, 'Literal user plan');
+    expect(literalScenario.needs.first.name, 'Literal user need');
+    expect(literalScenario.needs[1].name, 'Literal user expense');
+
+    await cubit.close();
+    await repository.dispose();
+  });
+
   test('price sources add select reorder persist and return to nominal', () async {
     final repository = FakeRepository(data);
     final cubit = PlannerCubit(
