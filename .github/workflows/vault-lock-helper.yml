@@ -1,0 +1,26 @@
+name: Vault lockfile helper
+on:
+  push:
+    branches: [feat/encrypted-vault-foundation]
+    paths: ['apps/native/pubspec.yaml']
+permissions:
+  contents: read
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Print generated lockfile
+        run: |
+          echo '---OVDP_LOCKFILE_BEGIN---'
+          cat pubspec.lock
+          echo '---OVDP_LOCKFILE_END---'
