@@ -12,7 +12,7 @@
 
 **OVDP Hub**는 우크라이나 국채(OVDP), 시장 정보 출처, 개인 투자 시나리오를 살펴보기 위한 설치형 Flutter/Dart 애플리케이션입니다. 대상 플랫폼은 **Windows, macOS, Android, iOS**이며 Web/PWA는 현재 제품 범위에 포함되지 않습니다.
 
-활성 코드는 `apps/native`에 있습니다. 현재 공개된 체크포인트는 **0.9.0 “시장”**입니다. 다음 slice에서는 Classic과 “Studio”를 유지하면서 선택형 **“라이트 대시보드”** 디자인을 추가합니다.
+활성 코드는 `apps/native`에 있습니다. 현재 공개된 체크포인트는 **0.9.0 “시장”**입니다. 이후 `main`에는 “라이트 대시보드”, Planner 최소 잔액, 결정적 로컬 CSV/ICS 내보내기가 통합되었습니다. 다음 단계는 **암호화 코드를 작성하기 전에 encrypted vault threat model을 검토하고 승인하는 것**입니다.
 
 ### 현재 기능
 
@@ -29,6 +29,7 @@
 - typed 규칙으로 저장되는 반복 주요 필요와 별도 일회성 추가 필요;
 - 엄격한 비교 조건과 자동 승자 없이 저장된 시나리오 2–3개를 중립적으로 비교하는 **A/B/C** 기능;
 - typed reserve floor / 최소 잔액 규칙: 적용일부터 해당 금액은 유동 현금으로 유지되며 지출로 처리되지 않음;
+- 활성 작업공간의 `exports` 폴더에 scenario/needs/coverage/cashflow를 저장하는 결정적 로컬 Planner CSV/ICS 내보내기; PDF는 보고서 구조 안정화 후로 연기;
 - Planner 생성 문구 / preset label은 안정적인 ID로 저장하고 표시 시 현지화하며, 사용자가 입력한 이름은 그대로 유지;
 - 휴대 가능한 JSON 작업 폴더에 시나리오 저장;
 - 활성 UI와 주요 사용자 오류가 **UK / EN / FR / DE / ES / KO / JA**로 현지화됨.
@@ -50,7 +51,8 @@
 7. **DONE** — Planner 생성 문구 / preset label 현지화 + 회귀 테스트;
 8. **DONE** — v0.9.0 prerelease checkpoint;
 9. **DONE** — reserve floor / 최소 잔액;
-10. **NEXT** — 로컬 CSV/ICS 내보내기; PDF는 보고서 구조 안정화 후.
+10. **DONE** — 결정적 로컬 CSV/ICS 내보내기; PDF 연기;
+11. **NEXT** — 암호화 구현 전에 encrypted-vault threat model 검토/승인.
 
 OVDP Hub는 실제 매매를 실행하지 않으며 판매자의 실제 재고를 확인하지 않습니다.
 
