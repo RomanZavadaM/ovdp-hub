@@ -289,6 +289,45 @@ void main() {
     expect(rerun.vaultRevisionAfter, rerun.vaultRevisionBefore);
   });
 
+  test('unknown legacy top-level fields fail closed instead of being dropped', () async {
+    await workspace.saveSet(legacySet());
+    final source = (await workspace.records('sets')).single;
+    final raw = Map<String, dynamic>.from(
+      jsonDecode(await source.readAsString()) as Map,
+    )..['futurePrivateField'] = {
+        'mustNotDisappear': true,
+      };
+    await source.writeAsString(jsonEncode(raw), flush: true);
+
+    final before = await store.open(vaultId: 'vault-migration');
+    final beforeRevision = before.revision;
+    before.plainText.fillRange(0, before.plainText.length, 0);
+
+    final report = await LegacyPlaintextMigrator(
+      workspace: workspace,
+      vaultStore: store,
+    ).migrate(vaultId: 'vault-migration');
+
+    expect(report.migratedCount, 0);
+    expect(report.invalidCount, 1);
+    expect(report.complete, false);
+    expect(report.vaultRevisionBefore, beforeRevision);
+    expect(report.vaultRevisionAfter, beforeRevision);
+    expect(
+      report.items.single.errorCode,
+      'migration.unsupported_legacy_fields',
+    );
+    expect(await source.exists(), true);
+
+    final opened = await store.open(vaultId: 'vault-migration');
+    try {
+      final payload = PrivatePortfolioPayloadCodec.decode(opened.plainText);
+      expect(payload.legacyCollections, isEmpty);
+    } finally {
+      opened.plainText.fillRange(0, opened.plainText.length, 0);
+    }
+  });
+
   test('valid files migrate even when another legacy json is corrupt', () async {
     await workspace.saveSet(legacySet());
     final setsDirectory = Directory(p.join(workspace.directory.path, 'sets'));
