@@ -422,17 +422,42 @@ Verification:
 
 No legacy plaintext migration, holdings schema or user-facing vault UI was added.
 
+## Private portfolio — encrypted payload foundation integrated
+
+Replacement PR **#89 — Portfolio: add encrypted private payload domain foundation** squash-merged у `main` як **`a516310f71c6414018d3f398c42ba88f553f5244`**. PR #88 закрито без merge лише через draft-state permission block і не є окремим джерелом коду.
+
+Інтегровано:
+- private payload schema v1, незалежна від outer vault envelope;
+- factual acquisition lots зі stable id, ISIN, units, acquisition date, currency, factual whole-lot trade amount, explicit known/unknown fee state та optional private broker/account label;
+- factual coupon/redemption cash events зі stable id, factual date/amount/currency; redemption additionally records units;
+- holdings не зберігаються як друга mutable source of truth — вони derivеd з acquisition lots minus represented redemptions;
+- deterministic canonical ordering + fixed-key JSON/UTF-8 codec;
+- semantic fail-closed validation для duplicate record IDs, invalid fields, event-without-acquisition, currency mismatch, redemption-before-acquisition і negative derived units;
+- public NBU/MinFin/seller reference data лишаються поза private payload, instruments referenced by ISIN;
+- encrypted LocalVaultStore integration test підтверджує, що physical vault file не містить plaintext portfolio id / ISIN / broker label.
+
+Verification:
+- functional head `db291909…` — run #307 success;
+- schema/docs head `8396eb5d…` — run #309 success;
+- final exact branch head `af6153b0b559da8b184ebd843a3aea29221335bf` — run #310 success;
+- replacement PR #89 exact-head run **#311 — success**;
+- post-merge `main` run **#312 — success**, including START/source artifact.
+
+Contract: `docs/private-portfolio-payload.md`.
+
+**Schema v1 deliberately does not yet model factual sale/disposal. Therefore its derived holdings must not be presented as a complete real-world portfolio until disposal records are added. Legacy `sets/*.json` migration/import/delete and portfolio UI remain absent.**
+
 ## Наступний етап
 
-**Private portfolio / encrypted payload foundation**:
+**Private portfolio factual sale/disposal foundation**:
 
-1. define a versioned private payload schema independent from the outer vault envelope;
-2. model holdings as derived/validated positions rather than a second mutable source of truth;
-3. add acquisition lots with ISIN, quantity, acquisition date, price/cost basis, explicit fees and optional private broker/account label;
-4. add factual cash events for coupon/redemption with date, amount/currency and stable identifiers, without inventing missing history;
-5. encode/decode the private payload deterministically inside the existing encrypted vault bytes and add semantic validation/duplicate-id tests;
-6. keep public NBU/MinFin/seller reference data outside this private payload and reference public instruments by ISIN;
-7. **do not** migrate legacy `sets/*.json`, add portfolio UI, or auto-import user data in this slice.
+1. add stable factual sale/disposal records with ISIN, date, disposed units, factual proceeds/currency and explicit fee-known/unknown state;
+2. define deterministic allocation from each disposal to acquisition lots instead of inventing cost basis;
+3. preserve explicit lot-level provenance so realized acquisition cost can be derived from factual allocation;
+4. update derived holdings to acquisitions minus redemptions minus represented disposals, with chronological non-negative-unit validation;
+5. add realized cash/cost metrics only where required factual inputs are known; unknown fees must remain unknown, never zero;
+6. extend deterministic schema/codec and encrypted round-trip regressions without breaking existing schema-v1 data compatibility;
+7. **do not** migrate legacy `sets/*.json`, auto-import broker history or expose user-facing portfolio UI in this slice.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.

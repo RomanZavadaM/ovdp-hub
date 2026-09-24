@@ -88,8 +88,9 @@
 - [x] Encrypted portable backup/restore primitives with recovery material — PR #81.
 - [x] Lock/unlock session state, inactivity/background auto-lock and stale async lifecycle guards — replacement PR #84; hardened run #285, final run #286, merge `51fb9286…`, post-merge run #287.
 - [x] Recovery enable/rotate/remove + local vault deletion lifecycle — PR #86; non-destructive rollback/crash handling, external-backup preservation and serialized session store operations.
-- [ ] **NEXT:** Private encrypted payload/domain foundation: acquisition lots, derived holdings, factual coupon/redemption events with stable IDs and deterministic validation.
-- [ ] Non-destructive legacy plaintext migration after private payload/domain schema is fixed.
+- [x] Private encrypted payload/domain foundation: acquisition lots, derived holdings, factual coupon/redemption events with stable IDs and deterministic validation — replacement PR #89, merge `a516310f…`, post-merge run #312.
+- [ ] **NEXT:** Factual sale/disposal records + deterministic acquisition-lot allocation / realized-cost foundation; holdings then become acquisitions minus redemptions minus represented disposals.
+- [ ] Non-destructive legacy plaintext migration only after disposal/private-domain schema is fixed and before any user-facing portfolio claim.
 - [ ] Android SAF / iOS security-scoped access для зовнішніх папок; live provider-backed mutable vault remains deferred.
 
 ## Distribution readiness
