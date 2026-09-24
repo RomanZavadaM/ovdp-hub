@@ -232,4 +232,58 @@ void main() {
     await repository.dispose();
   });
 
+
+  test('Planner export writes CSV and ICS without saving or mutating scenario', () async {
+    final repository = FakeRepository(needsCatalog());
+    final cubit = PlannerCubit(
+      repository,
+      clock: () => DateTime(2026, 9, 21, 14, 5, 6),
+    );
+
+    cubit.edit('reserveFloorEnabled', 'true');
+    cubit.edit('reserveFloorDate', '2027-01-01');
+    cubit.edit('reserveFloorAmount', '5000');
+    cubit.generate();
+    expect(cubit.state.error, isNull);
+    expect(repository.saves, 0);
+
+    String displayLabel(String value) {
+      if (value == PlannerGeneratedCopy.planName) return 'Мій план';
+      if (value == PlannerGeneratedCopy.primaryNeedName) {
+        return 'Основна потреба';
+      }
+      if (value == PlannerGeneratedCopy.reserveFloorName) {
+        return 'Мінімальний залишок';
+      }
+      final ordinal = PlannerGeneratedCopy.expenseOrdinal(value);
+      return ordinal == null ? value : 'Витрата $ordinal';
+    }
+
+    expect(
+      await cubit.exportCsvIcs(displayLabel: displayLabel),
+      true,
+    );
+    expect(repository.saves, 0);
+    expect(repository.exports, 1);
+    expect(repository.exportBundles, hasLength(1));
+
+    final entry = repository.exportBundles.entries.single;
+    expect(
+      entry.key,
+      'OVDP-Hub-Мій план-2026-09-21_140506',
+    );
+    expect(entry.value.keys.toSet(), {'planner.csv', 'planner.ics'});
+    expect(entry.value['planner.csv'], contains('Мій план'));
+    expect(entry.value['planner.csv'], contains('Мінімальний залишок'));
+    expect(entry.value['planner.ics'], contains('Мінімальний залишок'));
+    expect(
+      cubit.state.lastExportPath,
+      'local/exports/OVDP-Hub-Мій план-2026-09-21_140506',
+    );
+    expect(cubit.state.saved, false);
+
+    await cubit.close();
+    await repository.dispose();
+  });
+
 }
