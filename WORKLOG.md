@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **Planner reserve-floor / мінімальний залишок як typed schema-3-compatible constraint**.
 
@@ -35,11 +35,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - generator preserves the stricter of scenario `reserve` and active reserve floor;
 - schema remains **3**; old scenarios are read without silent rewrite;
 - strict A/B/C comparability includes floor type/date/amount;
-- scope: domain semantics → persistence/load → cashflow/coverage → generator → comparison → UI → UK/EN/FR/DE/ES/KO/JA → regression tests.
+- scope: domain semantics → persistence/load → cashflow/coverage → generator → comparison → UI → UK/EN/FR/DE/ES/KO/JA → regression tests;
+- draft PR: **#69** `Planner: add reserve-floor minimum balance needs`;
+- verified code head: **`edf78ee85e12edb55fb9ebccab6b18f405884970`**;
+- **Flutter checks and START run #209 — success** (`flutter analyze` + full Flutter tests).
 
 ### Поточна наступна дія
 
-**DOING — implement reserve-floor with the fixed non-expense semantics above, then open PR and require green analyze/tests before integration.**
+**VERIFIED — code head passed run #209. Record this verification, run exact latest-head CI after the WORKLOG-only checkpoint, then mark PR #69 Ready and integrate it into `main` if green. No release checkpoint in this slice.**
 
 ## Черга робіт
 
@@ -55,7 +58,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 10. **DONE** — formal prerelease readiness assessment 0.9.0 — PR #63, run #193, merge `f80c7d8e…`; GO to release preparation.
 11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
-13. **DOING** — Planner reserve-floor / minimum-balance needs.
+13. **VERIFIED** — Planner reserve-floor / minimum-balance needs; PR #69, code run #209 green; awaiting latest-head docs-only verification before integration.
 
 ## Продуктова логіка цієї черги
 
