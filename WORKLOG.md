@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **private portfolio factual sale/disposal foundation — explicit lot allocation and realized factual economics**.
 
@@ -41,11 +41,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - realized acquisition trade cost/known fee cost derives only from explicit lot allocations;
 - unknown acquisition or disposal fee remains unknown, never silently zero;
 - deterministic v2 codec + encrypted LocalVaultStore round-trip regressions;
+- PR: **#91** `Portfolio: add factual disposals and lot allocation`;
+- schema contract updated: **`docs/private-portfolio-payload.md`**;
+- functional head **`cabf0735188ae52352e5d15ebd25ba1c8a26542b`** passed **Flutter checks and START run #314 — success**;
 - no legacy `sets/*.json` migration/import/delete and no user-facing portfolio UI.
 
 ### Поточна наступна дія
 
-**DOING — implement schema-v2 disposal/allocation records and semantic validation first, then realized factual derivations and v1→v2 compatibility tests.**
+**VERIFIED — schema v2 disposal/allocation domain, v1 decode compatibility, encrypted round-trip and no-hidden-rounding provenance passed run #314. Run exact latest-head CI after schema-doc/WORKLOG commits; if green, integrate PR #91 into `main`.**
 
 ## Черга робіт
 
@@ -70,7 +73,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 19. **DONE** — Encrypted vault session/locking foundation; replacement PR #84 → merge `51fb9286…`; hardened run #285, final run #286 and post-merge run #287 green.
 20. **DONE** — Encrypted vault lifecycle controls; PR #86 → merge `3dc1f53d…`; final run #301 and post-merge run #302 green.
 21. **DONE** — Private portfolio/encrypted payload foundation; replacement PR #89 → merge `a516310f…`; final replacement run #311 and post-merge run #312 green.
-22. **DOING** — Private portfolio factual sale/disposal + lot-allocation / realized-cost foundation.
+22. **VERIFIED** — Private portfolio factual sale/disposal + explicit lot-allocation foundation; functional run #314 green, awaiting exact latest-head docs verification.
 
 ## Продуктова логіка цієї черги
 
