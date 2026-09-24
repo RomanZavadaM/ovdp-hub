@@ -137,4 +137,99 @@ void main() {
     await cubit.close();
     await repository.dispose();
   });
+
+  test('reserve floor is a minimum balance constraint, not a cash expense', () {
+    final needs = [
+      PlannerNeed(
+        id: 'floor',
+        name: 'Мінімальний залишок',
+        type: PlannerNeedType.reserveFloor,
+        date: '2026-02-01',
+        amount: Decimal.parse('5000'),
+      ),
+      PlannerNeed(
+        id: 'expense',
+        name: 'Страхування',
+        type: PlannerNeedType.oneOff,
+        date: '2026-03-01',
+        amount: Decimal.parse('1000'),
+      ),
+    ];
+
+    final requirements = expandPlannerNeeds(needs, start: '2026-01-01');
+    final funded = expenseCalendar(
+      const [],
+      Decimal.parse('6000'),
+      '2026-01-01',
+      requirements,
+      0,
+    );
+    expect(funded, hasLength(2));
+    expect(funded.first.expense.type, PlannerNeedType.reserveFloor);
+    expect(funded.first.available, Decimal.parse('6000'));
+    expect(funded.first.remaining, Decimal.parse('6000'));
+    expect(funded.first.shortfall, Decimal.zero);
+    expect(funded.last.remaining, Decimal.parse('5000'));
+    expect(funded.last.shortfall, Decimal.zero);
+
+    final underfunded = expenseCalendar(
+      const [],
+      Decimal.parse('5500'),
+      '2026-01-01',
+      requirements,
+      0,
+    );
+    expect(underfunded.first.shortfall, Decimal.zero);
+    expect(underfunded.last.remaining, Decimal.parse('4500'));
+    expect(underfunded.last.shortfall, Decimal.parse('500'));
+  });
+
+  test('reserve floor survives Planner save and reload in schema 3', () async {
+    final repository = FakeRepository(needsCatalog());
+    final cubit = PlannerCubit(
+      repository,
+      clock: () => DateTime.utc(2026, 9, 21),
+    );
+
+    cubit.edit('reserveFloorEnabled', 'true');
+    cubit.edit('reserveFloorName', 'Мій мінімальний залишок');
+    cubit.edit('reserveFloorDate', '2026-12-01');
+    cubit.edit('reserveFloorAmount', '15000');
+
+    cubit.generate();
+    expect(cubit.state.error, isNull);
+    expect(await cubit.save(), true);
+
+    final saved = repository.current!.sets.single;
+    final rawNeeds = saved.scenario!['needs'] as List;
+    final floor = rawNeeds
+        .map((item) => Map<String, dynamic>.from(item as Map))
+        .singleWhere((item) => item['type'] == 'reserveFloor');
+    expect(floor['name'], 'Мій мінімальний залишок');
+    expect(floor['date'], '2026-12-01');
+    expect(floor['amount'], '15000');
+
+    cubit.reset();
+    expect(cubit.state.criteria['reserveFloorEnabled'], 'false');
+
+    cubit.load(saved);
+    expect(cubit.state.error, isNull);
+    expect(cubit.state.criteria['reserveFloorEnabled'], 'true');
+    expect(
+      cubit.state.criteria['reserveFloorName'],
+      'Мій мінімальний залишок',
+    );
+    expect(cubit.state.criteria['reserveFloorDate'], '2026-12-01');
+    expect(cubit.state.criteria['reserveFloorAmount'], '15000');
+    expect(
+      cubit.state.expenseBalances.any(
+        (row) => row.expense.type == PlannerNeedType.reserveFloor,
+      ),
+      true,
+    );
+
+    await cubit.close();
+    await repository.dispose();
+  });
+
 }
