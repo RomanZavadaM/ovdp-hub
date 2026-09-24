@@ -307,3 +307,5 @@ Contract:
 - record-level conflict merge across synced devices.
 
 No crypto/plugin implementation is approved until that dependency review is recorded.
+
+Dependency/security review proposal: `docs/security-vault-dependency-review.md`. It must pass the normal PR/exact-head verification and be merged before its package/algorithm choices are treated as approved implementation inputs.
