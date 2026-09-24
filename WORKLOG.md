@@ -25,12 +25,15 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **formal 0.9.0 prerelease readiness assessment**.
 
 - base `main`: `1ae98503c48776ebfd790b837e9a30d889eeb54e`;
 - branch: **`docs/0.9.0-prerelease-readiness`**;
+- PR: **#63** `Docs: complete formal 0.9.0 prerelease readiness assessment` — squash-merged;
+- merge `main`: `f80c7d8e87b4fb494cf37712627bc12277a2fa73`;
+- final verify: **Flutter checks and START run #193 — success**;
 - published checkpoint remains immutable: **v0.8.8 / 0.8.8+16**;
 - this slice is an audit/documentation decision gate; it does **not** publish 0.9.0 by itself.
 
@@ -47,7 +50,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**VERIFIED — assessment result: GO to prepare a formal v0.9.0 prerelease checkpoint. No product blocker found. Next after merge: release-prep PR with `0.9.0+17` + seven-language `RELEASE_NOTES_v0_9_0.md`; publication only through the full gated release workflow.**
+**NEXT — prepare the v0.9.0 release-checkpoint PR: bump to `0.9.0+17`, add seven-language `docs/releases/RELEASE_NOTES_v0_9_0.md`, synchronize release-facing docs, run PR checks; do not treat v0.9.0 as published until the full gated release workflow succeeds after merge.**
 
 ## Черга робіт
 
@@ -60,7 +63,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 7. **DONE** — Planner needs/future-expenses block requested by owner.
 8. **DONE** — full test checkpoint v0.8.8 from current main.
 9. **DONE** — generated planner copy / preset labels localization + UX regression — PR #61, run #189 (110/110), final run #190, merge `1e6849f7…`.
-10. **VERIFIED** — formal prerelease readiness assessment 0.9.0: GO to release preparation; evidence in `docs/READINESS_0_9_0.md`.
+10. **DONE** — formal prerelease readiness assessment 0.9.0 — PR #63, run #193, merge `f80c7d8e…`; GO to release preparation.
+11. **NEXT** — prepare v0.9.0 release-checkpoint PR (`0.9.0+17` + seven-language release notes).
 
 ## Продуктова логіка цієї черги
 
@@ -87,6 +91,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — formal 0.9.0 prerelease readiness assessment**: PR #63 squash-merged у `main` як `f80c7d8e87b4fb494cf37712627bc12277a2fa73`; final run #193 success. Evidence in `docs/READINESS_0_9_0.md`; no product blocker found; decision = GO to release-prep, while exact-current platform builds remain enforced release gates.
 
 - **DONE — generated Planner copy / preset labels localization**: PR #61 squash-merged у `main` як `1e6849f78134d9654b0bf08b54ceebda4100ba4d`; code run #189 success (110/110 tests), final latest-head run #190 success. Generated plan/need/expense copy and scenario note are language-neutral in storage, displayed through `HubStrings` in UK/EN/FR/DE/ES/KO/JA; user-authored names remain literal; existing phone/desktop Planner regressions green.
 
