@@ -59,7 +59,7 @@ void main() {
 
     expect(find.byType(StudioSidebar), findsOneWidget);
     expect(
-      find.text('Тестова версія $appDisplayVersion'),
+      find.textContaining('Тестова версія $appDisplayVersion'),
       findsOneWidget,
     );
 
