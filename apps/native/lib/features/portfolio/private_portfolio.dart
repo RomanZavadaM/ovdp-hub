@@ -93,7 +93,7 @@ class PrivateAcquisitionLot {
   final int units;
   final String acquiredOn;
   final String currency;
-  final Decimal unitPrice;
+  final Decimal tradeAmount;
   final AcquisitionFeeStatus feeStatus;
   final Decimal? feeTotal;
   final String? brokerAccountLabel;
@@ -104,7 +104,7 @@ class PrivateAcquisitionLot {
     required this.units,
     required this.acquiredOn,
     required this.currency,
-    required this.unitPrice,
+    required this.tradeAmount,
     required this.feeStatus,
     required this.feeTotal,
     this.brokerAccountLabel,
@@ -116,8 +116,8 @@ class PrivateAcquisitionLot {
     }
     isoDate(acquiredOn);
     _validateCurrency(currency);
-    if (unitPrice <= Decimal.zero) {
-      throw const FormatException('portfolio.invalid_unit_price');
+    if (tradeAmount <= Decimal.zero) {
+      throw const FormatException('portfolio.invalid_trade_amount');
     }
     switch (feeStatus) {
       case AcquisitionFeeStatus.unknown:
@@ -137,7 +137,8 @@ class PrivateAcquisitionLot {
     }
   }
 
-  Decimal get grossTradeValue => unitPrice * Decimal.fromInt(units);
+  Decimal? get knownCashOutflow =>
+      feeStatus == AcquisitionFeeStatus.known ? tradeAmount + feeTotal! : null;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -145,7 +146,7 @@ class PrivateAcquisitionLot {
     'units': units,
     'acquiredOn': acquiredOn,
     'currency': currency,
-    'unitPrice': unitPrice.toString(),
+    'tradeAmount': tradeAmount.toString(),
     'feeStatus': feeStatus.name,
     if (feeTotal != null) 'feeTotal': feeTotal.toString(),
     if (brokerAccountLabel != null)
@@ -159,7 +160,7 @@ class PrivateAcquisitionLot {
       'units',
       'acquiredOn',
       'currency',
-      'unitPrice',
+      'tradeAmount',
       'feeStatus',
       'feeTotal',
       'brokerAccountLabel',
@@ -176,9 +177,9 @@ class PrivateAcquisitionLot {
       units: json['units'] as int? ?? 0,
       acquiredOn: _portfolioDate(json['acquiredOn']),
       currency: json['currency'] as String? ?? '',
-      unitPrice: _portfolioDecimal(
-        json['unitPrice'],
-        code: 'portfolio.invalid_unit_price',
+      tradeAmount: _portfolioDecimal(
+        json['tradeAmount'],
+        code: 'portfolio.invalid_trade_amount',
         allowZero: false,
       ),
       feeStatus: status,
