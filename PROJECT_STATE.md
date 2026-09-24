@@ -4,15 +4,17 @@
 
 ## Поточний checkpoint
 
-- Release candidate: **0.9.2+19**
-- GitHub tag після успішного release workflow: **v0.9.2**
+- Активна версія: **0.9.2+19**
+- Опублікований GitHub tag: **v0.9.2**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
 - Основна гілка: `main`
 - Статус продукту: **test / prerelease**
-- Активний release PR: **#99 — user-facing portfolio and economic pulse**
-- База попереднього immutable release: **v0.9.1 / 0.9.1+18**, tag → `bf9b358b73ce84ea333a09978a4607c0505d30fb`
+- Release commit: **`696fd4a07e5e23c4a44d9aeb8bd745671acfb52a`**
+- Post-merge Flutter checks: **run #381 — success**
+- Publish native prerelease: **run #102 — success**
+- GitHub Release: **v0.9.2**, published 24.09.2026
 
 ### Що входить у 0.9.2
 
