@@ -60,7 +60,7 @@
 - [x] Classic та **«Робочий кабінет»** залишаються доступними; новий дизайн не замінює їх.
 - [x] Appearance selector і новий shell локалізовано UK/EN/FR/DE/ES/KO/JA.
 - [x] Desktop + phone regression coverage; функціональний стан Planner/Catalog не губиться при зміні оформлення.
-- [x] UI slice завершено; **NEXT — Planner reserve-floor / minimum-balance needs**.
+- [x] UI slice завершено; подальші Planner reserve-floor та CSV/ICS export slice також інтегровані.
 
 ## Планувальник наступного покоління
 
@@ -77,11 +77,11 @@
 - [x] Домен FX з явним курсом, датою та джерелом.
 - [x] Типи потреб: разова + регулярна з typed persistence/cashflow/UI — PR #54, final run #168.
 - [x] Потреби типу reserve floor / мінімальний залишок — PR #69, final run #210, merge `37b8120d…`, post-merge run #211.
-- [ ] **NEXT:** CSV/ICS — deterministic local exports зі scenario/cashflow/needs; PDF лише після стабілізації структури звіту.
+- [x] CSV/ICS — deterministic local exports зі scenario/cashflow/needs — PR #73, exact-head run #231, merge `3e8e7fbc…`, post-merge run #232. PDF лишається deferred до стабілізації структури звіту.
 
 ## Encrypted vault / фактичний портфель
 
-- [ ] Threat model затверджений до коду шифрування.
+- [ ] **NEXT:** review/approval існуючого `docs/security-vault.md`; threat model має бути затверджений до коду шифрування.
 - [ ] Аудитована криптографічна бібліотека; не власна криптографія.
 - [ ] Platform secure storage: Windows/macOS/Android/iOS.
 - [ ] Lock/unlock, auto-lock, deletion, recovery.
