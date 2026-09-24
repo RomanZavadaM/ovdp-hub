@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../build_info.dart';
 import '../l10n/hub_locale.dart';
 
 ThemeData hubTheme(bool studio) {
@@ -87,6 +88,7 @@ class StudioSidebar extends StatelessWidget {
       (5, Icons.storefront_outlined, strings.text('sellers')),
     ];
     final decisionItems = [
+      (6, Icons.account_balance_wallet_outlined, strings.text('portfolio')),
       (4, Icons.event_available_outlined, strings.text('planning')),
       (1, Icons.bookmarks_outlined, strings.text('collections')),
       (2, Icons.calculate_outlined, strings.text('calculator')),
@@ -169,7 +171,7 @@ class StudioSidebar extends StatelessWidget {
                   child: Text(
                     "${strings.text('noAccount')}\n"
                     "${strings.text('scenariosLocal')}\n\n"
-                    "${strings.text('testVersion')} 0.8.3",
+                    "${strings.text('testVersion')} $appDisplayVersion",
                     style: const TextStyle(
                       color: Color(0xffb5c5dc),
                       height: 1.7,

@@ -283,6 +283,7 @@ class DashboardSidebar extends StatelessWidget {
       (3, Icons.folder_outlined, strings.text('workspace')),
       (4, Icons.event_available_outlined, strings.text('planning')),
       (5, Icons.storefront_outlined, strings.text('sellers')),
+      (6, Icons.account_balance_wallet_outlined, strings.text('portfolio')),
     ];
 
     return Container(

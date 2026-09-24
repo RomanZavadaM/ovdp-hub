@@ -2,7 +2,7 @@ name: Flutter checks and START
 on:
   push:
     branches: [main]
-    paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1', 'scripts/package-start.py', 'LICENSE.md', 'COPYRIGHT.md', 'THIRD_PARTY_NOTICES.md', 'docs/LEGAL_AND_COPYRIGHT.md']
+    paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1', 'scripts/package-start.py', 'scripts/verify-desktop-release.ps1', 'LICENSE.md', 'COPYRIGHT.md', 'THIRD_PARTY_NOTICES.md', 'docs/LEGAL_AND_COPYRIGHT.md']
   pull_request:
   workflow_dispatch:
     inputs:
@@ -66,11 +66,23 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get --enforce-lockfile
-      - run: flutter build ${{ matrix.platform }} --release
+      - id: meta
+        name: Resolve app version
+        shell: pwsh
+        run: |
+          $versionText = ((Get-Content pubspec.yaml | Where-Object { $_ -like 'version:*' }) -replace '^version:\s*','').Trim()
+          $parts = $versionText.Split('+')
+          if ($parts.Count -ne 2) { throw 'Invalid app version' }
+          "version=$($parts[0])" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "build=$($parts[1])" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+      - run: flutter build ${{ matrix.platform }} --release --dart-define=OVDP_APP_VERSION=${{ steps.meta.outputs.version }} --dart-define=OVDP_APP_BUILD=${{ steps.meta.outputs.build }}
       - name: Package versioned test folder
         id: package
         shell: pwsh
         run: ../../scripts/package-desktop.ps1 -Platform ${{ matrix.platform }}
+      - name: Smoke-test packaged desktop artifact
+        shell: pwsh
+        run: ../../scripts/verify-desktop-release.ps1 -ArchivePath "${{ steps.package.outputs.package_path }}" -Platform ${{ matrix.platform }} -ExpectedVersion "${{ steps.meta.outputs.version }}" -ExpectedBuild "${{ steps.meta.outputs.build }}"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.package.outputs.package_name }}

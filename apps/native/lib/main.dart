@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'build_info.dart';
 import 'data/hub_repository.dart';
 import 'features/appearance/appearance_cubit.dart';
 import 'features/calculator/calculator_cubit.dart';
@@ -11,27 +14,62 @@ import 'features/catalog/catalog_view.dart';
 import 'features/collections/collections_cubit.dart';
 import 'features/collections/collections_view.dart';
 import 'features/collections/editor_cubit.dart';
+import 'features/economy/economic_pulse_cubit.dart';
+import 'features/economy/economic_pulse_view.dart';
 import 'features/navigation/navigation_cubit.dart';
 import 'features/planner/planner_cubit.dart';
 import 'features/planner/planner_view.dart';
+import 'features/portfolio/portfolio_cubit.dart';
+import 'features/portfolio/portfolio_gateway.dart';
+import 'features/portfolio/portfolio_view.dart';
 import 'features/sellers/seller_repository.dart';
 import 'features/sellers/sellers_cubit.dart';
 import 'features/sellers/sellers_view.dart';
 import 'features/workspace/workspace_cubit.dart';
 import 'features/workspace/workspace_view.dart';
 import 'l10n/hub_locale.dart';
+import 'release_contract.dart';
 import 'ui/components.dart';
 import 'ui/dashboard_design.dart';
 import 'ui/studio_design.dart';
 
-void main() {
+void main(List<String> args) {
+  final contractFileFromEnvironment =
+      Platform.environment['OVDP_RELEASE_CONTRACT_FILE'];
+  if (contractFileFromEnvironment != null &&
+      contractFileFromEnvironment.isNotEmpty) {
+    File(contractFileFromEnvironment).writeAsStringSync(
+      releaseContractJson(),
+      flush: true,
+    );
+    exit(0);
+  }
+
+  const contractFilePrefix = '--release-contract-file=';
+  final contractFileArg = args.where(
+    (arg) => arg.startsWith(contractFilePrefix),
+  );
+  if (contractFileArg.isNotEmpty) {
+    final path = contractFileArg.single.substring(contractFilePrefix.length);
+    File(path).writeAsStringSync(releaseContractJson(), flush: true);
+    exit(0);
+  }
+  if (args.contains('--release-contract')) {
+    stdout.writeln(releaseContractJson());
+    exit(0);
+  }
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const OvdpApp());
 }
 
 class OvdpApp extends StatelessWidget {
   final HubRepository? repository;
-  const OvdpApp({super.key, this.repository});
+  final PortfolioGateway? portfolioGateway;
+  const OvdpApp({
+    super.key,
+    this.repository,
+    this.portfolioGateway,
+  });
 
   @override
   Widget build(BuildContext context) => RepositoryProvider<HubRepository>(
@@ -55,8 +93,20 @@ class OvdpApp extends StatelessWidget {
         BlocProvider(create: (_) => CalculatorCubit()),
         BlocProvider(create: (_) => AppearanceCubit()),
         BlocProvider(create: (_) => LocaleCubit()),
+        BlocProvider(
+          create: (context) =>
+              EconomicPulseCubit(context.read<HubRepository>())..load(),
+          lazy: false,
+        ),
         BlocProvider(create: (_) => SellersCubit(SellerRepository())),
         BlocProvider(create: (_) => NavigationCubit()),
+        BlocProvider(
+          create: (context) => PortfolioCubit(
+            context.read<HubRepository>(),
+            portfolioGateway ?? LocalEncryptedPortfolioGateway(),
+          )..initialize(),
+          lazy: false,
+        ),
         BlocProvider(
           create: (context) => PlannerCubit(context.read<HubRepository>()),
           lazy: false,
@@ -75,8 +125,41 @@ class OvdpApp extends StatelessWidget {
   );
 }
 
-class StyledApp extends StatelessWidget {
+class StyledApp extends StatefulWidget {
   const StyledApp({super.key});
+
+  @override
+  State<StyledApp> createState() => _StyledAppState();
+}
+
+class _StyledAppState extends State<StyledApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final portfolio = context.read<PortfolioCubit>();
+    switch (state) {
+      case AppLifecycleState.resumed:
+        portfolio.onForeground();
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        portfolio.onBackground();
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,12 +223,17 @@ class Home extends StatelessWidget {
         icon: const Icon(Icons.storefront_outlined),
         label: strings.text('sellers'),
       ),
+      NavigationDestination(
+        icon: const Icon(Icons.account_balance_wallet_outlined),
+        label: strings.text('portfolio'),
+      ),
     ];
 
     void showHubAbout() {
       showAboutDialog(
         context: context,
         applicationName: 'OVDP Hub',
+        applicationVersion: appDisplayVersion,
         applicationLegalese:
             'Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.',
         children: [
@@ -197,6 +285,7 @@ class Home extends StatelessWidget {
           workspace.error,
           context.read<WorkspaceCubit>().dismissError,
         ),
+        EconomicPulseBar(compact: !wide),
         Expanded(
           child: SingleChildScrollView(
             key: ValueKey(screen),
@@ -209,6 +298,7 @@ class Home extends StatelessWidget {
               2 => const CalculatorView(),
               4 => const PlannerView(),
               5 => const SellersView(),
+              6 => const PortfolioView(),
               _ => const WorkspaceView(),
             },
           ),

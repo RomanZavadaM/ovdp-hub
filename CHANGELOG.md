@@ -4,7 +4,29 @@
 
 ## [Unreleased]
 
-- Після checkpoint v0.9.1 нові user-facing зміни ще не інтегровані.
+- Після v0.9.2 наступний user-facing напрям: продаж/погашення/історія портфеля та явний legacy migration wizard.
+
+## [0.9.2] — 2026-09-24
+
+### User-visible portfolio + Economic Pulse
+- Додано постійний «Економічний пульс»: NBU USD/UAH, EUR/UAH, остання UAH auction yield та найближчий MinFin auction із source/date і fail-closed unavailable state.
+- Додано «Мій портфель» у Classic / «Робочий кабінет» / «Світлу панель».
+- Перший encrypted factual flow: create/open/lock portfolio, factual OVDP acquisition, derived holdings.
+- Portfolio UI використовує existing encrypted vault/private schema; окремого plaintext portfolio store немає.
+- UI локалізовано UK/EN/FR/DE/ES/KO/JA.
+
+### Release correctness
+- UI version/build тепер походить з build metadata, а не hardcoded рядка.
+- Widget regression реально відкриває selector дизайну і перемикає всі 3 appearance.
+- Navigation regressions натискають реальні visible controls.
+- Windows/macOS release gate перевіряє exact packaged ZIP: extract → launch packaged executable → verify release contract/version/build/three appearances.
+- Artifact, що не пройшов packaged smoke, не може бути опублікований.
+
+### Boundaries
+- Legacy `sets/*.json` не шифруються автоматично; cleanup/migration wizard окремий наступний gate.
+- macOS portfolio unlock лишається обмеженим до Data Protection Keychain runtime/provisioning validation.
+- Android SAF / iOS security-scoped access відкладено.
+- Checkpoint: **0.9.2+19**.
 
 ## [0.9.1] — 2026-09-24
 

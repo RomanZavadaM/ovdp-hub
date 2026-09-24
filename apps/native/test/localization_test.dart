@@ -338,6 +338,38 @@ void main() {
     }
   });
 
+  test('portfolio and economic pulse are localized in every supported language', () {
+    const keys = [
+      'portfolio',
+      'economicPulse',
+      'pulseUsd',
+      'pulseEur',
+      'pulseAuctionYield',
+      'pulseNextAuction',
+      'pulseUnavailable',
+      'pulseRefresh',
+      'portfolioTitle',
+      'portfolioCreate',
+      'portfolioOpen',
+      'portfolioLock',
+      'portfolioAddPurchase',
+      'portfolioRecoverySecret',
+      'portfolioSecurityNote',
+      'portfolioSavePurchase',
+      'portfolioMaturity',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+    }
+  });
+
   testWidgets('typed error follows the selected UI language', (tester) async {
     final locale = LocaleCubit()..select(AppLanguage.en);
     await tester.pumpWidget(

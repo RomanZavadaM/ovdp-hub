@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import '../features/economy/economic_pulse_model.dart';
+import '../features/market/minfin_repository.dart';
 import '../models.dart';
 import '../workspace.dart';
 
@@ -29,6 +31,7 @@ abstract interface class HubRepository {
   Future<void> reloadCollections();
   Future<void> saveCollection(SavedSet collection);
   Future<String> saveTextExport(String fileName, String content);
+  Future<EconomicPulseSnapshot> loadEconomicPulse();
   Future<void> dispose();
 }
 
@@ -162,6 +165,144 @@ class FileHubRepository implements HubRepository {
   @override
   Future<String> saveTextExport(String fileName, String content) =>
       _exclusive(() => _opened.writeTextExport(fileName, content));
+
+  static const _nbuFxUrl =
+      'https://bank.gov.ua/NBUStatService/v1/statdirectory/exchangenew?json';
+
+  String _isoNbuDate(Object? raw) {
+    if (raw is! String) {
+      throw const FormatException('pulse.invalid_nbu_date');
+    }
+    final match = RegExp(r'^(\d{2})\.(\d{2})\.(\d{4})$').firstMatch(raw);
+    if (match == null) {
+      throw const FormatException('pulse.invalid_nbu_date');
+    }
+    final result = '${match.group(3)}-${match.group(2)}-${match.group(1)}';
+    isoDate(result);
+    return result;
+  }
+  Future<(EconomicFxQuote?, EconomicFxQuote?)> _safeNbuFx() async {
+    try {
+      final response = await _client
+          .get(Uri.parse(_nbuFxUrl))
+          .timeout(const Duration(seconds: 20));
+      if (response.statusCode != 200 ||
+          response.bodyBytes.isEmpty ||
+          response.bodyBytes.length > 2 * 1024 * 1024) {
+        throw const FormatException('pulse.nbu_fx_fetch_failed');
+      }
+      final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+      if (decoded is! List) {
+        throw const FormatException('pulse.nbu_fx_invalid');
+      }
+      EconomicFxQuote? quote(String code) {
+        final matches = decoded.where(
+          (row) => row is Map && row['cc']?.toString().toUpperCase() == code,
+        ).toList();
+        if (matches.length != 1) {
+          throw const FormatException('pulse.nbu_fx_invalid');
+        }
+        final row = Map<String, dynamic>.from(matches.single as Map);
+        final rate = row['rate'];
+        if (rate is! num || rate <= 0) {
+          throw const FormatException('pulse.nbu_fx_invalid');
+        }
+        final rateText = decimalText(rate);
+        return EconomicFxQuote(
+          currency: code,
+          rate: rateText,
+          sourceDate: _isoNbuDate(row['exchangedate']),
+          sourceUrl: _nbuFxUrl,
+        );
+      }
+
+      return (quote('USD'), quote('EUR'));
+    } catch (_) {
+      return (null, null);
+    }
+  }
+
+  Future<EconomicAuctionYield?> _safeUahAuctionYield(Catalog catalog) async {
+    try {
+      final snapshot = await MinfinRepository(client: _client).fetch();
+      final currencyByIsin = {
+        for (final bond in catalog.bonds) bond.isin: bond.currency,
+      };
+      final uah = snapshot.rates
+          .where((rate) => currencyByIsin[rate.isin] == 'UAH')
+          .toList();
+      if (uah.isEmpty) return null;
+      final latestDate = uah
+          .map((rate) => rate.placementDate)
+          .reduce((a, b) => a.compareTo(b) >= 0 ? a : b);
+      final latest = uah
+          .where((rate) => rate.placementDate == latestDate)
+          .toList();
+      var minRate = latest.first.rate;
+      var maxRate = latest.first.rate;
+      for (final rate in latest.skip(1)) {
+        if (rate.rate < minRate) minRate = rate.rate;
+        if (rate.rate > maxRate) maxRate = rate.rate;
+      }
+      return EconomicAuctionYield(
+        minRate: minRate.toString(),
+        maxRate: maxRate.toString(),
+        sourceDate: latestDate,
+        sourceUrl: snapshot.meta.sourceUrl,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<EconomicNextAuction?> _safeNextAuction() async {
+    try {
+      final snapshot = await MinfinRepository(client: _client).fetchAuctionEvents();
+      final now = DateTime.now();
+      final today =
+          '${now.year.toString().padLeft(4, '0')}-'
+          '${now.month.toString().padLeft(2, '0')}-'
+          '${now.day.toString().padLeft(2, '0')}';
+      final futurePlacements = snapshot.events
+          .where(
+            (event) =>
+                event.kind == MinfinAuctionEventKind.placement &&
+                event.auctionDate.compareTo(today) >= 0,
+          )
+          .toList()
+        ..sort((a, b) => a.auctionDate.compareTo(b.auctionDate));
+      if (futurePlacements.isEmpty) return null;
+      return EconomicNextAuction(
+        date: futurePlacements.first.auctionDate,
+        sourceUrl: snapshot.meta.sourceUrl,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<EconomicPulseSnapshot> loadEconomicPulse() async {
+    var catalog = current?.catalog;
+    catalog ??= Catalog.parse(
+      await rootBundle.loadString('assets/nbu-snapshot.json'),
+    );
+
+    final fxFuture = _safeNbuFx();
+    final yieldFuture = _safeUahAuctionYield(catalog);
+    final nextAuctionFuture = _safeNextAuction();
+
+    final fx = await fxFuture;
+    final auctionYield = await yieldFuture;
+    final nextAuction = await nextAuctionFuture;
+    return EconomicPulseSnapshot(
+      usd: fx.$1,
+      eur: fx.$2,
+      uahAuctionYield: auctionYield,
+      nextAuction: nextAuction,
+      retrievedAt: DateTime.now().toUtc().toIso8601String(),
+    );
+  }
 
   @override
   Future<void> dispose() async {

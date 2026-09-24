@@ -5,10 +5,38 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/main.dart';
 import 'package:ovdp_hub/data/hub_repository.dart';
 import 'package:ovdp_hub/models.dart';
+import 'package:ovdp_hub/ui/studio_design.dart';
 import 'support/fake_repository.dart';
 import 'support/planner_comparison_fixtures.dart';
 
 void main() {
+  Future<void> tapNavigationIcon(
+    WidgetTester tester,
+    IconData icon,
+  ) async {
+    Finder? target;
+    if (find.byType(NavigationBar).evaluate().isNotEmpty) {
+      target = find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.byIcon(icon),
+      );
+    } else if (find.byType(NavigationRail).evaluate().isNotEmpty) {
+      target = find.descendant(
+        of: find.byType(NavigationRail),
+        matching: find.byIcon(icon),
+      );
+    } else if (find.byType(StudioSidebar).evaluate().isNotEmpty) {
+      target = find.descendant(
+        of: find.byType(StudioSidebar),
+        matching: find.byIcon(icon),
+      );
+    }
+    expect(target, isNotNull, reason: 'No visible navigation control found');
+    expect(target!, findsOneWidget);
+    await tester.tap(target);
+    await tester.pumpAndSettle();
+  }
+
   late Catalog catalog;
   setUpAll(() async {
     final json =
@@ -40,8 +68,7 @@ void main() {
     final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
     await tester.pumpWidget(OvdpApp(repository: repository));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Планування'));
-    await tester.pumpAndSettle();
+    await tapNavigationIcon(tester, Icons.event_available_outlined);
     final generate = find.text('Розподілити за строками');
     await tester.ensureVisible(generate);
     await tester.tap(generate);
@@ -87,8 +114,7 @@ void main() {
     final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
     await tester.pumpWidget(OvdpApp(repository: repository));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Планування'));
-    await tester.pumpAndSettle();
+    await tapNavigationIcon(tester, Icons.event_available_outlined);
 
     final generate = find.text('Розподілити за строками');
     await tester.ensureVisible(generate);
@@ -164,8 +190,7 @@ void main() {
 
     await tester.pumpWidget(OvdpApp(repository: repository));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Планування'));
-    await tester.pumpAndSettle();
+    await tapNavigationIcon(tester, Icons.event_available_outlined);
 
     expect(find.text('Комісії придбання'), findsOneWidget);
     expect(find.text('Комісії невідомі'), findsOneWidget);
@@ -231,8 +256,7 @@ void main() {
 
     await tester.pumpWidget(OvdpApp(repository: repository));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Планування'));
-    await tester.pumpAndSettle();
+    await tapNavigationIcon(tester, Icons.event_available_outlined);
 
     final taxHeading = find.text('Податки');
     await tester.ensureVisible(taxHeading);
@@ -293,8 +317,7 @@ void main() {
     final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
     await tester.pumpWidget(OvdpApp(repository: repository));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Планування'));
-    await tester.pumpAndSettle();
+    await tapNavigationIcon(tester, Icons.event_available_outlined);
 
     final heading = find.text('FX-порівняння');
     await tester.ensureVisible(heading);
@@ -372,8 +395,7 @@ void main() {
 
     await tester.pumpWidget(OvdpApp(repository: repository));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Планування'));
-    await tester.pumpAndSettle();
+    await tapNavigationIcon(tester, Icons.event_available_outlined);
 
     final generate = find.text('Розподілити за строками');
     await tester.ensureVisible(generate);
@@ -427,8 +449,7 @@ void main() {
     final repository = FakeRepository(catalog);
     await tester.pumpWidget(OvdpApp(repository: repository));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Планування'));
-    await tester.pumpAndSettle();
+    await tapNavigationIcon(tester, Icons.event_available_outlined);
 
     final heading = find.text('Мої майбутні потреби й витрати');
     await tester.ensureVisible(heading);
@@ -577,8 +598,7 @@ void main() {
       find.widgetWithText(TextFormField, 'Кількість облігацій'),
       '2',
     );
-    await tester.tap(find.text('Каталог'));
-    await tester.pumpAndSettle();
+    await tapNavigationIcon(tester, Icons.analytics_outlined);
     await tester.tap(find.text('Калькулятор'));
     await tester.pumpAndSettle();
     expect(find.text('2'), findsOneWidget);

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:ovdp_hub/data/hub_repository.dart';
+import 'package:ovdp_hub/features/economy/economic_pulse_model.dart';
 import 'package:ovdp_hub/models.dart';
 
 class FakeRepository implements HubRepository {
@@ -64,6 +65,34 @@ class FakeRepository implements HubRepository {
     exportedFiles[fileName] = content;
     return 'local/exports/$fileName';
   }
+
+  @override
+  Future<EconomicPulseSnapshot> loadEconomicPulse() async =>
+      const EconomicPulseSnapshot(
+        usd: EconomicFxQuote(
+          currency: 'USD',
+          rate: '41.25',
+          sourceDate: '2026-09-24',
+          sourceUrl: 'https://bank.gov.ua/',
+        ),
+        eur: EconomicFxQuote(
+          currency: 'EUR',
+          rate: '48.50',
+          sourceDate: '2026-09-24',
+          sourceUrl: 'https://bank.gov.ua/',
+        ),
+        uahAuctionYield: EconomicAuctionYield(
+          minRate: '15.10',
+          maxRate: '17.20',
+          sourceDate: '2026-09-22',
+          sourceUrl: 'https://mof.gov.ua/',
+        ),
+        nextAuction: EconomicNextAuction(
+          date: '2026-09-29',
+          sourceUrl: 'https://mof.gov.ua/',
+        ),
+        retrievedAt: '2026-09-24T18:00:00Z',
+      );
 
   @override
   Future<void> dispose() async {
