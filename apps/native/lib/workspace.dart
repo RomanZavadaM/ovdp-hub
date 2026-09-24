@@ -108,6 +108,55 @@ class Workspace {
   }
   Future<void> saveSet(SavedSet set) => writeRecord('sets', set.toJson());
 
+  Future<String> writeTextBundle(
+    String folderName,
+    Map<String, String> files,
+  ) async {
+    await checkAvailable();
+    if (folderName.trim().isEmpty ||
+        p.basename(folderName) != folderName ||
+        folderName == '.' ||
+        folderName == '..' ||
+        folderName.length > 120 ||
+        files.isEmpty) {
+      throw const FormatException('workspace.invalid_export_name');
+    }
+    for (final name in files.keys) {
+      if (name.trim().isEmpty ||
+          p.basename(name) != name ||
+          name == '.' ||
+          name == '..' ||
+          name.length > 120) {
+        throw const FormatException('workspace.invalid_export_name');
+      }
+    }
+
+    final exports = Directory(p.join(directory.path, 'exports'));
+    await exports.create();
+    var candidate = Directory(p.join(exports.path, folderName));
+    var suffix = 2;
+    while (await candidate.exists()) {
+      candidate = Directory(p.join(exports.path, '$folderName-$suffix'));
+      suffix++;
+    }
+
+    await candidate.create();
+    try {
+      for (final entry in files.entries) {
+        final pending = File(p.join(candidate.path, '${entry.key}.pending'));
+        final target = File(p.join(candidate.path, entry.key));
+        await pending.writeAsString(entry.value, flush: true);
+        await pending.rename(target.path);
+      }
+      return candidate.path;
+    } catch (_) {
+      if (await candidate.exists()) {
+        await candidate.delete(recursive: true);
+      }
+      rethrow;
+    }
+  }
+
   /// Copy only validated application records; preserve source, never merge silently.
   Future<Workspace> copyTo(Directory destination) async {
     final sourcePath = p.normalize(p.absolute(directory.path));
