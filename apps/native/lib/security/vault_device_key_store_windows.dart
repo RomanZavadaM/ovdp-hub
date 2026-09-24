@@ -98,7 +98,8 @@ class WindowsVaultDeviceKeyStore implements VaultDeviceKeyStore {
       await _readState(vaultId);
       if (await backup.exists()) await backup.delete();
     } catch (_) {
-      if (!await target.exists() && await backup.exists()) {
+      if (await backup.exists()) {
+        if (await target.exists()) await target.delete();
         await backup.rename(target.path);
       }
       rethrow;
