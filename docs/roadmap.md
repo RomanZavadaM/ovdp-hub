@@ -13,7 +13,7 @@
 3. **Явний вибір ринкової ціни — DONE**: кілька `PriceObservation`, explicit user priority, add/select/reorder controls і nominal fallback інтегровані без прихованої підміни yield/nominal ціною.
 4. **Повна економіка сценарію — DONE**: purchase-fee, verified-tax, explicit-FX та per-position exit vertical інтегровані. Невідомі значення не вважати нулем.
 5. **Порівняння рішень — DONE**: neutral A/B/C comparison для 2–3 saved scenarios із strict baseline comparability, recurring-needs support, explanatory metrics і no-winner semantics — PR #58, final run #183.
-6. **Готовність 0.9.0 — NEXT**: generated-copy localization і regression review завершені; провести formal prerelease readiness assessment, потім вирішити щодо cross-platform prerelease.
+6. **Готовність 0.9.0 — VERIFIED**: formal readiness assessment не знайшов product blocker; GO до release-prep PR. Cross-platform compile лишається mandatory release-workflow gate перед publication.
 
 Принцип пріоритезації: спочатку завершувати вертикальний користувацький шлях, а не додавати нові ізольовані джерела чи екрани.
 
