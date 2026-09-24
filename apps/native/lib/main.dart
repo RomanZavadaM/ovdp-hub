@@ -97,8 +97,41 @@ class OvdpApp extends StatelessWidget {
   );
 }
 
-class StyledApp extends StatelessWidget {
+class StyledApp extends StatefulWidget {
   const StyledApp({super.key});
+
+  @override
+  State<StyledApp> createState() => _StyledAppState();
+}
+
+class _StyledAppState extends State<StyledApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final portfolio = context.read<PortfolioCubit>();
+    switch (state) {
+      case AppLifecycleState.resumed:
+        portfolio.onForeground();
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        portfolio.onBackground();
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
