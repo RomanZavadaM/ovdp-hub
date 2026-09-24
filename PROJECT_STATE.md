@@ -1,6 +1,6 @@
 # PROJECT_STATE — OVDP Hub
 
-Оновлено: 23.09.2026
+Оновлено: 24.09.2026
 
 ## Поточний checkpoint
 
@@ -242,19 +242,31 @@ PR **#58 — Planner: strict A/B/C scenario comparison v2** squash-merged у `ma
 
 Final latest-head verification: **Flutter checks and START run #183 — success (108/108 tests)**.
 
-## Чому 0.8.7, а не 0.9.0
+PR **#61 — Planner: localize generated copy and preset labels** squash-merged у `main` як `1e6849f78134d9654b0bf08b54ceebda4100ba4d`.
 
-Після опублікованого v0.8.8 у `main` уже додано A/B/C comparison. До оцінки готовності 0.9.0 ще треба завершити:
-- generated planner copy / preset labels localization;
-- UX/regression review поточного наскрізного Planner flow.
+Інтегровано після опублікованого v0.8.8:
+- generated default plan / primary need / additional expense names зберігаються як stable generated-copy identifiers, а не як текст конкретної мови;
+- generated scenario note зберігається language-neutral marker і локалізується під час відображення;
+- aggregate purchase-fee та tax preset labels відокремлені від UI-мови в persisted scenario data;
+- user-authored plan/need/expense names лишаються literal і не перекладаються автоматично;
+- Planner і Collections відображають generated copy через `HubStrings` для UK/EN/FR/DE/ES/KO/JA;
+- Planner → save → Collections → A/B/C → reopen та phone/desktop regression coverage лишаються зеленими.
 
-Тому 0.9.0 «Ринок» лишається активною ціллю.
+Final code verification: **Flutter checks and START run #189 — success (110/110 tests)**.  
+Final latest-head verification після WORKLOG-only commit: **run #190 — success**.
+
+## Чому 0.8.8 ще не 0.9.0
+
+Після опублікованого v0.8.8 у `main` уже інтегровано A/B/C comparison і generated Planner copy / preset-label localization з наскрізними regression tests.
+
+Тому 0.9.0 «Ринок» лишається активною ціллю, але наступний крок тепер не нова feature-гілка, а **formal prerelease readiness assessment** поточного `main`.
 
 ## Наступний етап — 0.9.0 «Ринок»
 
-1. generated planner copy / preset labels localization;
-2. UX/regression review;
-3. оцінка готовності formal prerelease 0.9.0.
+1. провести formal prerelease readiness assessment поточного `main`;
+2. звірити roadmap / schema compatibility / localization / legal / release workflow / cross-platform packaging;
+3. зафіксувати конкретні blockers, якщо вони є;
+4. лише після assessment вирішити, чи готувати 0.9.0 prerelease checkpoint або закривати знайдені blockers окремими slice.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
 
