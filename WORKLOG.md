@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **deterministic local Planner exports: CSV + ICS; PDF deferred**.
 
@@ -38,11 +38,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - ICS: all-day events for needs/reserve-floor and expected cash-availability dates for coupon/redemption/sale events; deterministic UID/DTSTAMP; no network;
 - PDF remains deferred until report structure stabilizes;
 - UI labels/messages: UK/EN/FR/DE/ES/KO/JA;
-- regression: identical input → identical bytes; save path; CSV escaping; ICS escaping/dates; desktop/phone Planner buttons.
+- regression: identical input → identical bytes; save path; CSV escaping; ICS escaping/dates; desktop/phone Planner buttons;
+- draft PR: **#73** `Planner: add deterministic CSV and ICS exports`;
+- verified code head: **`55a0b0c043ea656fcd5612be2d8906c4f6209b41`**;
+- **Flutter checks and START run #229 — success (117/117 tests)**.
 
 ### Поточна наступна дія
 
-**DOING — define `docs/planner-exports.md`, implement pure export generation + workspace write API, wire Planner actions and 7-language UI, add regressions, then open PR and require green analyze/tests before integration.**
+**VERIFIED — code head passed run #229. Run exact latest-head CI after this docs-only checkpoint, then integrate PR #73 into `main` if green. PDF remains deferred.**
 
 ## Черга робіт
 
@@ -59,7 +62,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
-14. **DOING** — deterministic local CSV + ICS Planner exports; PDF deferred.
+14. **VERIFIED** — deterministic local CSV + ICS Planner exports; PR #73, code run #229 green; awaiting latest-head docs-only verification.
 
 ## Продуктова логіка цієї черги
 
