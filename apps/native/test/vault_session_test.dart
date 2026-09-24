@@ -20,6 +20,7 @@ class FakeVaultContentStore implements VaultLifecycleStore {
     recoveryEnabled: true,
   );
   Completer<VaultOpenResult>? openCompleter;
+  Completer<VaultOpenResult>? saveCompleter;
   Object? openError;
   Object? saveError;
   Object? lifecycleError;
@@ -39,6 +40,8 @@ class FakeVaultContentStore implements VaultLifecycleStore {
     required Uint8List plainText,
   }) async {
     if (saveError case final error?) throw error;
+    final completer = saveCompleter;
+    if (completer != null) return completer.future;
     return saveResult;
   }
 
@@ -333,6 +336,73 @@ void main() {
 
     controller.clearError();
     expect(controller.state.phase, VaultSessionPhase.locked);
+  });
+
+  test('in-flight save serializes lifecycle, second save and re-unlock', () async {
+    final store = FakeVaultContentStore();
+    final scheduler = FakeSessionScheduler();
+    final controller = controllerFor(store, scheduler);
+    addTearDown(controller.dispose);
+
+    await controller.unlock(vaultId: 'vault-1');
+
+    final saveCompleter = Completer<VaultOpenResult>();
+    store.saveCompleter = saveCompleter;
+    final saveFuture = controller.save(Uint8List.fromList([7, 8]));
+
+    await expectLater(
+      controller.save(Uint8List.fromList([9])),
+      throwsA(
+        isA<StateError>().having(
+          (error) => error.message,
+          'message',
+          'vault.session_busy',
+        ),
+      ),
+    );
+    await expectLater(
+      controller.enableRecovery(
+        vaultId: 'vault-1',
+        recoverySecret: 'must wait for save',
+        recoveryParameters: VaultRecoveryKdfParameters.interactive,
+      ),
+      throwsA(
+        isA<StateError>().having(
+          (error) => error.message,
+          'message',
+          'vault.session_busy',
+        ),
+      ),
+    );
+
+    await controller.lock();
+    expect(controller.state.phase, VaultSessionPhase.locked);
+    await expectLater(
+      controller.unlock(vaultId: 'vault-1'),
+      throwsA(
+        isA<StateError>().having(
+          (error) => error.message,
+          'message',
+          'vault.session_busy',
+        ),
+      ),
+    );
+
+    final staleSave = VaultOpenResult(
+      vaultId: 'vault-1',
+      revision: 2,
+      plainText: Uint8List.fromList([4, 5, 6]),
+      recoveryEnabled: true,
+    );
+    saveCompleter.complete(staleSave);
+    await saveFuture;
+
+    expect(controller.state.phase, VaultSessionPhase.locked);
+    expect(staleSave.plainText, [0, 0, 0]);
+
+    store.saveCompleter = null;
+    await controller.unlock(vaultId: 'vault-1');
+    expect(controller.state.phase, VaultSessionPhase.unlocked);
   });
 
   test('lifecycle mutation requires unlocked matching session and locks first', () async {
