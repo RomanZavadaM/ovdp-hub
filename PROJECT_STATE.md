@@ -285,12 +285,23 @@ PR **#67 — UI: add optional Light Dashboard appearance** squash-merged у `mai
 - design regression перевіряє всі три режими та збереження Planner input;
 - code verification run #205 — success; final latest-head run #206 — success.
 
-## Наступний етап після Light Dashboard
+## Інтегровано після v0.9.0 — Planner reserve floor та exports
 
-1. Planner **reserve-floor / мінімальний залишок** як typed need без домислювання;
-2. persistence + cashflow/coverage semantics + UI + UK/EN/FR/DE/ES/KO/JA;
-3. strict A/B/C comparability для reserve-floor assumptions;
-4. після завершення — повернутися до exports / encrypted vault / distribution roadmap за пріоритетом.
+Після Light Dashboard інтегровано ще два user-visible slice:
+
+- **Planner reserve-floor / мінімальний залишок** — PR #69, merge `37b8120db0dd64fa81dc4f06e3e2a44a2ec21206`; floor є non-consuming liquid-cash constraint, підтримує persistence, coverage/generator, strict A/B/C і 7 мов; branch run #210 та main run #211 — success.
+- **Deterministic local Planner CSV + ICS exports** — PR #73, merge `3e8e7fbc08f3d2a305e8eb6d92bfb9428a34dedc`; CSV schema v1, ICS needs/reserve-floor/receipt availability, local-only `<workspace>/exports/`, stable file stem/UID/DTSTAMP, UK/EN/FR/DE/ES/KO/JA; exact-head run #231 і post-merge run #232 — success.
+- PDF export свідомо відкладено до стабілізації структури звіту.
+
+## Наступний етап
+
+**Encrypted vault / фактичний портфель** починається не з коду, а з review/approval існуючого `docs/security-vault.md`:
+
+1. зафіксувати межу приватних даних, які входять/не входять до vault;
+2. затвердити file/envelope versioning, authenticated-encryption та key-ownership вимоги без власної криптографії;
+3. затвердити recovery/backup, lock/auto-lock/deletion UX;
+4. перевірити secure-storage model для Windows/macOS/iOS/Android;
+5. тільки після цього робити dependency/security review конкретної Flutter crypto/secure-storage реалізації.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
