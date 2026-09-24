@@ -261,12 +261,26 @@ Final latest-head verification після WORKLOG-only commit: **run #190 — su
 
 Тому 0.9.0 «Ринок» лишається активною ціллю, але наступний крок тепер не нова feature-гілка, а **formal prerelease readiness assessment** поточного `main`.
 
-## Наступний етап — 0.9.0 «Ринок»
+## Formal prerelease readiness assessment 0.9.0
 
-1. провести formal prerelease readiness assessment поточного `main`;
-2. звірити roadmap / schema compatibility / localization / legal / release workflow / cross-platform packaging;
-3. зафіксувати конкретні blockers, якщо вони є;
-4. лише після assessment вирішити, чи готувати 0.9.0 prerelease checkpoint або закривати знайдені blockers окремими slice.
+Assessment від 24.09.2026 зафіксовано в `docs/READINESS_0_9_0.md`.
+
+Висновок: **READY TO PREPARE 0.9.0 PRERELEASE CHECKPOINT**.
+
+- product blockers перед release-prep не знайдено;
+- latest functional main run #191: analyze + **110/110 tests** + START artifact — success;
+- schema 3 + adapters 1/2, 7-language localization, legal/package metadata і release workflow перевірені;
+- exact-current-main Windows/macOS/Android/iOS compile лишається обов'язковим release gate і має пройти в повному release workflow до publication;
+- reserve-floor, exports, encrypted vault і production signing лишаються explicit deferred/non-blocking roadmap work.
+
+## Наступний етап — release preparation 0.9.0
+
+1. підготувати окремий release-checkpoint PR;
+2. version/build: **`0.9.0+17`**;
+3. створити `docs/releases/RELEASE_NOTES_v0_9_0.md` усіма 7 мовами;
+4. пройти PR checks;
+5. merge checkpoint PR має запустити повний gated release workflow Windows/macOS/Android/iOS/START + checksums/legal;
+6. вважати v0.9.0 опублікованим лише після успішного `publish`.
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
 
