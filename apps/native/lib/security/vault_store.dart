@@ -109,7 +109,6 @@ class VaultOpenResult {
 abstract interface class VaultContentStore {
   Future<VaultOpenResult> open({required String vaultId});
 
-  @override
   Future<VaultOpenResult> save({
     required String vaultId,
     required Uint8List plainText,
@@ -234,6 +233,7 @@ class LocalVaultStore implements VaultContentStore {
     }
   }
 
+  @override
   Future<VaultOpenResult> save({
     required String vaultId,
     required Uint8List plainText,
