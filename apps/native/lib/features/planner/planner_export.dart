@@ -473,16 +473,18 @@ String buildPlannerIcs({
 
   events.sort((a, b) => a.sort.compareTo(b.sort));
 
-  final lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//OVDP Hub//Planner Export//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    'X-WR-CALNAME:${_icsEscape(plannerExportDisplayName(scenario.name))}',
+  final lines = <String>[
+    _foldIcsLine('BEGIN:VCALENDAR'),
+    _foldIcsLine('VERSION:2.0'),
+    _foldIcsLine('PRODID:-//OVDP Hub//Planner Export//EN'),
+    _foldIcsLine('CALSCALE:GREGORIAN'),
+    _foldIcsLine('METHOD:PUBLISH'),
+    _foldIcsLine(
+      'X-WR-CALNAME:${_icsEscape(plannerExportDisplayName(scenario.name))}',
+    ),
     ...events.map((e) => e.value),
-    'END:VCALENDAR',
+    _foldIcsLine('END:VCALENDAR'),
   ];
 
-  return '${lines.map(_foldIcsLine).join('\r\n')}\r\n';
+  return '${lines.join('\r\n')}\r\n';
 }
