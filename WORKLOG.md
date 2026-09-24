@@ -31,7 +31,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - base `main`: `02284169c069de0bb11a2c3eb628ff1956f8059f`;
 - branch: **`feat/planner-generated-copy-localization`**;
-- PR: ще не відкрито;
+- PR: **#61** `Planner: localize generated copy and preset labels` (draft);
 - published checkpoint remains: **v0.8.8 / 0.8.8+16**;
 - audit confirmed hard-coded generated copy in Planner domain/state:
   - default plan name `Мій план`;
@@ -55,7 +55,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — replace generated persisted display text with stable generated-copy identifiers, add UI resolvers/localized strings, then regression tests.**
+**DOING — code + regression tests committed; PR #61 opened. Await latest-head CI, then fix any findings, mark ready and integrate.**
 
 ## Черга робіт
 
