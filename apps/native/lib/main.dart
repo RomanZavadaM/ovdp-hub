@@ -16,6 +16,9 @@ import 'features/economy/economic_pulse_view.dart';
 import 'features/navigation/navigation_cubit.dart';
 import 'features/planner/planner_cubit.dart';
 import 'features/planner/planner_view.dart';
+import 'features/portfolio/portfolio_cubit.dart';
+import 'features/portfolio/portfolio_gateway.dart';
+import 'features/portfolio/portfolio_view.dart';
 import 'features/sellers/seller_repository.dart';
 import 'features/sellers/sellers_cubit.dart';
 import 'features/sellers/sellers_view.dart';
@@ -33,7 +36,12 @@ void main() {
 
 class OvdpApp extends StatelessWidget {
   final HubRepository? repository;
-  const OvdpApp({super.key, this.repository});
+  final PortfolioGateway? portfolioGateway;
+  const OvdpApp({
+    super.key,
+    this.repository,
+    this.portfolioGateway,
+  });
 
   @override
   Widget build(BuildContext context) => RepositoryProvider<HubRepository>(
@@ -64,6 +72,13 @@ class OvdpApp extends StatelessWidget {
         ),
         BlocProvider(create: (_) => SellersCubit(SellerRepository())),
         BlocProvider(create: (_) => NavigationCubit()),
+        BlocProvider(
+          create: (context) => PortfolioCubit(
+            context.read<HubRepository>(),
+            portfolioGateway ?? LocalEncryptedPortfolioGateway(),
+          )..initialize(),
+          lazy: false,
+        ),
         BlocProvider(
           create: (context) => PlannerCubit(context.read<HubRepository>()),
           lazy: false,
@@ -147,6 +162,10 @@ class Home extends StatelessWidget {
         icon: const Icon(Icons.storefront_outlined),
         label: strings.text('sellers'),
       ),
+      NavigationDestination(
+        icon: const Icon(Icons.account_balance_wallet_outlined),
+        label: strings.text('portfolio'),
+      ),
     ];
 
     void showHubAbout() {
@@ -217,6 +236,7 @@ class Home extends StatelessWidget {
               2 => const CalculatorView(),
               4 => const PlannerView(),
               5 => const SellersView(),
+              6 => const PortfolioView(),
               _ => const WorkspaceView(),
             },
           ),
