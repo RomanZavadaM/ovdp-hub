@@ -8,6 +8,8 @@ import 'package:path/path.dart' as p;
 
 class FakeDpapiProtector implements DpapiProtector {
   bool failUnprotect = false;
+  int unprotectCalls = 0;
+  int? failOnUnprotectCall;
 
   @override
   Uint8List protect(Uint8List plainText) =>
@@ -15,7 +17,8 @@ class FakeDpapiProtector implements DpapiProtector {
 
   @override
   Uint8List unprotect(Uint8List cipherText) {
-    if (failUnprotect) {
+    unprotectCalls++;
+    if (failUnprotect || unprotectCalls == failOnUnprotectCall) {
       throw StateError('vault.dpapi_unprotect_failed');
     }
     return Uint8List.fromList(cipherText.reversed.toList());
@@ -90,6 +93,41 @@ void main() {
       await store.loadHighestAcceptedRevision(vaultId: 'vault-android'),
       isNull,
     );
+  });
+
+  test('Windows failed committed write restores previous known-good record', () async {
+    final root = await Directory.systemTemp.createTemp('ovdp-dpapi-rollback-');
+    addTearDown(() => root.delete(recursive: true));
+    final protector = FakeDpapiProtector();
+    final store = WindowsVaultDeviceKeyStore(
+      directory: root,
+      protector: protector,
+    );
+    final dek = Uint8List.fromList(List<int>.filled(32, 17));
+
+    await store.storeDek(vaultId: 'vault-rollback', dek: dek);
+    final protectedFile = File(
+      p.join(root.path, 'vault-rollback.device.dpapi'),
+    );
+    final before = await protectedFile.readAsBytes();
+
+    protector.unprotectCalls = 0;
+    protector.failOnUnprotectCall = 2;
+    await expectLater(
+      store.storeHighestAcceptedRevision(
+        vaultId: 'vault-rollback',
+        revision: 3,
+      ),
+      throwsStateError,
+    );
+
+    expect(await protectedFile.readAsBytes(), before);
+    protector.failOnUnprotectCall = null;
+    expect(
+      await store.loadHighestAcceptedRevision(vaultId: 'vault-rollback'),
+      0,
+    );
+    expect(await store.loadDek(vaultId: 'vault-rollback'), dek);
   });
 
   test('Windows protected record survives decrypt failure without deletion', () async {
