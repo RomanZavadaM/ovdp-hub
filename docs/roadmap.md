@@ -91,8 +91,10 @@
 - [x] Private encrypted payload/domain foundation: acquisition lots, derived holdings, factual coupon/redemption events with stable IDs and deterministic validation — replacement PR #89, merge `a516310f…`, post-merge run #312.
 - [x] Factual sale/disposal records + deterministic acquisition-lot allocation / realized-cost foundation — replacement PR #92, exact-head run #317, merge `d8de5c9f…`, post-merge run #318.
 - [x] Non-destructive legacy plaintext migration core — private payload schema v3; strict/idempotent/conflict-aware mapping, full encrypted verification, zero synthesized portfolio facts and no delete API; PR #95, post-merge run #331.
-- [ ] **NEXT:** Android SAF / iOS security-scoped access для зовнішніх папок; live provider-backed mutable vault remains deferred.
-- [ ] User-facing vault/migration UX and explicit plaintext cleanup action — separate gate; do not claim legacy workspace is encrypted before this flow exists and succeeds.
+- [x] **v0.9.2:** user-facing encrypted portfolio entrypoint: create/open/lock, factual acquisition, derived holdings + persistent Economic Pulse.
+- [x] Release correctness gate: exact packaged Windows/macOS ZIP → extract → execute → verify version/build + Classic/Studio/Light Dashboard contract.
+- [ ] **NEXT:** factual sale/redemption/history UI + explicit legacy migration wizard/cleanup action.
+- [ ] Android SAF / iOS security-scoped access для зовнішніх папок — deferred до mobile external-workspace/vault slice.
 
 ## Distribution readiness
 
