@@ -105,15 +105,20 @@ class VaultEnvelopeV1 {
     }
   }
 
-  Map<String, Object> headerJson() => {
-    'application': vaultMagic,
-    'envelopeVersion': vaultEnvelopeVersion,
-    'vaultId': vaultId,
-    'revision': revision,
-    'algorithm': vaultAeadAlgorithm,
-    if (recoverySlotBinding != null)
-      'recoverySlotBinding': recoverySlotBinding!,
-  };
+  Map<String, Object> headerJson() {
+    final header = <String, Object>{
+      'application': vaultMagic,
+      'envelopeVersion': vaultEnvelopeVersion,
+      'vaultId': vaultId,
+      'revision': revision,
+      'algorithm': vaultAeadAlgorithm,
+    };
+    final binding = recoverySlotBinding;
+    if (binding != null) {
+      header['recoverySlotBinding'] = binding;
+    }
+    return header;
+  }
 
   Uint8List authenticatedHeader() =>
       Uint8List.fromList(utf8.encode(jsonEncode(headerJson())));
