@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+- Після checkpoint v0.9.1 нові user-facing зміни ще не інтегровані.
+
+## [0.9.1] — 2026-09-24
+
 ### Planner CSV + ICS exports
 - Додано deterministic local CSV schema v1 для scenario, positions, typed need rules, coverage та receipt events.
 - Додано ICS calendar export для потреб/reserve-floor і очікуваних дат доступності coupon/redemption/explicit-sale cashflow з урахуванням settlement delay.
@@ -34,7 +38,19 @@
 - Regression coverage перевіряє перемикання всіх трьох режимів без втрати Planner input.
 - PR #67; code run #205 success; final latest-head run #206 success; merge `90bea96f5be1b28d980a3846341dbfe90b32e8e8`.
 
-Наступний продуктовий slice — **Planner reserve-floor / minimum-balance needs**. Exports, encrypted vault/actual holdings і production signing лишаються окремими майбутніми етапами.
+### Encrypted vault and private-domain foundation
+- Approved threat model and dependency/security stack: libsodium via `sodium 4.1.0+1`, XChaCha20-Poly1305, Argon2id13, hardened Android/iOS/macOS secure storage and app-owned Windows DPAPI.
+- Added atomic authenticated local vault store, recovery-wrapped DEK, encrypted portable backup/restore, rollback detection and session manual/inactivity/background locking.
+- Added recovery enable/rotate/remove and non-destructive local-delete lifecycle with rollback/crash recovery and serialized store operations.
+- Added private portfolio payload schemas: factual acquisition lots, coupon/redemption events, factual disposals with explicit acquisition-lot allocation and derived holdings without invented FIFO/LIFO.
+- Added schema v3 non-destructive legacy `sets/*.json` migration core: only user-specific collection metadata/selected ISINs/raw Planner scenario are encrypted; public Bond snapshots are omitted; no factual portfolio records are synthesized.
+- Legacy plaintext migration is idempotent, conflict-aware, partial-failure aware and verifies the full canonical encrypted payload after save. The migration core has **no delete API**.
+
+### Checkpoint boundaries
+- User-facing vault/migration/portfolio UI is not wired yet; existing legacy `sets/*.json` are **not automatically encrypted** by installing v0.9.1.
+- macOS Data Protection Keychain runtime/provisioning remains a release gate before user-facing vault unlock.
+- Production signing remains deferred for Windows/macOS/Android/iOS distribution.
+- Release checkpoint: **0.9.1+18**, Windows/macOS/Android/iOS + START/source + checksums/legal notices.
 
 ## [0.9.0] — 2026-09-24
 
