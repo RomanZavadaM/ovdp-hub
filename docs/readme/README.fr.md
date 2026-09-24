@@ -28,6 +28,7 @@ Code actif : `apps/native`. Checkpoint publié actuel : **0.9.0 « Marché »**.
 - une vente anticipée par position avec date et prix de sortie BID/manuel propres;
 - un besoin futur principal récurrent conservé comme règle typée, les besoins supplémentaires restant ponctuels;
 - comparaison neutre **A/B/C** de 2 à 3 scénarios enregistrés, avec comparabilité stricte et sans gagnant automatique;
+- règle typée de solde minimum / reserve floor : à partir de sa date d’effet, le montant doit rester liquide et n’est pas traité comme une dépense;
 - le texte généré du planificateur / les libellés prédéfinis sont stockés comme identifiants stables puis localisés à l’affichage; les noms saisis par l’utilisateur restent littéraux;
 - sauvegarde portable des scénarios au format JSON;
 - interface active et principales erreurs utilisateur localisées en **UK / EN / FR / DE / ES / KO / JA**.
@@ -38,7 +39,7 @@ Le coupon nominal n’est pas assimilé au rendement de marché, une observation
 
 Le planificateur reste volontairement mono-devise. Il prend en charge la répartition par échéance, le mode de profit calculé et la couverture des dépenses futures. Quantité et prix total peuvent être modifiés manuellement.
 
-Route vers 0.9.0 :
+Développement après le checkpoint 0.9.0 publié :
 
 1. **DONE** — priorité explicite des sources de prix;
 2. **DONE** — hypothèses de frais d’achat;
