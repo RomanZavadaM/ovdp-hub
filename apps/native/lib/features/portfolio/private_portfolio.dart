@@ -493,8 +493,15 @@ class PrivatePortfolioPayload {
 }
 
 abstract final class PrivatePortfolioPayloadCodec {
-  static Uint8List encode(PrivatePortfolioPayload payload) =>
-      Uint8List.fromList(utf8.encode(jsonEncode(payload.toJson())));
+  static Uint8List encode(PrivatePortfolioPayload payload) {
+    final bytes = Uint8List.fromList(
+      utf8.encode(jsonEncode(payload.toJson())),
+    );
+    if (bytes.length > maxPrivatePortfolioBytes) {
+      throw const FormatException('portfolio.invalid_payload_size');
+    }
+    return bytes;
+  }
 
   static PrivatePortfolioPayload decode(Uint8List bytes) {
     if (bytes.isEmpty || bytes.length > maxPrivatePortfolioBytes) {
