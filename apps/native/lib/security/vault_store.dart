@@ -318,6 +318,7 @@ class LocalVaultStore implements VaultLifecycleStore {
     }
   }
 
+  @override
   Future<VaultLifecycleResult> enableRecovery({
     required String vaultId,
     required String recoverySecret,
@@ -331,6 +332,7 @@ class LocalVaultStore implements VaultLifecycleStore {
         recoveryParameters: recoveryParameters,
       );
 
+  @override
   Future<VaultLifecycleResult> rotateRecovery({
     required String vaultId,
     required String recoverySecret,
@@ -344,6 +346,7 @@ class LocalVaultStore implements VaultLifecycleStore {
         recoveryParameters: recoveryParameters,
       );
 
+  @override
   Future<VaultLifecycleResult> removeRecovery({
     required String vaultId,
   }) =>
@@ -352,6 +355,7 @@ class LocalVaultStore implements VaultLifecycleStore {
         mode: _RecoveryChange.remove,
       );
 
+  @override
   Future<void> deleteLocalVault({required String vaultId}) async {
     validateVaultId(vaultId);
     await directory.create(recursive: true);
