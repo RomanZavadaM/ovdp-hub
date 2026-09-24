@@ -91,7 +91,7 @@ try {
   }
   for ($i = 0; $i -lt $expectedAppearances.Count; $i++) {
     if ([string]$actualAppearances[$i] -ne $expectedAppearances[$i]) {
-      throw "Appearance contract mismatch at index $i: expected $($expectedAppearances[$i]), got $($actualAppearances[$i])"
+      throw "Appearance contract mismatch at index $($i): expected $($expectedAppearances[$i]), got $($actualAppearances[$i])"
     }
   }
 
