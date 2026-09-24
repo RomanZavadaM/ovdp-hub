@@ -21,18 +21,20 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 **0.9.x — розвиток після завершеного 0.9.0 «Ринок»**.
 
-Поточний опублікований checkpoint: **v0.9.1 / 0.9.1+18**.
+Поточний опублікований checkpoint: **v0.9.2 / 0.9.2+19**.
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
 Мета: **v0.9.2+19 full user-visible checkpoint — «Мій портфель» + постійний «Економічний пульс» + real packaged-artifact release gate**.
 
-- base `main`: **`1ce61b46e9e8673c6b8f81511e7b0c139fc61760`**;
-- branch: **`feat/portfolio-economic-pulse`**;
-- PR: **#99 — 0.9.2: user-facing portfolio and economic pulse**;
-- candidate version/build: **0.9.2+19**;
+- інтегровано в `main`: **`696fd4a07e5e23c4a44d9aeb8bd745671acfb52a`**;
+- version/build: **0.9.2+19**;
+- post-merge Flutter checks: **run #381 — success**;
+- full Publish native prerelease: **run #102 — success**;
+- tag/release: **`v0.9.2`**, target `696fd4a07e5e23c4a44d9aeb8bd745671acfb52a`;
+- published assets: Windows x64, macOS, Android test, unsigned iOS, START/source, SHA256SUMS, legal notices;
 - release notes: **`docs/releases/RELEASE_NOTES_v0_9_2.md`**;
 - real bug caught by hardened regression: `NavigationCubit` accepted only indices 0..5, so visible «Мій портфель» destination (index 6) did not open; fixed and locked by regression test;
 - пріоритет власника: кожен наступний цикл має давати помітний користувацький результат, а не серію лише внутрішніх infrastructure slices;
@@ -51,7 +53,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — freeze PR #99 at the final candidate head, require green Flutter tests + exact packaged Windows/macOS ZIP smoke, then merge and publish immutable v0.9.2 cross-platform prerelease.**
+**NEXT — user-facing factual sale/redemption/history + explicit legacy migration wizard; keep Android SAF / iOS security-scoped external-folder work deferred until the mobile storage gate.**
 
 ## Черга робіт
 
@@ -79,8 +81,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 22. **DONE** — Private portfolio factual sale/disposal + explicit lot-allocation foundation; replacement PR #92 → merge `d8de5c9f…`; exact-head run #317 and post-merge run #318 green.
 23. **DONE** — Non-destructive legacy plaintext migration; PR #95 → merge `36191546…`; exact-head run #329 and post-merge run #331 green.
 24. **DONE** — v0.9.1+18 full prerelease checkpoint; PR #97 → `bf9b358b…`; run #337, main run #338 and release run #72 green; immutable `v0.9.1` published with all platform assets.
-25. **DOING** — User-visible 0.9.2 direction: «Мій портфель» + persistent «Економічний пульс».
-26. **NEXT** — User-facing factual acquisition flow + holdings summary on encrypted vault.
+25. **DONE** — v0.9.2+19: user-visible «Мій портфель» + persistent «Економічний пульс» + exact packaged-artifact release gate; main `696fd4a…`, run #381, release run #102.
+26. **DONE** — User-facing factual acquisition flow + holdings summary on encrypted vault.
 27. **NEXT** — User-facing factual sale/redemption/history + legacy migration wizard.
 28. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
 
@@ -109,6 +111,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — v0.9.2+19 full prerelease checkpoint**: main `696fd4a07e5e23c4a44d9aeb8bd745671acfb52a`; post-merge run #381 success; Publish native prerelease run #102 success; tag/release `v0.9.2` published with Windows/macOS/Android/iOS/START, SHA256SUMS and legal notices. Real packaged desktop ZIP smoke verifies build metadata and Classic/Studio/Light Dashboard contract before publish.
 
 - **DONE — v0.9.1+18 full prerelease checkpoint**: PR #97 merged as `bf9b358b73ce84ea333a09978a4607c0505d30fb`; exact-head run #337 and post-merge run #338 green; Publish native prerelease run #72 built/published Windows, macOS, Android test, unsigned iOS, START/source, SHA256 and legal notices; immutable tag `v0.9.1` points to the release commit.
 
