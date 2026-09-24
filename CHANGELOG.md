@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+### Planner reserve floor
+- Додано typed `reserveFloor` у активний Planner UI без schema bump.
+- Reserve floor є мінімальним ліквідним залишком від заданої дати, а не витратою: він не збільшує cumulative spent.
+- Coverage показує окремий floor checkpoint і shortfall; наступні витрати перевіряються відносно активного floor.
+- Expense-oriented generator зберігає жорсткішу межу між scenario `reserve` і active reserve floor.
+- A/B/C strict comparability включає type/date/amount floor.
+- Save/reload, UI та copy покрито UK/EN/FR/DE/ES/KO/JA.
+- PR #69; final branch run #210; merge `37b8120db0dd64fa81dc4f06e3e2a44a2ec21206`; post-merge run #211.
+
+
 ### Light Dashboard appearance
 - Додано третє необов'язкове оформлення **«Світла панель»** за візуальним напрямком наданих owner reference screenshots.
 - Existing **Classic** та **«Робочий кабінет»** збережені; Studio лишається default.

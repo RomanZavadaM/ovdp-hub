@@ -28,6 +28,7 @@ Active code: `apps/native`. The current published checkpoint is **0.9.0 “Marke
 - per-position early sale with an individual sale date and BID/manual exit price;
 - a recurring primary future need stored as a typed rule, while additional needs remain one-off items;
 - neutral **A/B/C** comparison for 2–3 saved scenarios with strict comparability and no automatic winner;
+- typed reserve-floor / minimum-balance rule: from its effective date the amount must remain liquid and is not treated as an expense;
 - generated Planner copy / preset labels are stored as stable IDs and localized at display time; user-authored names remain literal;
 - portable JSON workspace persistence;
 - active UI and main user-facing errors localized for **UK / EN / FR / DE / ES / KO / JA**.
@@ -38,7 +39,7 @@ A nominal coupon is not treated as market yield, yield-only observations never b
 
 The planner remains single-currency by design and supports maturity allocation, calculated-profit mode, and future-expense coverage. Quantity and full price can be edited manually. Additional expenses, reserve, settlement delay, and saved scenarios are supported.
 
-Road to 0.9.0:
+Development after the published 0.9.0 checkpoint:
 
 1. **DONE** — explicit price-source priority;
 2. **DONE** — purchase-fee assumptions;
@@ -47,7 +48,9 @@ Road to 0.9.0:
 5. **DONE** — exit assumptions;
 6. **DONE** — neutral A/B/C comparison;
 7. **DONE** — generated Planner copy / preset-label localization + regression;
-8. **READY** — formal 0.9.0 readiness assessment: GO to prerelease checkpoint preparation.
+8. **DONE** — v0.9.0 prerelease checkpoint;
+9. **DONE** — reserve-floor / minimum-balance need;
+10. **NEXT** — local CSV/ICS exports; PDF after report structure stabilizes.
 
 OVDP Hub does not execute trades and does not confirm seller availability.
 

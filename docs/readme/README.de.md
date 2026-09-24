@@ -28,6 +28,7 @@ Aktiver Code: `apps/native`. Der aktuell veröffentlichte Checkpoint ist **0.9.0
 - vorzeitiger Verkauf je Position mit eigenem Verkaufsdatum und BID-/manuellem Exit-Preis;
 - wiederkehrender Hauptbedarf als typisierte Regel; zusätzliche Bedarfe bleiben einmalige Einträge;
 - neutraler **A/B/C**-Vergleich für 2–3 gespeicherte Szenarien mit strenger Vergleichbarkeit und ohne automatischen Gewinner;
+- typisierte Mindestbestand-/Reserve-Floor-Regel: Ab dem Wirksamkeitsdatum muss der Betrag liquide bleiben und wird nicht als Ausgabe behandelt;
 - generierter Planner-Text / Preset-Labels werden als stabile IDs gespeichert und erst bei der Anzeige lokalisiert; benutzerdefinierte Namen bleiben unverändert;
 - portable JSON-Workspaces für gespeicherte Szenarien;
 - aktive UI und wichtigste benutzerseitige Fehler in **UK / EN / FR / DE / ES / KO / JA** lokalisiert.
@@ -38,7 +39,7 @@ Nominalkupon ist nicht gleich Marktrendite, reine Renditeangaben werden nicht au
 
 Der Planer bleibt bewusst einwährungsbasiert. Er unterstützt Laufzeitverteilung, berechneten Ertrag und Deckung künftiger Ausgaben. Stückzahl und Gesamtpreis können manuell geändert werden.
 
-Weg zu 0.9.0:
+Entwicklung nach dem veröffentlichten 0.9.0-Checkpoint:
 
 1. **DONE** — explizite Preisquellen-Priorität;
 2. **DONE** — Kaufgebühren-Annahmen;
@@ -47,7 +48,9 @@ Weg zu 0.9.0:
 5. **DONE** — Exit-Annahmen;
 6. **DONE** — neutraler A/B/C-Vergleich;
 7. **DONE** — Lokalisierung von generated Planner copy / Preset-Labels + Regression;
-8. **READY** — formale 0.9.0-Readiness-Prüfung: GO zur Vorbereitung des Prerelease-Checkpoints.
+8. **DONE** — v0.9.0-Prerelease-Checkpoint;
+9. **DONE** — Reserve Floor / Mindestbestand;
+10. **NEXT** — lokale CSV/ICS-Exporte; PDF nach Stabilisierung der Berichtsstruktur.
 
 OVDP Hub führt keine Käufe oder Verkäufe aus und bestätigt keine Verfügbarkeit bei Verkäufern.
 

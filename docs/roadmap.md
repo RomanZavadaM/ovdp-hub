@@ -76,8 +76,8 @@
 - [x] Домен продажу до погашення як окремого припущення з BID/ручною ціною.
 - [x] Домен FX з явним курсом, датою та джерелом.
 - [x] Типи потреб: разова + регулярна з typed persistence/cashflow/UI — PR #54, final run #168.
-- [ ] Потреби типу reserve floor / мінімальний залишок.
-- [ ] CSV/ICS; PDF лише після стабілізації структури звіту.
+- [x] Потреби типу reserve floor / мінімальний залишок — PR #69, final run #210, merge `37b8120d…`, post-merge run #211.
+- [ ] **NEXT:** CSV/ICS — deterministic local exports зі scenario/cashflow/needs; PDF лише після стабілізації структури звіту.
 
 ## Encrypted vault / фактичний портфель
 

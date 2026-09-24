@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **Planner reserve-floor / мінімальний залишок як typed schema-3-compatible constraint**.
 
@@ -38,11 +38,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - scope: domain semantics → persistence/load → cashflow/coverage → generator → comparison → UI → UK/EN/FR/DE/ES/KO/JA → regression tests;
 - draft PR: **#69** `Planner: add reserve-floor minimum balance needs`;
 - verified code head: **`edf78ee85e12edb55fb9ebccab6b18f405884970`**;
-- **Flutter checks and START run #209 — success** (`flutter analyze` + full Flutter tests).
+- **Flutter checks and START run #209 — success** (`flutter analyze` + full Flutter tests);
+- final branch head `0cf2f51322fb931a84e90caa6422fa57673ecd92` passed run **#210**;
+- squash merge `main`: **`37b8120db0dd64fa81dc4f06e3e2a44a2ec21206`**;
+- post-merge main run **#211 — success**, including START/source artifact.
 
 ### Поточна наступна дія
 
-**VERIFIED — code head passed run #209. Record this verification, run exact latest-head CI after the WORKLOG-only checkpoint, then mark PR #69 Ready and integrate it into `main` if green. No release checkpoint in this slice.**
+**NEXT — Planner export slice: deterministic local CSV + ICS export from saved/generated scenario data and cashflow/needs. Keep PDF deferred until report structure stabilizes. Define export schemas first, then generation, workspace/file handling, UI, 7-language labels and regression tests.**
 
 ## Черга робіт
 
@@ -58,7 +61,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 10. **DONE** — formal prerelease readiness assessment 0.9.0 — PR #63, run #193, merge `f80c7d8e…`; GO to release preparation.
 11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
-13. **VERIFIED** — Planner reserve-floor / minimum-balance needs; PR #69, code run #209 green; awaiting latest-head docs-only verification before integration.
+13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
+14. **NEXT** — deterministic local CSV + ICS Planner exports; PDF deferred.
 
 ## Продуктова логіка цієї черги
 
@@ -85,6 +89,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — Planner reserve-floor / minimum-balance**: PR #69 final head `0cf2f513…` passed run #210; squash-merged у `main` as `37b8120db0dd64fa81dc4f06e3e2a44a2ec21206`; post-merge run #211 success. Floor is a non-consuming minimum-liquid-cash constraint, schema 3 compatible, included in coverage/generator/A-B-C/UI and 7 languages.
+
 
 - **DONE — Light Dashboard appearance**: PR #67 final latest-head run #206 success; squash-merged у `main` як `90bea96f5be1b28d980a3846341dbfe90b32e8e8`. Classic + Studio preserved, third «Світла панель» mode added with 7-language selector and desktop/phone regression coverage.
 
