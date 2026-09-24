@@ -56,11 +56,11 @@
 
 ## UX після v0.9.0
 
-- [ ] Додатковий дизайн **«Світла панель»** за наданими власником desktop reference screenshots.
-- [ ] Classic та **«Робочий кабінет»** залишаються доступними; новий дизайн не замінює їх.
-- [ ] Appearance selector і новий shell локалізувати UK/EN/FR/DE/ES/KO/JA.
-- [ ] Desktop + phone regression coverage; функціональний стан Planner/Catalog не губиться при зміні оформлення.
-- [ ] Після цього повернутися до Planner reserve-floor / minimum-balance needs.
+- [x] Додатковий дизайн **«Світла панель»** за наданими власником desktop reference screenshots — PR #67, final run #206.
+- [x] Classic та **«Робочий кабінет»** залишаються доступними; новий дизайн не замінює їх.
+- [x] Appearance selector і новий shell локалізовано UK/EN/FR/DE/ES/KO/JA.
+- [x] Desktop + phone regression coverage; функціональний стан Planner/Catalog не губиться при зміні оформлення.
+- [x] UI slice завершено; **NEXT — Planner reserve-floor / minimum-balance needs**.
 
 ## Планувальник наступного покоління
 
