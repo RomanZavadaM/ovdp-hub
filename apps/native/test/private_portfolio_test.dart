@@ -384,7 +384,7 @@ void main() {
     expect(payload.holdings.single.units, 11);
   });
 
-  test('schema v1 payload decodes compatibly and re-encodes as v2', () {
+  test('schema v1 payload decodes compatibly and re-encodes as v3', () {
     final legacy = Uint8List.fromList(
       '{"schemaVersion":1,"portfolioId":"legacy","acquisitionLots":[{"id":"lot-legacy","isin":"$isinA","units":2,"acquiredOn":"2026-01-01","currency":"UAH","tradeAmount":"2000","feeStatus":"known","feeTotal":"0"}],"cashEvents":[]}'
           .codeUnits,
@@ -677,6 +677,47 @@ void main() {
       ),
       throwsFormatException,
     );
+  });
+
+  test('schema v2 payload decodes compatibly and legacy records are empty', () {
+    final v2 = Uint8List.fromList(
+      '{"schemaVersion":2,"portfolioId":"v2","acquisitionLots":[],"cashEvents":[],"disposals":[]}'
+          .codeUnits,
+    );
+
+    final decoded = PrivatePortfolioPayloadCodec.decode(v2);
+    expect(decoded.portfolioId, 'v2');
+    expect(decoded.legacyCollections, isEmpty);
+
+    final reencoded = String.fromCharCodes(
+      PrivatePortfolioPayloadCodec.encode(decoded),
+    );
+    expect(reencoded, contains('"schemaVersion":3'));
+    expect(reencoded, contains('"legacyCollections":[]'));
+  });
+
+  test('legacy collection record canonicalizes scenario maps and selected ISINs', () {
+    final record = PrivateLegacyCollectionRecord(
+      sourceId: '1700000000-abcdef',
+      name: 'Planner set',
+      note: 'Private note',
+      savedAt: '2026-09-24T12:00:00Z',
+      selectedIsins: [isinB, isinA],
+      scenario: {
+        'z': 2,
+        'a': {
+          'b': 2,
+          'a': 1,
+        },
+      },
+    );
+
+    expect(record.selectedIsins, [isinA, isinB]);
+    expect(record.scenario!.keys.toList(), ['a', 'z']);
+    expect((record.scenario!['a'] as Map).keys.toList(), ['a', 'b']);
+
+    final roundTrip = PrivateLegacyCollectionRecord.fromJson(record.toJson());
+    expect(roundTrip.canonicalJson, record.canonicalJson);
   });
 
   test('codec rejects unknown schema and unknown fields', () {
