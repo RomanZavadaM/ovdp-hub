@@ -94,6 +94,7 @@ class VaultSessionController extends ChangeNotifier {
   VaultSessionTimer? _inactivityTimer;
   VaultSessionTimer? _backgroundTimer;
   int _generation = 0;
+  bool _storeOperationInFlight = false;
   bool _disposed = false;
 
   VaultSessionController({
@@ -107,6 +108,8 @@ class VaultSessionController extends ChangeNotifier {
   VaultSessionState get state => _state;
 
   Future<void> unlock({required String vaultId}) async {
+    _requireStoreIdle();
+    _storeOperationInFlight = true;
     final token = ++_generation;
     _cancelTimers();
     _clearPlainText();
@@ -141,6 +144,8 @@ class VaultSessionController extends ChangeNotifier {
       if (!_disposed && token == _generation) {
         _fail(error, vaultId: vaultId);
       }
+    } finally {
+      _storeOperationInFlight = false;
     }
   }
 
@@ -181,6 +186,8 @@ class VaultSessionController extends ChangeNotifier {
     if (!_state.isUnlocked || vaultId == null || _plainText == null) {
       throw StateError('vault.session_locked');
     }
+    _requireStoreIdle();
+    _storeOperationInFlight = true;
     final token = _generation;
     recordActivity();
 
@@ -212,6 +219,8 @@ class VaultSessionController extends ChangeNotifier {
       if (!_disposed && token == _generation) {
         _fail(error, vaultId: vaultId);
       }
+    } finally {
+      _storeOperationInFlight = false;
     }
   }
 
@@ -343,16 +352,28 @@ class VaultSessionController extends ChangeNotifier {
         _plainText == null) {
       throw StateError('vault.session_locked');
     }
-
-    await lock();
-    if (_disposed) return;
+    _requireStoreIdle();
+    _storeOperationInFlight = true;
 
     try {
-      await operation();
-    } catch (error) {
-      if (!_disposed) {
-        _fail(error, vaultId: vaultId);
+      await lock();
+      if (_disposed) return;
+
+      try {
+        await operation();
+      } catch (error) {
+        if (!_disposed) {
+          _fail(error, vaultId: vaultId);
+        }
       }
+    } finally {
+      _storeOperationInFlight = false;
+    }
+  }
+
+  void _requireStoreIdle() {
+    if (_storeOperationInFlight) {
+      throw StateError('vault.session_busy');
     }
   }
 
