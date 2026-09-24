@@ -243,6 +243,29 @@ void main() {
     }
   });
 
+  test('Planner export controls are localized in every supported language', () {
+    const keys = [
+      'exportCsvIcs',
+      'exportInfo',
+      'lastExport',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+      expect(
+        strings.error(const AppError('planner.export_failed')),
+        isNot('planner.export_failed'),
+        reason: '${language.code} must localize planner.export_failed',
+      );
+    }
+  });
+
   test('FX controls are localized in every supported language', () {
     const keys = [
       'fxAssumptionsTitle',
