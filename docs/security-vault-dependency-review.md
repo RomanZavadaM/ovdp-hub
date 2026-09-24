@@ -1,6 +1,6 @@
 # Encrypted vault — dependency / security review
 
-Статус: **PROPOSED FOR APPROVAL — 24.09.2026**  
+Статус: **APPROVED DEPENDENCY/SECURITY CHECKPOINT — 24.09.2026**  
 Governing contract: `docs/security-vault.md`  
 Scope: вибір crypto / KDF / device-key stack **до** зміни `pubspec.yaml` і до feature implementation.
 
