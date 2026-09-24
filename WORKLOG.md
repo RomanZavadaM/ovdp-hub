@@ -25,24 +25,21 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **deterministic local Planner exports: CSV + ICS; PDF deferred**.
+Мета: **encrypted vault threat-model review / design approval before any crypto or secure-storage plugin implementation**.
 
-- branch: `feat/planner-exports`;
-- PR: **#73** `Planner: add deterministic CSV and ICS exports`;
-- verified code head `55a0b0c043ea656fcd5612be2d8906c4f6209b41` — run **#229 success (117/117 tests)**;
-- exact latest PR head `81bfc0473b71bdc7ff0b74dfc0a831bf4ea5c9db` — run **#231 success**;
-- squash merge `main`: **`3e8e7fbc08f3d2a305e8eb6d92bfb9428a34dedc`**;
-- post-merge **Flutter checks and START run #232 — success**, including START/source artifact;
-- deterministic CSV schema v1 + ICS calendar semantics documented in `docs/planner-exports.md`;
-- local-only writes to `<workspace>/exports/`, deterministic file stem/UID/DTSTAMP, settlement-delay receipt dates;
-- UK/EN/FR/DE/ES/KO/JA UI/errors; PDF remains deferred;
+- base `main`: **`0044ac58fcd0b1e61a3c5818225d4581c4aad765`**;
+- branch: **`docs/encrypted-vault-threat-model-review`**;
+- implementation gate: **docs/design only — no crypto or secure-storage dependency changes in this slice**;
+- review targets: private-data boundary, vault file/envelope versioning, authenticated-encryption requirements, key ownership/wrapping, recovery/backup, lock/auto-lock/deletion UX, rollback/corruption behavior, Windows/macOS/iOS/Android secure-storage matrix;
+- acceptance: `docs/security-vault.md` is explicit enough to serve as a security contract; unresolved choices are marked as dependency-review gates rather than silently assumed;
+- stale duplicate export PR #71 is closed without merge; merged PR #73 remains the only export code source;
 - published checkpoint remains immutable **v0.9.0 / 0.9.0+17**.
 
 ### Поточна наступна дія
 
-**NEXT — review and approve the existing `docs/security-vault.md` threat model before any encryption implementation: freeze the private-data boundary, vault file/envelope requirements, key ownership, recovery/backup model, lock/auto-lock behavior and Windows/macOS/iOS/Android secure-storage matrix. No crypto/plugin code until this design checkpoint is approved.**
+**DOING — audit current plaintext workspace boundaries against the product model, then turn `docs/security-vault.md` into the approved implementation contract. After docs verification, open/verify a PR and integrate only if green. No crypto/plugin code in this slice.**
 
 ## Черга робіт
 
@@ -60,7 +57,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
 14. **DONE** — deterministic local CSV + ICS Planner exports; PR #73 → merge `3e8e7fbc…`; branch runs #229/#231 and main run #232 green.
-15. **NEXT** — Encrypted vault threat-model review/approval before crypto implementation.
+15. **DOING** — Encrypted vault threat-model review/approval before crypto implementation.
 
 ## Продуктова логіка цієї черги
 
