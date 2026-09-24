@@ -397,11 +397,21 @@ class LocalVaultStore {
     if (!await target.exists()) {
       throw StateError('vault.file_missing');
     }
-    final vaultFile = await _readVaultFile(target);
-    _validateFileIdentity(vaultFile, vaultId);
-    crypto.decrypt(envelope: vaultFile.payload, dek: dek);
-
-    return vaultFile;
+    try {
+      final vaultFile = await _readVaultFile(target);
+      _validateFileIdentity(vaultFile, vaultId);
+      crypto.decrypt(envelope: vaultFile.payload, dek: dek);
+      return vaultFile;
+    } catch (_) {
+      final backup = _backup(vaultId);
+      if (!await backup.exists()) rethrow;
+      final knownGood = await _readVaultFile(backup);
+      _validateFileIdentity(knownGood, vaultId);
+      crypto.decrypt(envelope: knownGood.payload, dek: dek);
+      if (await target.exists()) await target.delete();
+      await backup.rename(target.path);
+      return knownGood;
+    }
   }
 
   Future<void> _cleanupArtifacts(String vaultId) async {
