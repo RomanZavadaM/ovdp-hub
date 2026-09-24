@@ -86,8 +86,9 @@
 - [x] Platform device-key adapters: hardened Android/iOS/macOS secure storage + app-owned Windows DPAPI; four-platform compile gate + Windows DPAPI smoke — PR #79. macOS runtime/provisioning remains a release gate before user-facing unlock.
 - [x] Local encrypted vault file lifecycle: recovery-wrapped DEK slot, authenticated slot binding, atomic known-good recovery, rollback detection — PR #81.
 - [x] Encrypted portable backup/restore primitives with recovery material — PR #81.
-- [ ] **NEXT:** Lock/unlock session state, inactivity/background auto-lock, deletion/recovery lifecycle.
-- [ ] Holdings, acquisition lots, фактичні купони/погашення після session/locking layer.
+- [x] Lock/unlock session state, inactivity/background auto-lock and stale async lifecycle guards — replacement PR #84; hardened run #285, final run #286, merge `51fb9286…`, post-merge run #287.
+- [ ] **NEXT:** Recovery enable/rotate/remove + local vault deletion lifecycle, with non-destructive failure semantics and no external-backup deletion.
+- [ ] Holdings, acquisition lots, фактичні купони/погашення після lifecycle-controls layer.
 - [ ] Non-destructive legacy plaintext migration after private payload/domain schema is fixed.
 - [ ] Android SAF / iOS security-scoped access для зовнішніх папок; live provider-backed mutable vault remains deferred.
 
