@@ -293,15 +293,32 @@ PR **#67 — UI: add optional Light Dashboard appearance** squash-merged у `mai
 - **Deterministic local Planner CSV + ICS exports** — PR #73, merge `3e8e7fbc08f3d2a305e8eb6d92bfb9428a34dedc`; CSV schema v1, ICS needs/reserve-floor/receipt availability, local-only `<workspace>/exports/`, stable file stem/UID/DTSTAMP, UK/EN/FR/DE/ES/KO/JA; exact-head run #231 і post-merge run #232 — success.
 - PDF export свідомо відкладено до стабілізації структури звіту.
 
+## Encrypted vault — approved design checkpoint
+
+PR **#75 — Security: approve encrypted vault threat model** squash-merged у `main` як **`8403bec33ec911a0f7c6a7a766fd585828f3a207`**.
+
+Інтегровано як security contract до будь-якої crypto/plugin реалізації:
+- поточні `sets/*.json` визнані legacy plaintext private-capable data, бо можуть містити user notes та повний PlannerScenario;
+- публічні NBU/MinFin/seller reference caches можуть лишатися plaintext;
+- зафіксовано random per-vault 256-bit DEK, versioned authenticated envelope, OS-backed device key slot і окремий optional recovery wrapper;
+- recovery вимагає strong secret + memory-hard KDF; короткий PIN не є root/recovery key;
+- затверджено rollback/corruption/atomic-write, lock/auto-lock, plaintext-export і non-destructive legacy migration semantics;
+- зафіксовано Windows/macOS/iOS/Android secure-storage/file-access requirements;
+- exact AEAD/KDF/library/plugin choices свідомо відкладено до окремого dependency/security review.
+
+Final exact-head verification: **Flutter checks and START run #236 — success**.
+
+**Crypto/plugin code у цьому checkpoint не інтегрувався.**
+
 ## Наступний етап
 
-**Encrypted vault / фактичний портфель** починається не з коду, а з review/approval існуючого `docs/security-vault.md`:
+**Encrypted vault dependency/security review**:
 
-1. зафіксувати межу приватних даних, які входять/не входять до vault;
-2. затвердити file/envelope versioning, authenticated-encryption та key-ownership вимоги без власної криптографії;
-3. затвердити recovery/backup, lock/auto-lock/deletion UX;
-4. перевірити secure-storage model для Windows/macOS/iOS/Android;
-5. тільки після цього робити dependency/security review конкретної Flutter crypto/secure-storage реалізації.
+1. перевірити current maintained AEAD/KDF candidates та їх licenses/security advisories;
+2. перевірити secure-storage implementation для Windows/macOS/iOS/Android без plaintext/weak fallback;
+3. визначити, чи достатній один cross-platform stack, чи потрібні platform-specific adapters;
+4. зафіксувати обраний stack, threat-model mapping і test strategy окремим docs checkpoint;
+5. лише після merge цього review починати feature implementation vault.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
