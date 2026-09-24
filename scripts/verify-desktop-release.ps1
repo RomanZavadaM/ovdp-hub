@@ -51,15 +51,15 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Could not mark packaged macOS binary executable for smoke test' }
   }
 
-  $raw = & $binary.FullName --release-contract
+  $contractFile = Join-Path $verifyRoot 'runtime-release-contract.json'
+  & $binary.FullName "--release-contract-file=$contractFile"
   if ($LASTEXITCODE -ne 0) {
     throw "Packaged executable release-contract failed with exit code $LASTEXITCODE"
   }
-  $jsonLine = @($raw | Where-Object { $_ -and $_.Trim().StartsWith('{') }) | Select-Object -Last 1
-  if ([string]::IsNullOrWhiteSpace($jsonLine)) {
-    throw 'Packaged executable did not emit release-contract JSON'
+  if (!(Test-Path -LiteralPath $contractFile)) {
+    throw 'Packaged executable did not write release-contract JSON'
   }
-  $contract = $jsonLine | ConvertFrom-Json
+  $contract = Get-Content -LiteralPath $contractFile -Raw | ConvertFrom-Json
 
   if ([string]$contract.product -ne 'OVDP Hub') {
     throw "Unexpected product in executable: $($contract.product)"
