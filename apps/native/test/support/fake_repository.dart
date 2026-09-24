@@ -8,9 +8,10 @@ class FakeRepository implements HubRepository {
   WorkspaceSnapshot? current;
   @override
   bool supportsExternalFolders = true;
-  Object? saveError, refreshError, switchError;
+  Object? saveError, refreshError, switchError, exportError;
   bool switchAccepted = false;
-  int saves = 0, switches = 0;
+  int saves = 0, switches = 0, exports = 0;
+  final Map<String, Map<String, String>> exportBundles = {};
   Completer<void>? gate;
   FakeRepository(Catalog catalog)
     : current = WorkspaceSnapshot('local', catalog, []);
@@ -54,6 +55,18 @@ class FakeRepository implements HubRepository {
       ...current!.sets,
     ]);
     controller.add(current!);
+  }
+
+  @override
+  Future<String> saveExportBundle(
+    String folderName,
+    Map<String, String> files,
+  ) async {
+    exports++;
+    await gate?.future;
+    if (exportError != null) throw exportError!;
+    exportBundles[folderName] = Map.unmodifiable(files);
+    return '${current!.path}/exports/$folderName';
   }
 
   @override
