@@ -4,9 +4,9 @@
 
 ## [Unreleased]
 
-Після підготовки checkpoint v0.9.0 новий функціональний slice ще не відкрито. Reserve-floor/minimum-balance needs, exports, encrypted vault/actual holdings і production signing лишаються окремими майбутніми етапами.
+Після опублікованого checkpoint v0.9.0 відкривається user-visible UI slice: додатковий дизайн «Світла панель» із збереженням Classic та «Робочий кабінет». Після нього за roadmap — reserve-floor/minimum-balance needs. Exports, encrypted vault/actual holdings і production signing лишаються окремими майбутніми етапами.
 
-## [0.9.0] — 2026-09-24 — release candidate
+## [0.9.0] — 2026-09-24
 
 ### Neutral A/B/C scenario comparison
 - Додано порівняння рівно 2–3 saved Planner scenarios у «Добірки».
