@@ -13,13 +13,13 @@
 3. **Явний вибір ринкової ціни — DONE**: кілька `PriceObservation`, explicit user priority, add/select/reorder controls і nominal fallback інтегровані без прихованої підміни yield/nominal ціною.
 4. **Повна економіка сценарію — DONE**: purchase-fee, verified-tax, explicit-FX та per-position exit vertical інтегровані. Невідомі значення не вважати нулем.
 5. **Порівняння рішень — DONE**: neutral A/B/C comparison для 2–3 saved scenarios із strict baseline comparability, recurring-needs support, explanatory metrics і no-winner semantics — PR #58, final run #183.
-6. **Готовність 0.9.0 — VERIFIED**: formal readiness assessment не знайшов product blocker; GO до release-prep PR. Cross-platform compile лишається mandatory release-workflow gate перед publication.
+6. **0.9.0 — RELEASED**: readiness assessment не знайшов product blocker; PR #65 інтегровано, а full cross-platform release workflow #45 успішно опублікував v0.9.0.
 
 Принцип пріоритезації: спочатку завершувати вертикальний користувацький шлях, а не додавати нові ізольовані джерела чи екрани.
 
-## Опублікований checkpoint v0.8.8
+## Опублікований checkpoint v0.9.0
 
-**v0.8.8 / 0.8.8+16** опубліковано 23.09.2026 з verified-tax, explicit-FX, per-position exit та typed recurring-needs verticals. Повний release pipeline run #40 успішний для Windows/macOS/Android/iOS/START. Після v0.8.8 у `main` інтегровано A/B/C comparison через PR #58 і generated Planner copy / preset-label localization через PR #61. Наступний продуктовий крок — formal 0.9.0 prerelease readiness assessment.
+**v0.9.0 / 0.9.0+17** опубліковано 24.09.2026. До checkpoint увійшли всі 0.9 «Ринок» verticals, strict neutral A/B/C comparison і generated Planner copy/preset-label localization. PR #65 merged як `21698ae34f9438f7c5ab49724e47dc13014b7daa`; release pipeline run #45 успішний для Windows/macOS/Android/iOS/START і final publish.
 
 ## Ритм інтеграції та тестових checkpoint
 
@@ -53,6 +53,14 @@
 - [x] Продавці: типізовані вторинні observations без вигаданої ціни.
 - [x] Базові sourceDate / retrievedAt / freshness / evidence URL; validUntil лишається source-specific.
 - [x] Передача лише явної/введеної ціни у планувальник; yield-only/nominal не стають market price автоматично.
+
+## UX після v0.9.0
+
+- [ ] Додатковий дизайн **«Світла панель»** за наданими власником desktop reference screenshots.
+- [ ] Classic та **«Робочий кабінет»** залишаються доступними; новий дизайн не замінює їх.
+- [ ] Appearance selector і новий shell локалізувати UK/EN/FR/DE/ES/KO/JA.
+- [ ] Desktop + phone regression coverage; функціональний стан Planner/Catalog не губиться при зміні оформлення.
+- [ ] Після цього повернутися до Planner reserve-floor / minimum-balance needs.
 
 ## Планувальник наступного покоління
 
