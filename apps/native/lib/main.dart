@@ -34,6 +34,15 @@ import 'ui/dashboard_design.dart';
 import 'ui/studio_design.dart';
 
 void main(List<String> args) {
+  const contractFilePrefix = '--release-contract-file=';
+  final contractFileArg = args.where(
+    (arg) => arg.startsWith(contractFilePrefix),
+  );
+  if (contractFileArg.isNotEmpty) {
+    final path = contractFileArg.single.substring(contractFilePrefix.length);
+    File(path).writeAsStringSync(releaseContractJson(), flush: true);
+    return;
+  }
   if (args.contains('--release-contract')) {
     stdout.writeln(releaseContractJson());
     return;
