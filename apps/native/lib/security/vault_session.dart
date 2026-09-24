@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
+import 'vault_crypto.dart';
 import 'vault_store.dart';
 
 enum VaultSessionPhase {
@@ -81,7 +82,7 @@ class VaultSessionState {
 }
 
 class VaultSessionController extends ChangeNotifier {
-  final VaultContentStore store;
+  final VaultLifecycleStore store;
   final VaultSessionPolicy policy;
   final DateTime Function() now;
   final VaultSessionTimerFactory timerFactory;
@@ -214,6 +215,48 @@ class VaultSessionController extends ChangeNotifier {
     }
   }
 
+  Future<void> enableRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    VaultRecoveryKdfParameters recoveryParameters =
+        VaultRecoveryKdfParameters.moderate,
+  }) =>
+      _runUnlockedLifecycle(
+        vaultId: vaultId,
+        operation: () => store.enableRecovery(
+          vaultId: vaultId,
+          recoverySecret: recoverySecret,
+          recoveryParameters: recoveryParameters,
+        ),
+      );
+
+  Future<void> rotateRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    VaultRecoveryKdfParameters recoveryParameters =
+        VaultRecoveryKdfParameters.moderate,
+  }) =>
+      _runUnlockedLifecycle(
+        vaultId: vaultId,
+        operation: () => store.rotateRecovery(
+          vaultId: vaultId,
+          recoverySecret: recoverySecret,
+          recoveryParameters: recoveryParameters,
+        ),
+      );
+
+  Future<void> removeRecovery({required String vaultId}) =>
+      _runUnlockedLifecycle(
+        vaultId: vaultId,
+        operation: () => store.removeRecovery(vaultId: vaultId),
+      );
+
+  Future<void> deleteLocalVault({required String vaultId}) =>
+      _runUnlockedLifecycle(
+        vaultId: vaultId,
+        operation: () => store.deleteLocalVault(vaultId: vaultId),
+      );
+
   void recordActivity() {
     if (!_state.isUnlocked || _disposed) return;
     _lastActivityAt = now();
@@ -280,6 +323,29 @@ class VaultSessionController extends ChangeNotifier {
     _backgroundedAt = null;
     _lastActivityAt = null;
     _setState(VaultSessionState.locked);
+  }
+
+  Future<void> _runUnlockedLifecycle({
+    required String vaultId,
+    required Future<void> Function() operation,
+  }) async {
+    if (_disposed ||
+        !_state.isUnlocked ||
+        _state.vaultId != vaultId ||
+        _plainText == null) {
+      throw StateError('vault.session_locked');
+    }
+
+    await lock();
+    if (_disposed) return;
+
+    try {
+      await operation();
+    } catch (error) {
+      if (!_disposed) {
+        _fail(error, vaultId: vaultId);
+      }
+    }
   }
 
   void _scheduleInactivity() {
