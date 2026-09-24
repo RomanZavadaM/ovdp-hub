@@ -41,14 +41,15 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - realized acquisition trade cost/known fee cost derives only from explicit lot allocations;
 - unknown acquisition or disposal fee remains unknown, never silently zero;
 - deterministic v2 codec + encrypted LocalVaultStore round-trip regressions;
-- PR: **#91** `Portfolio: add factual disposals and lot allocation`;
+- draft PR **#91** `Portfolio: add factual disposals and lot allocation` was closed without merge because draft-state promotion is unavailable through the current permission path;
 - schema contract updated: **`docs/private-portfolio-payload.md`**;
 - functional head **`cabf0735188ae52352e5d15ebd25ba1c8a26542b`** passed **Flutter checks and START run #314 — success**;
+- final draft-PR head **`e9b26461d5b6a028adbaf33b64ead0e7de6fd6ac`** passed **run #316 — success**;
 - no legacy `sets/*.json` migration/import/delete and no user-facing portfolio UI.
 
 ### Поточна наступна дія
 
-**VERIFIED — schema v2 disposal/allocation domain, v1 decode compatibility, encrypted round-trip and no-hidden-rounding provenance passed run #314. Run exact latest-head CI after schema-doc/WORKLOG commits; if green, integrate PR #91 into `main`.**
+**VERIFIED — schema v2 disposal/allocation domain and docs are green through run #316. Open a non-draft replacement PR from this same branch, require its own exact-head CI, then integrate if green.**
 
 ## Черга робіт
 
