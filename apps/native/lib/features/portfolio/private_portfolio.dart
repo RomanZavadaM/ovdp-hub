@@ -4,12 +4,14 @@ import 'package:flutter/foundation.dart';
 
 import '../../models.dart';
 
-const int privatePortfolioSchemaVersion = 2;
+const int privatePortfolioSchemaVersion = 3;
+const int privatePortfolioDisposalSchemaVersion = 2;
 const int privatePortfolioLegacySchemaVersion = 1;
 const int maxPrivatePortfolioBytes = 16 * 1024 * 1024;
 const int maxPrivateAcquisitionLots = 10000;
 const int maxPrivateCashEvents = 50000;
 const int maxPrivateDisposals = 50000;
+const int maxPrivateLegacyCollections = 10000;
 
 final RegExp _privateRecordId = RegExp(r'^[A-Za-z0-9._:-]{1,120}$');
 final RegExp _privateIsin = RegExp(r'^UA[A-Z0-9]{9}\d$');
@@ -83,6 +85,32 @@ void _onlyKeys(
     throw FormatException(code);
   }
 }
+
+dynamic _canonicalPrivateJson(dynamic value) {
+  if (value == null || value is String || value is bool || value is num) {
+    return value;
+  }
+  if (value is List) {
+    return List<dynamic>.unmodifiable(
+      value.map(_canonicalPrivateJson),
+    );
+  }
+  if (value is Map) {
+    final keys = value.keys.map((key) {
+      if (key is! String) {
+        throw const FormatException('portfolio.invalid_legacy_scenario');
+      }
+      return key;
+    }).toList()..sort();
+    return Map<String, dynamic>.unmodifiable({
+      for (final key in keys) key: _canonicalPrivateJson(value[key]),
+    });
+  }
+  throw const FormatException('portfolio.invalid_legacy_scenario');
+}
+
+String _canonicalPrivateJsonText(dynamic value) =>
+    jsonEncode(_canonicalPrivateJson(value));
 
 enum AcquisitionFeeStatus { unknown, known }
 
@@ -480,6 +508,91 @@ class PrivateRealizedLotCostInput {
 }
 
 @immutable
+class PrivateLegacyCollectionRecord {
+  final String sourceId;
+  final String name;
+  final String note;
+  final String savedAt;
+  final List<String> selectedIsins;
+  final Map<String, dynamic>? scenario;
+
+  PrivateLegacyCollectionRecord({
+    required this.sourceId,
+    required this.name,
+    required this.note,
+    required this.savedAt,
+    required Iterable<String> selectedIsins,
+    Map<String, dynamic>? scenario,
+  }) : selectedIsins = List.unmodifiable(
+         selectedIsins.toList()..sort(),
+       ),
+       scenario = scenario == null
+           ? null
+           : _canonicalPrivateJson(scenario) as Map<String, dynamic> {
+    if (sourceId.isEmpty ||
+        sourceId.length > 240 ||
+        sourceId.contains('/') ||
+        sourceId.contains(r'\')) {
+      throw const FormatException('portfolio.invalid_legacy_source_id');
+    }
+    if (name.trim().isEmpty) {
+      throw const FormatException('portfolio.invalid_legacy_name');
+    }
+    if (DateTime.tryParse(savedAt) == null) {
+      throw const FormatException('portfolio.invalid_legacy_saved_at');
+    }
+    final seen = <String>{};
+    for (final isin in this.selectedIsins) {
+      _validateIsin(isin);
+      if (!seen.add(isin)) {
+        throw const FormatException('portfolio.duplicate_legacy_isin');
+      }
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+    'sourceId': sourceId,
+    'name': name,
+    'note': note,
+    'savedAt': savedAt,
+    'selectedIsins': selectedIsins,
+    if (scenario != null) 'scenario': scenario,
+  };
+
+  String get canonicalJson => _canonicalPrivateJsonText(toJson());
+
+  factory PrivateLegacyCollectionRecord.fromJson(Map<String, dynamic> json) {
+    _onlyKeys(json, const {
+      'sourceId',
+      'name',
+      'note',
+      'savedAt',
+      'selectedIsins',
+      'scenario',
+    }, 'portfolio.invalid_legacy_collection_fields');
+
+    final rawIsins = json['selectedIsins'];
+    final rawScenario = json['scenario'];
+    if (rawIsins is! List ||
+        rawIsins.any((value) => value is! String) ||
+        (rawScenario != null && rawScenario is! Map)) {
+      throw const FormatException('portfolio.invalid_legacy_collection');
+    }
+
+    return PrivateLegacyCollectionRecord(
+      sourceId: json['sourceId'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      note: json['note'] as String? ?? '',
+      savedAt: json['savedAt'] as String? ?? '',
+      selectedIsins: rawIsins.cast<String>(),
+      scenario: rawScenario == null
+          ? null
+          : Map<String, dynamic>.from(rawScenario),
+    );
+  }
+}
+
+@immutable
 class PrivateHolding {
   final String isin;
   final String currency;
@@ -498,12 +611,14 @@ class PrivatePortfolioPayload {
   final List<PrivateAcquisitionLot> acquisitionLots;
   final List<PrivateCashEvent> cashEvents;
   final List<PrivateDisposal> disposals;
+  final List<PrivateLegacyCollectionRecord> legacyCollections;
 
   PrivatePortfolioPayload({
     required this.portfolioId,
     Iterable<PrivateAcquisitionLot> acquisitionLots = const [],
     Iterable<PrivateCashEvent> cashEvents = const [],
     Iterable<PrivateDisposal> disposals = const [],
+    Iterable<PrivateLegacyCollectionRecord> legacyCollections = const [],
   }) : acquisitionLots = List.unmodifiable(
          acquisitionLots.toList()
            ..sort((a, b) {
@@ -535,11 +650,16 @@ class PrivatePortfolioPayload {
              if (byIsin != 0) return byIsin;
              return a.id.compareTo(b.id);
            }),
+       ),
+       legacyCollections = List.unmodifiable(
+         legacyCollections.toList()
+           ..sort((a, b) => a.sourceId.compareTo(b.sourceId)),
        ) {
     _validateId(portfolioId, 'portfolio.invalid_portfolio_id');
     if (this.acquisitionLots.length > maxPrivateAcquisitionLots ||
         this.cashEvents.length > maxPrivateCashEvents ||
-        this.disposals.length > maxPrivateDisposals) {
+        this.disposals.length > maxPrivateDisposals ||
+        this.legacyCollections.length > maxPrivateLegacyCollections) {
       throw const FormatException('portfolio.too_many_records');
     }
     _validateSemantics();
@@ -562,6 +682,13 @@ class PrivatePortfolioPayload {
     for (final disposal in disposals) {
       if (!ids.add(disposal.id)) {
         throw const FormatException('portfolio.duplicate_record_id');
+      }
+    }
+
+    final legacySourceIds = <String>{};
+    for (final legacy in legacyCollections) {
+      if (!legacySourceIds.add(legacy.sourceId)) {
+        throw const FormatException('portfolio.duplicate_legacy_source_id');
       }
     }
 
@@ -760,11 +887,13 @@ class PrivatePortfolioPayload {
     'acquisitionLots': acquisitionLots.map((lot) => lot.toJson()).toList(),
     'cashEvents': cashEvents.map((event) => event.toJson()).toList(),
     'disposals': disposals.map((disposal) => disposal.toJson()).toList(),
+    'legacyCollections': legacyCollections.map((record) => record.toJson()).toList(),
   };
 
   factory PrivatePortfolioPayload.fromJson(Map<String, dynamic> json) {
     final schemaVersion = json['schemaVersion'];
     if (schemaVersion != privatePortfolioLegacySchemaVersion &&
+        schemaVersion != privatePortfolioDisposalSchemaVersion &&
         schemaVersion != privatePortfolioSchemaVersion) {
       throw const FormatException('portfolio.unsupported_schema');
     }
@@ -776,6 +905,14 @@ class PrivatePortfolioPayload {
         'acquisitionLots',
         'cashEvents',
       }, 'portfolio.invalid_payload_fields');
+    } else if (schemaVersion == privatePortfolioDisposalSchemaVersion) {
+      _onlyKeys(json, const {
+        'schemaVersion',
+        'portfolioId',
+        'acquisitionLots',
+        'cashEvents',
+        'disposals',
+      }, 'portfolio.invalid_payload_fields');
     } else {
       _onlyKeys(json, const {
         'schemaVersion',
@@ -783,6 +920,7 @@ class PrivatePortfolioPayload {
         'acquisitionLots',
         'cashEvents',
         'disposals',
+        'legacyCollections',
       }, 'portfolio.invalid_payload_fields');
     }
 
@@ -791,9 +929,13 @@ class PrivatePortfolioPayload {
     final rawDisposals = schemaVersion == privatePortfolioLegacySchemaVersion
         ? const <Object?>[]
         : json['disposals'];
+    final rawLegacyCollections = schemaVersion == privatePortfolioSchemaVersion
+        ? json['legacyCollections']
+        : const <Object?>[];
     if (rawLots is! List ||
         rawEvents is! List ||
-        rawDisposals is! List) {
+        rawDisposals is! List ||
+        rawLegacyCollections is! List) {
       throw const FormatException('portfolio.invalid_payload');
     }
 
@@ -820,6 +962,14 @@ class PrivatePortfolioPayload {
           throw const FormatException('portfolio.invalid_disposal');
         }
         return PrivateDisposal.fromJson(
+          Map<String, dynamic>.from(value),
+        );
+      }),
+      legacyCollections: rawLegacyCollections.map((value) {
+        if (value is! Map) {
+          throw const FormatException('portfolio.invalid_legacy_collection');
+        }
+        return PrivateLegacyCollectionRecord.fromJson(
           Map<String, dynamic>.from(value),
         );
       }),
