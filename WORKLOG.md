@@ -25,32 +25,25 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **encrypted vault local store/lifecycle — recovery slot + atomic encrypted file + rollback/backup primitives**.
+Мета: **encrypted vault session/locking foundation — explicit state + manual/inactivity/background lock semantics**.
 
-- base `main`: **`614c60215b8571ca9317c5e21b55991db3766e10`**;
-- branch: **`feat/encrypted-vault-local-store`**;
-- PR: **#81** `Vault: add local encrypted store and recovery lifecycle`;
-- foundation source: merged PR #79 / `d61a1245d0cded27187d06186fcba0df0921dd05`;
-- implement a versioned recovery-wrapped DEK slot using approved Argon2id13 parameters + XChaCha20-Poly1305;
-- implement app-managed local `VaultStore`: pending write → flush → authenticated read-back → known-good replace;
-- validate `vaultId` / revision / envelope consistency;
-- wire device highest-accepted revision into open/save/restore to detect rollback;
-- add explicit encrypted backup and validated restore primitives;
-- tests: wrong recovery secret, corrupt slot/file, interrupted/failed replace preserves prior vault, lower revision fails closed, backup restore validates before replace;
-- functional/security head **`b5c90e0a82e6571ce224d833f631aebb911d3521`** passed **Flutter checks and START run #271 — success**;
-- exact latest functional/docs head **`cd2651c2d31221c3a9f64bbe9d5045b9a384cc7c`** passed **Flutter checks and START run #273 — success**;
-- final latest PR head **`d6abeb86214171237220ee2f3081b7f724e79042`** passed **Flutter checks and START run #274 — success**;
-- squash merge `main`: **`16cd6f33496104d630a8bf05582dcf8514c4f1b1`**;
-- post-merge `main` **run #275 — success**;
-- lifecycle contract: **`docs/security-vault-local-store.md`**;
-- recovery-slot presence/content is bound into payload AEAD AAD, so strip/replace attempts fail closed;
-- no legacy `sets/*.json` migration/deletion, portfolio/private-data model or user-facing vault UI.
+- base `main`: **`d1aa1146e666933be3a847fdecc08523d86f9b6e`**;
+- branch: **`feat/encrypted-vault-session-locking`**;
+- storage source: PR #81 / `16cd6f33496104d630a8bf05582dcf8514c4f1b1`;
+- states: locked / unlocking / unlocked / locking / error;
+- unlock reads through `LocalVaultStore`; session owns only a short-lived internal plaintext buffer;
+- manual lock clears app-held buffer and timers;
+- inactivity timeout + background grace are injected policy values, not hidden product defaults;
+- foreground transition checks elapsed inactivity/background time before private rendering may resume;
+- no claim of guaranteed Dart heap zeroization;
+- tests use an injected clock/timer scheduler for deterministic transitions;
+- no legacy migration, private portfolio schema or user-facing vault UI.
 
 ### Поточна наступна дія
 
-**NEXT — encrypted vault session/locking foundation: locked/unlocking/unlocked/locking/error state, manual lock, injected inactivity/background auto-lock policy and decrypted-state disposal. No legacy migration/private portfolio UI in this slice.**
+**DOING — implement the app-owned session controller and deterministic lock/auto-lock regression tests.**
 
 ## Черга робіт
 
@@ -72,7 +65,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 16. **DONE** — Encrypted vault dependency/security review and implementation-stack decision; PR #77 → merge `3e4171e7…`; final exact-head run #239 green.
 17. **DONE** — Encrypted vault foundation; PR #79 → merge `d61a1245…`; final exact-head run #260 and post-merge run #261 green.
 18. **DONE** — Encrypted vault local store/lifecycle; PR #81 → merge `16cd6f33…`; final run #274 and post-merge run #275 green.
-19. **NEXT** — Encrypted vault session/locking foundation.
+19. **DOING** — Encrypted vault session/locking foundation.
 
 ## Продуктова логіка цієї черги
 
