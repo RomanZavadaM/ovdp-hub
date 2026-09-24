@@ -112,7 +112,7 @@ void main() {
     final before = await protectedFile.readAsBytes();
 
     protector.unprotectCalls = 0;
-    protector.failOnUnprotectCall = 2;
+    protector.failOnUnprotectCall = 3;
     await expectLater(
       store.storeHighestAcceptedRevision(
         vaultId: 'vault-rollback',
