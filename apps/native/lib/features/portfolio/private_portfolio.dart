@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
 
