@@ -28,6 +28,7 @@ abstract interface class HubRepository {
   Future<void> refreshCatalog();
   Future<void> reloadCollections();
   Future<void> saveCollection(SavedSet collection);
+  Future<String> saveTextExport(String fileName, String content);
   Future<void> dispose();
 }
 
@@ -157,6 +158,11 @@ class FileHubRepository implements HubRepository {
       ]),
     );
   });
+
+  @override
+  Future<String> saveTextExport(String fileName, String content) =>
+      _exclusive(() => _opened.writeTextExport(fileName, content));
+
   @override
   Future<void> dispose() async {
     await _tail;
