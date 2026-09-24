@@ -1165,22 +1165,46 @@ class PlannerView extends StatelessWidget {
           onChanged: (v) => cubit.edit('name', v),
         ),
         const SizedBox(height: 12),
-        FilledButton.icon(
-          onPressed: disabled || summary == null || state.inputs.isEmpty
-              ? null
-              : () async {
-                  final navigation = context.read<NavigationCubit>();
-                  if (await cubit.save() && context.mounted) {
-                    navigation.select(1);
-                  }
-                },
-          icon: const Icon(Icons.save_outlined),
-          label: Text(
-            state.saved
-                ? strings.text('saveNewVariant')
-                : strings.text('saveScenario'),
-          ),
+        Wrap(
+          spacing: 12,
+          runSpacing: 10,
+          children: [
+            FilledButton.icon(
+              onPressed: disabled || summary == null || state.inputs.isEmpty
+                  ? null
+                  : () async {
+                      final navigation = context.read<NavigationCubit>();
+                      if (await cubit.save() && context.mounted) {
+                        navigation.select(1);
+                      }
+                    },
+              icon: const Icon(Icons.save_outlined),
+              label: Text(
+                state.saved
+                    ? strings.text('saveNewVariant')
+                    : strings.text('saveScenario'),
+              ),
+            ),
+            OutlinedButton.icon(
+              onPressed: disabled || summary == null || state.inputs.isEmpty
+                  ? null
+                  : cubit.exportCsvIcs,
+              icon: const Icon(Icons.event_note_outlined),
+              label: Text(strings.text('exportCsvIcs')),
+            ),
+          ],
         ),
+        const SizedBox(height: 8),
+        Text(
+          strings.text('exportInfo'),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        if (state.lastExportPath != null) ...[
+          const SizedBox(height: 8),
+          SelectableText(
+            '${strings.text('lastExport')}: ${state.lastExportPath}',
+          ),
+        ],
       ],
     );
   }
