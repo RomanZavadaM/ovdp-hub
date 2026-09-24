@@ -40,15 +40,26 @@ void main() {
       scenario.settlementDelayDays,
     );
 
+    String ukrainianLabel(String value) =>
+        value == PlannerGeneratedCopy.reserveFloorName
+            ? 'Мінімальний залишок'
+            : value;
+    String englishLabel(String value) =>
+        value == PlannerGeneratedCopy.reserveFloorName
+            ? 'Minimum balance'
+            : value;
+
     final first = buildPlannerExportBundle(
       scenario: scenario,
       bonds: catalog.bonds,
       expenseBalances: balances,
+      displayLabel: ukrainianLabel,
     );
     final second = buildPlannerExportBundle(
       scenario: scenario,
       bonds: catalog.bonds,
       expenseBalances: balances,
+      displayLabel: ukrainianLabel,
     );
 
     expect(first.csv, second.csv);
@@ -58,6 +69,8 @@ void main() {
     expect(first.csv, contains(',POSITION,'));
     expect(first.csv, contains(',NEED_RECURRING,'));
     expect(first.csv, contains(',RESERVE_FLOOR,'));
+    expect(first.csv, contains('Мінімальний залишок'));
+    expect(first.csv, isNot(contains(PlannerGeneratedCopy.reserveFloorName)));
     expect(first.csv, contains(',COUPON,'));
     expect(first.csv, contains(',REDEMPTION,'));
 
@@ -79,7 +92,21 @@ void main() {
     // Coupon date 2027-03-01 plus the scenario's 2-day settlement delay.
     expect(first.ics, contains('DTSTART;VALUE=DATE:20270303'));
     expect(first.ics, contains('RESERVE_FLOOR'));
+    expect(first.ics, contains('Мінімальний залишок'));
     expect(first.ics, isNot(contains('POSITION')));
+
+    final english = buildPlannerExportBundle(
+      scenario: scenario,
+      bonds: catalog.bonds,
+      expenseBalances: balances,
+      displayLabel: englishLabel,
+    );
+    List<String> uids(String ics) => ics
+        .split('\r\n')
+        .where((line) => line.startsWith('UID:'))
+        .toList(growable: false);
+    expect(uids(english.ics), uids(first.ics));
+    expect(english.ics, contains('Minimum balance'));
   });
 
   test('early sale replaces later contractual receipts in export calendar', () {
