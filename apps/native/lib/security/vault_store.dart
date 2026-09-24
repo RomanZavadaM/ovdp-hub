@@ -127,12 +127,32 @@ abstract interface class VaultContentStore {
   });
 }
 
+abstract interface class VaultLifecycleStore implements VaultContentStore {
+  Future<VaultLifecycleResult> enableRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    VaultRecoveryKdfParameters recoveryParameters,
+  });
+
+  Future<VaultLifecycleResult> rotateRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    VaultRecoveryKdfParameters recoveryParameters,
+  });
+
+  Future<VaultLifecycleResult> removeRecovery({
+    required String vaultId,
+  });
+
+  Future<void> deleteLocalVault({required String vaultId});
+}
+
 enum _RecoveryChange { enable, rotate, remove }
 
 typedef VaultCommitProbe = FutureOr<void> Function(File committedFile);
 typedef VaultDeleteProbe = FutureOr<void> Function(File stagedForDeletion);
 
-class LocalVaultStore implements VaultContentStore {
+class LocalVaultStore implements VaultLifecycleStore {
   final Directory directory;
   final VaultCrypto crypto;
   final VaultDeviceKeyStore deviceKeyStore;
