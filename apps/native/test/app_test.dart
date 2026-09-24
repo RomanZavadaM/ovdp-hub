@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/main.dart';
 import 'package:ovdp_hub/data/hub_repository.dart';
 import 'package:ovdp_hub/models.dart';
+import 'package:ovdp_hub/ui/studio_design.dart';
 import 'support/fake_repository.dart';
 import 'support/planner_comparison_fixtures.dart';
 
@@ -13,11 +14,25 @@ void main() {
     WidgetTester tester,
     IconData icon,
   ) async {
-    final target = find.descendant(
-      of: find.byType(NavigationBar),
-      matching: find.byIcon(icon),
-    );
-    expect(target, findsOneWidget);
+    Finder? target;
+    if (find.byType(NavigationBar).evaluate().isNotEmpty) {
+      target = find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.byIcon(icon),
+      );
+    } else if (find.byType(NavigationRail).evaluate().isNotEmpty) {
+      target = find.descendant(
+        of: find.byType(NavigationRail),
+        matching: find.byIcon(icon),
+      );
+    } else if (find.byType(StudioSidebar).evaluate().isNotEmpty) {
+      target = find.descendant(
+        of: find.byType(StudioSidebar),
+        matching: find.byIcon(icon),
+      );
+    }
+    expect(target, isNotNull, reason: 'No visible navigation control found');
+    expect(target!, findsOneWidget);
     await tester.tap(target);
     await tester.pumpAndSettle();
   }
