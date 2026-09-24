@@ -421,10 +421,8 @@ class PlannerView extends StatelessWidget {
               SizedBox(
                 width: 280,
                 child: TextFormField(
-                  key: ValueKey('${field.key}-${state.revision}-${strings.language.code}'),
-                  initialValue: field.key.startsWith('expenseName')
-                            ? _generatedCopy(strings, c[field.key])
-                            : c[field.key],
+                  key: ValueKey('${field.key}-${state.revision}'),
+                  initialValue: c[field.key],
                   enabled: !disabled,
                   decoration: InputDecoration(labelText: field.value),
                   onChanged: (v) => cubit.edit(field.key, v),
@@ -594,8 +592,12 @@ class PlannerView extends StatelessWidget {
                     SizedBox(
                       width: 220,
                       child: TextFormField(
-                        key: ValueKey('${field.key}-${state.revision}'),
-                        initialValue: c[field.key],
+                        key: ValueKey(
+                          '${field.key}-${state.revision}-${strings.language.code}',
+                        ),
+                        initialValue: field.key.startsWith('expenseName')
+                            ? _generatedCopy(strings, c[field.key])
+                            : c[field.key],
                         enabled: !disabled,
                         decoration: InputDecoration(labelText: field.value),
                         onChanged: (v) => cubit.edit(field.key, v),
