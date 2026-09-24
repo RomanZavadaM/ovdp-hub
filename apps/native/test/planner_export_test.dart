@@ -65,8 +65,13 @@ void main() {
         .split('\n')
         .firstWhere((line) => line.contains(',RESERVE_FLOOR,'));
     final floorColumns = floorLine.split(',');
-    // available and remaining are equal: reserve floor is not spent.
-    expect(floorColumns[12], floorColumns[13]);
+    // available and remaining are the final 3rd/2nd fields and are equal:
+    // reserve floor is not spent. The scenario name itself contains a comma
+    // and therefore intentionally exercises CSV quoting.
+    expect(
+      floorColumns[floorColumns.length - 3],
+      floorColumns[floorColumns.length - 2],
+    );
 
     expect(first.ics, startsWith('BEGIN:VCALENDAR\r\n'));
     expect(first.ics, endsWith('END:VCALENDAR\r\n'));
