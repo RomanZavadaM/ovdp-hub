@@ -7,8 +7,26 @@ import 'planner_scenario.dart';
 class CashExpense {
   final String name, date;
   final Decimal amount;
-  CashExpense(this.name, this.date, this.amount);
+  final PlannerNeedType type;
+
+  CashExpense(
+    this.name,
+    this.date,
+    this.amount, {
+    this.type = PlannerNeedType.oneOff,
+  });
+
+  bool get isReserveFloor => type == PlannerNeedType.reserveFloor;
 }
+
+int _cashRequirementCompare(CashExpense a, CashExpense b) {
+  final byDate = a.date.compareTo(b.date);
+  if (byDate != 0) return byDate;
+  if (a.isReserveFloor == b.isReserveFloor) return 0;
+  return a.isReserveFloor ? -1 : 1;
+}
+
+Decimal _maxDecimal(Decimal a, Decimal b) => a >= b ? a : b;
 
 class ExpenseBalance {
   final CashExpense expense;
@@ -36,7 +54,14 @@ List<CashExpense> expandPlannerNeeds(
   for (final need in needs) {
     switch (need.type) {
       case PlannerNeedType.oneOff:
-        expenses.add(CashExpense(need.name, need.date, need.amount));
+        expenses.add(
+          CashExpense(
+            need.name,
+            need.date,
+            need.amount,
+            type: PlannerNeedType.oneOff,
+          ),
+        );
         break;
       case PlannerNeedType.recurring:
         final base = isoDate(need.date);
@@ -51,12 +76,20 @@ List<CashExpense> expandPlannerNeeds(
                   : '${need.name} · ${i + 1}/${need.occurrences}',
               date,
               need.amount,
+              type: PlannerNeedType.recurring,
             ),
           );
         }
         break;
       case PlannerNeedType.reserveFloor:
-        throw const FormatException('planner.reserve_floor_ui_unsupported');
+        expenses.add(
+          CashExpense(
+            need.name,
+            need.date,
+            need.amount,
+            type: PlannerNeedType.reserveFloor,
+          ),
+        );
     }
   }
 
@@ -65,7 +98,7 @@ List<CashExpense> expandPlannerNeeds(
       throw const FormatException('planner.expenses_before_start');
     }
   }
-  expenses.sort((a, b) => a.date.compareTo(b.date));
+  expenses.sort(_cashRequirementCompare);
   return List.unmodifiable(expenses);
 }
 
@@ -116,8 +149,10 @@ List<ExpenseBalance> expenseCalendar(
 }) {
   final cost = positions.fold(Decimal.zero, (s, p) => s + p.cost);
   var spent = Decimal.zero;
+  var activeFloor = Decimal.zero;
   final result = <ExpenseBalance>[];
-  for (final e in expenses) {
+  final ordered = [...expenses]..sort(_cashRequirementCompare);
+  for (final e in ordered) {
     final cash =
         budget -
         cost +
@@ -134,15 +169,22 @@ List<ExpenseBalance> expenseCalendar(
               ),
         ) -
         spent;
+
+    if (e.isReserveFloor) {
+      activeFloor = e.amount;
+      final shortfall = cash < activeFloor
+          ? activeFloor - cash
+          : Decimal.zero;
+      result.add(ExpenseBalance(e, cash, cash, shortfall));
+      continue;
+    }
+
     final remaining = cash - e.amount;
-    result.add(
-      ExpenseBalance(
-        e,
-        cash,
-        remaining,
-        remaining < Decimal.zero ? -remaining : Decimal.zero,
-      ),
-    );
+    final shortfall = remaining < activeFloor
+        ? activeFloor - remaining
+        : Decimal.zero;
+    result.add(ExpenseBalance(e, cash, remaining, shortfall));
+
     // Keep a negative balance: an unfunded earlier expense is never silently
     // forgotten or treated as an external cash injection.
     spent += e.amount;
@@ -180,8 +222,7 @@ List<PlanPosition> suggestProfitablePlan({
       'planner.invalid_budget_reserve_delay',
     );
   }
-  final orderedExpenses = [...expenses]
-    ..sort((a, b) => a.date.compareTo(b.date));
+  final orderedExpenses = [...expenses]..sort(_cashRequirementCompare);
   final profitByIsin = <String, Decimal>{};
   final drains = <String, List<Decimal>>{};
   final unique = <String>{};
@@ -224,9 +265,14 @@ List<PlanPosition> suggestProfitablePlan({
     var remaining = budget - reserve,
         spent = Decimal.zero,
         profit = Decimal.zero;
+    var activeFloor = reserve;
     final balances = orderedExpenses.map((e) {
-      spent += e.amount;
-      return budget - spent - reserve;
+      if (e.isReserveFloor) {
+        activeFloor = _maxDecimal(reserve, e.amount);
+      } else {
+        spent += e.amount;
+      }
+      return budget - spent - activeFloor;
     }).toList();
     for (final offer in order) {
       if (remaining < offer.unitCost) continue;
@@ -255,14 +301,19 @@ List<PlanPosition> suggestProfitablePlan({
         }
       }
     }
+    final calendar = expenseCalendar(
+      selected,
+      budget,
+      start,
+      orderedExpenses,
+      delay,
+    );
     if (balances.every((v) => v >= Decimal.zero) &&
-        expenseCalendar(
-          selected,
-          budget,
-          start,
-          orderedExpenses,
-          delay,
-        ).every((row) => row.remaining >= reserve) &&
+        calendar.every(
+          (row) =>
+              row.shortfall == Decimal.zero &&
+              row.remaining >= reserve,
+        ) &&
         profit > bestProfit) {
       best = selected;
       bestProfit = profit;
