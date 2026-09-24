@@ -25,29 +25,23 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DOING**
 
-Мета: **non-destructive legacy plaintext migration — preserve private-capable legacy collection data inside the encrypted payload without inventing portfolio facts**.
+Мета: **v0.9.1+18 full prerelease checkpoint — documentation sync, exact-head verification, merge to main and all-platform publication**.
 
-- base `main`: **`5be5aeb3b9a0a710db022ec05edd83b5e0f9e0ea`**;
-- branch: **`feat/legacy-plaintext-migration`**;
-- inventory confirms `sets/*.json` contains collection `name/note/savedAt`, public bond snapshots/ISINs and optional raw Planner `scenario`; it contains **no factual acquisition lots**;
-- extend private payload with encrypted legacy-collection records; do not reinterpret a saved set as a real holding/acquisition;
-- migrate only user-specific fields: stable source-file id, name, note, savedAt, selected ISIN references and raw canonicalized scenario;
-- full public Bond snapshots remain outside the private payload and are intentionally not copied;
-- repeated migration is idempotent: same source id + same mapped content → already migrated; same source id + changed content → conflict, never overwrite;
-- invalid/corrupt legacy files are reported individually; valid files can still migrate;
-- encrypted payload save must be reopened/decoded and migrated records compared before success is reported;
-- legacy plaintext source files are never modified or deleted by this slice;
-- migration report is machine-readable for later UI;
-- migration contract: **`docs/private-legacy-migration.md`**;
-- private payload contract advanced to **schema v3** with backward decode for v1/v2;
-- exact hardened code/docs head **`bcc791688342d0b647a4c3e2cf1e93ec1562756a`** passed **Flutter checks and START run #328 — success**;
-- no user-facing portfolio claim/UI in this slice.
+- release base `main`: **`36191546229ad3146fce84a1846a24a0529de3b7`**;
+- release branch: **`release/v0.9.1`**;
+- migration PR #95 integrated; post-merge main run #331 success;
+- app version: **0.9.1+18**;
+- release notes: **`docs/releases/RELEASE_NOTES_v0_9_1.md`**, UK/EN/FR/DE/ES/KO/JA;
+- checkpoint includes post-v0.9.0 Light Dashboard, reserve floor, CSV/ICS exports, encrypted-vault/security foundation, private factual portfolio schemas/disposals and non-destructive migration core;
+- README/guides must state clearly that legacy `sets/*.json` are **not automatically encrypted** and user-facing migration/vault UI is not wired;
+- required assets: Windows x64, macOS, Android test, iOS unsigned, START/source, SHA256SUMS + legal notices;
+- tag/release `v0.9.1` must be immutable after publication.
 
 ### Поточна наступна дія
 
-**VERIFIED — schema-v3 legacy collection migration core, strict source handling, idempotence/conflict/partial-failure behavior and no-delete regressions passed run #328. Run exact latest-head CI after this WORKLOG checkpoint; then replace draft PR #94 with a non-draft PR on the same branch/head and integrate if green.**
+**DOING — finish release documentation/guides, run exact-head PR checks, merge release PR into `main`, verify all-platform Publish native prerelease workflow, release assets/checksums/tag and then mark checkpoint DONE.**
 
 ## Черга робіт
 
@@ -73,7 +67,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 20. **DONE** — Encrypted vault lifecycle controls; PR #86 → merge `3dc1f53d…`; final run #301 and post-merge run #302 green.
 21. **DONE** — Private portfolio/encrypted payload foundation; replacement PR #89 → merge `a516310f…`; final replacement run #311 and post-merge run #312 green.
 22. **DONE** — Private portfolio factual sale/disposal + explicit lot-allocation foundation; replacement PR #92 → merge `d8de5c9f…`; exact-head run #317 and post-merge run #318 green.
-23. **VERIFIED** — Non-destructive legacy plaintext migration into encrypted private payload; hardened code/docs run #328 green, awaiting final exact-head docs verification/replacement PR.
+23. **DONE** — Non-destructive legacy plaintext migration; PR #95 → merge `36191546…`; exact-head run #329 and post-merge run #331 green.
+24. **DOING** — v0.9.1+18 full prerelease checkpoint for Windows/macOS/Android/iOS + START/source.
 
 ## Продуктова логіка цієї черги
 
@@ -100,6 +95,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — non-destructive legacy plaintext migration core**: PR #95 merged as `36191546229ad3146fce84a1846a24a0529de3b7`; final branch run #329 and post-merge main run #331 green. Private payload schema v3 preserves user-specific legacy collection metadata/scenario without inventing portfolio facts; source JSON remains untouched and no delete API exists.
 
 - **DONE — private portfolio factual disposals / lot allocation**: replacement PR #92 exact head `c3e63967…` passed run #317 and was squash-merged into `main` as `d8de5c9f1d144c8f816a65877b86bcd79058b432`; post-merge run #318 green. Schema v2 adds explicit factual disposals, explicit acquisition-lot allocation, realized factual cost/proceeds and holdings net of represented disposals; legacy migration/UI remain absent.
 
