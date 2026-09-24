@@ -25,26 +25,21 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **додатковий дизайн «Світла панель» без заміни наявних оформлень**.
+Мета: **Planner reserve-floor / мінімальний залишок як typed schema-3-compatible constraint**.
 
-- base `main`: `a588b933ce165f6a7f6142f54502656c5a139cdd`;
-- branch: `feat/light-dashboard-appearance`;
-- PR: **#67** `UI: add optional Light Dashboard appearance`;
-- existing Classic preserved;
-- existing «Робочий кабінет» / Studio preserved as default;
-- third mode **«Світла панель»** added;
-- UK/EN/FR/DE/ES/KO/JA appearance labels;
-- desktop light-blue header/sidebar/status shell + mobile navigation compatibility;
-- code head `f27140db68b881089724c9c717c261a96cc563d1` passed run **#205**;
-- final latest-head `ededde2237a427c56aa56d45af10767e46d93895` passed run **#206**;
-- squash merge `main`: **`90bea96f5be1b28d980a3846341dbfe90b32e8e8`**;
-- published checkpoint remains immutable **v0.9.0 / 0.9.0+17**.
+- base `main`: **`4b5a40f82e905174a26b0c9799f84a68fcd9c54d`**;
+- branch: **`feat/planner-reserve-floor`**;
+- domain rule: reserve floor is **not a cash expense**; from its effective date onward it is a minimum liquid-cash constraint;
+- generator preserves the stricter of scenario `reserve` and active reserve floor;
+- schema remains **3**; old scenarios are read without silent rewrite;
+- strict A/B/C comparability includes floor type/date/amount;
+- scope: domain semantics → persistence/load → cashflow/coverage → generator → comparison → UI → UK/EN/FR/DE/ES/KO/JA → regression tests.
 
 ### Поточна наступна дія
 
-**NEXT — start Planner reserve-floor / minimum-balance need as a typed schema-3-compatible assumption: define domain semantics first, then persistence, cashflow/coverage behavior, strict A/B/C comparability, UI and UK/EN/FR/DE/ES/KO/JA regression coverage. Do not silently treat reserve-floor as a one-off expense.**
+**DOING — implement reserve-floor with the fixed non-expense semantics above, then open PR and require green analyze/tests before integration.**
 
 ## Черга робіт
 
@@ -60,7 +55,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 10. **DONE** — formal prerelease readiness assessment 0.9.0 — PR #63, run #193, merge `f80c7d8e…`; GO to release preparation.
 11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
-13. **NEXT** — Planner reserve-floor / minimum-balance needs.
+13. **DOING** — Planner reserve-floor / minimum-balance needs.
 
 ## Продуктова логіка цієї черги
 
