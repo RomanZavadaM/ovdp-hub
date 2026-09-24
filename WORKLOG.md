@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **додатковий дизайн «Світла панель» без заміни наявних оформлень**.
 
@@ -35,11 +35,13 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - keep existing appearances: **Classic** and **«Робочий кабінет»**;
 - add third appearance: **«Світла панель»**;
 - scope: appearance state/selector, light dashboard theme, wide desktop header/sidebar/status shell, compact mobile compatibility, 7-language labels, design regression tests;
-- do not change Planner financial semantics, schema or published v0.9.0 tag/release.
+- do not change Planner financial semantics, schema or published v0.9.0 tag/release;
+- verified code head: **`f27140db68b881089724c9c717c261a96cc563d1`**;
+- **Flutter checks and START run #205 — success**: `flutter pub get --enforce-lockfile`, `flutter analyze`, full Flutter test suite and START gate green after analyzer + layout-overflow fixes.
 
 ### Поточна наступна дія
 
-**DOING — implement «Світла панель», verify Classic/Studio/Light Dashboard switching without losing Planner state, add desktop/phone regression coverage, then open PR and integrate after green CI.**
+**VERIFIED — PR #67 code head passed run #205. Record this checkpoint, require final exact latest-head CI for this WORKLOG-only change, then mark PR #67 Ready and integrate it into `main` if green. After merge, canonical next = Planner reserve-floor / minimum-balance needs.**
 
 ## Черга робіт
 
@@ -54,7 +56,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 9. **DONE** — generated planner copy / preset labels localization + UX regression — PR #61, run #189 (110/110), final run #190, merge `1e6849f7…`.
 10. **DONE** — formal prerelease readiness assessment 0.9.0 — PR #63, run #193, merge `f80c7d8e…`; GO to release preparation.
 11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
-12. **DOING** — add optional third appearance «Світла панель» while preserving Classic and «Робочий кабінет».
+12. **VERIFIED** — optional third appearance «Світла панель» implemented while preserving Classic and «Робочий кабінет»; code head `f27140db…`, run #205 success.
 13. **NEXT AFTER UI** — Planner reserve-floor / minimum-balance needs.
 
 ## Продуктова логіка цієї черги
