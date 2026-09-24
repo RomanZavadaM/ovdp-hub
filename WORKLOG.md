@@ -21,27 +21,28 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 **0.9.x — розвиток після завершеного 0.9.0 «Ринок»**.
 
-Поточний опублікований checkpoint: **v0.9.0 / 0.9.0+17**.
+Поточний опублікований checkpoint: **v0.9.1 / 0.9.1+18**.
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
-Мета: **v0.9.1+18 full prerelease checkpoint — documentation sync, exact-head verification, merge to main and all-platform publication**.
+Мета: **v0.9.1+18 full prerelease checkpoint**.
 
-- release base `main`: **`36191546229ad3146fce84a1846a24a0529de3b7`**;
-- release branch: **`release/v0.9.1`**;
-- migration PR #95 integrated; post-merge main run #331 success;
-- app version: **0.9.1+18**;
-- release notes: **`docs/releases/RELEASE_NOTES_v0_9_1.md`**, UK/EN/FR/DE/ES/KO/JA;
-- checkpoint includes post-v0.9.0 Light Dashboard, reserve floor, CSV/ICS exports, encrypted-vault/security foundation, private factual portfolio schemas/disposals and non-destructive migration core;
-- README/guides must state clearly that legacy `sets/*.json` are **not automatically encrypted** and user-facing migration/vault UI is not wired;
-- required assets: Windows x64, macOS, Android test, iOS unsigned, START/source, SHA256SUMS + legal notices;
-- tag/release `v0.9.1` must be immutable after publication.
+- release PR #97 → squash merge **`bf9b358b73ce84ea333a09978a4607c0505d30fb`**;
+- exact PR head **run #337 — success**;
+- post-merge `main` **run #338 — success**;
+- full **Publish native prerelease run #72 — success**;
+- immutable tag **`v0.9.1`** → `bf9b358b73ce84ea333a09978a4607c0505d30fb`;
+- GitHub prerelease **OVDP Hub 0.9.1** published;
+- Windows x64 / macOS / Android test / unsigned iOS / START-source all built successfully;
+- `SHA256SUMS.txt` and legal notices published;
+- release notes and README/guides synchronized for UK/EN/FR/DE/ES/KO/JA;
+- privacy boundary explicitly documented: legacy `sets/*.json` are not auto-encrypted and migration core has no delete API.
 
 ### Поточна наступна дія
 
-**DOING — finish release documentation/guides, run exact-head PR checks, merge release PR into `main`, verify all-platform Publish native prerelease workflow, release assets/checksums/tag and then mark checkpoint DONE.**
+**NEXT — Android SAF / iOS security-scoped external-folder access. Keep user-facing vault/migration UX as a separate gate and do not claim legacy private data is encrypted until that explicit flow is wired and succeeds.**
 
 ## Черга робіт
 
@@ -68,7 +69,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 21. **DONE** — Private portfolio/encrypted payload foundation; replacement PR #89 → merge `a516310f…`; final replacement run #311 and post-merge run #312 green.
 22. **DONE** — Private portfolio factual sale/disposal + explicit lot-allocation foundation; replacement PR #92 → merge `d8de5c9f…`; exact-head run #317 and post-merge run #318 green.
 23. **DONE** — Non-destructive legacy plaintext migration; PR #95 → merge `36191546…`; exact-head run #329 and post-merge run #331 green.
-24. **DOING** — v0.9.1+18 full prerelease checkpoint for Windows/macOS/Android/iOS + START/source.
+24. **DONE** — v0.9.1+18 full prerelease checkpoint; PR #97 → `bf9b358b…`; run #337, main run #338 and release run #72 green; immutable `v0.9.1` published with all platform assets.
+25. **NEXT** — Android SAF / iOS security-scoped external-folder access.
 
 ## Продуктова логіка цієї черги
 
@@ -95,6 +97,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — v0.9.1+18 full prerelease checkpoint**: PR #97 merged as `bf9b358b73ce84ea333a09978a4607c0505d30fb`; exact-head run #337 and post-merge run #338 green; Publish native prerelease run #72 built/published Windows, macOS, Android test, unsigned iOS, START/source, SHA256 and legal notices; immutable tag `v0.9.1` points to the release commit.
 
 - **DONE — non-destructive legacy plaintext migration core**: PR #95 merged as `36191546229ad3146fce84a1846a24a0529de3b7`; final branch run #329 and post-merge main run #331 green. Private payload schema v3 preserves user-specific legacy collection metadata/scenario without inventing portfolio facts; source JSON remains untouched and no delete API exists.
 
