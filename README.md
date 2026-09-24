@@ -12,7 +12,7 @@
 
 **OVDP Hub** — встановлюваний Flutter/Dart-застосунок для огляду українських ОВДП, ринкових джерел та власних інвестиційних сценаріїв. Цільові платформи: **Windows, macOS, Android, iOS**. Web/PWA не входить до активного продукту.
 
-Активний код: `apps/native`. Поточний опублікований checkpoint — **0.9.0 «Ринок»**. Наступний slice — додатковий дизайн **«Світла панель»** зі збереженням Classic та «Робочий кабінет».
+Активний код: `apps/native`. Поточний опублікований checkpoint — **0.9.0 «Ринок»**. Після нього в `main` інтегровано «Світлу панель», Planner reserve floor та локальні deterministic CSV/ICS exports. Наступний slice — **review/approval threat model encrypted vault перед будь-яким crypto-кодом**.
 
 ### Що вже працює
 
@@ -29,6 +29,7 @@
 - основна майбутня потреба може бути регулярною; повторення зберігається як typed правило, додаткові потреби — як окремі one-off записи;
 - нейтральне порівняння **A/B/C** для 2–3 збережених сценаріїв із strict comparability та без автоматичного «кращого» варіанта;
 - reserve floor / мінімальний залишок як typed правило: з указаної дати сума має лишатися ліквідною й не вважається витратою;
+- локальні deterministic CSV/ICS exports із Planner scenario/needs/coverage/cashflow у папку `exports/` активного workspace; PDF відкладено до стабілізації звіту;
 - generated Planner copy / preset labels зберігаються як stable IDs і локалізуються при показі; власні назви користувача лишаються literal;
 - збереження сценаріїв у переносній робочій папці JSON;
 - активний UI та основні user-facing помилки локалізовані **UK / EN / FR / DE / ES / KO / JA**.
@@ -50,7 +51,8 @@
 7. **DONE** — generated Planner copy / preset-label localization + regression;
 8. **DONE** — v0.9.0 prerelease checkpoint;
 9. **DONE** — reserve floor / мінімальний залишок;
-10. **NEXT** — локальні CSV/ICS exports; PDF після стабілізації структури звіту.
+10. **DONE** — локальні deterministic CSV/ICS exports; PDF deferred;
+11. **NEXT** — review/approval encrypted-vault threat model перед crypto implementation.
 
 OVDP Hub не виконує купівлю чи продаж і не підтверджує доступність інструмента у продавця.
 
