@@ -25,34 +25,26 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **private portfolio factual sale/disposal foundation — explicit lot allocation and realized factual economics**.
+Мета: **non-destructive legacy plaintext migration — preserve private-capable legacy collection data inside the encrypted payload without inventing portfolio facts**.
 
-- base `main`: **`e0b45041cd090c7be8829b27611e8a4032c27aab`**;
-- branch: **`feat/private-portfolio-disposals`**;
-- payload source: replacement PR #89 / `a516310f71c6414018d3f398c42ba88f553f5244`;
-- extend payload to schema v2 while preserving schema-v1 decode compatibility;
-- factual disposal record: stable id, ISIN, date, disposed units, currency, factual whole-disposal proceeds, explicit known/unknown fee state and optional note;
-- each disposal contains explicit acquisition-lot allocations; **no automatic FIFO/LIFO** and no invented cost basis;
-- allocation sum must equal disposal units; referenced lot must exist, match ISIN, predate/same-date disposal and not be over-allocated across disposals;
-- holdings become acquisitions minus represented redemptions minus represented disposals;
-- conservative fail-closed rule: disposal cannot occur on/after an already-recorded redemption for the same ISIN until redemption-to-lot allocation exists;
-- realized acquisition trade cost/known fee cost derives only from explicit lot allocations;
-- unknown acquisition or disposal fee remains unknown, never silently zero;
-- deterministic v2 codec + encrypted LocalVaultStore round-trip regressions;
-- draft PR **#91** `Portfolio: add factual disposals and lot allocation` was closed without merge because draft-state promotion is unavailable through the current permission path;
-- schema contract updated: **`docs/private-portfolio-payload.md`**;
-- functional head **`cabf0735188ae52352e5d15ebd25ba1c8a26542b`** passed **Flutter checks and START run #314 — success**;
-- final draft-PR head **`e9b26461d5b6a028adbaf33b64ead0e7de6fd6ac`** passed **run #316 — success**;
-- replacement PR #92 exact head **`c3e63967ee245a39a6e6ea044cf425aae66086dc`** passed **run #317 — success**;
-- squash merge `main`: **`d8de5c9f1d144c8f816a65877b86bcd79058b432`**;
-- post-merge `main` **run #318 — success**;
-- no legacy `sets/*.json` migration/import/delete and no user-facing portfolio UI.
+- base `main`: **`5be5aeb3b9a0a710db022ec05edd83b5e0f9e0ea`**;
+- branch: **`feat/legacy-plaintext-migration`**;
+- inventory confirms `sets/*.json` contains collection `name/note/savedAt`, public bond snapshots/ISINs and optional raw Planner `scenario`; it contains **no factual acquisition lots**;
+- extend private payload with encrypted legacy-collection records; do not reinterpret a saved set as a real holding/acquisition;
+- migrate only user-specific fields: stable source-file id, name, note, savedAt, selected ISIN references and raw canonicalized scenario;
+- full public Bond snapshots remain outside the private payload and are intentionally not copied;
+- repeated migration is idempotent: same source id + same mapped content → already migrated; same source id + changed content → conflict, never overwrite;
+- invalid/corrupt legacy files are reported individually; valid files can still migrate;
+- encrypted payload save must be reopened/decoded and migrated records compared before success is reported;
+- legacy plaintext source files are never modified or deleted by this slice;
+- migration report is machine-readable for later UI;
+- no user-facing portfolio claim/UI in this slice.
 
 ### Поточна наступна дія
 
-**NEXT — non-destructive legacy plaintext migration: inventory/map existing `sets/*.json`, copy only explicit private facts into the encrypted payload, validate the encrypted result, produce a migration report and never auto-delete legacy plaintext.**
+**DOING — add schema-v3 encrypted legacy-collection records, implement file-by-file migration/report/verification, then deterministic idempotence/conflict/no-delete tests.**
 
 ## Черга робіт
 
@@ -78,7 +70,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 20. **DONE** — Encrypted vault lifecycle controls; PR #86 → merge `3dc1f53d…`; final run #301 and post-merge run #302 green.
 21. **DONE** — Private portfolio/encrypted payload foundation; replacement PR #89 → merge `a516310f…`; final replacement run #311 and post-merge run #312 green.
 22. **DONE** — Private portfolio factual sale/disposal + explicit lot-allocation foundation; replacement PR #92 → merge `d8de5c9f…`; exact-head run #317 and post-merge run #318 green.
-23. **NEXT** — Non-destructive legacy plaintext migration into encrypted private payload.
+23. **DOING** — Non-destructive legacy plaintext migration into encrypted private payload.
 
 ## Продуктова логіка цієї черги
 
