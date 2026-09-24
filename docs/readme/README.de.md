@@ -2,9 +2,9 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · [🇫🇷 Français](README.fr.md) · **🇩🇪 Deutsch** · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.8.8](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.8)**
+> **Release candidate / Кандидат prerelease: OVDP Hub v0.9.0 (0.9.0+17). Current published / Поточний опублікований: [v0.8.8](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.8.8)**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/OVDP-Hub-0.8.8-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.8.8/SHA256SUMS.txt)
+> Expected after successful gated publish / Очікується після успішного pipeline: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/SHA256SUMS.txt)
 
 ---
 
@@ -27,6 +27,8 @@ Aktiver Code: `apps/native`. Das aktuelle Hauptziel ist **0.9.0 „Markt“**.
 - expliziter FX-Vergleich mit manuell eingegebenem Kurs, Datum und Quellen-URL, während der Basis-Cashflow einwährungsbasiert bleibt;
 - vorzeitiger Verkauf je Position mit eigenem Verkaufsdatum und BID-/manuellem Exit-Preis;
 - wiederkehrender Hauptbedarf als typisierte Regel; zusätzliche Bedarfe bleiben einmalige Einträge;
+- neutraler **A/B/C**-Vergleich für 2–3 gespeicherte Szenarien mit strenger Vergleichbarkeit und ohne automatischen Gewinner;
+- generierter Planner-Text / Preset-Labels werden als stabile IDs gespeichert und erst bei der Anzeige lokalisiert; benutzerdefinierte Namen bleiben unverändert;
 - portable JSON-Workspaces für gespeicherte Szenarien;
 - aktive UI und wichtigste benutzerseitige Fehler in **UK / EN / FR / DE / ES / KO / JA** lokalisiert.
 
@@ -43,7 +45,9 @@ Weg zu 0.9.0:
 3. **DONE** — geprüfte Steuerannahmen;
 4. **DONE** — FX-Annahmen;
 5. **DONE** — Exit-Annahmen;
-6. **NEXT** — A/B/C-Vergleich; danach UX-/Lokalisierungs-Polish.
+6. **DONE** — neutraler A/B/C-Vergleich;
+7. **DONE** — Lokalisierung von generated Planner copy / Preset-Labels + Regression;
+8. **READY** — formale 0.9.0-Readiness-Prüfung: GO zur Vorbereitung des Prerelease-Checkpoints.
 
 OVDP Hub führt keine Käufe oder Verkäufe aus und bestätigt keine Verfügbarkeit bei Verkäufern.
 
