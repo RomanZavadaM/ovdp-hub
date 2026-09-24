@@ -42,10 +42,12 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 3. «Мій портфель» з'являється у навігації як user-facing напрям, але фактичні holdings не зберігаються поза encrypted vault.
 4. UK/EN/FR/DE/ES/KO/JA localization + desktop/phone regressions.
 5. analyze/tests green; PR → integration to `main`.
+6. Release regression gate verifies the exact packaged Windows/macOS ZIP by extracting and executing its release contract; version/build and `classic/studio/dashboard` must match before any release publish.
+7. UI version comes from build metadata; no hardcoded historical version string.
 
 ### Поточна наступна дія
 
-**DOING — implement persistent «Економічний пульс» + first safe user-facing «Мій портфель» entrypoint on the existing encrypted portfolio foundation.**
+**DOING — finish PR #99 with green source/widget tests plus packaged Windows/macOS artifact smoke; then integrate the user-visible «Економічний пульс» + first encrypted «Мій портфель» entrypoint.**
 
 ## Черга робіт
 
