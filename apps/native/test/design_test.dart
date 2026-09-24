@@ -26,8 +26,19 @@ void main() {
     });
   }
 
+  Future<void> selectAppearance(
+    WidgetTester tester,
+    String label,
+  ) async {
+    await tester.tap(find.byTooltip('Дизайн інтерфейсу'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(label).last);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  }
+
   for (final size in [const Size(1440, 1000), const Size(390, 844)]) {
-    testWidgets('design switch and navigation at ${size.width}', (
+    testWidgets('three designs preserve navigation state at ${size.width}', (
       tester,
     ) async {
       tester.view.physicalSize = size;
@@ -50,6 +61,7 @@ void main() {
           }
         });
       }
+
       final data =
           jsonDecode(File('assets/nbu-snapshot.json').readAsStringSync())
               as Map<String, dynamic>;
@@ -58,6 +70,7 @@ void main() {
           .where((b) => (b['maturityDate'] as String).compareTo(today) > 0)
           .take(8)
           .toList();
+
       final key = GlobalKey();
       await tester.pumpWidget(
         RepaintBoundary(
@@ -68,6 +81,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+
+      // Existing Studio / «Робочий кабінет» stays the default.
       expect(find.text('Облігації під ваші плани'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await capture(
@@ -75,28 +90,47 @@ void main() {
         key,
         size.width > 1000 ? 'studio-desktop' : 'studio-phone',
       );
+
       final plan = find.text('Планувати кошти');
       await tester.ensureVisible(plan);
       await tester.tap(plan);
       await tester.pumpAndSettle();
       expect(find.text('Планувальник цілей і доходу'), findsOneWidget);
+
       final budget = find.widgetWithText(
         TextFormField,
         'Бюджет у вибраній валюті',
       );
       await tester.ensureVisible(budget);
       await tester.enterText(budget, '120000');
-      await tester.tap(find.byTooltip('Класичний дизайн'));
-      await tester.pumpAndSettle();
+
+      // Existing Classic remains available and must not lose Planner state.
+      await selectAppearance(tester, 'Класичний дизайн');
       expect(find.text('120000'), findsOneWidget);
-      expect(tester.takeException(), isNull);
+
       await tester.tap(find.text('Каталог'));
       await tester.pumpAndSettle();
-      if (size.width > 1000) await capture(tester, key, 'classic-desktop');
-      await tester.tap(find.byTooltip('Дизайн «Робочий кабінет»'));
-      await tester.pumpAndSettle();
+      if (size.width > 1000) {
+        await capture(tester, key, 'classic-desktop');
+      }
+
+      // New owner-requested light dashboard is the third independent mode.
+      await selectAppearance(tester, 'Дизайн «Світла панель»');
+      expect(find.text('OVDP Hub'), findsOneWidget);
+      expect(find.byTooltip('Дизайн інтерфейсу'), findsOneWidget);
+      await capture(
+        tester,
+        key,
+        size.width > 1000
+            ? 'light-dashboard-desktop'
+            : 'light-dashboard-phone',
+      );
+
+      // Switching back to Studio still works.
+      await selectAppearance(tester, 'Дизайн «Робочий кабінет»');
       expect(find.text('Облігації під ваші плани'), findsOneWidget);
       expect(tester.takeException(), isNull);
+
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpAndSettle();
     });

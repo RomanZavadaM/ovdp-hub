@@ -25,22 +25,23 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **VERIFIED**
 
-Мета: **full prerelease checkpoint v0.9.0 / 0.9.0+17**.
+Мета: **додатковий дизайн «Світла панель» без заміни наявних оформлень**.
 
-- release PR: **#65** `Release: v0.9.0 full prerelease checkpoint`;
-- final PR head before merge: `40af5e505d68a3ab616f27d5d450706341c439a2`;
-- PR verification: **Flutter checks and START run #198 — success**; release preflight #44 — success;
-- squash merge `main`: **`21698ae34f9438f7c5ab49724e47dc13014b7daa`**;
-- full release workflow: **Publish native prerelease run #45 — success**;
-- published tag/release: **v0.9.0**;
-- assets verified: Windows x64, macOS, Android test, iOS unsigned, START/source, SHA256SUMS and legal notices;
-- v0.9.0 tag/release is immutable and must not be moved or rewritten.
+- base `main`: **`a588b933ce165f6a7f6142f54502656c5a139cdd`**;
+- branch: **`feat/light-dashboard-appearance`**;
+- owner references: supplied light-blue desktop dashboard/help/about screenshots from Taxo;
+- keep existing appearances: **Classic** and **«Робочий кабінет»**;
+- add third appearance: **«Світла панель»**;
+- scope: appearance state/selector, light dashboard theme, wide desktop header/sidebar/status shell, compact mobile compatibility, 7-language labels, design regression tests;
+- do not change Planner financial semantics, schema or published v0.9.0 tag/release;
+- verified code head: **`f27140db68b881089724c9c717c261a96cc563d1`**;
+- **Flutter checks and START run #205 — success**: `flutter pub get --enforce-lockfile`, `flutter analyze`, full Flutter test suite and START gate green after analyzer + layout-overflow fixes.
 
 ### Поточна наступна дія
 
-**NEXT — owner-requested UI slice: add a third optional appearance named «Світла панель», inspired by the supplied light-blue desktop dashboard references. Preserve both existing Classic and «Робочий кабінет» modes; localize the new appearance selector/shell for UK/EN/FR/DE/ES/KO/JA; keep desktop and phone navigation functional; add regression coverage. After that slice, return to roadmap item reserve-floor / minimum-balance needs.**
+**VERIFIED — PR #67 code head passed run #205. Record this checkpoint, require final exact latest-head CI for this WORKLOG-only change, then mark PR #67 Ready and integrate it into `main` if green. After merge, canonical next = Planner reserve-floor / minimum-balance needs.**
 
 ## Черга робіт
 
@@ -55,7 +56,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 9. **DONE** — generated planner copy / preset labels localization + UX regression — PR #61, run #189 (110/110), final run #190, merge `1e6849f7…`.
 10. **DONE** — formal prerelease readiness assessment 0.9.0 — PR #63, run #193, merge `f80c7d8e…`; GO to release preparation.
 11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
-12. **NEXT** — add optional third appearance «Світла панель» while preserving Classic and «Робочий кабінет».
+12. **VERIFIED** — optional third appearance «Світла панель» implemented while preserving Classic and «Робочий кабінет»; code head `f27140db…`, run #205 success.
 13. **NEXT AFTER UI** — Planner reserve-floor / minimum-balance needs.
 
 ## Продуктова логіка цієї черги

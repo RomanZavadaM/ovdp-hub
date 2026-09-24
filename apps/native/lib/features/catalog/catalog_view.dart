@@ -17,7 +17,9 @@ class CatalogView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CatalogCubit>().state;
-    final studio = context.watch<AppearanceCubit>().state.studio;
+    final appearance = context.watch<AppearanceCubit>().state;
+    final studio = appearance.studio;
+    final dashboard = appearance.dashboard;
     final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     final cubit = context.read<CatalogCubit>();
     final editor = context.watch<CollectionEditorCubit>().state;
@@ -58,12 +60,12 @@ class CatalogView extends StatelessWidget {
           spacing: 12,
           runSpacing: 12,
           children: [
-            if (studio)
+            if (studio || dashboard)
               MetricTile(strings.text('issuesSelected'), '${state.visible.length}')
             else
               Chip(label: Text('${state.visible.length} ${strings.text('issuesSelected')}')),
             for (final c in state.currencyCounts.entries)
-              if (studio)
+              if (studio || dashboard)
                 MetricTile('${strings.text('issuesIn')} ${c.key}', '${c.value}')
               else
                 Chip(label: Text('${c.key}: ${c.value}')),

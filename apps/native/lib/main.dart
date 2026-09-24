@@ -21,6 +21,7 @@ import 'features/workspace/workspace_cubit.dart';
 import 'features/workspace/workspace_view.dart';
 import 'l10n/hub_locale.dart';
 import 'ui/components.dart';
+import 'ui/dashboard_design.dart';
 import 'ui/studio_design.dart';
 
 void main() {
@@ -38,15 +39,28 @@ class OvdpApp extends StatelessWidget {
     dispose: (repo) => repo.dispose(),
     child: MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => CatalogCubit(context.read<HubRepository>()), lazy: false),
-        BlocProvider(create: (context) => CollectionsCubit(context.read<HubRepository>()), lazy: false),
-        BlocProvider(create: (context) => CollectionEditorCubit(context.read<HubRepository>()), lazy: false),
+        BlocProvider(
+          create: (context) => CatalogCubit(context.read<HubRepository>()),
+          lazy: false,
+        ),
+        BlocProvider(
+          create: (context) => CollectionsCubit(context.read<HubRepository>()),
+          lazy: false,
+        ),
+        BlocProvider(
+          create: (context) =>
+              CollectionEditorCubit(context.read<HubRepository>()),
+          lazy: false,
+        ),
         BlocProvider(create: (_) => CalculatorCubit()),
         BlocProvider(create: (_) => AppearanceCubit()),
         BlocProvider(create: (_) => LocaleCubit()),
         BlocProvider(create: (_) => SellersCubit(SellerRepository())),
         BlocProvider(create: (_) => NavigationCubit()),
-        BlocProvider(create: (context) => PlannerCubit(context.read<HubRepository>()), lazy: false),
+        BlocProvider(
+          create: (context) => PlannerCubit(context.read<HubRepository>()),
+          lazy: false,
+        ),
         BlocProvider(
           create: (context) => WorkspaceCubit(
             context.read<HubRepository>(),
@@ -67,10 +81,13 @@ class StyledApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final language = context.watch<LocaleCubit>().state.language;
+    final appearance = context.watch<AppearanceCubit>().state;
     return MaterialApp(
-      title: 'ОВДП Hub',
+      title: 'OVDP Hub',
       debugShowCheckedModeBanner: false,
-      theme: hubTheme(context.watch<AppearanceCubit>().state.studio),
+      theme: appearance.dashboard
+          ? dashboardTheme()
+          : hubTheme(appearance.studio),
       locale: language.locale,
       supportedLocales: AppLanguage.values.map((e) => e.locale).toList(),
       localizationsDelegates: const [
@@ -90,28 +107,102 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     final screen = context.watch<NavigationCubit>().state.index;
     final workspace = context.watch<WorkspaceCubit>().state;
-    final studio = context.watch<AppearanceCubit>().state.studio;
+    final appearance = context.watch<AppearanceCubit>().state;
+    final studio = appearance.studio;
+    final dashboard = appearance.dashboard;
     final language = context.watch<LocaleCubit>().state.language;
     final strings = HubStrings(language);
     final wide = MediaQuery.sizeOf(context).width >= 1000;
+    final workspaceOpen = workspace.path != null;
 
     final destinations = [
-      NavigationDestination(icon: const Icon(Icons.analytics_outlined), label: strings.text('catalog')),
-      NavigationDestination(icon: const Icon(Icons.bookmarks_outlined), label: strings.text('collections')),
-      NavigationDestination(icon: const Icon(Icons.calculate_outlined), label: strings.text('calculator')),
-      NavigationDestination(icon: const Icon(Icons.folder_outlined), label: strings.text('workspace')),
-      NavigationDestination(icon: const Icon(Icons.event_available_outlined), label: strings.text('planning')),
-      NavigationDestination(icon: const Icon(Icons.storefront_outlined), label: strings.text('sellers')),
+      NavigationDestination(
+        icon: const Icon(Icons.analytics_outlined),
+        label: strings.text('catalog'),
+      ),
+      NavigationDestination(
+        icon: const Icon(Icons.bookmarks_outlined),
+        label: strings.text('collections'),
+      ),
+      NavigationDestination(
+        icon: const Icon(Icons.calculate_outlined),
+        label: strings.text('calculator'),
+      ),
+      NavigationDestination(
+        icon: const Icon(Icons.folder_outlined),
+        label: strings.text('workspace'),
+      ),
+      NavigationDestination(
+        icon: const Icon(Icons.event_available_outlined),
+        label: strings.text('planning'),
+      ),
+      NavigationDestination(
+        icon: const Icon(Icons.storefront_outlined),
+        label: strings.text('sellers'),
+      ),
     ];
+
+    void showHubAbout() {
+      showAboutDialog(
+        context: context,
+        applicationName: 'OVDP Hub',
+        applicationLegalese:
+            'Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.',
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Text(strings.text('aboutLegal')),
+          ),
+        ],
+      );
+    }
+
+    PopupMenuButton<HubAppearance> appearanceMenu() =>
+        PopupMenuButton<HubAppearance>(
+          tooltip: strings.text('appearance'),
+          icon: const Icon(Icons.palette_outlined),
+          initialValue: appearance.mode,
+          onSelected: context.read<AppearanceCubit>().select,
+          itemBuilder: (_) => HubAppearance.values
+              .map(
+                (mode) => PopupMenuItem<HubAppearance>(
+                  value: mode,
+                  child: Row(
+                    children: [
+                      if (mode == appearance.mode)
+                        const Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Icon(Icons.check, size: 18),
+                        )
+                      else
+                        const SizedBox(width: 26),
+                      Flexible(
+                        child: Text(
+                          strings.text(appearanceTranslationKey(mode)),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              .toList(),
+        );
 
     final content = Column(
       children: [
         if (workspace.busy) const LinearProgressIndicator(),
-        ErrorNotice(workspace.error, context.read<WorkspaceCubit>().dismissError),
+        ErrorNotice(
+          workspace.error,
+          context.read<WorkspaceCubit>().dismissError,
+        ),
         Expanded(
           child: SingleChildScrollView(
             key: ValueKey(screen),
-            padding: EdgeInsets.all(wide ? 32 : 16),
+            padding: EdgeInsets.all(
+              dashboard ? (wide ? 22 : 14) : (wide ? 32 : 16),
+            ),
             child: switch (screen) {
               0 => const CatalogView(),
               1 => const CollectionsView(),
@@ -125,78 +216,112 @@ class Home extends StatelessWidget {
       ],
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(studio ? strings.text('studioTitle') : '◈ ОВДП Hub'),
-        actions: [
-          IconButton(
-            tooltip: strings.text('about'),
-            onPressed: () {
-              showAboutDialog(
-                context: context,
-                applicationName: 'ОВДП Hub',
-                applicationLegalese: 'Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.',
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Text(strings.text('aboutLegal')),
-                  ),
-                ],
-              );
-            },
-            icon: const Icon(Icons.info_outline),
+    final standardBody = Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (wide && studio)
+          StudioSidebar(
+            selected: screen,
+            onSelected: context.read<NavigationCubit>().select,
           ),
-          PopupMenuButton<AppLanguage>(
-            tooltip: strings.text('language'),
-            icon: const Icon(Icons.language),
-            initialValue: language,
-            onSelected: context.read<LocaleCubit>().select,
-            itemBuilder: (_) => AppLanguage.values
-                .map((item) => PopupMenuItem<AppLanguage>(
-                  value: item,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(item.nativeName),
-                      Text(item.ukrainianDescription, style: Theme.of(context).textTheme.bodySmall),
-                    ],
+        if (wide && !studio)
+          NavigationRail(
+            selectedIndex: screen,
+            labelType: NavigationRailLabelType.all,
+            onDestinationSelected: context.read<NavigationCubit>().select,
+            destinations: destinations
+                .map(
+                  (d) => NavigationRailDestination(
+                    icon: d.icon,
+                    label: Text(d.label),
                   ),
-                ))
+                )
                 .toList(),
           ),
-          IconButton(
-            tooltip: studio ? strings.text('classicDesign') : strings.text('studioDesign'),
-            onPressed: context.read<AppearanceCubit>().toggle,
-            icon: Icon(studio ? Icons.view_sidebar_outlined : Icons.dashboard_customize_outlined),
+        Expanded(child: content),
+      ],
+    );
+
+    final dashboardBody = Column(
+      children: [
+        DashboardHeader(
+          compact: !wide,
+          workspaceOpen: workspaceOpen,
+          language: language,
+          appearance: appearance.mode,
+          onLanguage: context.read<LocaleCubit>().select,
+          onAppearance: context.read<AppearanceCubit>().select,
+          onAbout: showHubAbout,
+        ),
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (wide)
+                DashboardSidebar(
+                  selected: screen,
+                  onSelected: context.read<NavigationCubit>().select,
+                ),
+              Expanded(child: DashboardSurface(child: content)),
+            ],
           ),
-          if (wide)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(workspace.path == null ? strings.text('workspaceClosed') : strings.text('localData')),
+        ),
+        if (wide) DashboardStatusBar(workspaceOpen: workspaceOpen),
+      ],
+    );
+
+    return Scaffold(
+      appBar: dashboard
+          ? null
+          : AppBar(
+              title: Text(studio ? strings.text('studioTitle') : '◈ OVDP Hub'),
+              actions: [
+                IconButton(
+                  tooltip: strings.text('about'),
+                  onPressed: showHubAbout,
+                  icon: const Icon(Icons.info_outline),
+                ),
+                PopupMenuButton<AppLanguage>(
+                  tooltip: strings.text('language'),
+                  icon: const Icon(Icons.language),
+                  initialValue: language,
+                  onSelected: context.read<LocaleCubit>().select,
+                  itemBuilder: (_) => AppLanguage.values
+                      .map(
+                        (item) => PopupMenuItem<AppLanguage>(
+                          value: item,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(item.nativeName),
+                              Text(
+                                item.ukrainianDescription,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+                appearanceMenu(),
+                if (wide)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      workspaceOpen
+                          ? strings.text('localData')
+                          : strings.text('workspaceClosed'),
+                    ),
+                  ),
+              ],
             ),
-        ],
-      ),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (wide && studio)
-            StudioSidebar(selected: screen, onSelected: context.read<NavigationCubit>().select),
-          if (wide && !studio)
-            NavigationRail(
-              selectedIndex: screen,
-              labelType: NavigationRailLabelType.all,
-              onDestinationSelected: context.read<NavigationCubit>().select,
-              destinations: destinations
-                  .map((d) => NavigationRailDestination(icon: d.icon, label: Text(d.label)))
-                  .toList(),
-            ),
-          Expanded(child: content),
-        ],
-      ),
+      body: dashboard ? dashboardBody : standardBody,
       bottomNavigationBar: wide
           ? null
           : NavigationBar(
-              labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+              labelBehavior:
+                  NavigationDestinationLabelBehavior.onlyShowSelected,
               selectedIndex: screen,
               destinations: destinations,
               onDestinationSelected: context.read<NavigationCubit>().select,
