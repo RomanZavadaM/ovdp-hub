@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **deterministic local CSV + ICS exports для Planner scenario/calendar**.
 
@@ -36,11 +36,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - CSV: UTF-8 deterministic machine-readable calendar rows for positions, needs/floor coverage and expected receipts;
 - ICS: deterministic all-day calendar events for expanded needs, reserve-floor activation and expected cash receipt availability;
 - no trade execution, no network upload, no PDF in this slice;
-- scope: schema contract → pure generators → atomic workspace write → Planner UI → 7-language labels → regression tests.
+- scope: schema contract → pure generators → atomic workspace write → Planner UI → 7-language labels → regression tests;
+- draft PR: **#71** `Planner: add local CSV and ICS exports`;
+- verified functional head: **`0931f977f878ac257ad45c7b19d64facc5897fb2`**;
+- **Flutter checks and START run #223 — success** (`flutter analyze` + full Flutter tests); earlier run #218 also verified the core export vertical before final UID/localization hardening.
 
 ### Поточна наступна дія
 
-**DOING — implement CSV/ICS export contract and local workspace bundle, then run analyze/tests and integrate after green CI. PDF remains deferred.**
+**VERIFIED — functional head passed run #223. Run exact latest-head CI after this WORKLOG-only checkpoint, then mark PR #71 Ready and integrate into `main` if green. PDF remains deferred; no release checkpoint in this slice.**
 
 ## Черга робіт
 
@@ -57,7 +60,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
-14. **DOING** — deterministic local CSV + ICS Planner exports; PDF deferred.
+14. **VERIFIED** — deterministic local CSV + ICS Planner exports; PR #71 functional head `0931f977…`, run #223 green; awaiting latest-head docs-only verification before integration.
 
 ## Продуктова логіка цієї черги
 
