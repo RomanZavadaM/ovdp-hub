@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **encrypted vault foundation implementation — crypto/storage primitives and adapters only**.
 
@@ -35,12 +35,16 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - Dart floor: >=3.13;
 - approved exact direct dependencies: `sodium 4.1.0+1`, `flutter_secure_storage 11.2.0`, `win32 6.4.0`;
 - implementation targets: app-owned `VaultCrypto`, versioned authenticated envelope primitives, explicit Argon2id recovery derivation, `VaultDeviceKeyStore` abstraction, hardened Android/Apple adapter, non-destructive Windows DPAPI adapter;
-- security tests first: corrupt/AAD/wrong-key fail closed, explicit KDF parameters, platform option invariants, Windows non-destructive error behavior;
+- security tests: corrupt/AAD/wrong-key fail closed, explicit KDF parameters, platform option invariants, Windows non-destructive error/rollback behavior;
+- functional code head **`0631b7eff997785482cf5fae1351261fcec7e020`** passed **Flutter checks and START run #256 — success**;
+- platform verification head **`57749cc10ee7bfea262edbe312f83f3e702d63c9`** passed **Vault foundation platform compile run #2**: Windows/macOS/Android/iOS release builds success + real Windows DPAPI smoke success;
+- same helper-only head passed **Flutter checks and START run #257 — success**;
+- macOS Data Protection Keychain runtime/provisioning remains an explicit gate before user-facing vault unlock; compile success is not treated as runtime proof;
 - no Planner/portfolio migration, legacy plaintext deletion, private-data UI, backup UX or “encrypted” product claim in this slice.
 
 ### Поточна наступна дія
 
-**DOING — update SDK/dependency manifest and lockfile, then implement the crypto/device-key foundation behind app-owned interfaces with focused tests.**
+**VERIFIED — functional tests and four-platform compile gate are green. Record verification, remove the temporary platform helper, run exact latest-head CI, then mark PR #79 Ready and integrate if green. No portfolio migration/UI in this slice.**
 
 ## Черга робіт
 
