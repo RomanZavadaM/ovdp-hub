@@ -4,16 +4,17 @@
 
 ## Поточний checkpoint
 
-- Активна версія: **0.8.8+16**
-- Опублікований GitHub tag: **v0.8.8**
+- Release candidate: **0.9.0+17**
+- Поточний опублікований GitHub tag до завершення pipeline: **v0.8.8**
+- Запланований новий tag: **v0.9.0**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
 - Основна гілка: `main`
 - Статус продукту: **test / prerelease**
-- Release commit: **acacf53b903e876e7bacae45ebc6f895e799cd75**
-- Release workflow: **Publish native prerelease run #40 — success**
-- GitHub Release: **v0.8.8**, опублікований 23.09.2026
+- Release base перед checkpoint: **aaeb08cb24145cdea38739f22b660ac28fca15b5**
+- Release workflow: **очікує explicit checkpoint merge release PR**
+- GitHub Release: **v0.9.0 — готується; v0.8.8 лишається опублікованим**
 
 ## Що входить до опублікованого 0.8.5
 
@@ -330,3 +331,30 @@ Release pipeline **Publish native prerelease run #40** успішно завер
 - `OVDP-Hub-0.8.8-START.zip`;
 - `SHA256SUMS.txt`;
 - legal notices.
+
+
+## Release candidate v0.9.0
+
+Повний prerelease checkpoint **0.9.0+17** готується з актуального `main` після readiness gate.
+
+До candidate входять зміни після v0.8.8:
+- strict neutral A/B/C comparison для 2–3 saved Planner scenarios;
+- hard baseline comparability без автоматичного winner/best/worst;
+- generated Planner plan/need/expense copy як stable persisted IDs;
+- generated scenario descriptions через display-time localization;
+- user-authored names лишаються literal;
+- UK/EN/FR/DE/ES/KO/JA coverage;
+- readiness assessment `docs/READINESS_0_9_0.md`: GO до release preparation.
+
+Release notes підготовлено сімома мовами інтерфейсу.
+
+Очікувані assets після explicit checkpoint merge і успішного full pipeline:
+- `OVDP-Hub-0.9.0-Windows-x64.zip`;
+- `OVDP-Hub-0.9.0-macOS.zip`;
+- `OVDP-Hub-0.9.0-Android-test.zip`;
+- `OVDP-Hub-0.9.0-iOS-unsigned.zip`;
+- `OVDP-Hub-0.9.0-START.zip`;
+- `SHA256SUMS.txt`;
+- legal notices.
+
+**v0.9.0 не вважати опублікованим до success усіх platform jobs і final publish.**

@@ -2,7 +2,11 @@
 
 Усі помітні зміни OVDP Hub фіксуються тут. Опубліковані GitHub Releases додатково мають незмінні release notes у `docs/releases/`.
 
-## [Unreleased] — 0.9.0 «Ринок» development
+## [Unreleased]
+
+Після підготовки checkpoint v0.9.0 новий функціональний slice ще не відкрито. Reserve-floor/minimum-balance needs, exports, encrypted vault/actual holdings і production signing лишаються окремими майбутніми етапами.
+
+## [0.9.0] — 2026-09-24 — release candidate
 
 ### Neutral A/B/C scenario comparison
 - Додано порівняння рівно 2–3 saved Planner scenarios у «Добірки».
@@ -22,10 +26,13 @@
 - Existing Planner save/reopen, needs, A/B/C, phone/desktop regressions лишаються green.
 - PR #61; code run #189 — 110/110 tests; final latest-head run #190; merge `1e6849f78134d9654b0bf08b54ceebda4100ba4d`.
 
-### Next
-- formal 0.9.0 prerelease readiness assessment: roadmap/scope, schema/backward compatibility, localization, legal/package metadata, cross-platform release workflow and concrete blockers.
-- після assessment — або підготувати 0.9.0 prerelease checkpoint, або закрити знайдені blockers окремими slice.
-- reserve-floor/minimum-balance needs лишаються окремим незавершеним типом потреби і не підміняються автоматично.
+### Readiness and release checkpoint
+- Formal readiness assessment: PR #63, run #193, merge `f80c7d8e87b4fb494cf37712627bc12277a2fa73`.
+- Assessment result: **READY TO PREPARE v0.9.0 PRERELEASE CHECKPOINT**; product blockers не знайдено.
+- Версія кандидата: **0.9.0+17**.
+- Release notes підготовлено UK / EN / FR / DE / ES / KO / JA.
+- Повний checkpoint має пройти Windows/macOS/Android/iOS/START, checksums і legal notices.
+- v0.9.0 не вважається опублікованим, доки повний gated release workflow не завершиться успішно.
 
 ## [0.8.8] — 2026-09-23
 
