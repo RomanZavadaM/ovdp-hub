@@ -25,27 +25,26 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **VERIFIED**
 
-Мета: **encrypted vault dependency/security review — choose the implementation stack without adding dependencies or feature code yet**.
+Мета: **encrypted vault foundation implementation — crypto/storage primitives and adapters only**.
 
-- base `main`: **`f79c4440017689065c1de17e2659f1744c5a9418`**;
-- branch: **`docs/vault-dependency-security-review`**;
-- governing contract: **`docs/security-vault.md`** from merged PR #75;
-- candidates to review: AEAD + Argon2id/KDF implementation, secure storage/key wrapping on Windows/macOS/iOS/Android, external-file access adapters where relevant;
-- required evidence: current release/maintenance, license, platform implementation semantics, known advisory posture, threat-model mapping, testability;
-- no `pubspec.yaml` change and no vault feature implementation in this slice;
-- output: one documented stack decision with accepted/rejected alternatives, platform adapter matrix, dependency pinning policy and implementation test gates;
-- reviewed head `b6efabd65049cd231455e48d0e26c01c0e890154` passed **run #238 — success**;
-- exact latest PR head `dea8cc33d5c9b99e9c043e95daa548c77eddbbbb` passed **Flutter checks and START run #239 — success**;
-- squash merge `main`: **`3e4171e7bc700f6f844e4b27f89222e49feb40cb`**;
-- review document: **`docs/security-vault-dependency-review.md`**;
-- proposed stack: **`sodium 4.1.0+1` / libsodium 1.0.22 + `flutter_secure_storage 11.2.0` on Android/Apple + app-owned Windows DPAPI adapter via `win32 6.4.0`**;
-- Windows generic `flutter_secure_storage_windows` is explicitly rejected for DEK storage because its current decrypt/parse error path deletes the encrypted storage file.
+- base `main`: **`d9a845886da8002dcf654716083a2abe61a361f2`**;
+- branch: **`feat/encrypted-vault-foundation`**;
+- governing contracts: `docs/security-vault.md` + `docs/security-vault-dependency-review.md`;
+- Dart floor: >=3.13;
+- approved exact direct dependencies: `sodium 4.1.0+1`, `flutter_secure_storage 11.2.0`, `win32 6.4.0`;
+- implementation targets: app-owned `VaultCrypto`, versioned authenticated envelope primitives, explicit Argon2id recovery derivation, `VaultDeviceKeyStore` abstraction, hardened Android/Apple adapter, non-destructive Windows DPAPI adapter;
+- security tests: corrupt/AAD/wrong-key fail closed, explicit KDF parameters, platform option invariants, Windows non-destructive error/rollback behavior;
+- functional code head **`0631b7eff997785482cf5fae1351261fcec7e020`** passed **Flutter checks and START run #256 — success**;
+- platform verification head **`57749cc10ee7bfea262edbe312f83f3e702d63c9`** passed **Vault foundation platform compile run #2**: Windows/macOS/Android/iOS release builds success + real Windows DPAPI smoke success;
+- same helper-only head passed **Flutter checks and START run #257 — success**;
+- macOS Data Protection Keychain runtime/provisioning remains an explicit gate before user-facing vault unlock; compile success is not treated as runtime proof;
+- no Planner/portfolio migration, legacy plaintext deletion, private-data UI, backup UX or “encrypted” product claim in this slice.
 
 ### Поточна наступна дія
 
-**NEXT — encrypted vault foundation implementation: raise Dart floor to >=3.13, add exact approved dependencies/lockfile, implement app-owned `VaultCrypto` + platform `VaultDeviceKeyStore` adapters and focused security regression tests. No portfolio migration, legacy deletion or private-data UI in this slice.**
+**VERIFIED — functional tests and four-platform compile gate are green. Record verification, remove the temporary platform helper, run exact latest-head CI, then mark PR #79 Ready and integrate if green. No portfolio migration/UI in this slice.**
 
 ## Черга робіт
 
