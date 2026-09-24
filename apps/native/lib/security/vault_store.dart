@@ -144,6 +144,7 @@ class LocalVaultStore {
 
     final dek = crypto.generateDek();
     var deviceKeyStored = false;
+    var fileCommitted = false;
     try {
       VaultRecoverySlotV1? recoverySlot;
       if (recoverySecret != null) {
@@ -170,6 +171,7 @@ class LocalVaultStore {
       await _storeDeviceDek(vaultId, dek);
       deviceKeyStored = true;
       await _commitVaultFile(vaultFile, dek);
+      fileCommitted = true;
       await deviceKeyStore.storeHighestAcceptedRevision(
         vaultId: vaultId,
         revision: 1,
@@ -181,7 +183,7 @@ class LocalVaultStore {
         recoveryEnabled: recoverySlot != null,
       );
     } catch (_) {
-      if (deviceKeyStored) {
+      if (deviceKeyStored && !fileCommitted) {
         await deviceKeyStore.deleteDek(vaultId: vaultId);
       }
       rethrow;
@@ -200,6 +202,7 @@ class LocalVaultStore {
     try {
       final vaultFile = await _readValidatedCurrent(vaultId, dek);
       await _acceptRevision(vaultFile);
+      await _cleanupArtifacts(vaultId);
       final plainText = crypto.decrypt(
         envelope: vaultFile.payload,
         dek: dek,
@@ -228,6 +231,7 @@ class LocalVaultStore {
     try {
       final current = await _readValidatedCurrent(vaultId, dek);
       await _assertNotRollback(current);
+      await _cleanupArtifacts(vaultId);
       final nextRevision = current.revision + 1;
       final next = VaultFileV1(
         vaultId: vaultId,
@@ -269,6 +273,7 @@ class LocalVaultStore {
     try {
       final current = await _readValidatedCurrent(vaultId, dek);
       await _assertNotRollback(current);
+      await _cleanupArtifacts(vaultId);
       if (current.recoverySlot == null) {
         throw StateError('vault.recovery_not_configured');
       }
@@ -396,12 +401,14 @@ class LocalVaultStore {
     _validateFileIdentity(vaultFile, vaultId);
     crypto.decrypt(envelope: vaultFile.payload, dek: dek);
 
-    // Only discard stale recovery artifacts after the active file validates.
+    return vaultFile;
+  }
+
+  Future<void> _cleanupArtifacts(String vaultId) async {
     final pending = _pending(vaultId);
     final backup = _backup(vaultId);
     if (await pending.exists()) await pending.delete();
     if (await backup.exists()) await backup.delete();
-    return vaultFile;
   }
 
   Future<VaultFileV1> _readVaultFile(File file) async {
