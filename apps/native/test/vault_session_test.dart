@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ovdp_hub/security/vault_crypto.dart';
 import 'package:ovdp_hub/security/vault_session.dart';
 import 'package:ovdp_hub/security/vault_store.dart';
 
-class FakeVaultContentStore implements VaultContentStore {
+class FakeVaultContentStore implements VaultLifecycleStore {
   VaultOpenResult openResult = VaultOpenResult(
     vaultId: 'vault-1',
     revision: 1,
@@ -21,6 +22,8 @@ class FakeVaultContentStore implements VaultContentStore {
   Completer<VaultOpenResult>? openCompleter;
   Object? openError;
   Object? saveError;
+  Object? lifecycleError;
+  final List<String> lifecycleCalls = [];
 
   @override
   Future<VaultOpenResult> open({required String vaultId}) async {
@@ -37,6 +40,55 @@ class FakeVaultContentStore implements VaultContentStore {
   }) async {
     if (saveError case final error?) throw error;
     return saveResult;
+  }
+
+  @override
+  Future<VaultLifecycleResult> enableRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    required VaultRecoveryKdfParameters recoveryParameters,
+  }) async {
+    if (lifecycleError case final error?) throw error;
+    lifecycleCalls.add('enable:$vaultId');
+    return VaultLifecycleResult(
+      vaultId: vaultId,
+      revision: 2,
+      recoveryEnabled: true,
+    );
+  }
+
+  @override
+  Future<VaultLifecycleResult> rotateRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    required VaultRecoveryKdfParameters recoveryParameters,
+  }) async {
+    if (lifecycleError case final error?) throw error;
+    lifecycleCalls.add('rotate:$vaultId');
+    return VaultLifecycleResult(
+      vaultId: vaultId,
+      revision: 2,
+      recoveryEnabled: true,
+    );
+  }
+
+  @override
+  Future<VaultLifecycleResult> removeRecovery({
+    required String vaultId,
+  }) async {
+    if (lifecycleError case final error?) throw error;
+    lifecycleCalls.add('remove:$vaultId');
+    return VaultLifecycleResult(
+      vaultId: vaultId,
+      revision: 2,
+      recoveryEnabled: false,
+    );
+  }
+
+  @override
+  Future<void> deleteLocalVault({required String vaultId}) async {
+    if (lifecycleError case final error?) throw error;
+    lifecycleCalls.add('delete:$vaultId');
   }
 }
 
@@ -281,6 +333,51 @@ void main() {
 
     controller.clearError();
     expect(controller.state.phase, VaultSessionPhase.locked);
+  });
+
+  test('lifecycle mutation requires unlocked matching session and locks first', () async {
+    final store = FakeVaultContentStore();
+    final scheduler = FakeSessionScheduler();
+    final controller = controllerFor(store, scheduler);
+    addTearDown(controller.dispose);
+
+    await expectLater(
+      controller.enableRecovery(
+        vaultId: 'vault-1',
+        recoverySecret: 'new recovery secret',
+        recoveryParameters: VaultRecoveryKdfParameters.interactive,
+      ),
+      throwsStateError,
+    );
+
+    await controller.unlock(vaultId: 'vault-1');
+    expect(controller.state.phase, VaultSessionPhase.unlocked);
+
+    await controller.enableRecovery(
+      vaultId: 'vault-1',
+      recoverySecret: 'new recovery secret',
+      recoveryParameters: VaultRecoveryKdfParameters.interactive,
+    );
+
+    expect(controller.state.phase, VaultSessionPhase.locked);
+    expect(store.lifecycleCalls, ['enable:vault-1']);
+    expect(() => controller.readPlainTextCopy(), throwsStateError);
+  });
+
+  test('lifecycle failure remains plaintext-free in error state', () async {
+    final store = FakeVaultContentStore();
+    final scheduler = FakeSessionScheduler();
+    final controller = controllerFor(store, scheduler);
+    addTearDown(controller.dispose);
+
+    await controller.unlock(vaultId: 'vault-1');
+    store.lifecycleError = StateError('vault.test_delete_failure');
+
+    await controller.deleteLocalVault(vaultId: 'vault-1');
+
+    expect(controller.state.phase, VaultSessionPhase.error);
+    expect(controller.state.errorCode, 'vault.test_delete_failure');
+    expect(() => controller.readPlainTextCopy(), throwsStateError);
   });
 
   test('foreground also enforces elapsed inactivity if timers were suspended', () async {
