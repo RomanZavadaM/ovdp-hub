@@ -2,17 +2,24 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · [🇫🇷 Français](README.fr.md) · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · **🇯🇵 日本語**
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.0) (0.9.0+17)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.1) (0.9.1+18)**
 >
-> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/OVDP-Hub-0.9.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.0/SHA256SUMS.txt)
+> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/OVDP-Hub-0.9.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.1/SHA256SUMS.txt)
 
 ---
+
+### v0.9.1 チェックポイント
+
+**v0.9.1+18** には 0.9.0 以降のライトダッシュボード、Planner の最低残高、決定的 CSV/ICS エクスポートに加え、検証済みの内部 encrypted-vault/private-portfolio 基盤が含まれます。認証付きローカル Vault、recovery/backup、rollback/session lifecycle、事実ベースの private portfolio schema、明示的な disposal lot allocation、非破壊 legacy migration core を含みます。
+
+**プライバシー境界:** ユーザー向け vault/migration/portfolio フローはまだ接続されていません。既存 legacy `sets/*.json` は更新するだけでは **自動的に暗号化されません**。Migration core に delete API はなく、保存済みの選択を factual holdings に変換しません。次は Android SAF / iOS security-scoped の外部フォルダーアクセスで、ユーザー向け vault/migration UX は別 gate です。
+
 
 ### 概要
 
 **OVDP Hub** は、ウクライナ国債（OVDP）、市場データの情報源、個人向け投資シナリオを確認するためのインストール型 Flutter/Dart アプリです。対象プラットフォームは **Windows、macOS、Android、iOS** です。Web/PWA は現在の製品範囲には含まれません。
 
-アクティブなコードは `apps/native` です。現在公開済みのチェックポイントは **0.9.0「市場」** です。その後 `main` に「ライトダッシュボード」、Planner の最低残高、決定的なローカル CSV/ICS エクスポートを統合しました。次は **暗号化コードの実装前に encrypted vault の threat model をレビュー・承認**します。
+アクティブなコードは `apps/native` です。現在のチェックポイントは **0.9.1+18** です。0.9.0 以降の UI/Planner/export と、検証済みの内部 vault/private-domain/migration 基盤を含みます。ユーザー向け vault/migration/portfolio 接続はまだ別段階です。
 
 ### 現在利用できる機能
 
@@ -52,7 +59,7 @@
 8. **DONE** — v0.9.0 prerelease checkpoint;
 9. **DONE** — reserve floor / 最低残高;
 10. **DONE** — 決定的なローカル CSV/ICS エクスポート。PDF は延期;
-11. **NEXT** — 暗号化実装前に encrypted-vault threat model をレビュー・承認.
+11. **DONE** — encrypted-vault/private-domain/非破壊 migration 基盤; 12. **DONE** — v0.9.1+18 チェックポイント; 13. **NEXT** — Android SAF / iOS security-scoped 外部フォルダーアクセス; ユーザー向け vault/migration UX は別 gate.
 
 OVDP Hub は実際の売買を実行せず、販売者の在庫を確認しません。
 
@@ -60,7 +67,7 @@ OVDP Hub は実際の売買を実行せず、販売者の在庫を確認しま�
 
 カタログとシナリオはユーザー端末に保存されます。デスクトップではワークスペースフォルダーを開く、またはコピーできます。OVDP Hub は個人ポートフォリオデータ用の中央サーバーを運用しません。
 
-現在の JSON ワークスペースは **暗号化されていない**ため、署名鍵、KYC 文書、秘密情報の保存には使用しないでください。暗号化 vault と platform secure storage は別の将来段階として計画されています。
+現在のユーザー向け選択フローで使う legacy workspace JSON は、将来の明示的な vault/migration フローが接続され正常に実行されるまで **平文** のままです。v0.9.1 には検証済み encrypted-vault/private-payload/migration 基盤がありますが、既存の `sets/*.json` を自動で書き換えたり削除したりしません。Legacy workspace に署名鍵、KYC 文書、その他の秘密情報を保存しないでください。
 
 ### クイックテスト
 
