@@ -64,7 +64,7 @@ void main() {
     expect(csvA.startsWith('\uFEFFrecord_type,id,date'), true);
     expect(csvA, contains('need_rule,reserve-floor,2027-01-01'));
     expect(csvA, contains(',reserveFloor,UAH,5000,'));
-    expect(csvA, contains('receipt,receipt:${bond.isin}:coupon:2027-03-01,2027-03-03,2027-03-01'));
+    expect(csvA, contains('receipt,receipt:${bond.isin}:COUPON:2027-03-01,2027-03-03,2027-03-01'));
     expect(csvA, contains('receipt,receipt:${bond.isin}:sale:2027-05-01,2027-05-03,2027-05-01'));
     expect(csvA, isNot(contains('2027-09-23,2027-09-23')));
 
