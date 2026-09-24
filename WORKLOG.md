@@ -25,26 +25,25 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **VERIFIED**
 
-Мета: **encrypted vault threat-model review / design approval before any crypto or secure-storage plugin implementation**.
+Мета: **encrypted vault dependency/security review — choose the implementation stack without adding dependencies or feature code yet**.
 
-- base `main`: **`0044ac58fcd0b1e61a3c5818225d4581c4aad765`**;
-- branch: **`docs/encrypted-vault-threat-model-review`**;
-- PR: **#75** `Security: approve encrypted vault threat model`;
-- design head: **`bc759e649b7b7ba846a98ae36832b40d6be89369`**;
-- PR #75 head `67ac8a6eb4b20adb7dbea200160d9f2d37d6eea7` passed **run #235 — success**;
-- exact latest PR head `13b628e7dd9604f3f1924d744dd8455d0b18ff91` passed **Flutter checks and START run #236 — success**;
-- squash merge `main`: **`8403bec33ec911a0f7c6a7a766fd585828f3a207`**;
-- implementation gate: **docs/design only — no crypto or secure-storage dependency changes in this slice**;
-- review targets: private-data boundary, vault file/envelope versioning, authenticated-encryption requirements, key ownership/wrapping, recovery/backup, lock/auto-lock/deletion UX, rollback/corruption behavior, Windows/macOS/iOS/Android secure-storage matrix;
-- acceptance: `docs/security-vault.md` is explicit enough to serve as a security contract; unresolved choices are marked as dependency-review gates rather than silently assumed;
-- stale duplicate export PR #71 is closed without merge; merged PR #73 remains the only export code source;
-- published checkpoint remains immutable **v0.9.0 / 0.9.0+17**.
+- base `main`: **`f79c4440017689065c1de17e2659f1744c5a9418`**;
+- branch: **`docs/vault-dependency-security-review`**;
+- governing contract: **`docs/security-vault.md`** from merged PR #75;
+- candidates to review: AEAD + Argon2id/KDF implementation, secure storage/key wrapping on Windows/macOS/iOS/Android, external-file access adapters where relevant;
+- required evidence: current release/maintenance, license, platform implementation semantics, known advisory posture, threat-model mapping, testability;
+- no `pubspec.yaml` change and no vault feature implementation in this slice;
+- output: one documented stack decision with accepted/rejected alternatives, platform adapter matrix, dependency pinning policy and implementation test gates;
+- reviewed head `b6efabd65049cd231455e48d0e26c01c0e890154` passed **Flutter checks and START run #238 — success**;
+- review document: **`docs/security-vault-dependency-review.md`**;
+- proposed stack: **`sodium 4.1.0+1` / libsodium 1.0.22 + `flutter_secure_storage 11.2.0` on Android/Apple + app-owned Windows DPAPI adapter via `win32 6.4.0`**;
+- Windows generic `flutter_secure_storage_windows` is explicitly rejected for DEK storage because its current decrypt/parse error path deletes the encrypted storage file.
 
 ### Поточна наступна дія
 
-**NEXT — encrypted vault dependency/security review: evaluate current AEAD/KDF libraries and Windows/macOS/iOS/Android secure-storage adapters against `docs/security-vault.md`, document maintenance/license/advisory/platform semantics and choose the implementation stack. No feature implementation or dependency addition before that review is merged.**
+**VERIFIED — reviewed head passed run #238. Run exact latest-head CI after this approval/WORKLOG-only checkpoint; if green, mark PR #77 Ready and integrate into `main`. No dependency or feature code before merge.**
 
 ## Черга робіт
 
@@ -63,7 +62,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
 14. **DONE** — deterministic local CSV + ICS Planner exports; PR #73 → merge `3e8e7fbc…`; branch runs #229/#231 and main run #232 green.
 15. **DONE** — Encrypted vault threat-model review/approval; PR #75 → merge `8403bec3…`; final exact-head run #236 green.
-16. **NEXT** — Encrypted vault dependency/security review and implementation-stack decision.
+16. **VERIFIED** — Encrypted vault dependency/security review and implementation-stack decision; run #238 green, awaiting exact latest-head verification.
 
 ## Продуктова логіка цієї черги
 
