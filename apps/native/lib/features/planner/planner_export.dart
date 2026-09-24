@@ -301,13 +301,15 @@ String _stableHash(String value) {
 String _foldIcsLine(String line) {
   final result = StringBuffer();
   var lineBytes = 0;
+  var continuation = false;
   for (final rune in line.runes) {
     final text = String.fromCharCode(rune);
     final runeBytes = utf8.encode(text).length;
-    final limit = lineBytes == 0 ? 75 : 74;
+    final limit = continuation ? 74 : 75;
     if (lineBytes > 0 && lineBytes + runeBytes > limit) {
       result.write('\r\n ');
       lineBytes = 0;
+      continuation = true;
     }
     result.write(text);
     lineBytes += runeBytes;
