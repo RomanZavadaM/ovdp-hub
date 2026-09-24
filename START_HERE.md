@@ -122,5 +122,6 @@ Slice не є `DONE`, доки:
 - Інтегровано після v0.9.0: **додатковий дизайн «Світла панель»**, Classic та «Робочий кабінет» збережені
 - Інтегровано після v0.9.0 також: **Planner reserve-floor / мінімальний залишок**
 - Інтегровано після v0.9.0 також: **deterministic local Planner CSV + ICS exports**; PDF лишається deferred
-- Наступний активний slice: **Encrypted vault threat-model review/approval перед будь-яким crypto-кодом**
+- Інтегровано після v0.9.0 також: **approved encrypted-vault threat model** — private-data boundary, key/recovery/rollback/lock/platform contract; crypto/plugin implementation ще не починалась
+- Наступний активний slice: **Encrypted vault dependency/security review — перевірити AEAD/KDF + secure-storage/platform adapter candidates проти `docs/security-vault.md`; feature implementation до завершення review не починати**
 - Live ledger: GitHub Issue **#18**
