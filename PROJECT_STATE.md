@@ -377,17 +377,39 @@ Lifecycle contract: `docs/security-vault-local-store.md`.
 
 **Legacy `sets/*.json` migration/deletion та private-data UI ще не реалізовані.**
 
+## Encrypted vault — session/locking foundation integrated
+
+Replacement PR **#84 — Vault: add session locking state machine** squash-merged у `main` як **`51fb92862f3afae71915fa6bc6cce97204ad7037`**. PR #83 закрито без merge через завислий GitHub Actions concurrency run і не є джерелом коду.
+
+Інтегровано:
+- app-owned states: locked / unlocking / unlocked / locking / error;
+- explicit unlock через `VaultContentStore` та manual lock;
+- injected inactivity timeout і background grace без прихованих product defaults;
+- elapsed wall-clock foreground enforcement на випадок OS timer suspension;
+- generation-token invalidation для stale async unlock/save completion;
+- session-owned plaintext copy очищується при lock/error/dispose; guaranteed heap zeroization не обіцяється;
+- окремо знайдено й закрито pending-unlock/background race: background grace застосовується також під час `unlocking`, а stale completion не може повторно відкрити session;
+- deterministic session regressions + contract `docs/security-vault-session.md`.
+
+Verification:
+- pre-hardening run #279 — success;
+- hardened exact head `0a69362b…` — run #285 success;
+- final latest PR head `5c6e8e3c…` — run #286 success;
+- post-merge `main` run **#287 — success**.
+
+**No legacy plaintext migration, private portfolio schema or user-facing vault UI was added.**
+
 ## Наступний етап
 
-**Encrypted vault session / locking foundation**:
+**Encrypted vault lifecycle controls**:
 
-1. додати app-owned session state machine: locked / unlocking / unlocked / locking / error;
-2. manual lock і explicit unlock через local vault store;
-3. inactivity auto-lock policy з duration як injected policy, без прихованого hardcoded UX default;
-4. background/suspend grace policy та повторний unlock перед private rendering;
-5. при lock мінімізувати lifetime decrypted state і прибирати всі app-held plaintext references; не обіцяти guaranteed heap zeroization;
-6. tests для manual/inactivity/background/error transitions;
-7. **не** мігрувати legacy plaintext і не будувати фактичний portfolio UI в цьому slice.
+1. add/enable recovery slot for an existing local vault without re-encrypting private payload with a new DEK;
+2. rotate recovery secret/slot atomically and verify the new slot before replacing the old one;
+3. remove recovery slot explicitly while preserving the device-key-openable vault and making portable backup unavailable until recovery is re-enabled;
+4. implement local vault deletion semantics: active encrypted file + app-owned pending/backup artifacts + device key/revision metadata, but never external backups;
+5. define clear failure semantics so partial recovery/delete operations do not silently destroy the last usable local state;
+6. add deterministic regression tests for enable/rotate/remove/delete;
+7. **do not** migrate legacy `sets/*.json`, add holdings/private schema, or expose vault UI in this slice.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.

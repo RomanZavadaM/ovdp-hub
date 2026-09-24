@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **encrypted vault session/locking foundation — explicit state + manual/inactivity/background lock semantics**.
 
@@ -44,11 +44,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - security review then found a pending-unlock/background race not covered by the first suite; fix + regression tests added on top of that verified head;
 - replacement PR **#84** supersedes closed-without-merge PR #83 after a stuck Actions concurrency run;
 - exact hardened head **`0a69362b3fb954719c665bc73771e82569006a3d`** passed **Flutter checks and START run #285 — success**, including the new pending-unlock background/foreground regression tests;
+- final replacement PR #84 head **`5c6e8e3c4a852b09db5e9fd4f3fbdb3512b03632`** passed **run #286 — success**;
+- squash merge `main`: **`51fb92862f3afae71915fa6bc6cce97204ad7037`**;
+- post-merge `main` **run #287 — success**;
 - no legacy migration, private portfolio schema or user-facing vault UI.
 
 ### Поточна наступна дія
 
-**VERIFIED — hardened session/locking head passed run #285. Run one final exact-latest-head CI after this WORKLOG-only status commit; if green, mark replacement PR #84 Ready and integrate into `main`.**
+**NEXT — encrypted vault lifecycle controls: enable/rotate/remove recovery slot plus local vault delete semantics with non-destructive failure tests. No legacy migration/private portfolio UI in this slice.**
 
 ## Черга робіт
 
@@ -70,7 +73,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 16. **DONE** — Encrypted vault dependency/security review and implementation-stack decision; PR #77 → merge `3e4171e7…`; final exact-head run #239 green.
 17. **DONE** — Encrypted vault foundation; PR #79 → merge `d61a1245…`; final exact-head run #260 and post-merge run #261 green.
 18. **DONE** — Encrypted vault local store/lifecycle; PR #81 → merge `16cd6f33…`; final run #274 and post-merge run #275 green.
-19. **VERIFIED** — Encrypted vault session/locking foundation; hardened exact head passed run #285, awaiting final WORKLOG-only latest-head gate.
+19. **DONE** — Encrypted vault session/locking foundation; replacement PR #84 → merge `51fb9286…`; hardened run #285, final run #286 and post-merge run #287 green.
+20. **NEXT** — Encrypted vault lifecycle controls: recovery enable/rotate/remove + local delete semantics.
 
 ## Продуктова логіка цієї черги
 
@@ -97,6 +101,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — encrypted vault session/locking foundation**: replacement PR #84 final head `5c6e8e3c…` passed run #286 and was squash-merged into `main` as `51fb92862f3afae71915fa6bc6cce97204ad7037`; post-merge run #287 green. Manual/inactivity/background locking, generation guards, plaintext-buffer disposal and pending-unlock/background race coverage are integrated. PR #83 closed without merge.
 
 - **DONE — encrypted vault local store/lifecycle**: PR #81 final head `d6abeb86…` passed run #274 and was squash-merged into `main` as `16cd6f33496104d630a8bf05582dcf8514c4f1b1`; post-merge run #275 green. Recovery slot binding, encrypted local file, atomic known-good recovery, rollback detection and portable encrypted backup/restore are integrated; no legacy migration/private UI.
 
