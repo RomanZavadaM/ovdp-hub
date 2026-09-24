@@ -27,10 +27,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 Статус: **DOING**
 
-Мета: **user-visible 0.9.2 direction — «Мій портфель» + постійний «Економічний пульс»**.
+Мета: **v0.9.2+19 full user-visible checkpoint — «Мій портфель» + постійний «Економічний пульс» + real packaged-artifact release gate**.
 
 - base `main`: **`1ce61b46e9e8673c6b8f81511e7b0c139fc61760`**;
 - branch: **`feat/portfolio-economic-pulse`**;
+- PR: **#99 — 0.9.2: user-facing portfolio and economic pulse**;
+- candidate version/build: **0.9.2+19**;
+- release notes: **`docs/releases/RELEASE_NOTES_v0_9_2.md`**;
+- real bug caught by hardened regression: `NavigationCubit` accepted only indices 0..5, so visible «Мій портфель» destination (index 6) did not open; fixed and locked by regression test;
 - пріоритет власника: кожен наступний цикл має давати помітний користувацький результат, а не серію лише внутрішніх infrastructure slices;
 - перший slice: додати постійний market/economy pulse з офіційним provenance та окрему навігаційну точку «Мій портфель», не створюючи паралельного plaintext-сховища;
 - vault/private-portfolio core лишається єдиною основою для фактичного портфеля;
@@ -47,7 +51,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — finish PR #99 with green source/widget tests plus packaged Windows/macOS artifact smoke; then integrate the user-visible «Економічний пульс» + first encrypted «Мій портфель» entrypoint.**
+**DOING — freeze PR #99 at the final candidate head, require green Flutter tests + exact packaged Windows/macOS ZIP smoke, then merge and publish immutable v0.9.2 cross-platform prerelease.**
 
 ## Черга робіт
 
