@@ -25,31 +25,27 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **private portfolio / encrypted payload foundation — factual domain schema before migration or UI**.
+Мета: **private portfolio factual sale/disposal foundation — explicit lot allocation and realized factual economics**.
 
-- base `main`: **`ee48b98485717f06d8ae81b9440912ab029004e3`**;
-- branch: **`feat/private-portfolio-payload`**;
-- private payload schema v1 is independent from the outer vault envelope;
-- acquisition lots are factual source records with stable id, ISIN, units, acquisition date, currency, factual whole-lot trade amount, explicit factual fee state and optional private broker/account label;
-- factual coupon/redemption events use stable IDs and factual date/amount/currency; redemption also records units;
-- holdings are derived only: acquisitions minus represented redemptions; no second mutable holdings list;
-- deterministic ordering + fixed-key JSON/UTF-8 codec; public market/reference data remains outside private payload;
-- schema contract: **`docs/private-portfolio-payload.md`**;
-- functional head **`db291909ae17e4c87c346c9d3245c5534c0f879b`** passed run #307;
-- schema/docs head **`8396eb5db7e1336beb49c1c888206505632c89cc`** passed run #309;
-- final branch head **`af6153b0b559da8b184ebd843a3aea29221335bf`** passed run #310;
-- PR #88 was closed without merge only because its draft state could not be changed through the available permission path;
-- replacement PR **#89** on the same exact head passed **Flutter checks and START run #311 — success**;
-- squash merge `main`: **`a516310f71c6414018d3f398c42ba88f553f5244`**;
-- post-merge `main` **run #312 — success**, including START/source artifact;
-- no factual sale/disposal records yet; therefore derived holdings are not yet a complete real-world portfolio;
+- base `main`: **`e0b45041cd090c7be8829b27611e8a4032c27aab`**;
+- branch: **`feat/private-portfolio-disposals`**;
+- payload source: replacement PR #89 / `a516310f71c6414018d3f398c42ba88f553f5244`;
+- extend payload to schema v2 while preserving schema-v1 decode compatibility;
+- factual disposal record: stable id, ISIN, date, disposed units, currency, factual whole-disposal proceeds, explicit known/unknown fee state and optional note;
+- each disposal contains explicit acquisition-lot allocations; **no automatic FIFO/LIFO** and no invented cost basis;
+- allocation sum must equal disposal units; referenced lot must exist, match ISIN, predate/same-date disposal and not be over-allocated across disposals;
+- holdings become acquisitions minus represented redemptions minus represented disposals;
+- conservative fail-closed rule: disposal cannot occur on/after an already-recorded redemption for the same ISIN until redemption-to-lot allocation exists;
+- realized acquisition trade cost/known fee cost derives only from explicit lot allocations;
+- unknown acquisition or disposal fee remains unknown, never silently zero;
+- deterministic v2 codec + encrypted LocalVaultStore round-trip regressions;
 - no legacy `sets/*.json` migration/import/delete and no user-facing portfolio UI.
 
 ### Поточна наступна дія
 
-**NEXT — private portfolio factual sale/disposal foundation: stable disposal facts + deterministic allocation to acquisition lots + realized cost basis/proceeds with explicit unknown-fee semantics. Extend schema compatibly; no legacy migration or user-facing portfolio UI in this slice.**
+**DOING — implement schema-v2 disposal/allocation records and semantic validation first, then realized factual derivations and v1→v2 compatibility tests.**
 
 ## Черга робіт
 
@@ -74,7 +70,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 19. **DONE** — Encrypted vault session/locking foundation; replacement PR #84 → merge `51fb9286…`; hardened run #285, final run #286 and post-merge run #287 green.
 20. **DONE** — Encrypted vault lifecycle controls; PR #86 → merge `3dc1f53d…`; final run #301 and post-merge run #302 green.
 21. **DONE** — Private portfolio/encrypted payload foundation; replacement PR #89 → merge `a516310f…`; final replacement run #311 and post-merge run #312 green.
-22. **NEXT** — Private portfolio factual sale/disposal + lot-allocation / realized-cost foundation.
+22. **DOING** — Private portfolio factual sale/disposal + lot-allocation / realized-cost foundation.
 
 ## Продуктова логіка цієї черги
 
