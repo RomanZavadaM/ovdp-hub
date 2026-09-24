@@ -25,40 +25,37 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **A/B/C scenario comparison → strict comparability → explanatory metrics → recurring-needs support → 7-language UI → regression coverage**.
+Мета: **generated Planner copy / preset labels localization + UX regression**.
 
-- PR: **#58** `Planner: strict A/B/C scenario comparison v2`;
-- final head: `66b4382d27b5d0da30df746181cda6ea9283681c`;
-- final latest-head verify: **Flutter checks and START run #183 — success**;
-- regression result: **108/108 tests passed**;
-- squash merge у `main`: `25123ceb049534c67b9d284ee0f79e5cc8694e28`;
-- old draft PR #53: **closed without merge**;
-- completed:
-  - neutral A/B/C labels follow user selection order;
-  - exactly 2–3 saved scenarios;
-  - no automatic winner/best/worst;
-  - strict baseline comparability;
-  - explanatory strategy/composition/price/fee/tax/FX/exit/profit/coverage metrics;
-  - typed recurring needs supported when schedules match;
-  - reserve-floor needs fail closed explicitly;
-  - stale comparison errors clear after recovery;
-  - phone widget flow and all seven interface languages covered.
+- base `main`: `02284169c069de0bb11a2c3eb628ff1956f8059f`;
+- branch: **`feat/planner-generated-copy-localization`**;
+- PR: ще не відкрито;
+- published checkpoint remains: **v0.8.8 / 0.8.8+16**;
+- audit confirmed hard-coded generated copy in Planner domain/state:
+  - default plan name `Мій план`;
+  - primary need `Основна потреба`;
+  - generated `Витрата N`;
+  - aggregate purchase-fee rule label;
+  - tax preset labels;
+  - generated saved-scenario description.
+
+### Критерії готовності
+
+1. persisted strategy/enum/source IDs remain stable and never localized;
+2. generated display copy resolves through `HubStrings` for UK/EN/FR/DE/ES/KO/JA;
+3. user-authored plan/need/expense names remain literal and unchanged across language switching;
+4. new generated scenario description is language-neutral in storage and localized only at display time;
+5. old saved scenarios remain readable;
+6. Planner → save → Collections → A/B/C → reopen works after language switching;
+7. narrow and desktop layouts do not overflow and remain scrollable;
+8. `flutter pub get --enforce-lockfile`, `flutter analyze`, `flutter test` and latest-head CI are green;
+9. PR integrated into `main`, then canonical docs/ledger synchronized.
 
 ### Поточна наступна дія
 
-**NEXT — generated Planner copy / preset labels localization + UX regression.**
-
-Audit-first:
-1. find every generated Planner string, strategy/preset label and user-facing fallback that still bypasses `HubStrings`;
-2. separate persisted stable identifiers from display labels — never localize stored enum/ID values;
-3. localize generated copy for UK/EN/FR/DE/ES/KO/JA;
-4. verify saved scenarios remain language-neutral and reopen correctly after language switching;
-5. review Planner → save → Collections → A/B/C → reopen flow on narrow and desktop layouts;
-6. add regression tests for generated copy, preset labels, language switch and overflow/scroll behavior;
-7. green latest-head verify → integrate PR into `main`;
-8. then assess formal 0.9.0 prerelease readiness.
+**DOING — replace generated persisted display text with stable generated-copy identifiers, add UI resolvers/localized strings, then regression tests.**
 
 ## Черга робіт
 
