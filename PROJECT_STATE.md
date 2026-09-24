@@ -4,16 +4,36 @@
 
 ## Поточний checkpoint
 
-- Активна версія: **0.9.0+17**
-- Опублікований GitHub tag: **v0.9.0**
+- Release candidate: **0.9.2+19**
+- GitHub tag після успішного release workflow: **v0.9.2**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
 - Основна гілка: `main`
 - Статус продукту: **test / prerelease**
-- Release commit: **21698ae34f9438f7c5ab49724e47dc13014b7daa**
-- Release workflow: **Publish native prerelease run #45 — success**
-- GitHub Release: **v0.9.0**, опублікований 24.09.2026
+- Активний release PR: **#99 — user-facing portfolio and economic pulse**
+- База попереднього immutable release: **v0.9.1 / 0.9.1+18**, tag → `bf9b358b73ce84ea333a09978a4607c0505d30fb`
+
+### Що входить у 0.9.2
+
+- постійний **«Економічний пульс»** у shell: NBU USD/UAH, EUR/UAH, остання UAH OVDP auction yield та найближчий MinFin auction із source/date;
+- **«Мій портфель»** як окремий user-facing розділ у Classic / «Робочому кабінеті» / «Світлій панелі»;
+- перший encrypted factual portfolio flow: create/open/lock, factual acquisition, derived holdings;
+- portfolio використовує existing encrypted vault/private payload schema; паралельного plaintext portfolio store немає;
+- inactivity/background lock синхронізований із user-facing portfolio state;
+- version/build у UI походить з build metadata;
+- appearance regression реально перемикає всі 3 дизайни;
+- Windows/macOS release gate перевіряє **exact packaged ZIP**: extract → launch packaged executable → verify product/version/build + `classic/studio/dashboard`;
+- правила exact-artifact release verification зафіксовані в `PROJECT_RULES.md`;
+- UI локалізовано UK/EN/FR/DE/ES/KO/JA.
+
+### Межі 0.9.2
+
+- legacy `sets/*.json` не шифруються автоматично;
+- explicit migration/cleanup wizard — наступний user-facing gate;
+- macOS portfolio unlock лишається обмеженим до Data Protection Keychain runtime/provisioning validation;
+- Android SAF / iOS security-scoped external-folder access відкладено до mobile storage slice;
+- production signing лишається deferred.
 
 ## Що входить до опублікованого 0.8.5
 
