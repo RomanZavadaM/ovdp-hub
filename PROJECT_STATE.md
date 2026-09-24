@@ -354,16 +354,40 @@ macOS Data Protection Keychain runtime/provisioning remains an explicit gate bef
 
 **No legacy plaintext migration, portfolio/private-data UI, backup UX or product claim that user data is encrypted was added in PR #79.**
 
+## Encrypted vault — local store/lifecycle integrated
+
+PR **#81 — Vault: add local encrypted store and recovery lifecycle** squash-merged у `main` як **`16cd6f33496104d630a8bf05582dcf8514c4f1b1`**.
+
+Інтегровано:
+- versioned recovery-wrapped DEK slot на Argon2id13 + XChaCha20-Poly1305;
+- recovery-slot presence/content прив'язано до payload AEAD AAD, тому strip/replace fail closed;
+- app-managed encrypted vault file create/open/save;
+- pending → flush → authenticated read-back → known-good replace;
+- restart recovery з незалежною автентифікацією backup;
+- highest-accepted revision / rollback detection;
+- portable encrypted backup + recovery restore на fresh device-key store;
+- regression coverage для wrong secret, corruption, rollback, interrupted replace, revision-state failure і slot tampering.
+
+Verification:
+- exact reviewed head `cd2651c2…` — run #273 success;
+- final exact latest head `d6abeb862…` — run #274 success;
+- post-merge `main` run **#275 — success**.
+
+Lifecycle contract: `docs/security-vault-local-store.md`.
+
+**Legacy `sets/*.json` migration/deletion та private-data UI ще не реалізовані.**
+
 ## Наступний етап
 
-**Encrypted vault local store / lifecycle**:
+**Encrypted vault session / locking foundation**:
 
-1. implement app-managed local encrypted vault file store around the approved envelope/crypto primitives;
-2. add a versioned recovery-wrapped DEK slot using the approved Argon2id13 parameters;
-3. enforce temp → flush → authenticated read-back → atomic replace with previous known-good encrypted copy preserved on failure;
-4. wire highest-accepted revision / rollback detection into the local store lifecycle;
-5. add explicit encrypted backup/restore primitives and corruption/interrupted-write tests;
-6. **do not** migrate `sets/*.json`, delete legacy plaintext, or expose private-data vault UI in this slice.
+1. додати app-owned session state machine: locked / unlocking / unlocked / locking / error;
+2. manual lock і explicit unlock через local vault store;
+3. inactivity auto-lock policy з duration як injected policy, без прихованого hardcoded UX default;
+4. background/suspend grace policy та повторний unlock перед private rendering;
+5. при lock мінімізувати lifetime decrypted state і прибирати всі app-held plaintext references; не обіцяти guaranteed heap zeroization;
+6. tests для manual/inactivity/background/error transitions;
+7. **не** мігрувати legacy plaintext і не будувати фактичний portfolio UI в цьому slice.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
