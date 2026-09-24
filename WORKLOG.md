@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **encrypted vault local store/lifecycle — recovery slot + atomic encrypted file + rollback/backup primitives**.
 
@@ -40,13 +40,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - add explicit encrypted backup and validated restore primitives;
 - tests: wrong recovery secret, corrupt slot/file, interrupted/failed replace preserves prior vault, lower revision fails closed, backup restore validates before replace;
 - functional/security head **`b5c90e0a82e6571ce224d833f631aebb911d3521`** passed **Flutter checks and START run #271 — success**;
+- exact latest functional/docs head **`cd2651c2d31221c3a9f64bbe9d5045b9a384cc7c`** passed **Flutter checks and START run #273 — success**;
 - lifecycle contract: **`docs/security-vault-local-store.md`**;
 - recovery-slot presence/content is bound into payload AEAD AAD, so strip/replace attempts fail closed;
 - no legacy `sets/*.json` migration/deletion, portfolio/private-data model or user-facing vault UI.
 
 ### Поточна наступна дія
 
-**DOING — functional/security code passed run #271. Run exact latest-head CI after the lifecycle-doc/WORKLOG checkpoint; if green, mark PR #81 VERIFIED/Ready and integrate. No legacy migration or private-data UI in this slice.**
+**VERIFIED — run #273 is green on the exact reviewed local-store head. Run one exact latest-head CI after this WORKLOG-only status commit; if green, mark PR #81 Ready and integrate into `main`. No legacy migration or private-data UI in this slice.**
 
 ## Черга робіт
 
@@ -67,7 +68,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 15. **DONE** — Encrypted vault threat-model review/approval; PR #75 → merge `8403bec3…`; final exact-head run #236 green.
 16. **DONE** — Encrypted vault dependency/security review and implementation-stack decision; PR #77 → merge `3e4171e7…`; final exact-head run #239 green.
 17. **DONE** — Encrypted vault foundation; PR #79 → merge `d61a1245…`; final exact-head run #260 and post-merge run #261 green.
-18. **DOING** — Encrypted vault local store/lifecycle: recovery slot + atomic file/backup/rollback primitives.
+18. **VERIFIED** — Encrypted vault local store/lifecycle; run #273 green, awaiting exact latest-head WORKLOG verification.
 
 ## Продуктова логіка цієї черги
 
