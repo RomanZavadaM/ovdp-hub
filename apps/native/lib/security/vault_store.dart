@@ -109,6 +109,7 @@ class VaultOpenResult {
 abstract interface class VaultContentStore {
   Future<VaultOpenResult> open({required String vaultId});
 
+  @override
   Future<VaultOpenResult> save({
     required String vaultId,
     required Uint8List plainText,
@@ -206,6 +207,7 @@ class LocalVaultStore implements VaultContentStore {
     }
   }
 
+  @override
   Future<VaultOpenResult> open({required String vaultId}) async {
     final rawDek = await deviceKeyStore.loadDek(vaultId: vaultId);
     if (rawDek == null) {
