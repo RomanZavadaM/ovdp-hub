@@ -447,17 +447,40 @@ Contract: `docs/private-portfolio-payload.md`.
 
 **Schema v1 deliberately does not yet model factual sale/disposal. Therefore its derived holdings must not be presented as a complete real-world portfolio until disposal records are added. Legacy `sets/*.json` migration/import/delete and portfolio UI remain absent.**
 
+## Private portfolio — factual disposals integrated
+
+Replacement PR **#92 — Portfolio: add factual disposals and lot allocation** squash-merged у `main` як **`d8de5c9f1d144c8f816a65877b86bcd79058b432`**. Draft PR #91 closed without merge and is not a code source.
+
+Integrated:
+- private payload schema v2 with schema-v1 decode compatibility;
+- factual sale/disposal records with stable id, ISIN, date, disposed units, factual whole-disposal proceeds/currency, explicit known/unknown fee state and optional note;
+- explicit acquisition-lot allocations per disposal; no automatic FIFO/LIFO and no invented cost basis;
+- allocation validation: sum equals disposed units, referenced lot exists/matches ISIN, acquisition is not after disposal, cumulative lot allocation cannot exceed acquired units;
+- holdings derive from acquisitions minus represented redemptions minus represented disposals;
+- conservative fail-closed rule for disposal on/after already-recorded redemption until redemption-to-lot allocation exists;
+- realized acquisition trade cost and known acquisition fees derive only from explicit allocations;
+- unknown acquisition/disposal fee remains unknown, never silently zero;
+- deterministic schema-v2 codec + encrypted LocalVaultStore round-trip regressions.
+
+Verification:
+- functional head `cabf0735…` — run #314 success;
+- final draft head `e9b26461…` — run #316 success;
+- replacement PR #92 exact head `c3e63967ee245a39a6e6ea044cf425aae66086dc` — run #317 success;
+- post-merge `main` run **#318 — success**.
+
+**No legacy `sets/*.json` migration/import/delete and no user-facing portfolio UI was added.**
+
 ## Наступний етап
 
-**Private portfolio factual sale/disposal foundation**:
+**Non-destructive legacy plaintext migration**:
 
-1. add stable factual sale/disposal records with ISIN, date, disposed units, factual proceeds/currency and explicit fee-known/unknown state;
-2. define deterministic allocation from each disposal to acquisition lots instead of inventing cost basis;
-3. preserve explicit lot-level provenance so realized acquisition cost can be derived from factual allocation;
-4. update derived holdings to acquisitions minus redemptions minus represented disposals, with chronological non-negative-unit validation;
-5. add realized cash/cost metrics only where required factual inputs are known; unknown fees must remain unknown, never zero;
-6. extend deterministic schema/codec and encrypted round-trip regressions without breaking existing schema-v1 data compatibility;
-7. **do not** migrate legacy `sets/*.json`, auto-import broker history or expose user-facing portfolio UI in this slice.
+1. inventory the existing legacy `sets/*.json` records and classify which fields are public references, user-authored notes/scenario data, or private facts;
+2. define an explicit migration mapping into the encrypted private payload; unsupported/ambiguous legacy fields must remain unmigrated and be reported, not guessed;
+3. migration flow: read legacy → map/copy into a new encrypted payload → validate/decode/open from vault → compare semantic record IDs/counts → only then mark migration complete;
+4. never overwrite or delete the legacy plaintext automatically; deletion is a separate explicit user action after successful verification;
+5. repeated/cancelled/crashed migration must be idempotent and must not duplicate private records;
+6. expose machine-readable migration status/report for later UI, but **do not** add user-facing portfolio claim/UI yet;
+7. keep public NBU/MinFin/seller reference data outside the private payload.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
