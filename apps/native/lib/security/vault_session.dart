@@ -223,11 +223,13 @@ class VaultSessionController extends ChangeNotifier {
   }) =>
       _runUnlockedLifecycle(
         vaultId: vaultId,
-        operation: () => store.enableRecovery(
-          vaultId: vaultId,
-          recoverySecret: recoverySecret,
-          recoveryParameters: recoveryParameters,
-        ),
+        operation: () async {
+          await store.enableRecovery(
+            vaultId: vaultId,
+            recoverySecret: recoverySecret,
+            recoveryParameters: recoveryParameters,
+          );
+        },
       );
 
   Future<void> rotateRecovery({
@@ -238,23 +240,29 @@ class VaultSessionController extends ChangeNotifier {
   }) =>
       _runUnlockedLifecycle(
         vaultId: vaultId,
-        operation: () => store.rotateRecovery(
-          vaultId: vaultId,
-          recoverySecret: recoverySecret,
-          recoveryParameters: recoveryParameters,
-        ),
+        operation: () async {
+          await store.rotateRecovery(
+            vaultId: vaultId,
+            recoverySecret: recoverySecret,
+            recoveryParameters: recoveryParameters,
+          );
+        },
       );
 
   Future<void> removeRecovery({required String vaultId}) =>
       _runUnlockedLifecycle(
         vaultId: vaultId,
-        operation: () => store.removeRecovery(vaultId: vaultId),
+        operation: () async {
+          await store.removeRecovery(vaultId: vaultId);
+        },
       );
 
   Future<void> deleteLocalVault({required String vaultId}) =>
       _runUnlockedLifecycle(
         vaultId: vaultId,
-        operation: () => store.deleteLocalVault(vaultId: vaultId),
+        operation: () async {
+          await store.deleteLocalVault(vaultId: vaultId);
+        },
       );
 
   void recordActivity() {
