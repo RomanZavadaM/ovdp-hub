@@ -1,6 +1,6 @@
 # WORKLOG — OVDP Hub
 
-Оновлено: **23.09.2026**
+Оновлено: **24.09.2026**
 
 Цей файл — оперативна точка відновлення активної розробки.
 
@@ -25,15 +25,17 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **generated Planner copy / preset labels localization + UX regression**.
 
 - base `main`: `02284169c069de0bb11a2c3eb628ff1956f8059f`;
 - branch: **`feat/planner-generated-copy-localization`**;
-- PR: **#61** `Planner: localize generated copy and preset labels` (draft);
+- PR: **#61** `Planner: localize generated copy and preset labels` — squash-merged;
+- merge `main`: `1e6849f78134d9654b0bf08b54ceebda4100ba4d`;
 - verified code head: `b832af8eba70526cd872893a9cf2edb25d407771`;
-- verify: **Flutter checks and START run #189 — success**;
+- code verify: **Flutter checks and START run #189 — success**;
+- final latest-head verify: **run #190 — success**;
 - regression result: **110/110 tests passed**;
 - published checkpoint remains: **v0.8.8 / 0.8.8+16**;
 - audit confirmed hard-coded generated copy in Planner domain/state:
@@ -58,7 +60,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**VERIFIED — code head passed run #189 (110/110). Record this checkpoint, verify the resulting WORKLOG-only latest head, then mark PR ready and integrate into `main`.**
+**NEXT — formal 0.9.0 prerelease readiness assessment of current `main`: compare implemented scope with roadmap, verify schema/backward compatibility, localization, legal/package metadata and release workflow; record concrete blockers or recommend the prerelease checkpoint.**
 
 ## Черга робіт
 
@@ -70,8 +72,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 6. **DONE** — A/B/C comparison — PR #58, final run #183, merge `25123ceb…`.
 7. **DONE** — Planner needs/future-expenses block requested by owner.
 8. **DONE** — full test checkpoint v0.8.8 from current main.
-9. **NEXT** — generated planner copy / preset labels localization + UX regression.
-10. **TODO** — оцінка готовності formal prerelease 0.9.0.
+9. **DONE** — generated planner copy / preset labels localization + UX regression — PR #61, run #189 (110/110), final run #190, merge `1e6849f7…`.
+10. **NEXT** — formal prerelease readiness assessment 0.9.0.
 
 ## Продуктова логіка цієї черги
 
@@ -98,6 +100,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — generated Planner copy / preset labels localization**: PR #61 squash-merged у `main` як `1e6849f78134d9654b0bf08b54ceebda4100ba4d`; code run #189 success (110/110 tests), final latest-head run #190 success. Generated plan/need/expense copy and scenario note are language-neutral in storage, displayed through `HubStrings` in UK/EN/FR/DE/ES/KO/JA; user-authored names remain literal; existing phone/desktop Planner regressions green.
 
 - **DONE — strict neutral A/B/C comparison**: PR #58 squash-merged у `main` як `25123ceb049534c67b9d284ee0f79e5cc8694e28`; final run #183 success, 108/108 tests. Порівнюються 2–3 saved scenarios з однаковими baseline assumptions; recurring needs supported, reserve-floor fail closed, no automatic winner; UK/EN/FR/DE/ES/KO/JA UI + domain/Cubit/widget regressions green. Старий PR #53 закрито без merge.
 
