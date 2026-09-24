@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,13 +47,20 @@ class PortfolioCubit extends Cubit<PortfolioState> {
   final HubRepository hubRepository;
   final PortfolioGateway gateway;
   final DateTime Function() clock;
+  late final StreamSubscription<bool> _lockSubscription;
 
   PortfolioCubit(
     this.hubRepository,
     this.gateway, {
     DateTime Function()? clock,
   }) : clock = clock ?? DateTime.now,
-       super(PortfolioState(supported: gateway.supported));
+       super(PortfolioState(supported: gateway.supported)) {
+    _lockSubscription = gateway.unlockChanges.listen((unlocked) {
+      if (!unlocked && !isClosed && state.payload != null) {
+        emit(state.copyWith(clearPayload: true));
+      }
+    });
+  }
 
   Future<void> initialize() async {
     if (!gateway.supported) {
@@ -172,12 +181,22 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     return 'portfolio.operation_failed';
   }
 
+  void onBackground() => gateway.onBackground();
+
+  Future<void> onForeground() async {
+    await gateway.onForeground();
+    if (!gateway.unlocked && !isClosed && state.payload != null) {
+      emit(state.copyWith(clearPayload: true));
+    }
+  }
+
   void dismissError() => emit(state.copyWith(clearError: true));
 
   @override
   Future<void> close() async {
+    await _lockSubscription.cancel();
     await gateway.lock();
-    gateway.dispose();
+    await gateway.dispose();
     return super.close();
   }
 }
