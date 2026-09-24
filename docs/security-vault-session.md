@@ -49,7 +49,9 @@ The implementation minimizes plaintext lifetime but does not claim guaranteed Da
 
 `backgroundGrace` is also injected.
 
-- background records a timestamp and schedules a lock after the grace interval;
+- background records a timestamp and schedules a lock after the grace interval for both `unlocked` **and in-flight `unlocking`** states;
+- an unlock that completes after a background-grace lock is stale and cannot repopulate plaintext;
+- foreground during an in-flight unlock cancels the pending background timer only when the grace has not expired; if grace already expired it locks/invalidates that unlock;
 - foreground checks elapsed wall-clock time, not only timer delivery, because OS suspension may pause timers;
 - if background grace or inactivity already expired, foreground locks before the caller may continue with private rendering;
 - if neither expired, the session may remain unlocked and activity tracking resumes.
@@ -92,6 +94,8 @@ Deterministic tests use injected clock/timer scheduling and cover:
 - background grace;
 - foreground enforcement when timers were suspended;
 - stale unlock completion after manual lock;
+- background during pending unlock cannot bypass grace lock;
+- foreground during pending unlock cancels a non-expired grace timer without leaving a delayed stray lock;
 - save while unlocked;
 - store error → cleared plaintext → error → locked.
 
