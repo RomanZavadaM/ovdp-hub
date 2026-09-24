@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
 Мета: **encrypted vault dependency/security review — choose the implementation stack without adding dependencies or feature code yet**.
 
@@ -36,14 +36,16 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - required evidence: current release/maintenance, license, platform implementation semantics, known advisory posture, threat-model mapping, testability;
 - no `pubspec.yaml` change and no vault feature implementation in this slice;
 - output: one documented stack decision with accepted/rejected alternatives, platform adapter matrix, dependency pinning policy and implementation test gates;
-- reviewed head `b6efabd65049cd231455e48d0e26c01c0e890154` passed **Flutter checks and START run #238 — success**;
+- reviewed head `b6efabd65049cd231455e48d0e26c01c0e890154` passed **run #238 — success**;
+- exact latest PR head `dea8cc33d5c9b99e9c043e95daa548c77eddbbbb` passed **Flutter checks and START run #239 — success**;
+- squash merge `main`: **`3e4171e7bc700f6f844e4b27f89222e49feb40cb`**;
 - review document: **`docs/security-vault-dependency-review.md`**;
 - proposed stack: **`sodium 4.1.0+1` / libsodium 1.0.22 + `flutter_secure_storage 11.2.0` on Android/Apple + app-owned Windows DPAPI adapter via `win32 6.4.0`**;
 - Windows generic `flutter_secure_storage_windows` is explicitly rejected for DEK storage because its current decrypt/parse error path deletes the encrypted storage file.
 
 ### Поточна наступна дія
 
-**VERIFIED — reviewed head passed run #238. Run exact latest-head CI after this approval/WORKLOG-only checkpoint; if green, mark PR #77 Ready and integrate into `main`. No dependency or feature code before merge.**
+**NEXT — encrypted vault foundation implementation: raise Dart floor to >=3.13, add exact approved dependencies/lockfile, implement app-owned `VaultCrypto` + platform `VaultDeviceKeyStore` adapters and focused security regression tests. No portfolio migration, legacy deletion or private-data UI in this slice.**
 
 ## Черга робіт
 
@@ -62,7 +64,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
 14. **DONE** — deterministic local CSV + ICS Planner exports; PR #73 → merge `3e8e7fbc…`; branch runs #229/#231 and main run #232 green.
 15. **DONE** — Encrypted vault threat-model review/approval; PR #75 → merge `8403bec3…`; final exact-head run #236 green.
-16. **VERIFIED** — Encrypted vault dependency/security review and implementation-stack decision; run #238 green, awaiting exact latest-head verification.
+16. **DONE** — Encrypted vault dependency/security review and implementation-stack decision; PR #77 → merge `3e4171e7…`; final exact-head run #239 green.
+17. **NEXT** — Encrypted vault foundation: dependencies + Dart floor + crypto/device-key adapters + security tests.
 
 ## Продуктова логіка цієї черги
 
@@ -89,6 +92,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — encrypted vault dependency/security review**: PR #77 exact latest head `dea8cc33…` passed run #239 and was squash-merged into `main` as `3e4171e7bc700f6f844e4b27f89222e49feb40cb`. Approved: sodium/libsodium for XChaCha20-Poly1305 + Argon2id, hardened flutter_secure_storage on Android/Apple, app-owned Windows DPAPI via win32; no dependency/feature code was added in the review.
 
 - **DONE — encrypted vault threat-model checkpoint**: PR #75 final head `13b628e7…` passed run #236 and was squash-merged into `main` as `8403bec33ec911a0f7c6a7a766fd585828f3a207`. Private-data boundary, random DEK + authenticated envelope, device/recovery key ownership, rollback/lock/migration/export semantics and platform requirements are frozen; no crypto/plugin code was added.
 

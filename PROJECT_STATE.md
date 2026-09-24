@@ -310,15 +310,33 @@ Final exact-head verification: **Flutter checks and START run #236 — success**
 
 **Crypto/plugin code у цьому checkpoint не інтегрувався.**
 
+## Encrypted vault — approved dependency/security checkpoint
+
+PR **#77 — Security: choose encrypted vault crypto and key-storage stack** squash-merged у `main` як **`3e4171e7bc700f6f844e4b27f89222e49feb40cb`**.
+
+Final exact-head verification: **Flutter checks and START run #239 — success**.
+
+Approved implementation inputs:
+- **`sodium 4.1.0+1` / libsodium 1.0.22** — XChaCha20-Poly1305-IETF, explicit Argon2id13, libsodium CSPRNG;
+- **`flutter_secure_storage 11.2.0`** — тільки Android / iOS / macOS, із hardened explicit options;
+- **`win32 6.4.0` + app-owned Windows DPAPI adapter** — current-user scope, non-destructive failure handling;
+- generic `flutter_secure_storage_windows` не використовується для vault DEK через destructive decrypt/parse error path у reviewed implementation;
+- implementation має підняти Dart floor з >=3.9 до **>=3.13**; поточний CI Flutter 3.47.5 уже працює на сумісному Dart;
+- active vault v1 — app-managed local encrypted storage; live provider-backed mutable vault лишається deferred.
+
+Повний review: `docs/security-vault-dependency-review.md`.
+
+**У PR #77 не додавались dependencies або feature code.**
+
 ## Наступний етап
 
-**Encrypted vault dependency/security review**:
+**Encrypted vault foundation implementation**:
 
-1. перевірити current maintained AEAD/KDF candidates та їх licenses/security advisories;
-2. перевірити secure-storage implementation для Windows/macOS/iOS/Android без plaintext/weak fallback;
-3. визначити, чи достатній один cross-platform stack, чи потрібні platform-specific adapters;
-4. зафіксувати обраний stack, threat-model mapping і test strategy окремим docs checkpoint;
-5. лише після merge цього review починати feature implementation vault.
+1. підняти Dart SDK floor до >=3.13 і додати exact approved dependencies + lockfile;
+2. додати app-owned `VaultCrypto` abstraction: DEK/CSPRNG, XChaCha20-Poly1305 envelope crypto, explicit Argon2id recovery KDF;
+3. додати `VaultDeviceKeyStore` adapters: hardened flutter_secure_storage для Android/iOS/macOS та non-destructive DPAPI для Windows;
+4. додати security regression tests: authentication/AAD corruption, missing key, Windows non-destructive error, platform option invariants;
+5. пройти analyze/tests і compile gates; **не** робити portfolio migration, private-data UI або legacy delete у цьому slice.
 
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
