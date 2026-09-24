@@ -106,6 +106,18 @@ class VaultOpenResult {
   }) : plainText = Uint8List.fromList(plainText);
 }
 
+class VaultLifecycleResult {
+  final String vaultId;
+  final int revision;
+  final bool recoveryEnabled;
+
+  const VaultLifecycleResult({
+    required this.vaultId,
+    required this.revision,
+    required this.recoveryEnabled,
+  });
+}
+
 abstract interface class VaultContentStore {
   Future<VaultOpenResult> open({required String vaultId});
 
@@ -115,19 +127,44 @@ abstract interface class VaultContentStore {
   });
 }
 
-typedef VaultCommitProbe = FutureOr<void> Function(File committedFile);
+abstract interface class VaultLifecycleStore implements VaultContentStore {
+  Future<VaultLifecycleResult> enableRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    required VaultRecoveryKdfParameters recoveryParameters,
+  });
 
-class LocalVaultStore implements VaultContentStore {
+  Future<VaultLifecycleResult> rotateRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    required VaultRecoveryKdfParameters recoveryParameters,
+  });
+
+  Future<VaultLifecycleResult> removeRecovery({
+    required String vaultId,
+  });
+
+  Future<void> deleteLocalVault({required String vaultId});
+}
+
+enum _RecoveryChange { enable, rotate, remove }
+
+typedef VaultCommitProbe = FutureOr<void> Function(File committedFile);
+typedef VaultDeleteProbe = FutureOr<void> Function(File stagedForDeletion);
+
+class LocalVaultStore implements VaultLifecycleStore {
   final Directory directory;
   final VaultCrypto crypto;
   final VaultDeviceKeyStore deviceKeyStore;
   final VaultCommitProbe? afterReplaceBeforeValidation;
+  final VaultDeleteProbe? afterDeviceKeyDeleteBeforeFileDelete;
 
   LocalVaultStore({
     required this.directory,
     required this.crypto,
     required this.deviceKeyStore,
     this.afterReplaceBeforeValidation,
+    this.afterDeviceKeyDeleteBeforeFileDelete,
   });
 
   File fileFor(String vaultId) {
@@ -137,6 +174,7 @@ class LocalVaultStore implements VaultContentStore {
 
   File _pending(String vaultId) => File('${fileFor(vaultId).path}.pending');
   File _backup(String vaultId) => File('${fileFor(vaultId).path}.backup');
+  File _deleting(String vaultId) => File('${fileFor(vaultId).path}.deleting');
 
   Future<VaultOpenResult> create({
     required String vaultId,
@@ -148,6 +186,9 @@ class LocalVaultStore implements VaultContentStore {
     validateVaultId(vaultId);
     await directory.create(recursive: true);
     await _recoverInterruptedReplace(vaultId);
+    if (await _deleting(vaultId).exists()) {
+      throw StateError('vault.deletion_pending');
+    }
     if (await fileFor(vaultId).exists()) {
       throw StateError('vault.already_exists');
     }
@@ -277,6 +318,92 @@ class LocalVaultStore implements VaultContentStore {
     }
   }
 
+  @override
+  Future<VaultLifecycleResult> enableRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    VaultRecoveryKdfParameters recoveryParameters =
+        VaultRecoveryKdfParameters.moderate,
+  }) =>
+      _changeRecovery(
+        vaultId: vaultId,
+        mode: _RecoveryChange.enable,
+        recoverySecret: recoverySecret,
+        recoveryParameters: recoveryParameters,
+      );
+
+  @override
+  Future<VaultLifecycleResult> rotateRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    VaultRecoveryKdfParameters recoveryParameters =
+        VaultRecoveryKdfParameters.moderate,
+  }) =>
+      _changeRecovery(
+        vaultId: vaultId,
+        mode: _RecoveryChange.rotate,
+        recoverySecret: recoverySecret,
+        recoveryParameters: recoveryParameters,
+      );
+
+  @override
+  Future<VaultLifecycleResult> removeRecovery({
+    required String vaultId,
+  }) =>
+      _changeRecovery(
+        vaultId: vaultId,
+        mode: _RecoveryChange.remove,
+      );
+
+  @override
+  Future<void> deleteLocalVault({required String vaultId}) async {
+    validateVaultId(vaultId);
+    await directory.create(recursive: true);
+
+    final target = fileFor(vaultId);
+    final deleting = _deleting(vaultId);
+    final rawDek = await deviceKeyStore.loadDek(vaultId: vaultId);
+
+    if (rawDek == null) {
+      if (await target.exists()) {
+        throw StateError('vault.device_key_missing');
+      }
+      if (await deleting.exists()) {
+        await deleting.delete();
+      }
+      await _cleanupArtifacts(vaultId);
+      return;
+    }
+
+    final dek = _secureKeyFromRaw(rawDek);
+    try {
+      final current = await _readValidatedCurrent(vaultId, dek);
+      await _assertNotRollback(current);
+      await _cleanupArtifacts(vaultId);
+
+      if (await deleting.exists()) {
+        throw StateError('vault.deletion_pending');
+      }
+      await target.rename(deleting.path);
+
+      try {
+        await deviceKeyStore.deleteDek(vaultId: vaultId);
+        await afterDeviceKeyDeleteBeforeFileDelete?.call(deleting);
+        await deleting.delete();
+      } catch (_) {
+        await _restoreDeleteFailure(
+          vaultId: vaultId,
+          rawDek: rawDek,
+          revision: current.revision,
+        );
+        rethrow;
+      }
+    } finally {
+      rawDek.fillRange(0, rawDek.length, 0);
+      dek.dispose();
+    }
+  }
+
   Future<File> createEncryptedBackup({
     required String vaultId,
     required File destination,
@@ -294,8 +421,8 @@ class LocalVaultStore implements VaultContentStore {
       if (current.recoverySlot == null) {
         throw StateError('vault.recovery_not_configured');
       }
-      if (p.equals(p.normalize(destination.path), p.normalize(fileFor(vaultId).path))) {
-        throw StateError('vault.backup_target_is_active');
+      if (_isAppOwnedVaultPath(vaultId, destination)) {
+        throw StateError('vault.backup_target_reserved');
       }
       await destination.parent.create(recursive: true);
       await destination.writeAsString(
@@ -317,6 +444,9 @@ class LocalVaultStore implements VaultContentStore {
     required String recoverySecret,
   }) async {
     validateVaultId(vaultId);
+    if (_isAppOwnedVaultPath(vaultId, source)) {
+      throw StateError('vault.restore_source_reserved');
+    }
     final candidate = await _readVaultFile(source);
     _validateFileIdentity(candidate, vaultId);
     final slot = candidate.recoverySlot;
@@ -376,6 +506,144 @@ class LocalVaultStore implements VaultContentStore {
     }
   }
 
+  Future<VaultLifecycleResult> _changeRecovery({
+    required String vaultId,
+    required _RecoveryChange mode,
+    String? recoverySecret,
+    VaultRecoveryKdfParameters recoveryParameters =
+        VaultRecoveryKdfParameters.moderate,
+  }) async {
+    final rawDek = await deviceKeyStore.loadDek(vaultId: vaultId);
+    if (rawDek == null) {
+      throw StateError('vault.device_key_missing');
+    }
+    final dek = _secureKeyFromRaw(rawDek);
+    rawDek.fillRange(0, rawDek.length, 0);
+    Uint8List? plainText;
+    try {
+      final current = await _readValidatedCurrent(vaultId, dek);
+      await _assertNotRollback(current);
+      await _cleanupArtifacts(vaultId);
+
+      switch (mode) {
+        case _RecoveryChange.enable:
+          if (current.recoverySlot != null) {
+            throw StateError('vault.recovery_already_configured');
+          }
+        case _RecoveryChange.rotate:
+          if (current.recoverySlot == null) {
+            throw StateError('vault.recovery_not_configured');
+          }
+        case _RecoveryChange.remove:
+          if (current.recoverySlot == null) {
+            throw StateError('vault.recovery_not_configured');
+          }
+      }
+
+      VaultRecoverySlotV1? nextSlot;
+      if (mode != _RecoveryChange.remove) {
+        final secret = recoverySecret;
+        if (secret == null) {
+          throw StateError('vault.recovery_secret_required');
+        }
+        nextSlot = crypto.wrapDekForRecovery(
+          vaultId: vaultId,
+          dek: dek,
+          recoverySecret: secret,
+          parameters: recoveryParameters,
+        );
+        final verified = crypto.unwrapDekFromRecovery(
+          slot: nextSlot,
+          recoverySecret: secret,
+        );
+        try {
+          if (verified != dek) {
+            throw StateError('vault.recovery_verification_failed');
+          }
+        } finally {
+          verified.dispose();
+        }
+      }
+
+      plainText = crypto.decrypt(
+        envelope: current.payload,
+        dek: dek,
+      );
+      final nextRevision = current.revision + 1;
+      final next = VaultFileV1(
+        vaultId: vaultId,
+        revision: nextRevision,
+        payload: crypto.encrypt(
+          vaultId: vaultId,
+          revision: nextRevision,
+          plainText: plainText,
+          dek: dek,
+          recoverySlotBinding: _recoveryBinding(nextSlot),
+        ),
+        recoverySlot: nextSlot,
+      );
+      await _commitVaultFile(next, dek);
+      await deviceKeyStore.storeHighestAcceptedRevision(
+        vaultId: vaultId,
+        revision: nextRevision,
+      );
+      return VaultLifecycleResult(
+        vaultId: vaultId,
+        revision: nextRevision,
+        recoveryEnabled: nextSlot != null,
+      );
+    } finally {
+      plainText?.fillRange(0, plainText.length, 0);
+      dek.dispose();
+    }
+  }
+
+  Future<void> _restoreDeleteFailure({
+    required String vaultId,
+    required Uint8List rawDek,
+    required int revision,
+  }) async {
+    final target = fileFor(vaultId);
+    final deleting = _deleting(vaultId);
+    try {
+      final currentKey = await deviceKeyStore.loadDek(vaultId: vaultId);
+      if (currentKey == null) {
+        await deviceKeyStore.storeDek(
+          vaultId: vaultId,
+          dek: Uint8List.fromList(rawDek),
+        );
+        await deviceKeyStore.storeHighestAcceptedRevision(
+          vaultId: vaultId,
+          revision: revision,
+        );
+      } else {
+        currentKey.fillRange(0, currentKey.length, 0);
+      }
+
+      if (await deleting.exists()) {
+        if (await target.exists()) {
+          await target.delete();
+        }
+        await deleting.rename(target.path);
+      }
+    } catch (_) {
+      throw StateError('vault.delete_rollback_failed');
+    }
+  }
+
+  bool _isAppOwnedVaultPath(String vaultId, File file) {
+    final candidate = p.normalize(p.absolute(file.path));
+    final reserved = [
+      fileFor(vaultId),
+      _pending(vaultId),
+      _backup(vaultId),
+      _deleting(vaultId),
+    ];
+    return reserved.any(
+      (item) => p.equals(candidate, p.normalize(p.absolute(item.path))),
+    );
+  }
+
   Future<void> _storeDeviceDek(String vaultId, SecureKey dek) async {
     final raw = dek.extractBytes();
     try {
@@ -405,10 +673,19 @@ class LocalVaultStore implements VaultContentStore {
     }
   }
 
+  Future<void> _recoverInterruptedDelete(String vaultId) async {
+    final target = fileFor(vaultId);
+    final deleting = _deleting(vaultId);
+    if (!await target.exists() && await deleting.exists()) {
+      await deleting.rename(target.path);
+    }
+  }
+
   Future<VaultFileV1> _readValidatedCurrent(
     String vaultId,
     SecureKey dek,
   ) async {
+    await _recoverInterruptedDelete(vaultId);
     await _recoverInterruptedReplace(vaultId);
     final target = fileFor(vaultId);
     if (!await target.exists()) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
+import 'vault_crypto.dart';
 import 'vault_store.dart';
 
 enum VaultSessionPhase {
@@ -81,7 +82,7 @@ class VaultSessionState {
 }
 
 class VaultSessionController extends ChangeNotifier {
-  final VaultContentStore store;
+  final VaultLifecycleStore store;
   final VaultSessionPolicy policy;
   final DateTime Function() now;
   final VaultSessionTimerFactory timerFactory;
@@ -93,6 +94,7 @@ class VaultSessionController extends ChangeNotifier {
   VaultSessionTimer? _inactivityTimer;
   VaultSessionTimer? _backgroundTimer;
   int _generation = 0;
+  bool _storeOperationInFlight = false;
   bool _disposed = false;
 
   VaultSessionController({
@@ -106,6 +108,8 @@ class VaultSessionController extends ChangeNotifier {
   VaultSessionState get state => _state;
 
   Future<void> unlock({required String vaultId}) async {
+    _requireStoreIdle();
+    _storeOperationInFlight = true;
     final token = ++_generation;
     _cancelTimers();
     _clearPlainText();
@@ -140,6 +144,8 @@ class VaultSessionController extends ChangeNotifier {
       if (!_disposed && token == _generation) {
         _fail(error, vaultId: vaultId);
       }
+    } finally {
+      _storeOperationInFlight = false;
     }
   }
 
@@ -180,6 +186,8 @@ class VaultSessionController extends ChangeNotifier {
     if (!_state.isUnlocked || vaultId == null || _plainText == null) {
       throw StateError('vault.session_locked');
     }
+    _requireStoreIdle();
+    _storeOperationInFlight = true;
     final token = _generation;
     recordActivity();
 
@@ -211,8 +219,60 @@ class VaultSessionController extends ChangeNotifier {
       if (!_disposed && token == _generation) {
         _fail(error, vaultId: vaultId);
       }
+    } finally {
+      _storeOperationInFlight = false;
     }
   }
+
+  Future<void> enableRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    VaultRecoveryKdfParameters recoveryParameters =
+        VaultRecoveryKdfParameters.moderate,
+  }) =>
+      _runUnlockedLifecycle(
+        vaultId: vaultId,
+        operation: () async {
+          await store.enableRecovery(
+            vaultId: vaultId,
+            recoverySecret: recoverySecret,
+            recoveryParameters: recoveryParameters,
+          );
+        },
+      );
+
+  Future<void> rotateRecovery({
+    required String vaultId,
+    required String recoverySecret,
+    VaultRecoveryKdfParameters recoveryParameters =
+        VaultRecoveryKdfParameters.moderate,
+  }) =>
+      _runUnlockedLifecycle(
+        vaultId: vaultId,
+        operation: () async {
+          await store.rotateRecovery(
+            vaultId: vaultId,
+            recoverySecret: recoverySecret,
+            recoveryParameters: recoveryParameters,
+          );
+        },
+      );
+
+  Future<void> removeRecovery({required String vaultId}) =>
+      _runUnlockedLifecycle(
+        vaultId: vaultId,
+        operation: () async {
+          await store.removeRecovery(vaultId: vaultId);
+        },
+      );
+
+  Future<void> deleteLocalVault({required String vaultId}) =>
+      _runUnlockedLifecycle(
+        vaultId: vaultId,
+        operation: () async {
+          await store.deleteLocalVault(vaultId: vaultId);
+        },
+      );
 
   void recordActivity() {
     if (!_state.isUnlocked || _disposed) return;
@@ -280,6 +340,41 @@ class VaultSessionController extends ChangeNotifier {
     _backgroundedAt = null;
     _lastActivityAt = null;
     _setState(VaultSessionState.locked);
+  }
+
+  Future<void> _runUnlockedLifecycle({
+    required String vaultId,
+    required Future<void> Function() operation,
+  }) async {
+    if (_disposed ||
+        !_state.isUnlocked ||
+        _state.vaultId != vaultId ||
+        _plainText == null) {
+      throw StateError('vault.session_locked');
+    }
+    _requireStoreIdle();
+    _storeOperationInFlight = true;
+
+    try {
+      await lock();
+      if (_disposed) return;
+
+      try {
+        await operation();
+      } catch (error) {
+        if (!_disposed) {
+          _fail(error, vaultId: vaultId);
+        }
+      }
+    } finally {
+      _storeOperationInFlight = false;
+    }
+  }
+
+  void _requireStoreIdle() {
+    if (_storeOperationInFlight) {
+      throw StateError('vault.session_busy');
+    }
   }
 
   void _scheduleInactivity() {

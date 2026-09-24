@@ -25,33 +25,29 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **VERIFIED**
 
-Мета: **encrypted vault session/locking foundation — explicit state + manual/inactivity/background lock semantics**.
+Мета: **encrypted vault lifecycle controls — recovery enable/rotate/remove + local delete semantics**.
 
-- base `main`: **`d1aa1146e666933be3a847fdecc08523d86f9b6e`**;
-- branch: **`feat/encrypted-vault-session-locking`**;
-- storage source: PR #81 / `16cd6f33496104d630a8bf05582dcf8514c4f1b1`;
-- states: locked / unlocking / unlocked / locking / error;
-- unlock reads through `LocalVaultStore`; session owns only a short-lived internal plaintext buffer;
-- manual lock clears app-held buffer and timers;
-- inactivity timeout + background grace are injected policy values, not hidden product defaults;
-- foreground transition checks elapsed inactivity/background time before private rendering may resume;
-- no claim of guaranteed Dart heap zeroization;
-- tests use an injected clock/timer scheduler for deterministic transitions;
-- implementation contract: **`docs/security-vault-session.md`**;
-- code head **`9869cfdaec91694b5cd49ad4040cab36b6cd75c0`** passed **run #279 — success**;
-- security review then found a pending-unlock/background race not covered by the first suite; fix + regression tests added on top of that verified head;
-- replacement PR **#84** supersedes closed-without-merge PR #83 after a stuck Actions concurrency run;
-- exact hardened head **`0a69362b3fb954719c665bc73771e82569006a3d`** passed **Flutter checks and START run #285 — success**, including the new pending-unlock background/foreground regression tests;
-- final replacement PR #84 head **`5c6e8e3c4a852b09db5e9fd4f3fbdb3512b03632`** passed **run #286 — success**;
-- squash merge `main`: **`51fb92862f3afae71915fa6bc6cce97204ad7037`**;
-- post-merge `main` **run #287 — success**;
-- no legacy migration, private portfolio schema or user-facing vault UI.
+- base `main`: **`093e9c51fb2c4f8f2eba27669d553b1eddbc3528`**;
+- branch: **`feat/encrypted-vault-lifecycle-controls`**;
+- storage/session sources: PR #81 / `16cd6f33…` + PR #84 / `51fb9286…`;
+- enable recovery on an existing device-openable vault without changing the DEK;
+- rotate recovery secret/slot atomically and verify the new slot before commit;
+- remove recovery explicitly while preserving device-key access and disabling portable backup until re-enabled;
+- local delete removes active encrypted file + app-owned pending/backup artifacts + device key/revision metadata;
+- external backup files are never deleted by local delete;
+- failure paths must preserve the last usable active vault/key state;
+- no secure-erase claims;
+- lifecycle contract: **`docs/security-vault-lifecycle-controls.md`**;
+- PR #86 earlier exact head `4fe7bf741e51ed4304e25d54a69f6d72f202e597` passed **run #297 — success**;
+- manual review then found a concurrent store-operation race; session serialization + regression coverage added;
+- hardened code head **`110c4d984800b243c25a62e34fd0070088463d19`** passed **Flutter checks and START run #299 — success**;
+- no legacy `sets/*.json` migration/deletion, holdings schema or user-facing vault UI.
 
 ### Поточна наступна дія
 
-**NEXT — encrypted vault lifecycle controls: enable/rotate/remove recovery slot plus local vault delete semantics with non-destructive failure tests. No legacy migration/private portfolio UI in this slice.**
+**VERIFIED — recovery/delete lifecycle plus session serialization passed run #299. Run exact latest-head CI after this docs/WORKLOG checkpoint; if green, mark PR #86 Ready and integrate into `main`.**
 
 ## Черга робіт
 
@@ -74,7 +70,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 17. **DONE** — Encrypted vault foundation; PR #79 → merge `d61a1245…`; final exact-head run #260 and post-merge run #261 green.
 18. **DONE** — Encrypted vault local store/lifecycle; PR #81 → merge `16cd6f33…`; final run #274 and post-merge run #275 green.
 19. **DONE** — Encrypted vault session/locking foundation; replacement PR #84 → merge `51fb9286…`; hardened run #285, final run #286 and post-merge run #287 green.
-20. **NEXT** — Encrypted vault lifecycle controls: recovery enable/rotate/remove + local delete semantics.
+20. **VERIFIED** — Encrypted vault lifecycle controls: recovery enable/rotate/remove + local delete semantics; hardened code run #299 green, awaiting exact latest-head docs verification.
 
 ## Продуктова логіка цієї черги
 

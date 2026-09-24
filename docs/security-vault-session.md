@@ -58,7 +58,14 @@ The implementation minimizes plaintext lifetime but does not claim guaranteed Da
 
 ## Async race safety
 
-Every unlock/save/lock/dispose transition is associated with a generation counter.
+Every unlock/save/lock/dispose transition is associated with a generation counter. In addition, the controller serializes access to its backing vault store:
+
+- only one open/save/lifecycle store operation may be in flight;
+- overlapping save/lifecycle/re-unlock attempts fail with `vault.session_busy`;
+- manual lock remains immediate so plaintext can be cleared without waiting for an I/O operation;
+- a stale in-flight operation cannot repopulate plaintext after that lock.
+
+
 
 A completion from an older generation:
 - cannot change the current session state;
