@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **encrypted vault threat-model review / design approval before any crypto or secure-storage plugin implementation**.
 
@@ -33,6 +33,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - branch: **`docs/encrypted-vault-threat-model-review`**;
 - PR: **#75** `Security: approve encrypted vault threat model`;
 - design head: **`bc759e649b7b7ba846a98ae36832b40d6be89369`**;
+- PR #75 latest functional/docs head `67ac8a6eb4b20adb7dbea200160d9f2d37d6eea7` passed **Flutter checks and START run #235 — success**;
 - implementation gate: **docs/design only — no crypto or secure-storage dependency changes in this slice**;
 - review targets: private-data boundary, vault file/envelope versioning, authenticated-encryption requirements, key ownership/wrapping, recovery/backup, lock/auto-lock/deletion UX, rollback/corruption behavior, Windows/macOS/iOS/Android secure-storage matrix;
 - acceptance: `docs/security-vault.md` is explicit enough to serve as a security contract; unresolved choices are marked as dependency-review gates rather than silently assumed;
@@ -41,7 +42,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — run exact-head CI for PR #75. If green, record VERIFIED status, mark Ready and integrate the docs-only security checkpoint into `main`. No crypto/plugin code in this slice.**
+**VERIFIED — run #235 is green on the reviewed threat-model head. Run exact latest-head CI after this WORKLOG-only checkpoint; if green, mark PR #75 Ready and integrate into `main`. Next product action after merge: dependency/security review of candidate crypto + secure-storage stack; no feature implementation before that review.**
 
 ## Черга робіт
 
@@ -59,7 +60,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
 14. **DONE** — deterministic local CSV + ICS Planner exports; PR #73 → merge `3e8e7fbc…`; branch runs #229/#231 and main run #232 green.
-15. **DOING** — Encrypted vault threat-model review/approval before crypto implementation.
+15. **VERIFIED** — Encrypted vault threat-model review/approval; run #235 green, awaiting exact latest-head docs-only verification.
 
 ## Продуктова логіка цієї черги
 
