@@ -123,6 +123,8 @@ PlannerScenario comparisonScenario(
   List<PositionExitAssumption> positionExits = const [],
   PlannerNeedType needType = PlannerNeedType.oneOff,
   String needAmount = '1000',
+  String? reserveFloorAmount,
+  String reserveFloorDate = '2027-01-01',
 }) {
   final price = comparisonBuy(
     bond,
@@ -143,6 +145,14 @@ PlannerScenario comparisonScenario(
     strategy: strategy,
     needs: [
       comparisonNeed(type: needType, amount: needAmount),
+      if (reserveFloorAmount != null)
+        PlannerNeed(
+          id: 'reserve-floor',
+          name: PlannerGeneratedCopy.reserveFloorName,
+          type: PlannerNeedType.reserveFloor,
+          date: reserveFloorDate,
+          amount: Decimal.parse(reserveFloorAmount),
+        ),
     ],
     positions: [
       PlannerPositionDraft(
@@ -177,6 +187,8 @@ SavedSet comparisonSavedSet(
   List<PositionExitAssumption> positionExits = const [],
   PlannerNeedType needType = PlannerNeedType.oneOff,
   String needAmount = '1000',
+  String? reserveFloorAmount,
+  String reserveFloorDate = '2027-01-01',
 }) {
   final scenario = comparisonScenario(
     bond,
@@ -194,6 +206,8 @@ SavedSet comparisonSavedSet(
     positionExits: positionExits,
     needType: needType,
     needAmount: needAmount,
+    reserveFloorAmount: reserveFloorAmount,
+    reserveFloorDate: reserveFloorDate,
   );
   return SavedSet(
     name,
