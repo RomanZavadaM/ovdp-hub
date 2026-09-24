@@ -103,15 +103,11 @@ void _ensureComparable(
   }
 }
 
-List<CashExpense> _comparisonExpenses(PlannerScenario scenario) {
-  if (scenario.needs.any((n) => n.type == PlannerNeedType.reserveFloor)) {
-    throw const FormatException('planner.comparison_need_model_unsupported');
-  }
-  return expandPlannerNeeds(
-    scenario.needs,
-    start: scenario.startDate,
-  );
-}
+List<CashExpense> _comparisonExpenses(PlannerScenario scenario) =>
+    expandPlannerNeeds(
+      scenario.needs,
+      start: scenario.startDate,
+    );
 
 List<PlanPosition> _positionsFor(
   SavedSet saved,

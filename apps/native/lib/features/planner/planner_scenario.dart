@@ -9,6 +9,7 @@ import 'planner_engine.dart';
 abstract final class PlannerGeneratedCopy {
   static const planName = '@ovdp-hub:planner:generated-plan-name';
   static const primaryNeedName = '@ovdp-hub:planner:generated-primary-need';
+  static const reserveFloorName = '@ovdp-hub:planner:generated-reserve-floor';
   static const aggregatePurchaseFeeRuleName =
       '@ovdp-hub:planner:aggregate-purchase-fee';
   static const taxUnknownLabel = '@ovdp-hub:planner:tax-unknown';
@@ -155,6 +156,20 @@ List<PlannerNeed> plannerNeedsFromCriteria(Map<String, String> criteria) {
         type: PlannerNeedType.oneOff,
         date: criteria['expenseDate$i']!,
         amount: money(criteria['expenseAmount$i']!),
+      ),
+    );
+  }
+
+  if (criteria['reserveFloorEnabled'] == 'true') {
+    needs.add(
+      PlannerNeed(
+        id: 'reserve-floor',
+        name: (criteria['reserveFloorName'] ??
+                PlannerGeneratedCopy.reserveFloorName)
+            .trim(),
+        type: PlannerNeedType.reserveFloor,
+        date: criteria['reserveFloorDate']!,
+        amount: money(criteria['reserveFloorAmount']!),
       ),
     );
   }
@@ -1202,15 +1217,29 @@ class PlannerScenario {
   }
 
   Map<String, String> toCurrentUiCriteria() {
-    if (needs.isEmpty ||
-        needs.first.type == PlannerNeedType.reserveFloor ||
-        needs.skip(1).any((need) => need.type != PlannerNeedType.oneOff)) {
+    if (needs.isEmpty || needs.first.type == PlannerNeedType.reserveFloor) {
       throw UnsupportedError(
         'planner.typed_need_ui_unsupported',
       );
     }
     final primary = needs.first;
-    final recurring = primary.type == PlannerNeedType.recurring;
+    if (![PlannerNeedType.oneOff, PlannerNeedType.recurring]
+        .contains(primary.type)) {
+      throw UnsupportedError('planner.typed_need_ui_unsupported');
+    }
+    final extras = needs.skip(1).where(
+      (need) => need.type == PlannerNeedType.oneOff,
+    ).toList(growable: false);
+    final floors = needs.skip(1).where(
+      (need) => need.type == PlannerNeedType.reserveFloor,
+    ).toList(growable: false);
+    if (extras.length + floors.length != needs.length - 1 ||
+        floors.length > 1) {
+      throw UnsupportedError('planner.typed_need_ui_unsupported');
+    }
+
+    final primaryRecurring = primary.type == PlannerNeedType.recurring;
+    final floor = floors.isEmpty ? null : floors.single;
     final result = <String, String>{
       'currency': currency,
       'budget': budget.toString(),
@@ -1221,21 +1250,25 @@ class PlannerScenario {
       'needName': primary.name,
       'needDate': primary.date,
       'needAmount': primary.amount.toString(),
-      'needRecurring': '$recurring',
+      'needRecurring': '$primaryRecurring',
       'needEveryMonths': '${primary.everyMonths ?? 1}',
       'needOccurrences': '${primary.occurrences ?? 6}',
+      'reserveFloorEnabled': '${floor != null}',
+      'reserveFloorName':
+          floor?.name ?? PlannerGeneratedCopy.reserveFloorName,
+      'reserveFloorDate': floor?.date ?? primary.date,
+      'reserveFloorAmount': floor?.amount.toString() ?? reserve.toString(),
       'name': name,
       'strategy': strategy.name,
-      'expenseCount': '${needs.length - 1}',
+      'expenseCount': '${extras.length}',
       'delay': '$settlementDelayDays',
       'pricedOnly': '$pricedOnly',
     };
-    for (var i = 1; i < needs.length; i++) {
-      final need = needs[i];
-      final index = i - 1;
-      result['expenseName$index'] = need.name;
-      result['expenseDate$index'] = need.date;
-      result['expenseAmount$index'] = need.amount.toString();
+    for (var i = 0; i < extras.length; i++) {
+      final need = extras[i];
+      result['expenseName$i'] = need.name;
+      result['expenseDate$i'] = need.date;
+      result['expenseAmount$i'] = need.amount.toString();
     }
     for (final position in positions) {
       if (position.price.kind != PriceValueKind.nominalEstimate) {
@@ -1260,6 +1293,10 @@ class PlannerScenario {
       'needRecurring': 'false',
       'needEveryMonths': '1',
       'needOccurrences': '6',
+      'reserveFloorEnabled': 'false',
+      'reserveFloorName': PlannerGeneratedCopy.reserveFloorName,
+      'reserveFloorDate': date(DateTime(now.year, now.month + 6, now.day)),
+      'reserveFloorAmount': '10000',
       'name': PlannerGeneratedCopy.planName,
       'strategy': 'ladder',
       'expenseCount': '0',

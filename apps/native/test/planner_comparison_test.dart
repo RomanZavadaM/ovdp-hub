@@ -128,13 +128,13 @@ void main() {
       );
     });
 
-    test('reserve-floor needs remain explicit fail-closed comparison input', () {
+    test('identical reserve floors compare and mismatched floors fail closed', () {
       final bond = comparisonCatalog().bonds.first;
       final a = comparisonSavedSet(
         bond,
         name: 'A',
         savedAt: '2026-09-23T10:00:00Z',
-        needType: PlannerNeedType.reserveFloor,
+        reserveFloorAmount: '95000',
       );
       final b = comparisonSavedSet(
         bond,
@@ -142,19 +142,38 @@ void main() {
         savedAt: '2026-09-23T10:01:00Z',
         variantLabel: 'B',
         purchasePrice: '990',
-        needType: PlannerNeedType.reserveFloor,
+        reserveFloorAmount: '95000',
       );
 
+      final result = compareSavedScenarios(
+        [a, b],
+        now: DateTime.utc(2026, 9, 23),
+      );
+      expect(result.variants, hasLength(2));
+      expect(
+        result.variants.first.expenseBalances.any(
+          (row) => row.expense.type == PlannerNeedType.reserveFloor,
+        ),
+        true,
+      );
+
+      final differentFloor = comparisonSavedSet(
+        bond,
+        name: 'C',
+        savedAt: '2026-09-23T10:02:00Z',
+        variantLabel: 'C',
+        reserveFloorAmount: '90000',
+      );
       expect(
         () => compareSavedScenarios(
-          [a, b],
+          [a, differentFloor],
           now: DateTime.utc(2026, 9, 23),
         ),
         throwsA(
           isA<FormatException>().having(
             (e) => e.message,
             'message',
-            'planner.comparison_need_model_unsupported',
+            'planner.comparison_assumptions_mismatch',
           ),
         ),
       );
