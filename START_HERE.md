@@ -118,7 +118,7 @@ Slice не є `DONE`, доки:
 - Основна мова: українська
 - Додаткові мови: EN / FR / DE / ES / KO / JA
 - Завершений великий етап: **0.9.0 «Ринок»**
-- Поточний опублікований checkpoint: **v0.9.0 / 0.9.0+17**
+- Release candidate / наступний checkpoint: **v0.9.1 / 0.9.1+18**; v0.9.0 лишається останнім опублікованим до завершення release workflow
 - Інтегровано після v0.9.0: **додатковий дизайн «Світла панель»**, Classic та «Робочий кабінет» збережені
 - Інтегровано після v0.9.0 також: **Planner reserve-floor / мінімальний залишок**
 - Інтегровано після v0.9.0 також: **deterministic local Planner CSV + ICS exports**; PDF лишається deferred
@@ -130,5 +130,7 @@ Slice не є `DONE`, доки:
 - Інтегровано після v0.9.0 також: **encrypted vault lifecycle controls** — recovery enable/rotate/remove, non-destructive local delete/crash recovery, external-backup preservation and serialized session store operations
 - Інтегровано після v0.9.0 також: **private encrypted payload/domain foundation** — schema v1, factual acquisition lots, explicit fee state, factual coupon/redemption events, deterministic encrypted codec and derived holdings
 - Інтегровано після v0.9.0 також: **private factual disposals / lot allocation** — schema v2, explicit sale/disposal records, explicit acquisition-lot allocation, realized factual cost/proceeds and holdings net of represented disposals
-- Наступний активний slice: **Non-destructive legacy plaintext migration — inventory existing `sets/*.json`, import only explicitly mappable private facts into encrypted payload, verify before any delete offer; без auto-delete та без user-facing portfolio claim**
+- Інтегровано після v0.9.0 також: **non-destructive legacy plaintext migration core / private payload schema v3** — legacy collection metadata + selected ISINs + raw Planner scenario can be copied into encrypted payload; public Bond snapshots omitted; zero portfolio facts synthesized; source JSON never auto-deleted
+- Активний checkpoint: **release/v0.9.1** — завершити документацію, exact-head checks, merge у `main`, Windows/macOS/Android/iOS + START/source prerelease publication
+- Після v0.9.1 наступний продуктовий slice: **Android SAF / iOS security-scoped access для зовнішніх папок**, а user-facing vault/migration UX лишається окремим gate перед claim, що legacy private data реально мігровані
 - Live ledger: GitHub Issue **#18**
