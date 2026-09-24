@@ -127,5 +127,6 @@ Slice не є `DONE`, доки:
 - Інтегровано після v0.9.0 також: **encrypted vault foundation** — Dart >=3.13, exact security dependencies/lockfile, XChaCha20-Poly1305 envelope primitives, Argon2id recovery derivation, hardened device-key adapters, four-platform compile gate + Windows DPAPI smoke
 - Інтегровано після v0.9.0 також: **encrypted vault local store/lifecycle** — recovery-wrapped DEK slot, authenticated slot binding, app-managed encrypted file, known-good atomic replace/restart recovery, rollback detection, portable encrypted backup/restore
 - Інтегровано після v0.9.0 також: **encrypted vault session/locking foundation** — explicit locked/unlocking/unlocked/locking/error state, manual/inactivity/background lock, stale async completion guards and pending-unlock/background race coverage
-- Наступний активний slice: **Encrypted vault lifecycle controls — recovery enable/rotate/remove + local vault deletion semantics and recovery-state tests; без legacy migration/private portfolio UI**
+- Інтегровано після v0.9.0 також: **encrypted vault lifecycle controls** — recovery enable/rotate/remove, non-destructive local delete/crash recovery, external-backup preservation and serialized session store operations
+- Наступний активний slice: **Private portfolio/domain foundation — versioned encrypted payload schema for holdings, acquisition lots and factual coupons/redemptions; без legacy migration та без user-facing portfolio UI**
 - Live ledger: GitHub Issue **#18**
