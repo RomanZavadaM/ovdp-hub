@@ -160,6 +160,71 @@ void main() {
     expect(controller.state.phase, VaultSessionPhase.locked);
   });
 
+  test('background during pending unlock cannot bypass grace lock', () async {
+    final store = FakeVaultContentStore();
+    final scheduler = FakeSessionScheduler();
+    final completer = Completer<VaultOpenResult>();
+    store.openCompleter = completer;
+    final controller = controllerFor(
+      store,
+      scheduler,
+      backgroundGrace: const Duration(seconds: 30),
+    );
+    addTearDown(controller.dispose);
+
+    final unlockFuture = controller.unlock(vaultId: 'vault-race-bg');
+    expect(controller.state.phase, VaultSessionPhase.unlocking);
+
+    controller.onBackground();
+    scheduler.advance(const Duration(seconds: 31));
+    await Future<void>.delayed(Duration.zero);
+    expect(controller.state.phase, VaultSessionPhase.locked);
+
+    final stale = VaultOpenResult(
+      vaultId: 'vault-race-bg',
+      revision: 3,
+      plainText: Uint8List.fromList([3, 3, 3]),
+      recoveryEnabled: true,
+    );
+    completer.complete(stale);
+    await unlockFuture;
+
+    expect(controller.state.phase, VaultSessionPhase.locked);
+    expect(stale.plainText, [0, 0, 0]);
+  });
+
+  test('foreground during pending unlock cancels background grace timer', () async {
+    final store = FakeVaultContentStore();
+    final scheduler = FakeSessionScheduler();
+    final completer = Completer<VaultOpenResult>();
+    store.openCompleter = completer;
+    final controller = controllerFor(
+      store,
+      scheduler,
+      backgroundGrace: const Duration(seconds: 30),
+    );
+    addTearDown(controller.dispose);
+
+    final unlockFuture = controller.unlock(vaultId: 'vault-race-fg');
+    controller.onBackground();
+    scheduler.advance(const Duration(seconds: 10));
+    await controller.onForeground();
+
+    final opened = VaultOpenResult(
+      vaultId: 'vault-race-fg',
+      revision: 4,
+      plainText: Uint8List.fromList([4, 4, 4]),
+      recoveryEnabled: false,
+    );
+    completer.complete(opened);
+    await unlockFuture;
+    expect(controller.state.phase, VaultSessionPhase.unlocked);
+
+    scheduler.advance(const Duration(seconds: 25));
+    await Future<void>.delayed(Duration.zero);
+    expect(controller.state.phase, VaultSessionPhase.unlocked);
+  });
+
   test('stale unlock completion cannot reopen after manual lock', () async {
     final store = FakeVaultContentStore();
     final scheduler = FakeSessionScheduler();
