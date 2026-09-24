@@ -122,6 +122,7 @@ Slice не є `DONE`, доки:
 - Інтегровано після v0.9.0: **додатковий дизайн «Світла панель»**, Classic та «Робочий кабінет» збережені
 - Інтегровано після v0.9.0 також: **Planner reserve-floor / мінімальний залишок**
 - Інтегровано після v0.9.0 також: **deterministic local Planner CSV + ICS exports**; PDF лишається deferred
-- Інтегровано після v0.9.0 також: **approved encrypted-vault threat model** — private-data boundary, key/recovery/rollback/lock/platform contract; crypto/plugin implementation ще не починалась
-- Наступний активний slice: **Encrypted vault dependency/security review — перевірити AEAD/KDF + secure-storage/platform adapter candidates проти `docs/security-vault.md`; feature implementation до завершення review не починати**
+- Інтегровано після v0.9.0 також: **approved encrypted-vault threat model** — private-data boundary, key/recovery/rollback/lock/platform contract
+- Інтегровано після v0.9.0 також: **approved vault dependency/security stack** — `sodium 4.1.0+1` / libsodium 1.0.22, `flutter_secure_storage 11.2.0` для Android/Apple, app-owned Windows DPAPI через `win32 6.4.0`
+- Наступний активний slice: **Encrypted vault foundation implementation — підняти Dart floor до >=3.13, додати exact dependencies/lockfile, `VaultCrypto` + platform `VaultDeviceKeyStore` adapters і security regression tests; без portfolio migration/UI у цьому slice**
 - Live ledger: GitHub Issue **#18**
