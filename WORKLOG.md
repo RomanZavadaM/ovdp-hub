@@ -25,7 +25,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **VERIFIED**
 
 Мета: **non-destructive legacy plaintext migration — preserve private-capable legacy collection data inside the encrypted payload without inventing portfolio facts**.
 
@@ -40,11 +40,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - encrypted payload save must be reopened/decoded and migrated records compared before success is reported;
 - legacy plaintext source files are never modified or deleted by this slice;
 - migration report is machine-readable for later UI;
+- migration contract: **`docs/private-legacy-migration.md`**;
+- private payload contract advanced to **schema v3** with backward decode for v1/v2;
+- exact hardened code/docs head **`bcc791688342d0b647a4c3e2cf1e93ec1562756a`** passed **Flutter checks and START run #328 — success**;
 - no user-facing portfolio claim/UI in this slice.
 
 ### Поточна наступна дія
 
-**DOING — add schema-v3 encrypted legacy-collection records, implement file-by-file migration/report/verification, then deterministic idempotence/conflict/no-delete tests.**
+**VERIFIED — schema-v3 legacy collection migration core, strict source handling, idempotence/conflict/partial-failure behavior and no-delete regressions passed run #328. Run exact latest-head CI after this WORKLOG checkpoint; then replace draft PR #94 with a non-draft PR on the same branch/head and integrate if green.**
 
 ## Черга робіт
 
@@ -70,7 +73,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 20. **DONE** — Encrypted vault lifecycle controls; PR #86 → merge `3dc1f53d…`; final run #301 and post-merge run #302 green.
 21. **DONE** — Private portfolio/encrypted payload foundation; replacement PR #89 → merge `a516310f…`; final replacement run #311 and post-merge run #312 green.
 22. **DONE** — Private portfolio factual sale/disposal + explicit lot-allocation foundation; replacement PR #92 → merge `d8de5c9f…`; exact-head run #317 and post-merge run #318 green.
-23. **DOING** — Non-destructive legacy plaintext migration into encrypted private payload.
+23. **VERIFIED** — Non-destructive legacy plaintext migration into encrypted private payload; hardened code/docs run #328 green, awaiting final exact-head docs verification/replacement PR.
 
 ## Продуктова логіка цієї черги
 
