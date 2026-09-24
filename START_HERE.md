@@ -120,5 +120,6 @@ Slice не є `DONE`, доки:
 - Завершений великий етап: **0.9.0 «Ринок»**
 - Поточний опублікований checkpoint: **v0.9.0 / 0.9.0+17**
 - Інтегровано після v0.9.0: **додатковий дизайн «Світла панель»**, Classic та «Робочий кабінет» збережені
-- Наступний активний slice: **Planner reserve-floor / мінімальний залишок**
+- Інтегровано після v0.9.0 також: **Planner reserve-floor / мінімальний залишок**
+- Наступний активний slice: **deterministic local Planner CSV + ICS exports; PDF deferred**
 - Live ledger: GitHub Issue **#18**

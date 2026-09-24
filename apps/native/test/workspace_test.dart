@@ -132,4 +132,41 @@ void main() {
       await expectLater(source.sets(), throwsFormatException);
     },
   );
+  test('text exports stay inside workspace exports and validate names', () async {
+    final source = await Workspace.open(
+      Directory(p.join(root.path, 'source')),
+      create: true,
+    );
+    final path = await source.writeTextExport(
+      'ovdp-planner-20260924-deadbeef.csv',
+      'a,b\r\n1,2\r\n',
+    );
+    expect(
+      p.normalize(path),
+      p.normalize(
+        p.join(
+          source.directory.path,
+          'exports',
+          'ovdp-planner-20260924-deadbeef.csv',
+        ),
+      ),
+    );
+    expect(await File(path).readAsString(), 'a,b\r\n1,2\r\n');
+
+    await source.writeTextExport(
+      'ovdp-planner-20260924-deadbeef.csv',
+      'replaced',
+    );
+    expect(await File(path).readAsString(), 'replaced');
+
+    await expectLater(
+      source.writeTextExport('../escape.csv', 'bad'),
+      throwsFormatException,
+    );
+    await expectLater(
+      source.writeTextExport('report.pdf', 'bad'),
+      throwsFormatException,
+    );
+  });
+
 }

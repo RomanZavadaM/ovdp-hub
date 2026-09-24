@@ -216,6 +216,38 @@ void main() {
     }
   });
 
+  test('Planner export controls are localized in every supported language', () {
+    const keys = [
+      'exportCsv',
+      'exportIcs',
+      'exportInfo',
+      'exportSavedTo',
+    ];
+    const errors = [
+      'planner.export_requires_generated',
+      'planner.export_format_unsupported',
+      'planner.export_missing_bond',
+      'workspace.invalid_export_name',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+      for (final code in errors) {
+        expect(
+          strings.error(AppError(code)),
+          isNot(code),
+          reason: '${language.code} must localize $code',
+        );
+      }
+    }
+  });
+
   test('generated Planner copy is localized in every supported language', () {
     const keys = [
       'generatedPlanName',

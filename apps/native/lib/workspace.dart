@@ -108,6 +108,34 @@ class Workspace {
   }
   Future<void> saveSet(SavedSet set) => writeRecord('sets', set.toJson());
 
+  Future<String> writeTextExport(String fileName, String content) async {
+    await checkAvailable();
+    final safeCharacters = RegExp(r'^[A-Za-z0-9._-]+');
+    final lower = fileName.toLowerCase();
+    final supportedExtension =
+        lower.endsWith('.csv') || lower.endsWith('.ics');
+    if (fileName.isEmpty ||
+        fileName.length > 160 ||
+        !safeCharacters.hasMatch(fileName) ||
+        safeCharacters.firstMatch(fileName)!.group(0) != fileName ||
+        !supportedExtension ||
+        fileName.contains('..')) {
+      throw const FormatException('workspace.invalid_export_name');
+    }
+    final folder = Directory(p.join(directory.path, 'exports'));
+    await folder.create();
+    final target = File(p.join(folder.path, fileName));
+    final temporary = File('${target.path}.pending');
+    try {
+      await temporary.writeAsString(content, flush: true);
+      if (await target.exists()) await target.delete();
+      await temporary.rename(target.path);
+      return target.path;
+    } finally {
+      if (await temporary.exists()) await temporary.delete();
+    }
+  }
+
   /// Copy only validated application records; preserve source, never merge silently.
   Future<Workspace> copyTo(Directory destination) async {
     final sourcePath = p.normalize(p.absolute(directory.path));

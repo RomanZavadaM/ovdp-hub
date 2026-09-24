@@ -356,6 +356,21 @@ class PlannerView extends StatelessWidget {
     );
   }
 
+  Future<void> _export(
+    BuildContext context,
+    Future<String?> Function() action,
+    HubStrings strings,
+  ) async {
+    final path = await action();
+    if (context.mounted && path != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${strings.text('exportSavedTo')}: $path'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PlannerCubit>(),
@@ -1165,22 +1180,52 @@ class PlannerView extends StatelessWidget {
           onChanged: (v) => cubit.edit('name', v),
         ),
         const SizedBox(height: 12),
-        FilledButton.icon(
-          onPressed: disabled || summary == null || state.inputs.isEmpty
-              ? null
-              : () async {
-                  final navigation = context.read<NavigationCubit>();
-                  if (await cubit.save() && context.mounted) {
-                    navigation.select(1);
-                  }
-                },
-          icon: const Icon(Icons.save_outlined),
-          label: Text(
-            state.saved
-                ? strings.text('saveNewVariant')
-                : strings.text('saveScenario'),
-          ),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            FilledButton.icon(
+              onPressed: disabled || summary == null || state.inputs.isEmpty
+                  ? null
+                  : () async {
+                      final navigation = context.read<NavigationCubit>();
+                      if (await cubit.save() && context.mounted) {
+                        navigation.select(1);
+                      }
+                    },
+              icon: const Icon(Icons.save_outlined),
+              label: Text(
+                state.saved
+                    ? strings.text('saveNewVariant')
+                    : strings.text('saveScenario'),
+              ),
+            ),
+            OutlinedButton.icon(
+              onPressed: disabled || summary == null || state.inputs.isEmpty
+                  ? null
+                  : () => _export(
+                        context,
+                        cubit.exportCsv,
+                        strings,
+                      ),
+              icon: const Icon(Icons.table_view_outlined),
+              label: Text(strings.text('exportCsv')),
+            ),
+            OutlinedButton.icon(
+              onPressed: disabled || summary == null || state.inputs.isEmpty
+                  ? null
+                  : () => _export(
+                        context,
+                        cubit.exportIcs,
+                        strings,
+                      ),
+              icon: const Icon(Icons.calendar_month_outlined),
+              label: Text(strings.text('exportIcs')),
+            ),
+          ],
         ),
+        const SizedBox(height: 8),
+        Text(strings.text('exportInfo')),
       ],
     );
   }

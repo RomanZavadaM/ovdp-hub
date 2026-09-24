@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+### Planner CSV + ICS exports
+- Додано deterministic local CSV schema v1 для scenario, positions, typed need rules, coverage та receipt events.
+- Додано ICS calendar export для потреб/reserve-floor і очікуваних дат доступності coupon/redemption/explicit-sale cashflow з урахуванням settlement delay.
+- Export bytes не містять runtime timestamp; UID/DTSTAMP і filename stem детерміновані від scenario data.
+- Файли пишуться тільки локально в `<workspace>/exports/` через validated filename + temporary write/replace.
+- Export доступний для поточного generated/reopened Planner scenario; PDF відкладено до стабілізації структури звіту.
+- UI/errors локалізовано UK/EN/FR/DE/ES/KO/JA.
+- Regression coverage: deterministic bytes, CSV/ICS escaping, settlement dates, reserve-floor, workspace containment/overwrite та Cubit actions.
+- Draft PR #73; code head `55a0b0c043ea656fcd5612be2d8906c4f6209b41`; Flutter checks and START run #229 — success (117/117 tests).
+
+
 ### Planner reserve floor
 - Додано typed `reserveFloor` у активний Planner UI без schema bump.
 - Reserve floor є мінімальним ліквідним залишком від заданої дати, а не витратою: він не збільшує cumulative spent.
