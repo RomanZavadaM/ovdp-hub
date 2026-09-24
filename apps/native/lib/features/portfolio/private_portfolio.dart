@@ -4,10 +4,12 @@ import 'package:flutter/foundation.dart';
 
 import '../../models.dart';
 
-const int privatePortfolioSchemaVersion = 1;
+const int privatePortfolioSchemaVersion = 2;
+const int privatePortfolioLegacySchemaVersion = 1;
 const int maxPrivatePortfolioBytes = 16 * 1024 * 1024;
 const int maxPrivateAcquisitionLots = 10000;
 const int maxPrivateCashEvents = 50000;
+const int maxPrivateDisposals = 50000;
 
 final RegExp _privateRecordId = RegExp(r'^[A-Za-z0-9._:-]{1,120}$');
 final RegExp _privateIsin = RegExp(r'^UA[A-Z0-9]{9}\d$');
@@ -282,6 +284,199 @@ class PrivateCashEvent {
       note: json['note'] as String?,
     );
   }
+}
+
+enum DisposalFeeStatus { unknown, known }
+
+@immutable
+class PrivateDisposalLotAllocation {
+  final String lotId;
+  final int units;
+
+  PrivateDisposalLotAllocation({
+    required this.lotId,
+    required this.units,
+  }) {
+    _validateId(lotId, 'portfolio.invalid_allocation_lot_id');
+    if (units < 1 || units > 1000000000) {
+      throw const FormatException('portfolio.invalid_allocation_units');
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+    'lotId': lotId,
+    'units': units,
+  };
+
+  factory PrivateDisposalLotAllocation.fromJson(Map<String, dynamic> json) {
+    _onlyKeys(json, const {
+      'lotId',
+      'units',
+    }, 'portfolio.invalid_allocation_fields');
+    return PrivateDisposalLotAllocation(
+      lotId: json['lotId'] as String? ?? '',
+      units: json['units'] as int? ?? 0,
+    );
+  }
+}
+
+@immutable
+class PrivateDisposal {
+  final String id;
+  final String isin;
+  final String disposedOn;
+  final int units;
+  final String currency;
+  final Decimal proceedsAmount;
+  final DisposalFeeStatus feeStatus;
+  final Decimal? feeTotal;
+  final List<PrivateDisposalLotAllocation> allocations;
+  final String? note;
+
+  PrivateDisposal({
+    required this.id,
+    required this.isin,
+    required this.disposedOn,
+    required this.units,
+    required this.currency,
+    required this.proceedsAmount,
+    required this.feeStatus,
+    required this.feeTotal,
+    required Iterable<PrivateDisposalLotAllocation> allocations,
+    this.note,
+  }) : allocations = List.unmodifiable(
+         allocations.toList()..sort((a, b) => a.lotId.compareTo(b.lotId)),
+       ) {
+    _validateId(id, 'portfolio.invalid_disposal_id');
+    _validateIsin(isin);
+    isoDate(disposedOn);
+    if (units < 1 || units > 1000000000) {
+      throw const FormatException('portfolio.invalid_disposal_units');
+    }
+    _validateCurrency(currency);
+    if (proceedsAmount <= Decimal.zero) {
+      throw const FormatException('portfolio.invalid_disposal_proceeds');
+    }
+    switch (feeStatus) {
+      case DisposalFeeStatus.unknown:
+        if (feeTotal != null) {
+          throw const FormatException('portfolio.unknown_disposal_fee_has_value');
+        }
+        break;
+      case DisposalFeeStatus.known:
+        if (feeTotal == null || feeTotal! < Decimal.zero) {
+          throw const FormatException('portfolio.known_disposal_fee_missing_value');
+        }
+        break;
+    }
+    if (this.allocations.isEmpty) {
+      throw const FormatException('portfolio.disposal_allocation_required');
+    }
+    final lotIds = <String>{};
+    var allocatedUnits = 0;
+    for (final allocation in this.allocations) {
+      if (!lotIds.add(allocation.lotId)) {
+        throw const FormatException('portfolio.duplicate_disposal_allocation');
+      }
+      allocatedUnits += allocation.units;
+    }
+    if (allocatedUnits != units) {
+      throw const FormatException('portfolio.disposal_allocation_units_mismatch');
+    }
+    final value = note;
+    if (value != null && value.length > 2000) {
+      throw const FormatException('portfolio.note_too_long');
+    }
+  }
+
+  Decimal? get knownNetProceeds =>
+      feeStatus == DisposalFeeStatus.known ? proceedsAmount - feeTotal! : null;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'isin': isin,
+    'disposedOn': disposedOn,
+    'units': units,
+    'currency': currency,
+    'proceedsAmount': proceedsAmount.toString(),
+    'feeStatus': feeStatus.name,
+    if (feeTotal != null) 'feeTotal': feeTotal.toString(),
+    'allocations': allocations.map((allocation) => allocation.toJson()).toList(),
+    if (note != null) 'note': note,
+  };
+
+  factory PrivateDisposal.fromJson(Map<String, dynamic> json) {
+    _onlyKeys(json, const {
+      'id',
+      'isin',
+      'disposedOn',
+      'units',
+      'currency',
+      'proceedsAmount',
+      'feeStatus',
+      'feeTotal',
+      'allocations',
+      'note',
+    }, 'portfolio.invalid_disposal_fields');
+
+    final rawAllocations = json['allocations'];
+    if (rawAllocations is! List) {
+      throw const FormatException('portfolio.invalid_disposal_allocations');
+    }
+    return PrivateDisposal(
+      id: json['id'] as String? ?? '',
+      isin: json['isin'] as String? ?? '',
+      disposedOn: _portfolioDate(json['disposedOn']),
+      units: json['units'] as int? ?? 0,
+      currency: json['currency'] as String? ?? '',
+      proceedsAmount: _portfolioDecimal(
+        json['proceedsAmount'],
+        code: 'portfolio.invalid_disposal_proceeds',
+        allowZero: false,
+      ),
+      feeStatus: _portfolioEnum(
+        DisposalFeeStatus.values,
+        json['feeStatus'],
+        'portfolio.invalid_disposal_fee_status',
+      ),
+      feeTotal: json['feeTotal'] == null
+          ? null
+          : _portfolioDecimal(
+              json['feeTotal'],
+              code: 'portfolio.invalid_disposal_fee_total',
+            ),
+      allocations: rawAllocations.map((value) {
+        if (value is! Map) {
+          throw const FormatException('portfolio.invalid_disposal_allocation');
+        }
+        return PrivateDisposalLotAllocation.fromJson(
+          Map<String, dynamic>.from(value),
+        );
+      }),
+      note: json['note'] as String?,
+    );
+  }
+}
+
+@immutable
+class PrivateRealizedLotCostInput {
+  final String disposalId;
+  final String lotId;
+  final int allocatedUnits;
+  final int lotUnits;
+  final Decimal lotTradeAmount;
+  final AcquisitionFeeStatus acquisitionFeeStatus;
+  final Decimal? lotFeeTotal;
+
+  const PrivateRealizedLotCostInput({
+    required this.disposalId,
+    required this.lotId,
+    required this.allocatedUnits,
+    required this.lotUnits,
+    required this.lotTradeAmount,
+    required this.acquisitionFeeStatus,
+    required this.lotFeeTotal,
+  });
 }
 
 @immutable
