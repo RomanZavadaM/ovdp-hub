@@ -362,11 +362,17 @@ String _ics(
       if (amount.isNotEmpty) amount,
       if (row.isin != null) row.isin!,
     ].join(' · ');
+    final eventHash = _stableHash(
+      [
+        row.eventDate,
+        row.eventType,
+        row.stableKey,
+        row.amount?.toString() ?? '',
+      ].join('|'),
+    );
     lines.addAll([
       'BEGIN:VEVENT',
-      'UID:ovdp-hub-$scenarioHash-'
-          '${_stableHash('${row.eventDate}|${row.eventType}|${row.stableKey}|${row.amount ?? ''}')}'
-          '@local',
+      'UID:ovdp-hub-$scenarioHash-$eventHash@local',
       'DTSTAMP:$stamp',
       'DTSTART;VALUE=DATE:${_icsDate(row.eventDate)}',
       'SUMMARY:${_icsText(row.label)}',
