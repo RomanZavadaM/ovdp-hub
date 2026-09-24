@@ -31,7 +31,7 @@ class EconomicPulseBar extends StatelessWidget {
         detail: _sourceDetail(
           strings,
           snapshot?.usd?.sourceDate,
-          'НБУ',
+          strings.text('sourceNbu'),
         ),
       ),
       _PulseItem(
@@ -41,7 +41,7 @@ class EconomicPulseBar extends StatelessWidget {
         detail: _sourceDetail(
           strings,
           snapshot?.eur?.sourceDate,
-          'НБУ',
+          strings.text('sourceNbu'),
         ),
       ),
       _PulseItem(
@@ -51,7 +51,7 @@ class EconomicPulseBar extends StatelessWidget {
         detail: _sourceDetail(
           strings,
           snapshot?.uahAuctionYield?.sourceDate,
-          'Мінфін',
+          strings.text('sourceMinfin'),
         ),
       ),
       _PulseItem(
@@ -62,7 +62,7 @@ class EconomicPulseBar extends StatelessWidget {
             : _pulseDate(snapshot!.nextAuction!.date),
         detail: snapshot?.nextAuction == null
             ? strings.text('pulseUnavailable')
-            : 'Мінфін',
+            : strings.text('sourceMinfin'),
       ),
     ];
 
