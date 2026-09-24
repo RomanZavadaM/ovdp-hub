@@ -110,7 +110,7 @@ class Workspace {
 
   Future<String> writeTextExport(String fileName, String content) async {
     await checkAvailable();
-    if (!RegExp(r'^[A-Za-z0-9._-]{1,160}\.(csv|ics)
+    final validName = RegExp(r'^[A-Za-z0-9._-]{1,160}\.(csv|ics)
   Future<Workspace> copyTo(Directory destination) async {
     final sourcePath = p.normalize(p.absolute(directory.path));
     final targetPath = p.normalize(p.absolute(destination.path));
@@ -136,8 +136,8 @@ class Workspace {
     return target;
   }
 }
-).hasMatch(fileName) ||
-        fileName.contains('..')) {
+);
+    if (!validName.hasMatch(fileName) || fileName.contains('..')) {
       throw const FormatException('workspace.invalid_export_name');
     }
     final folder = Directory(p.join(directory.path, 'exports'));
