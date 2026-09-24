@@ -35,11 +35,14 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - candidates to review: AEAD + Argon2id/KDF implementation, secure storage/key wrapping on Windows/macOS/iOS/Android, external-file access adapters where relevant;
 - required evidence: current release/maintenance, license, platform implementation semantics, known advisory posture, threat-model mapping, testability;
 - no `pubspec.yaml` change and no vault feature implementation in this slice;
-- output: one documented stack decision with accepted/rejected alternatives, platform adapter matrix, dependency pinning policy and implementation test gates.
+- output: one documented stack decision with accepted/rejected alternatives, platform adapter matrix, dependency pinning policy and implementation test gates;
+- review document: **`docs/security-vault-dependency-review.md`**;
+- proposed stack: **`sodium 4.1.0+1` / libsodium 1.0.22 + `flutter_secure_storage 11.2.0` on Android/Apple + app-owned Windows DPAPI adapter via `win32 6.4.0`**;
+- Windows generic `flutter_secure_storage_windows` is explicitly rejected for DEK storage because its current decrypt/parse error path deletes the encrypted storage file.
 
 ### Поточна наступна дія
 
-**DOING — research current candidate packages and upstream/platform evidence, record the dependency/security decision in a dedicated document, then open a docs-only PR for exact-head verification.**
+**DOING — dependency/security decision is documented. Review the branch diff for scope, update Issue #18 with the decision rationale, then open a docs-only PR for exact-head verification. No dependency or feature code yet.**
 
 ## Черга робіт
 
