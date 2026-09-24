@@ -1188,7 +1188,10 @@ class PlannerView extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: disabled || summary == null || state.inputs.isEmpty
                   ? null
-                  : cubit.exportCsvIcs,
+                  : () => cubit.exportCsvIcs(
+                        displayLabel: (value) =>
+                            _generatedCopy(strings, value),
+                      ),
               icon: const Icon(Icons.event_note_outlined),
               label: Text(strings.text('exportCsvIcs')),
             ),
