@@ -108,6 +108,52 @@ class Workspace {
   }
   Future<void> saveSet(SavedSet set) => writeRecord('sets', set.toJson());
 
+  Future<String> writeTextExport(String fileName, String content) async {
+    await checkAvailable();
+    if (!RegExp(r'^[A-Za-z0-9._-]{1,160}\.(csv|ics)
+  Future<Workspace> copyTo(Directory destination) async {
+    final sourcePath = p.normalize(p.absolute(directory.path));
+    final targetPath = p.normalize(p.absolute(destination.path));
+    if (p.equals(sourcePath, targetPath) ||
+        p.isWithin(sourcePath, targetPath)) {
+      throw const FileSystemException('workspace.destination_outside');
+    }
+    if (await destination.exists() && !await destination.list().isEmpty) {
+      throw const FileSystemException('workspace.destination_empty');
+    }
+    final catalogs = <Catalog>[];
+    for (final file in await records('catalogs')) {
+      catalogs.add(Catalog.parse(await readLimited(file)));
+    }
+    final savedSets = await sets();
+    final target = await Workspace.open(destination, create: true);
+    for (final catalog in catalogs.reversed) {
+      await target.saveCatalog(catalog);
+    }
+    for (final set in savedSets.reversed) {
+      await target.saveSet(set);
+    }
+    return target;
+  }
+}
+).hasMatch(fileName) ||
+        fileName.contains('..')) {
+      throw const FormatException('workspace.invalid_export_name');
+    }
+    final folder = Directory(p.join(directory.path, 'exports'));
+    await folder.create();
+    final target = File(p.join(folder.path, fileName));
+    final temporary = File('${target.path}.pending');
+    try {
+      await temporary.writeAsString(content, flush: true);
+      if (await target.exists()) await target.delete();
+      await temporary.rename(target.path);
+      return target.path;
+    } finally {
+      if (await temporary.exists()) await temporary.delete();
+    }
+  }
+
   /// Copy only validated application records; preserve source, never merge silently.
   Future<Workspace> copyTo(Directory destination) async {
     final sourcePath = p.normalize(p.absolute(directory.path));
