@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/features/portfolio/portfolio_cubit.dart';
 import 'package:ovdp_hub/main.dart';
 import 'package:ovdp_hub/models.dart';
+import 'package:ovdp_hub/ui/studio_design.dart';
 
 import 'support/fake_portfolio_gateway.dart';
 import 'support/fake_repository.dart';
@@ -85,7 +86,12 @@ void main() {
     expect(find.text('48.50 ₴'), findsOneWidget);
     expect(find.text('Мій портфель'), findsWidgets);
 
-    await tester.tap(find.text('Мій портфель').first);
+    final portfolioNavigation = find.descendant(
+      of: find.byType(StudioSidebar),
+      matching: find.byIcon(Icons.account_balance_wallet_outlined),
+    );
+    expect(portfolioNavigation, findsOneWidget);
+    await tester.tap(portfolioNavigation);
     await tester.pumpAndSettle();
 
     expect(find.text('Створити захищений портфель'), findsOneWidget);
