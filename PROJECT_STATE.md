@@ -499,13 +499,40 @@ Contracts:
 
 **Important boundary:** user-facing vault/migration/portfolio UI is still not wired. Existing legacy workspace `sets/*.json` remain plaintext until a future explicit migration flow is connected and successfully run.
 
-## Release candidate v0.9.1
+## Release v0.9.1 published
 
-- App version/build: **0.9.1+18**.
-- Scope: Light Dashboard, reserve floor, deterministic CSV/ICS exports, encrypted-vault/security foundation, private factual portfolio domain, factual disposals/lot allocation, non-destructive legacy migration core.
-- Required publication: Windows x64, macOS, Android test, unsigned iOS, START/source, SHA256SUMS and legal notices.
-- Status: **release preparation / publication pending**.
-- v0.9.0 remains immutable and is not rewritten.
+Full prerelease checkpoint **v0.9.1 / 0.9.1+18** published from `main` commit **`bf9b358b73ce84ea333a09978a4607c0505d30fb`**.
+
+Release evidence:
+- release PR **#97 — Release: OVDP Hub v0.9.1+18**;
+- exact PR head run **#337 — success**;
+- post-merge `main` run **#338 — success**;
+- **Publish native prerelease run #72 — success**;
+- immutable tag **`v0.9.1`** → `bf9b358b73ce84ea333a09978a4607c0505d30fb`;
+- GitHub prerelease **OVDP Hub 0.9.1** published 24.09.2026.
+
+Published assets:
+- `OVDP-Hub-0.9.1-Windows-x64.zip`;
+- `OVDP-Hub-0.9.1-macOS.zip`;
+- `OVDP-Hub-0.9.1-Android-test.zip`;
+- `OVDP-Hub-0.9.1-iOS-unsigned.zip`;
+- `OVDP-Hub-0.9.1-START.zip`;
+- `SHA256SUMS.txt`;
+- `LICENSE.md`, `COPYRIGHT.md`, `LEGAL_AND_COPYRIGHT.md`, `THIRD_PARTY_NOTICES.md`.
+
+Checkpoint scope:
+- Light Dashboard;
+- Planner reserve floor;
+- deterministic CSV/ICS exports;
+- encrypted-vault/security foundation;
+- recovery/backup/rollback/session/lifecycle controls;
+- factual private portfolio schemas through v3;
+- factual disposals + explicit lot allocation;
+- non-destructive legacy migration core.
+
+**Privacy boundary remains unchanged:** user-facing vault/migration/portfolio UI is not wired; existing legacy workspace `sets/*.json` do not become encrypted automatically merely by installing v0.9.1; migration core has no delete API.
+
+**v0.9.1 tag/release/assets are immutable and must not be moved or rewritten.**
 
 ## Наступний етап після v0.9.1
 
