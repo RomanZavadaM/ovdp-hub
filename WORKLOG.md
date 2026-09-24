@@ -25,27 +25,24 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **Planner reserve-floor / мінімальний залишок як typed schema-3-compatible constraint**.
+Мета: **deterministic local Planner exports: CSV + ICS; PDF deferred**.
 
-- base `main`: **`4b5a40f82e905174a26b0c9799f84a68fcd9c54d`**;
-- branch: **`feat/planner-reserve-floor`**;
-- domain rule: reserve floor is **not a cash expense**; from its effective date onward it is a minimum liquid-cash constraint;
-- generator preserves the stricter of scenario `reserve` and active reserve floor;
-- schema remains **3**; old scenarios are read without silent rewrite;
-- strict A/B/C comparability includes floor type/date/amount;
-- scope: domain semantics → persistence/load → cashflow/coverage → generator → comparison → UI → UK/EN/FR/DE/ES/KO/JA → regression tests;
-- draft PR: **#69** `Planner: add reserve-floor minimum balance needs`;
-- verified code head: **`edf78ee85e12edb55fb9ebccab6b18f405884970`**;
-- **Flutter checks and START run #209 — success** (`flutter analyze` + full Flutter tests);
-- final branch head `0cf2f51322fb931a84e90caa6422fa57673ecd92` passed run **#210**;
-- squash merge `main`: **`37b8120db0dd64fa81dc4f06e3e2a44a2ec21206`**;
-- post-merge main run **#211 — success**, including START/source artifact.
+- base `main`: **`b1507a0caac416d4f4b275f7508c46ccea1fbdeb`**;
+- branch: **`feat/planner-exports`**;
+- export model first: stable machine-readable CSV schema + calendar ICS semantics;
+- source: current generated/saved Planner scenario, positions, typed needs and derived coverage/cashflow;
+- file handling: local `exports/` inside the active workspace with validated deterministic filenames and atomic text writes;
+- CSV: UTF-8, stable English machine headers, Decimal dot, RFC4180 escaping, explicit record types;
+- ICS: all-day events for needs/reserve-floor and expected cash-availability dates for coupon/redemption/sale events; deterministic UID/DTSTAMP; no network;
+- PDF remains deferred until report structure stabilizes;
+- UI labels/messages: UK/EN/FR/DE/ES/KO/JA;
+- regression: identical input → identical bytes; save path; CSV escaping; ICS escaping/dates; desktop/phone Planner buttons.
 
 ### Поточна наступна дія
 
-**NEXT — Planner export slice: deterministic local CSV + ICS export from saved/generated scenario data and cashflow/needs. Keep PDF deferred until report structure stabilizes. Define export schemas first, then generation, workspace/file handling, UI, 7-language labels and regression tests.**
+**DOING — define `docs/planner-exports.md`, implement pure export generation + workspace write API, wire Planner actions and 7-language UI, add regressions, then open PR and require green analyze/tests before integration.**
 
 ## Черга робіт
 
@@ -62,7 +59,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
 12. **DONE** — optional third appearance «Світла панель» integrated via PR #67; final run #206; merge `90bea96f…`.
 13. **DONE** — Planner reserve-floor / minimum-balance needs; PR #69 → merge `37b8120d…`; final branch run #210 and main run #211 green.
-14. **NEXT** — deterministic local CSV + ICS Planner exports; PDF deferred.
+14. **DOING** — deterministic local CSV + ICS Planner exports; PDF deferred.
 
 ## Продуктова логіка цієї черги
 
