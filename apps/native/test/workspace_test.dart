@@ -132,4 +132,45 @@ void main() {
       await expectLater(source.sets(), throwsFormatException);
     },
   );
+
+  test('export bundle is local, human-readable and collision-safe', () async {
+    final source = await Workspace.open(
+      Directory(p.join(root.path, 'source')),
+      create: true,
+    );
+
+    final first = await source.writeTextBundle(
+      'OVDP-Hub-Test-2026-09-24_120000',
+      {
+        'planner.csv': 'a,b\n1,2\n',
+        'planner.ics': 'BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n',
+      },
+    );
+    expect(p.basename(first), 'OVDP-Hub-Test-2026-09-24_120000');
+    expect(
+      await File(p.join(first, 'planner.csv')).readAsString(),
+      'a,b\n1,2\n',
+    );
+    expect(
+      await File(p.join(first, 'planner.ics')).readAsString(),
+      'BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n',
+    );
+
+    final second = await source.writeTextBundle(
+      'OVDP-Hub-Test-2026-09-24_120000',
+      {'planner.csv': 'second'},
+    );
+    expect(p.basename(second), 'OVDP-Hub-Test-2026-09-24_120000-2');
+    expect(await File(p.join(second, 'planner.csv')).readAsString(), 'second');
+
+    await expectLater(
+      source.writeTextBundle('../escape', {'planner.csv': 'x'}),
+      throwsFormatException,
+    );
+    await expectLater(
+      source.writeTextBundle('safe', {'../planner.csv': 'x'}),
+      throwsFormatException,
+    );
+  });
+
 }
