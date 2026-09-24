@@ -12,6 +12,7 @@ class MemoryVaultDeviceKeyStore implements VaultDeviceKeyStore {
   final Map<String, Uint8List> keys = {};
   final Map<String, int> revisions = {};
   bool failRevisionStore = false;
+  bool failDelete = false;
 
   @override
   Future<void> storeDek({
@@ -33,6 +34,9 @@ class MemoryVaultDeviceKeyStore implements VaultDeviceKeyStore {
 
   @override
   Future<void> deleteDek({required String vaultId}) async {
+    if (failDelete) {
+      throw StateError('test.device_key_delete_failure');
+    }
     keys.remove(vaultId);
     revisions.remove(vaultId);
   }
@@ -431,4 +435,319 @@ void main() {
       throwsStateError,
     );
   });
+
+  test('recovery enable rotate and remove preserve DEK and private payload', () async {
+    final device = MemoryVaultDeviceKeyStore();
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+    );
+
+    await store.create(
+      vaultId: 'vault-recovery-lifecycle',
+      plainText: bytes('same private payload'),
+    );
+    final originalDek = Uint8List.fromList(
+      device.keys['vault-recovery-lifecycle']!,
+    );
+
+    final enabled = await store.enableRecovery(
+      vaultId: 'vault-recovery-lifecycle',
+      recoverySecret: 'first recovery secret',
+      recoveryParameters: VaultRecoveryKdfParameters.interactive,
+    );
+    expect(enabled.revision, 2);
+    expect(enabled.recoveryEnabled, true);
+    expect(device.keys['vault-recovery-lifecycle'], originalDek);
+    expect(
+      String.fromCharCodes(
+        (await store.open(vaultId: 'vault-recovery-lifecycle')).plainText,
+      ),
+      'same private payload',
+    );
+
+    final oldBackup = File(p.join(root.path, 'old-recovery-backup.json'));
+    await store.createEncryptedBackup(
+      vaultId: 'vault-recovery-lifecycle',
+      destination: oldBackup,
+    );
+    final oldBackupBytes = await oldBackup.readAsBytes();
+
+    final rotated = await store.rotateRecovery(
+      vaultId: 'vault-recovery-lifecycle',
+      recoverySecret: 'second recovery secret',
+      recoveryParameters: VaultRecoveryKdfParameters.interactive,
+    );
+    expect(rotated.revision, 3);
+    expect(rotated.recoveryEnabled, true);
+    expect(device.keys['vault-recovery-lifecycle'], originalDek);
+    expect(await oldBackup.readAsBytes(), oldBackupBytes);
+
+    final newBackup = File(p.join(root.path, 'new-recovery-backup.json'));
+    await store.createEncryptedBackup(
+      vaultId: 'vault-recovery-lifecycle',
+      destination: newBackup,
+    );
+
+    final freshNew = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'fresh-new')),
+      crypto: crypto,
+      deviceKeyStore: MemoryVaultDeviceKeyStore(),
+    );
+    await expectLater(
+      freshNew.restoreEncryptedBackup(
+        vaultId: 'vault-recovery-lifecycle',
+        source: newBackup,
+        recoverySecret: 'first recovery secret',
+      ),
+      throwsFormatException,
+    );
+    final restoredNew = await freshNew.restoreEncryptedBackup(
+      vaultId: 'vault-recovery-lifecycle',
+      source: newBackup,
+      recoverySecret: 'second recovery secret',
+    );
+    expect(
+      String.fromCharCodes(restoredNew.plainText),
+      'same private payload',
+    );
+
+    final freshOld = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'fresh-old')),
+      crypto: crypto,
+      deviceKeyStore: MemoryVaultDeviceKeyStore(),
+    );
+    final restoredOld = await freshOld.restoreEncryptedBackup(
+      vaultId: 'vault-recovery-lifecycle',
+      source: oldBackup,
+      recoverySecret: 'first recovery secret',
+    );
+    expect(restoredOld.revision, 2);
+
+    final removed = await store.removeRecovery(
+      vaultId: 'vault-recovery-lifecycle',
+    );
+    expect(removed.revision, 4);
+    expect(removed.recoveryEnabled, false);
+    expect(device.keys['vault-recovery-lifecycle'], originalDek);
+    expect(
+      String.fromCharCodes(
+        (await store.open(vaultId: 'vault-recovery-lifecycle')).plainText,
+      ),
+      'same private payload',
+    );
+    await expectLater(
+      store.createEncryptedBackup(
+        vaultId: 'vault-recovery-lifecycle',
+        destination: File(p.join(root.path, 'disabled-backup.json')),
+      ),
+      throwsStateError,
+    );
+    expect(await oldBackup.readAsBytes(), oldBackupBytes);
+  });
+
+  test('failed recovery-slot commit preserves previous usable vault', () async {
+    final device = MemoryVaultDeviceKeyStore();
+    var failCommit = false;
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+      afterReplaceBeforeValidation: (_) {
+        if (failCommit) {
+          throw StateError('test.lifecycle_commit_failure');
+        }
+      },
+    );
+
+    await store.create(
+      vaultId: 'vault-recovery-atomic',
+      plainText: bytes('known-good'),
+    );
+    final originalDek = Uint8List.fromList(
+      device.keys['vault-recovery-atomic']!,
+    );
+    failCommit = true;
+
+    await expectLater(
+      store.enableRecovery(
+        vaultId: 'vault-recovery-atomic',
+        recoverySecret: 'new recovery secret',
+        recoveryParameters: VaultRecoveryKdfParameters.interactive,
+      ),
+      throwsStateError,
+    );
+    failCommit = false;
+
+    final reopened = await store.open(vaultId: 'vault-recovery-atomic');
+    expect(reopened.revision, 1);
+    expect(reopened.recoveryEnabled, false);
+    expect(String.fromCharCodes(reopened.plainText), 'known-good');
+    expect(device.keys['vault-recovery-atomic'], originalDek);
+    expect(device.revisions['vault-recovery-atomic'], 1);
+  });
+
+  test('local delete removes app state but never external portable backup', () async {
+    final device = MemoryVaultDeviceKeyStore();
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+    );
+
+    await store.create(
+      vaultId: 'vault-delete',
+      plainText: bytes('delete me locally'),
+      recoverySecret: 'delete recovery secret',
+      recoveryParameters: VaultRecoveryKdfParameters.interactive,
+    );
+    final externalBackup = File(p.join(root.path, 'external', 'portable.json'));
+    await store.createEncryptedBackup(
+      vaultId: 'vault-delete',
+      destination: externalBackup,
+    );
+    final externalBytes = await externalBackup.readAsBytes();
+
+    final target = store.fileFor('vault-delete');
+    await File('${target.path}.pending').writeAsString('stale', flush: true);
+    await File('${target.path}.backup').writeAsString('stale', flush: true);
+
+    await store.deleteLocalVault(vaultId: 'vault-delete');
+
+    expect(await target.exists(), false);
+    expect(await File('${target.path}.pending').exists(), false);
+    expect(await File('${target.path}.backup').exists(), false);
+    expect(await File('${target.path}.deleting').exists(), false);
+    expect(device.keys['vault-delete'], isNull);
+    expect(device.revisions['vault-delete'], isNull);
+    expect(await externalBackup.exists(), true);
+    expect(await externalBackup.readAsBytes(), externalBytes);
+
+    final restored = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'restored')),
+      crypto: crypto,
+      deviceKeyStore: MemoryVaultDeviceKeyStore(),
+    );
+    final opened = await restored.restoreEncryptedBackup(
+      vaultId: 'vault-delete',
+      source: externalBackup,
+      recoverySecret: 'delete recovery secret',
+    );
+    expect(String.fromCharCodes(opened.plainText), 'delete me locally');
+  });
+
+  test('delete failure after device-key removal restores usable local vault', () async {
+    final device = MemoryVaultDeviceKeyStore();
+    var failAfterKeyDelete = false;
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+      afterDeviceKeyDeleteBeforeFileDelete: (_) {
+        if (failAfterKeyDelete) {
+          throw StateError('test.delete_after_key_failure');
+        }
+      },
+    );
+
+    await store.create(
+      vaultId: 'vault-delete-rollback',
+      plainText: bytes('must survive failed delete'),
+      recoverySecret: 'delete rollback secret',
+      recoveryParameters: VaultRecoveryKdfParameters.interactive,
+    );
+    final beforeKey = Uint8List.fromList(
+      device.keys['vault-delete-rollback']!,
+    );
+    failAfterKeyDelete = true;
+
+    await expectLater(
+      store.deleteLocalVault(vaultId: 'vault-delete-rollback'),
+      throwsStateError,
+    );
+    failAfterKeyDelete = false;
+
+    expect(device.keys['vault-delete-rollback'], beforeKey);
+    expect(device.revisions['vault-delete-rollback'], 1);
+    expect(await store.fileFor('vault-delete-rollback').exists(), true);
+    final reopened = await store.open(vaultId: 'vault-delete-rollback');
+    expect(String.fromCharCodes(reopened.plainText), 'must survive failed delete');
+  });
+
+  test('device-key delete failure restores staged active file', () async {
+    final device = MemoryVaultDeviceKeyStore();
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+    );
+    await store.create(
+      vaultId: 'vault-delete-key-failure',
+      plainText: bytes('still usable'),
+    );
+    device.failDelete = true;
+
+    await expectLater(
+      store.deleteLocalVault(vaultId: 'vault-delete-key-failure'),
+      throwsStateError,
+    );
+    device.failDelete = false;
+
+    expect(await store.fileFor('vault-delete-key-failure').exists(), true);
+    expect(device.keys['vault-delete-key-failure'], isNotNull);
+    expect(
+      String.fromCharCodes(
+        (await store.open(vaultId: 'vault-delete-key-failure')).plainText,
+      ),
+      'still usable',
+    );
+  });
+
+  test('open recovers an interrupted delete when device key still exists', () async {
+    final device = MemoryVaultDeviceKeyStore();
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+    );
+    await store.create(
+      vaultId: 'vault-delete-crash-before-key',
+      plainText: bytes('recover after crash'),
+    );
+    final target = store.fileFor('vault-delete-crash-before-key');
+    final deleting = File('${target.path}.deleting');
+    await target.rename(deleting.path);
+
+    final reopened = await store.open(
+      vaultId: 'vault-delete-crash-before-key',
+    );
+    expect(String.fromCharCodes(reopened.plainText), 'recover after crash');
+    expect(await target.exists(), true);
+    expect(await deleting.exists(), false);
+  });
+
+  test('delete resumes after crash that already removed the device key', () async {
+    final device = MemoryVaultDeviceKeyStore();
+    final store = LocalVaultStore(
+      directory: Directory(p.join(root.path, 'active')),
+      crypto: crypto,
+      deviceKeyStore: device,
+    );
+    await store.create(
+      vaultId: 'vault-delete-crash-after-key',
+      plainText: bytes('pending delete'),
+    );
+    final target = store.fileFor('vault-delete-crash-after-key');
+    final deleting = File('${target.path}.deleting');
+    await target.rename(deleting.path);
+    await device.deleteDek(vaultId: 'vault-delete-crash-after-key');
+
+    await store.deleteLocalVault(vaultId: 'vault-delete-crash-after-key');
+
+    expect(await target.exists(), false);
+    expect(await deleting.exists(), false);
+    expect(device.keys['vault-delete-crash-after-key'], isNull);
+  });
+
 }
