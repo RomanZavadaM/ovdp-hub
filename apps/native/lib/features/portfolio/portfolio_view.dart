@@ -300,7 +300,7 @@ class PortfolioView extends StatelessWidget {
                     controller: date,
                     decoration: InputDecoration(
                       labelText: strings.text('portfolioPurchaseDate'),
-                      hintText: 'ДД.ММ.РРРР',
+                      hintText: 'DD.MM.YYYY',
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -553,6 +553,7 @@ class _HoldingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     final catalog = context.read<HubRepository>().current?.catalog;
     Bond? bond;
     if (catalog != null) {
@@ -573,7 +574,7 @@ class _HoldingCard extends StatelessWidget {
         subtitle: Text(
           bond == null
               ? holding.currency
-              : '${holding.currency} · погашення ${_displayIsoDate(bond.maturity)}',
+              : '${holding.currency} · ${strings.text('portfolioMaturity')} ${_displayIsoDate(bond.maturity)}',
         ),
         trailing: Text(
           '× ${holding.units}',
