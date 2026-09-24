@@ -63,8 +63,13 @@
 1. `flutter pub get --enforce-lockfile`;
 2. `flutter analyze`;
 3. `flutter test`;
-4. для релізного checkpoint — release build відповідних платформ;
-5. перевірити, що робочі папки, портфелі, ключі, БД та персональні файли не потрапили до Git.
+4. user-visible regressions мають натискати реальні доступні користувачу controls, а не лише викликати Cubit/state API напряму;
+5. для desktop user-visible/release змін — зібрати й **запакувати** Windows/macOS artifact, розпакувати саме ZIP і запустити executable smoke-contract з нього;
+6. packaged-artifact smoke повинен звірити version/build та заявлені user-visible capabilities з вихідним release contract; source/widget tests не замінюють цю перевірку;
+7. GitHub Release може публікувати тільки ті exact artifacts, що пройшли packaged-artifact smoke; старий або інший executable не можна підмінити після перевірки;
+8. version/build, показані в UI та діагностичному release contract, мають походити з build metadata; hardcoded старі номери версій у UI заборонені;
+9. для релізного checkpoint — release build відповідних платформ;
+10. перевірити, що робочі папки, портфелі, ключі, БД та персональні файли не потрапили до Git.
 
 ## 8. Реліз
 
@@ -76,7 +81,8 @@
 - доступні платформні тестові пакети;
 - `SHA256SUMS.txt`;
 - legal notices;
-- чітке маркування signing-статусу та обмежень тестової збірки.
+- чітке маркування signing-статусу та обмежень тестової збірки;
+- доказ packaged-artifact smoke для Windows/macOS: exact ZIP → extract → executable contract → expected version/build/user-visible capabilities.
 
 Для 0.x релізи за замовчуванням публікуються як **prerelease**, доки власник не визначить стабільну виробничу лінію.
 
