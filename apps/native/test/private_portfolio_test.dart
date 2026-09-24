@@ -398,8 +398,9 @@ void main() {
     final reencoded = String.fromCharCodes(
       PrivatePortfolioPayloadCodec.encode(decoded),
     );
-    expect(reencoded, contains('"schemaVersion":2'));
+    expect(reencoded, contains('"schemaVersion":3'));
     expect(reencoded, contains('"disposals":[]'));
+    expect(reencoded, contains('"legacyCollections":[]'));
   });
 
   test('disposal allocation order is deterministic and holdings subtract sales', () {
