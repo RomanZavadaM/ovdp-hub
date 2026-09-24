@@ -102,6 +102,7 @@ List<_ExportRow> _rows({
   required PlannerScenario scenario,
   required Iterable<Bond> bonds,
   required Iterable<ExpenseBalance> expenseBalances,
+  required String Function(String) displayLabel,
 }) {
   final positions = _materializePositions(scenario, bonds);
   final exits = {
@@ -194,7 +195,7 @@ List<_ExportRow> _rows({
       _ExportRow(
         eventDate: balance.expense.date,
         eventType: _needEventType(balance.expense.type),
-        label: balance.expense.name,
+        label: displayLabel(balance.expense.name),
         amount: balance.expense.amount,
         available: balance.available,
         remaining: balance.remaining,
@@ -209,8 +210,9 @@ List<_ExportRow> _rows({
 
 String _csv(
   PlannerScenario scenario,
-  List<_ExportRow> rows,
-) {
+  List<_ExportRow> rows, {
+  required String scenarioName,
+}) {
   const header = [
     'scenario_name',
     'currency',
@@ -231,7 +233,7 @@ String _csv(
   final out = StringBuffer('\ufeff')..writeln(header.join(','));
   for (final row in rows) {
     final values = [
-      scenario.name,
+      scenarioName,
       scenario.currency,
       scenario.budget.toString(),
       scenario.reserve.toString(),
@@ -367,18 +369,26 @@ String _ics(
   return '${lines.map(_foldIcsLine).join('\r\n')}\r\n';
 }
 
+String _identityLabel(String value) => value;
+
 PlannerExportBundle buildPlannerExportBundle({
   required PlannerScenario scenario,
   required Iterable<Bond> bonds,
   required Iterable<ExpenseBalance> expenseBalances,
+  String Function(String) displayLabel = _identityLabel,
 }) {
   final rows = _rows(
     scenario: scenario,
     bonds: bonds,
     expenseBalances: expenseBalances,
+    displayLabel: displayLabel,
   );
   return PlannerExportBundle(
-    csv: _csv(scenario, rows),
+    csv: _csv(
+      scenario,
+      rows,
+      scenarioName: displayLabel(scenario.name),
+    ),
     ics: _ics(scenario, rows),
   );
 }
