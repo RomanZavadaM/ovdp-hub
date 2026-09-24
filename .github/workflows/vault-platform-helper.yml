@@ -26,6 +26,58 @@ jobs:
           cache: true
       - run: flutter pub get --enforce-lockfile
       - run: flutter build windows --release
+      - name: Real DPAPI smoke
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path tool -Force | Out-Null
+          @'
+          import 'dart:io';
+          import 'dart:typed_data';
+
+          import 'package:ovdp_hub/security/vault_device_key_store_windows.dart';
+          import 'package:ovdp_hub/security/vault_dpapi_protector_win32.dart';
+
+          Future<void> main() async {
+            final root = await Directory.systemTemp.createTemp('ovdp-dpapi-smoke-');
+            try {
+              final protector = Win32DpapiProtector();
+              final plain = Uint8List.fromList(List<int>.generate(32, (i) => i));
+              final cipher = protector.protect(plain);
+              if (cipher.isEmpty) throw StateError('DPAPI produced no ciphertext');
+              final restored = protector.unprotect(cipher);
+              if (restored.length != plain.length) throw StateError('DPAPI length mismatch');
+              for (var i = 0; i < plain.length; i++) {
+                if (restored[i] != plain[i]) throw StateError('DPAPI round-trip mismatch');
+              }
+
+              final store = WindowsVaultDeviceKeyStore(
+                directory: root,
+                protector: protector,
+              );
+              await store.storeDek(vaultId: 'ci-smoke', dek: plain);
+              await store.storeHighestAcceptedRevision(
+                vaultId: 'ci-smoke',
+                revision: 2,
+              );
+              final loaded = await store.loadDek(vaultId: 'ci-smoke');
+              if (loaded == null || loaded.length != 32) {
+                throw StateError('DPAPI store failed');
+              }
+              if (await store.loadHighestAcceptedRevision(vaultId: 'ci-smoke') != 2) {
+                throw StateError('DPAPI revision state failed');
+              }
+              await store.deleteDek(vaultId: 'ci-smoke');
+              if (await store.loadDek(vaultId: 'ci-smoke') != null) {
+                throw StateError('DPAPI delete failed');
+              }
+              stdout.writeln('OVDP DPAPI smoke OK');
+            } finally {
+              if (await root.exists()) await root.delete(recursive: true);
+            }
+          }
+          '@ | Set-Content -Encoding UTF8 tool/vault_dpapi_smoke.dart
+          dart run tool/vault_dpapi_smoke.dart
+          Remove-Item tool/vault_dpapi_smoke.dart
 
   macos:
     runs-on: macos-latest
