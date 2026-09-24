@@ -4,17 +4,16 @@
 
 ## Поточний checkpoint
 
-- Release candidate: **0.9.0+17**
-- Поточний опублікований GitHub tag до завершення pipeline: **v0.8.8**
-- Запланований новий tag: **v0.9.0**
+- Активна версія: **0.9.0+17**
+- Опублікований GitHub tag: **v0.9.0**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
 - Репозиторій: `RomanZavadaM/ovdp-hub`
 - Основна гілка: `main`
 - Статус продукту: **test / prerelease**
-- Release base перед checkpoint: **aaeb08cb24145cdea38739f22b660ac28fca15b5**
-- Release workflow: **очікує explicit checkpoint merge release PR**
-- GitHub Release: **v0.9.0 — готується; v0.8.8 лишається опублікованим**
+- Release commit: **21698ae34f9438f7c5ab49724e47dc13014b7daa**
+- Release workflow: **Publish native prerelease run #45 — success**
+- GitHub Release: **v0.9.0**, опублікований 24.09.2026
 
 ## Що входить до опублікованого 0.8.5
 
@@ -256,11 +255,9 @@ PR **#61 — Planner: localize generated copy and preset labels** squash-merged 
 Final code verification: **Flutter checks and START run #189 — success (110/110 tests)**.  
 Final latest-head verification після WORKLOG-only commit: **run #190 — success**.
 
-## Чому 0.8.8 ще не 0.9.0
+## Перехід від v0.8.8 до v0.9.0
 
-Після опублікованого v0.8.8 у `main` уже інтегровано A/B/C comparison і generated Planner copy / preset-label localization з наскрізними regression tests.
-
-Тому 0.9.0 «Ринок» лишається активною ціллю, але наступний крок тепер не нова feature-гілка, а **formal prerelease readiness assessment** поточного `main`.
+Після v0.8.8 у `main` інтегровано A/B/C comparison і generated Planner copy / preset-label localization з наскрізними regression tests. Formal readiness gate пройдено, після чого checkpoint **v0.9.0 / 0.9.0+17** опубліковано повним cross-platform pipeline.
 
 ## Formal prerelease readiness assessment 0.9.0
 
@@ -274,14 +271,14 @@ Assessment від 24.09.2026 зафіксовано в `docs/READINESS_0_9_0.md`
 - exact-current-main Windows/macOS/Android/iOS compile лишається обов'язковим release gate і має пройти в повному release workflow до publication;
 - reserve-floor, exports, encrypted vault і production signing лишаються explicit deferred/non-blocking roadmap work.
 
-## Наступний етап — release preparation 0.9.0
+## Наступний етап після v0.9.0
 
-1. підготувати окремий release-checkpoint PR;
-2. version/build: **`0.9.0+17`**;
-3. створити `docs/releases/RELEASE_NOTES_v0_9_0.md` усіма 7 мовами;
-4. пройти PR checks;
-5. merge checkpoint PR має запустити повний gated release workflow Windows/macOS/Android/iOS/START + checksums/legal;
-6. вважати v0.9.0 опублікованим лише після успішного `publish`.
+1. реалізувати окремий **додатковий дизайн «Світла панель»** за візуальним напрямком, наданим власником;
+2. **не замінювати** наявні Classic та «Робочий кабінет» — усі три режими мають бути доступні користувачу;
+3. зберегти функціональну поведінку, локалізацію UK/EN/FR/DE/ES/KO/JA та phone/desktop regressions;
+4. після завершення UI-slice повернутися до roadmap Planner: **reserve-floor / мінімальний залишок**;
+5. exports, encrypted vault/actual holdings і production signing лишаються наступними окремими етапами.
+
 
 Перед використанням податкових правил обов'язкова перевірка офіційних джерел і періоду дії кожного правила.
 
@@ -333,9 +330,9 @@ Release pipeline **Publish native prerelease run #40** успішно завер
 - legal notices.
 
 
-## Release candidate v0.9.0
+## Реліз v0.9.0
 
-Повний prerelease checkpoint **0.9.0+17** готується з актуального `main` після readiness gate.
+Повний prerelease checkpoint **0.9.0+17** опубліковано з `main` після readiness gate.
 
 До candidate входять зміни після v0.8.8:
 - strict neutral A/B/C comparison для 2–3 saved Planner scenarios;
@@ -346,9 +343,9 @@ Release pipeline **Publish native prerelease run #40** успішно завер
 - UK/EN/FR/DE/ES/KO/JA coverage;
 - readiness assessment `docs/READINESS_0_9_0.md`: GO до release preparation.
 
-Release notes підготовлено сімома мовами інтерфейсу.
+Release notes опубліковано сімома мовами інтерфейсу. PR **#65** squash-merged у `main` як `21698ae34f9438f7c5ab49724e47dc13014b7daa`; **Publish native prerelease run #45** успішно завершив verify, Windows, macOS, Android, iOS, START і final publish.
 
-Очікувані assets після explicit checkpoint merge і успішного full pipeline:
+Опубліковані assets:
 - `OVDP-Hub-0.9.0-Windows-x64.zip`;
 - `OVDP-Hub-0.9.0-macOS.zip`;
 - `OVDP-Hub-0.9.0-Android-test.zip`;
@@ -357,4 +354,4 @@ Release notes підготовлено сімома мовами інтерфе�
 - `SHA256SUMS.txt`;
 - legal notices.
 
-**v0.9.0 не вважати опублікованим до success усіх platform jobs і final publish.**
+**v0.9.0 опубліковано як test/prerelease checkpoint; tag/release не пересувати й не переписувати.**

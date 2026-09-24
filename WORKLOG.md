@@ -19,53 +19,28 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Активна ціль
 
-**0.9.0 «Ринок»**.
+**0.9.x — розвиток після завершеного 0.9.0 «Ринок»**.
 
-Поточний опублікований checkpoint: **v0.8.8 / 0.8.8+16**.
+Поточний опублікований checkpoint: **v0.9.0 / 0.9.0+17**.
 
 ## Поточний slice
 
-Статус: **VERIFIED**
+Статус: **DONE**
 
-Мета: **full prerelease checkpoint v0.9.0 / 0.9.0+17 — release preparation only**.
+Мета: **full prerelease checkpoint v0.9.0 / 0.9.0+17**.
 
-- readiness gate: PR **#63**, merge `f80c7d8e87b4fb494cf37712627bc12277a2fa73`, run #193 — GO;
-- canonical readiness sync: PR **#64**, merge `aaeb08cb24145cdea38739f22b660ac28fca15b5`, run #194;
-- release branch: **`release/v0.9.0`**;
-- release PR: **#65** `Release: v0.9.0 full prerelease checkpoint` — **Ready for review**, not merged;
-- prepared candidate head before WORKLOG sync: `374403898c27df6d07e6bcd5ac852b888eda1b06`;
-- exact verified PR head: `ca0a8908c9c316da6e503f16997d95a73aa9afcc`;
-- **Flutter checks and START run #196 — success** on exact verified head;
-- **Publish native prerelease run #42 — preflight success** on candidate head `ca0a8908c9c316da6e503f16997d95a73aa9afcc`; gated verify/platform/publish jobs were skipped as intended for an unmerged PR;
-- WORKLOG checkpoint head `3972d61782999ebb5a5d827295906a812dbf08f8` passed **Flutter checks and START run #197** and **release preflight run #43**;
-- PR #65 was then marked **Ready for review**; it remains unmerged and unpublished;
-- base `main`: `aaeb08cb24145cdea38739f22b660ac28fca15b5`;
-- target version/build: **0.9.0+17**;
-- target tag after an explicit checkpoint merge: **v0.9.0**;
-- current published checkpoint remains **v0.8.8 / 0.8.8+16** until the full release workflow succeeds;
-- this branch may prepare links/metadata for v0.9.0, but **must not be described as published before the release pipeline finishes**.
-
-### Included since v0.8.8
-
-- strict neutral A/B/C comparison for 2–3 saved Planner scenarios;
-- generated Planner copy / preset-label localization with stable persisted IDs;
-- seven-language generated scenario descriptions;
-- persistence/localization regressions and current readiness documentation.
-
-### Release-prep checklist
-
-1. bump `apps/native/pubspec.yaml` to `0.9.0+17`;
-2. add immutable 7-language `docs/releases/RELEASE_NOTES_v0_9_0.md`;
-3. update changelog / PROJECT_STATE / START_HERE for release-candidate state;
-4. update release links/status in UK/EN/FR/DE/ES/KO/JA README pages;
-5. open release PR;
-6. require green PR preflight + Flutter checks on exact head;
-7. **do not merge/publish from this preparation step**;
-8. after an explicit checkpoint merge, require full release workflow success for Windows/macOS/Android/iOS/START + checksums/legal before marking v0.9.0 published.
+- release PR: **#65** `Release: v0.9.0 full prerelease checkpoint`;
+- final PR head before merge: `40af5e505d68a3ab616f27d5d450706341c439a2`;
+- PR verification: **Flutter checks and START run #198 — success**; release preflight #44 — success;
+- squash merge `main`: **`21698ae34f9438f7c5ab49724e47dc13014b7daa`**;
+- full release workflow: **Publish native prerelease run #45 — success**;
+- published tag/release: **v0.9.0**;
+- assets verified: Windows x64, macOS, Android test, iOS unsigned, START/source, SHA256SUMS and legal notices;
+- v0.9.0 tag/release is immutable and must not be moved or rewritten.
 
 ### Поточна наступна дія
 
-**NEXT — PR #65 is Ready and verified. Do not merge or publish it without an explicit owner command for the full release checkpoint. When authorized, merge #65 and require the gated workflow to complete verify + Windows + macOS + Android + iOS + START + checksums/legal + final prerelease publication before v0.9.0 is marked published.**
+**NEXT — owner-requested UI slice: add a third optional appearance named «Світла панель», inspired by the supplied light-blue desktop dashboard references. Preserve both existing Classic and «Робочий кабінет» modes; localize the new appearance selector/shell for UK/EN/FR/DE/ES/KO/JA; keep desktop and phone navigation functional; add regression coverage. After that slice, return to roadmap item reserve-floor / minimum-balance needs.**
 
 ## Черга робіт
 
@@ -79,7 +54,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 8. **DONE** — full test checkpoint v0.8.8 from current main.
 9. **DONE** — generated planner copy / preset labels localization + UX regression — PR #61, run #189 (110/110), final run #190, merge `1e6849f7…`.
 10. **DONE** — formal prerelease readiness assessment 0.9.0 — PR #63, run #193, merge `f80c7d8e…`; GO to release preparation.
-11. **VERIFIED** — v0.9.0 release-checkpoint PR #65 prepared (`0.9.0+17` + seven-language release notes); exact candidate head passed Flutter checks #196 and release preflight #42; publication not yet authorized in this slice.
+11. **DONE** — v0.9.0 full cross-platform checkpoint: PR #65 → merge `21698ae3…`; release run #45 success; tag/release `v0.9.0` published.
+12. **NEXT** — add optional third appearance «Світла панель» while preserving Classic and «Робочий кабінет».
+13. **NEXT AFTER UI** — Planner reserve-floor / minimum-balance needs.
 
 ## Продуктова логіка цієї черги
 
@@ -106,6 +83,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — v0.9.0 full cross-platform checkpoint**: PR #65 squash-merged у `main` як `21698ae34f9438f7c5ab49724e47dc13014b7daa`; Publish native prerelease run #45 success. Опубліковано Windows/macOS/Android/iOS/START + SHA256SUMS + legal notices під tag `v0.9.0`.
+
 
 - **DONE — formal 0.9.0 prerelease readiness assessment**: PR #63 squash-merged у `main` як `f80c7d8e87b4fb494cf37712627bc12277a2fa73`; final run #193 success. Evidence in `docs/READINESS_0_9_0.md`; no product blocker found; decision = GO to release-prep, while exact-current platform builds remain enforced release gates.
 
