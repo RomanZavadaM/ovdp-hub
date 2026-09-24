@@ -42,7 +42,7 @@ void main(List<String> args) {
       releaseContractJson(),
       flush: true,
     );
-    return;
+    exit(0);
   }
 
   const contractFilePrefix = '--release-contract-file=';
@@ -52,11 +52,11 @@ void main(List<String> args) {
   if (contractFileArg.isNotEmpty) {
     final path = contractFileArg.single.substring(contractFilePrefix.length);
     File(path).writeAsStringSync(releaseContractJson(), flush: true);
-    return;
+    exit(0);
   }
   if (args.contains('--release-contract')) {
     stdout.writeln(releaseContractJson());
-    return;
+    exit(0);
   }
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const OvdpApp());
