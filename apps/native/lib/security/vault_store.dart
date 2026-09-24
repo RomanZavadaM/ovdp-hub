@@ -397,8 +397,8 @@ class LocalVaultStore implements VaultContentStore {
       if (current.recoverySlot == null) {
         throw StateError('vault.recovery_not_configured');
       }
-      if (p.equals(p.normalize(destination.path), p.normalize(fileFor(vaultId).path))) {
-        throw StateError('vault.backup_target_is_active');
+      if (_isAppOwnedVaultPath(vaultId, destination)) {
+        throw StateError('vault.backup_target_reserved');
       }
       await destination.parent.create(recursive: true);
       await destination.writeAsString(
@@ -420,6 +420,9 @@ class LocalVaultStore implements VaultContentStore {
     required String recoverySecret,
   }) async {
     validateVaultId(vaultId);
+    if (_isAppOwnedVaultPath(vaultId, source)) {
+      throw StateError('vault.restore_source_reserved');
+    }
     final candidate = await _readVaultFile(source);
     _validateFileIdentity(candidate, vaultId);
     final slot = candidate.recoverySlot;
@@ -602,6 +605,19 @@ class LocalVaultStore implements VaultContentStore {
     } catch (_) {
       throw StateError('vault.delete_rollback_failed');
     }
+  }
+
+  bool _isAppOwnedVaultPath(String vaultId, File file) {
+    final candidate = p.normalize(p.absolute(file.path));
+    final reserved = [
+      fileFor(vaultId),
+      _pending(vaultId),
+      _backup(vaultId),
+      _deleting(vaultId),
+    ];
+    return reserved.any(
+      (item) => p.equals(candidate, p.normalize(p.absolute(item.path))),
+    );
   }
 
   Future<void> _storeDeviceDek(String vaultId, SecureKey dek) async {
