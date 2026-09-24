@@ -170,7 +170,7 @@ class StudioSidebar extends StatelessWidget {
                   child: Text(
                     "${strings.text('noAccount')}\n"
                     "${strings.text('scenariosLocal')}\n\n"
-                    "${strings.text('testVersion')} 0.8.3",
+                    "${strings.text('testVersion')} 0.9.1",
                     style: const TextStyle(
                       color: Color(0xffb5c5dc),
                       height: 1.7,
