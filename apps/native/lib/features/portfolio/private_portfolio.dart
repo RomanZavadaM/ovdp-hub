@@ -497,11 +497,13 @@ class PrivatePortfolioPayload {
   final String portfolioId;
   final List<PrivateAcquisitionLot> acquisitionLots;
   final List<PrivateCashEvent> cashEvents;
+  final List<PrivateDisposal> disposals;
 
   PrivatePortfolioPayload({
     required this.portfolioId,
     Iterable<PrivateAcquisitionLot> acquisitionLots = const [],
     Iterable<PrivateCashEvent> cashEvents = const [],
+    Iterable<PrivateDisposal> disposals = const [],
   }) : acquisitionLots = List.unmodifiable(
          acquisitionLots.toList()
            ..sort((a, b) {
@@ -523,10 +525,21 @@ class PrivatePortfolioPayload {
              if (byKind != 0) return byKind;
              return a.id.compareTo(b.id);
            }),
+       ),
+       disposals = List.unmodifiable(
+         disposals.toList()
+           ..sort((a, b) {
+             final byDate = a.disposedOn.compareTo(b.disposedOn);
+             if (byDate != 0) return byDate;
+             final byIsin = a.isin.compareTo(b.isin);
+             if (byIsin != 0) return byIsin;
+             return a.id.compareTo(b.id);
+           }),
        ) {
     _validateId(portfolioId, 'portfolio.invalid_portfolio_id');
     if (this.acquisitionLots.length > maxPrivateAcquisitionLots ||
-        this.cashEvents.length > maxPrivateCashEvents) {
+        this.cashEvents.length > maxPrivateCashEvents ||
+        this.disposals.length > maxPrivateDisposals) {
       throw const FormatException('portfolio.too_many_records');
     }
     _validateSemantics();
@@ -534,13 +547,20 @@ class PrivatePortfolioPayload {
 
   void _validateSemantics() {
     final ids = <String>{};
+    final lotsById = <String, PrivateAcquisitionLot>{};
     for (final lot in acquisitionLots) {
       if (!ids.add(lot.id)) {
         throw const FormatException('portfolio.duplicate_record_id');
       }
+      lotsById[lot.id] = lot;
     }
     for (final event in cashEvents) {
       if (!ids.add(event.id)) {
+        throw const FormatException('portfolio.duplicate_record_id');
+      }
+    }
+    for (final disposal in disposals) {
+      if (!ids.add(disposal.id)) {
         throw const FormatException('portfolio.duplicate_record_id');
       }
     }
@@ -567,9 +587,59 @@ class PrivatePortfolioPayload {
       if (currencyByIsin[event.isin] != event.currency) {
         throw const FormatException('portfolio.currency_mismatch');
       }
-      final firstAcquisition = lots.first.acquiredOn;
+      final firstAcquisition = lots
+          .map((lot) => lot.acquiredOn)
+          .reduce((a, b) => a.compareTo(b) <= 0 ? a : b);
       if (event.date.compareTo(firstAcquisition) < 0) {
         throw const FormatException('portfolio.event_before_acquisition');
+      }
+    }
+
+    final allocatedByLot = <String, int>{};
+    final redemptionEvents = cashEvents
+        .where((event) => event.kind == PrivateCashEventKind.redemption)
+        .toList(growable: false);
+
+    for (final disposal in disposals) {
+      final lots = lotsByIsin[disposal.isin];
+      if (lots == null || lots.isEmpty) {
+        throw const FormatException('portfolio.disposal_without_acquisition');
+      }
+      if (currencyByIsin[disposal.isin] != disposal.currency) {
+        throw const FormatException('portfolio.currency_mismatch');
+      }
+      final firstAcquisition = lots
+          .map((lot) => lot.acquiredOn)
+          .reduce((a, b) => a.compareTo(b) <= 0 ? a : b);
+      if (disposal.disposedOn.compareTo(firstAcquisition) < 0) {
+        throw const FormatException('portfolio.disposal_before_acquisition');
+      }
+
+      final priorOrSameDayRedemption = redemptionEvents.any(
+        (event) =>
+            event.isin == disposal.isin &&
+            event.date.compareTo(disposal.disposedOn) <= 0,
+      );
+      if (priorOrSameDayRedemption) {
+        throw const FormatException('portfolio.disposal_after_redemption');
+      }
+
+      for (final allocation in disposal.allocations) {
+        final lot = lotsById[allocation.lotId];
+        if (lot == null) {
+          throw const FormatException('portfolio.disposal_unknown_lot');
+        }
+        if (lot.isin != disposal.isin) {
+          throw const FormatException('portfolio.disposal_lot_isin_mismatch');
+        }
+        if (lot.acquiredOn.compareTo(disposal.disposedOn) > 0) {
+          throw const FormatException('portfolio.disposal_before_lot');
+        }
+        final allocated = (allocatedByLot[lot.id] ?? 0) + allocation.units;
+        if (allocated > lot.units) {
+          throw const FormatException('portfolio.disposal_lot_overallocated');
+        }
+        allocatedByLot[lot.id] = allocated;
       }
     }
 
@@ -582,11 +652,19 @@ class PrivatePortfolioPayload {
           ifAbsent: () => lot.units,
         );
       }
+      final disposalsByDate = <String, int>{};
+      for (final disposal in disposals.where(
+        (disposal) => disposal.isin == isin,
+      )) {
+        disposalsByDate.update(
+          disposal.disposedOn,
+          (value) => value + disposal.units,
+          ifAbsent: () => disposal.units,
+        );
+      }
       final redemptionsByDate = <String, int>{};
-      for (final event in cashEvents.where(
-        (event) =>
-            event.isin == isin &&
-            event.kind == PrivateCashEventKind.redemption,
+      for (final event in redemptionEvents.where(
+        (event) => event.isin == isin,
       )) {
         redemptionsByDate.update(
           event.date,
@@ -597,12 +675,18 @@ class PrivatePortfolioPayload {
 
       final dates = <String>{
         ...acquisitionsByDate.keys,
+        ...disposalsByDate.keys,
         ...redemptionsByDate.keys,
       }.toList()..sort();
 
       var units = 0;
       for (final date in dates) {
+        // Same-day acquisitions are available before a factual disposal.
         units += acquisitionsByDate[date] ?? 0;
+        units -= disposalsByDate[date] ?? 0;
+        if (units < 0) {
+          throw const FormatException('portfolio.disposal_exceeds_units');
+        }
         units -= redemptionsByDate[date] ?? 0;
         if (units < 0) {
           throw const FormatException('portfolio.redemption_exceeds_units');
@@ -621,6 +705,9 @@ class PrivatePortfolioPayload {
         ifAbsent: () => lot.units,
       );
       currency[lot.isin] = lot.currency;
+    }
+    for (final disposal in disposals) {
+      units.update(disposal.isin, (value) => value - disposal.units);
     }
     for (final event in cashEvents) {
       if (event.kind == PrivateCashEventKind.redemption) {
@@ -642,26 +729,71 @@ class PrivatePortfolioPayload {
     return List.unmodifiable(result);
   }
 
+  List<PrivateRealizedLotCostInput> realizedCostInputsFor(String disposalId) {
+    final matches = disposals.where((disposal) => disposal.id == disposalId);
+    if (matches.isEmpty) {
+      throw StateError('portfolio.disposal_not_found');
+    }
+    final disposal = matches.single;
+    final lotsById = {
+      for (final lot in acquisitionLots) lot.id: lot,
+    };
+    return List.unmodifiable(
+      disposal.allocations.map((allocation) {
+        final lot = lotsById[allocation.lotId]!;
+        return PrivateRealizedLotCostInput(
+          disposalId: disposal.id,
+          lotId: lot.id,
+          allocatedUnits: allocation.units,
+          lotUnits: lot.units,
+          lotTradeAmount: lot.tradeAmount,
+          acquisitionFeeStatus: lot.feeStatus,
+          lotFeeTotal: lot.feeTotal,
+        );
+      }),
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'schemaVersion': privatePortfolioSchemaVersion,
     'portfolioId': portfolioId,
     'acquisitionLots': acquisitionLots.map((lot) => lot.toJson()).toList(),
     'cashEvents': cashEvents.map((event) => event.toJson()).toList(),
+    'disposals': disposals.map((disposal) => disposal.toJson()).toList(),
   };
 
   factory PrivatePortfolioPayload.fromJson(Map<String, dynamic> json) {
-    _onlyKeys(json, const {
-      'schemaVersion',
-      'portfolioId',
-      'acquisitionLots',
-      'cashEvents',
-    }, 'portfolio.invalid_payload_fields');
-    if (json['schemaVersion'] != privatePortfolioSchemaVersion) {
+    final schemaVersion = json['schemaVersion'];
+    if (schemaVersion != privatePortfolioLegacySchemaVersion &&
+        schemaVersion != privatePortfolioSchemaVersion) {
       throw const FormatException('portfolio.unsupported_schema');
     }
+
+    if (schemaVersion == privatePortfolioLegacySchemaVersion) {
+      _onlyKeys(json, const {
+        'schemaVersion',
+        'portfolioId',
+        'acquisitionLots',
+        'cashEvents',
+      }, 'portfolio.invalid_payload_fields');
+    } else {
+      _onlyKeys(json, const {
+        'schemaVersion',
+        'portfolioId',
+        'acquisitionLots',
+        'cashEvents',
+        'disposals',
+      }, 'portfolio.invalid_payload_fields');
+    }
+
     final rawLots = json['acquisitionLots'];
     final rawEvents = json['cashEvents'];
-    if (rawLots is! List || rawEvents is! List) {
+    final rawDisposals = schemaVersion == privatePortfolioLegacySchemaVersion
+        ? const <Object?>[]
+        : json['disposals'];
+    if (rawLots is! List ||
+        rawEvents is! List ||
+        rawDisposals is! List) {
       throw const FormatException('portfolio.invalid_payload');
     }
 
@@ -680,6 +812,14 @@ class PrivatePortfolioPayload {
           throw const FormatException('portfolio.invalid_event');
         }
         return PrivateCashEvent.fromJson(
+          Map<String, dynamic>.from(value),
+        );
+      }),
+      disposals: rawDisposals.map((value) {
+        if (value is! Map) {
+          throw const FormatException('portfolio.invalid_disposal');
+        }
+        return PrivateDisposal.fromJson(
           Map<String, dynamic>.from(value),
         );
       }),
