@@ -1,8 +1,8 @@
-# Private portfolio encrypted payload — schema v2
+# Private portfolio encrypted payload — schema v3
 
-Статус: **IMPLEMENTATION CONTRACT — PR #91**  
+Статус: **IMPLEMENTATION CONTRACT — PR #94**  
 Storage boundary: payload bytes live **inside** the existing encrypted vault envelope.  
-Backward compatibility: **schema v1 remains decode-supported**; new encode output is schema v2.
+Backward compatibility: **schema v1 and schema v2 remain decode-supported**; new encode output is schema v3.
 
 This document defines the factual private-portfolio domain before migration or UI.
 
@@ -10,10 +10,11 @@ This document defines the factual private-portfolio domain before migration or U
 
 Private factual records are source data. Holdings are never stored as a second editable list.
 
-Schema v2 stores:
+Schema v3 stores:
 - acquisition lots;
 - factual coupon/redemption cash events;
-- factual sale/disposal records with explicit allocation to acquisition lots.
+- factual sale/disposal records with explicit allocation to acquisition lots;
+- encrypted legacy collection records for non-destructive migration of user-authored SavedSet metadata/scenario without converting those records into portfolio facts.
 
 Derived holdings are:
 
@@ -33,7 +34,25 @@ It does not copy:
 
 Public instruments are referenced by ISIN.
 
-## 3. Acquisition lot
+## 3. Encrypted legacy collection records
+
+Schema v3 adds `legacyCollections` for non-destructive migration of legacy `sets/*.json`.
+
+A legacy collection record contains only:
+- immutable source-file id;
+- user-authored collection name;
+- user-authored note;
+- savedAt;
+- sorted unique selected ISIN references;
+- raw Planner scenario when present, recursively canonicalized by sorted object keys.
+
+Full public Bond snapshots are deliberately not copied into the private payload. Public NBU/MinFin/seller data remains outside the private payload.
+
+A migrated legacy collection is **not** an acquisition lot, holding, cash event or disposal. Migration creates zero portfolio facts.
+
+Detailed idempotence, conflict, verification and plaintext-retention rules are defined in `docs/private-legacy-migration.md`.
+
+## 4. Acquisition lot
 
 Each lot has:
 - stable local `id`;
@@ -65,7 +84,7 @@ If accrued interest was included in the broker's factual trade settlement amount
 
 Known zero is never collapsed into unknown.
 
-## 4. Factual coupon / redemption events
+## 5. Factual coupon / redemption events
 
 Supported cash event kinds:
 - `coupon`;
@@ -83,7 +102,7 @@ Redemption additionally requires positive integer `units`.
 
 The payload never replaces the factual amount with an amount reconstructed from a public NBU schedule.
 
-## 5. Factual disposal / sale
+## 6. Factual disposal / sale
 
 Each disposal has:
 - stable local `id`;
@@ -110,7 +129,7 @@ When fee is known:
 
 Unknown fee is never silently treated as zero.
 
-## 6. Explicit lot allocation — no invented FIFO/LIFO
+## 7. Explicit lot allocation — no invented FIFO/LIFO
 
 A disposal contains allocation rows:
 - `lotId`;
@@ -126,7 +145,7 @@ Rules:
 
 The domain does **not** automatically choose FIFO, LIFO, average-cost or any other allocation method. Such a choice would create a private historical fact that the user/import source did not provide.
 
-## 7. Realized cost-basis foundation without hidden rounding
+## 8. Realized cost-basis foundation without hidden rounding
 
 For each disposal allocation the domain exposes exact factual inputs:
 - disposal id;
@@ -141,15 +160,15 @@ This is sufficient provenance for a later reporting/tax layer to derive realized
 
 This slice deliberately **does not** divide a whole-lot Decimal amount into an arbitrarily rounded per-unit Decimal. Financial rounding is not invented at domain-storage level.
 
-## 8. Redemption / disposal boundary
+## 9. Redemption / disposal boundary
 
-Schema v1 redemption records do not contain acquisition-lot allocation.
+Schema v1/v2/v3 redemption records do not contain acquisition-lot allocation.
 
-Therefore, if a redemption for an ISIN is already represented on or before a later disposal date, schema v2 rejects that disposal with a fail-closed semantic error. Otherwise the program could falsely claim which acquisition lots remained after redemption.
+Therefore, if a redemption for an ISIN is already represented on or before a later disposal date, schema v2/v3 rejects that disposal with a fail-closed semantic error. Otherwise the program could falsely claim which acquisition lots remained after redemption.
 
 This restriction can be relaxed only by a later explicit redemption-allocation model.
 
-## 9. Semantic validation
+## 10. Semantic validation
 
 Fail closed when:
 - record/portfolio ID format is invalid;
@@ -170,7 +189,7 @@ Fail closed when:
 
 Same-day acquisition is applied before same-day disposal. Disposal on the same day as a represented redemption is conservatively rejected by the redemption-allocation rule.
 
-## 10. Deterministic representation
+## 11. Deterministic representation
 
 Canonical order:
 - acquisition lots: date → ISIN → id;
@@ -178,26 +197,28 @@ Canonical order:
 - disposals: date → ISIN → id;
 - each disposal's allocations: lotId.
 
-JSON uses fixed schema-v2 key order, UTF-8 and canonical Decimal string values.
+JSON uses fixed schema-v3 key order, UTF-8 and canonical Decimal string values. Legacy collection scenario maps are recursively key-sorted before encoding.
 
 Both encode and decode enforce a 16 MiB payload limit.
 
 Record-count limits:
 - acquisition lots: 10,000;
 - cash events: 50,000;
-- disposals: 50,000.
+- disposals: 50,000;
+- encrypted legacy collection records: 10,000.
 
-## 11. Schema v1 compatibility
+## 12. Schema v1/v2 compatibility
 
 Decoder accepts:
 - schema v1: `portfolioId + acquisitionLots + cashEvents`;
-- schema v2: the same fields plus required `disposals`.
+- schema v2: the same fields plus required `disposals`;
+- schema v3: schema v2 plus required `legacyCollections`.
 
-A decoded v1 object has an empty disposal list. Re-encoding produces canonical schema v2.
+Decoded v1 has empty disposal and legacy-collection lists. Decoded v2 has an empty legacy-collection list. Re-encoding always produces canonical schema v3.
 
 Unknown future fields or schema versions still fail closed.
 
-## 12. Encrypted-storage integration
+## 13. Encrypted-storage integration
 
 The codec returns raw private payload bytes.
 
@@ -207,17 +228,17 @@ Those bytes are passed to the existing `LocalVaultStore` / session layer and rec
 - atomic known-good write lifecycle;
 - device-key/recovery handling.
 
-Regression coverage requires the physical vault file not to expose plaintext portfolio id, ISIN, broker label, disposal id or lot-allocation provenance.
+Regression coverage requires the physical vault file not to expose plaintext portfolio id, ISIN, broker label, disposal id, lot-allocation provenance, migrated note or migrated Planner scenario values.
 
-## 13. Explicitly deferred
+## 14. Explicitly deferred
 
-Before user-facing portfolio UI or legacy migration:
+Before user-facing portfolio UI:
+- migration UI/status and explicit cleanup action;
 - user-facing disposal/allocation editor;
 - imported broker statement adapters;
 - automatic lot-allocation policy;
 - reporting/tax realized-gain rounding policy;
 - redemption-to-lot allocation;
-- migration from legacy `sets/*.json`;
 - any automatic reconstruction of missing historical facts.
 
 No missing historical fact is invented from public data.
