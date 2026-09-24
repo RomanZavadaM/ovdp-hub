@@ -81,13 +81,15 @@
 
 ## Encrypted vault / фактичний портфель
 
-- [ ] **NEXT:** review/approval існуючого `docs/security-vault.md`; threat model має бути затверджений до коду шифрування.
-- [ ] Аудитована криптографічна бібліотека; не власна криптографія.
-- [ ] Platform secure storage: Windows/macOS/Android/iOS.
-- [ ] Lock/unlock, auto-lock, deletion, recovery.
-- [ ] Зашифрований backup з користувацьким recovery material.
-- [ ] Holdings, acquisition lots, фактичні купони/погашення після vault.
-- [ ] Android SAF / iOS security-scoped access для зовнішніх папок.
+- [x] Threat model review/approval — PR #75.
+- [x] Audited crypto stack selected and reviewed: sodium/libsodium, Argon2id13, XChaCha20-Poly1305 — PR #77.
+- [x] Platform device-key adapters: hardened Android/iOS/macOS secure storage + app-owned Windows DPAPI; four-platform compile gate + Windows DPAPI smoke — PR #79. macOS runtime/provisioning remains a release gate before user-facing unlock.
+- [x] Local encrypted vault file lifecycle: recovery-wrapped DEK slot, authenticated slot binding, atomic known-good recovery, rollback detection — PR #81.
+- [x] Encrypted portable backup/restore primitives with recovery material — PR #81.
+- [ ] **NEXT:** Lock/unlock session state, inactivity/background auto-lock, deletion/recovery lifecycle.
+- [ ] Holdings, acquisition lots, фактичні купони/погашення після session/locking layer.
+- [ ] Non-destructive legacy plaintext migration after private payload/domain schema is fixed.
+- [ ] Android SAF / iOS security-scoped access для зовнішніх папок; live provider-backed mutable vault remains deferred.
 
 ## Distribution readiness
 
