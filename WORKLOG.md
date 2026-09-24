@@ -25,42 +25,29 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **generated Planner copy / preset labels localization + UX regression**.
+Мета: **formal 0.9.0 prerelease readiness assessment**.
 
-- base `main`: `02284169c069de0bb11a2c3eb628ff1956f8059f`;
-- branch: **`feat/planner-generated-copy-localization`**;
-- PR: **#61** `Planner: localize generated copy and preset labels` — squash-merged;
-- merge `main`: `1e6849f78134d9654b0bf08b54ceebda4100ba4d`;
-- verified code head: `b832af8eba70526cd872893a9cf2edb25d407771`;
-- code verify: **Flutter checks and START run #189 — success**;
-- final latest-head verify: **run #190 — success**;
-- regression result: **110/110 tests passed**;
-- published checkpoint remains: **v0.8.8 / 0.8.8+16**;
-- audit confirmed hard-coded generated copy in Planner domain/state:
-  - default plan name `Мій план`;
-  - primary need `Основна потреба`;
-  - generated `Витрата N`;
-  - aggregate purchase-fee rule label;
-  - tax preset labels;
-  - generated saved-scenario description.
+- base `main`: `1ae98503c48776ebfd790b837e9a30d889eeb54e`;
+- branch: **`docs/0.9.0-prerelease-readiness`**;
+- published checkpoint remains immutable: **v0.8.8 / 0.8.8+16**;
+- this slice is an audit/documentation decision gate; it does **not** publish 0.9.0 by itself.
 
-### Критерії готовності
+### Readiness checklist
 
-1. persisted strategy/enum/source IDs remain stable and never localized;
-2. generated display copy resolves through `HubStrings` for UK/EN/FR/DE/ES/KO/JA;
-3. user-authored plan/need/expense names remain literal and unchanged across language switching;
-4. new generated scenario description is language-neutral in storage and localized only at display time;
-5. old saved scenarios remain readable;
-6. Planner → save → Collections → A/B/C → reopen works after language switching;
-7. narrow and desktop layouts do not overflow and remain scrollable;
-8. `flutter pub get --enforce-lockfile`, `flutter analyze`, `flutter test` and latest-head CI are green;
-9. PR integrated into `main`, then canonical docs/ledger synchronized.
+1. compare implemented 0.9 scope against roadmap and unresolved intentional deferrals;
+2. verify scenario schema/backward compatibility and migration policy;
+3. verify UK/EN/FR/DE/ES/KO/JA localization completeness for the active user path;
+4. verify legal/copyright/third-party notices and package metadata;
+5. verify release workflow can produce Windows/macOS/Android/iOS/START + checksums without changing published tags;
+6. verify tests/analyze and current cross-platform packaging assumptions;
+7. classify findings as **BLOCKER**, **DEFERRED/NON-BLOCKING**, or **READY**;
+8. record an explicit go/no-go recommendation for a formal 0.9.0 prerelease checkpoint; do not publish until this gate is complete.
 
 ### Поточна наступна дія
 
-**NEXT — formal 0.9.0 prerelease readiness assessment of current `main`: compare implemented scope with roadmap, verify schema/backward compatibility, localization, legal/package metadata and release workflow; record concrete blockers or recommend the prerelease checkpoint.**
+**DOING — audit current `main` against the checklist and record evidence-backed blockers/non-blockers.**
 
 ## Черга робіт
 
