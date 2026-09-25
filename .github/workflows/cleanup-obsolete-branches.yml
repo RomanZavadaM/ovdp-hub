@@ -1,18 +1,48 @@
-name: Cleanup obsolete branches
+name: Repository branch hygiene
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
 
 permissions:
   contents: write
-  issues: write
 
 jobs:
-  cleanup:
+  delete-merged-pr-branch:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref != 'main'
     runs-on: ubuntu-latest
     steps:
-      - name: Delete all obsolete non-main branches
+      - name: Delete merged PR branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const branch = context.payload.pull_request.head.ref;
+            try {
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: `heads/${branch}`,
+              });
+              core.info(`Deleted merged PR branch: ${branch}`);
+            } catch (error) {
+              if (error.status === 404 || error.status === 422) {
+                core.info(`Branch already absent or not deletable: ${branch}`);
+              } else {
+                throw error;
+              }
+            }
+
+  manual-cleanup:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete all non-main branches
         uses: actions/github-script@v7
         with:
           script: |
@@ -21,57 +51,15 @@ jobs:
               github.rest.repos.listBranches,
               { owner, repo, per_page: 100 }
             );
-
             let deleted = 0;
-            let failed = 0;
-            const failures = [];
-
             for (const branch of branches) {
               if (branch.name === 'main') continue;
-              try {
-                await github.rest.git.deleteRef({
-                  owner,
-                  repo,
-                  ref: `heads/${branch.name}`,
-                });
-                deleted += 1;
-                core.info(`Deleted ${branch.name}`);
-              } catch (error) {
-                failed += 1;
-                failures.push(`${branch.name}: ${error.message}`);
-                core.warning(`Failed to delete ${branch.name}: ${error.message}`);
-              }
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: `heads/${branch.name}`,
+              });
+              deleted += 1;
+              core.info(`Deleted ${branch.name}`);
             }
-
-            const body = [
-              '### 25.09.2026 — repository branch cleanup executed',
-              '',
-              `- branches before cleanup: **${branches.length}**;`,
-              `- obsolete non-main branches deleted: **${deleted}**;`,
-              `- failed deletions: **${failed}**;`,
-              '- preserved live branch: **`main`**;',
-              '- Git tags, GitHub Releases and commit history were not deleted.',
-              '',
-              failed === 0
-                ? 'Cleanup completed successfully.'
-                : `Failures:\n\`\`\`\n${failures.join('\n')}\n\`\`\``,
-            ].join('\n');
-
-            await github.rest.issues.createComment({
-              owner,
-              repo,
-              issue_number: 18,
-              body,
-            });
-
-            await core.summary
-              .addHeading('OVDP Hub branch cleanup')
-              .addRaw(`Branches before: ${branches.length}\n`)
-              .addRaw(`Deleted: ${deleted}\n`)
-              .addRaw(`Failed: ${failed}\n`)
-              .addRaw('Preserved: main\n')
-              .write();
-
-            if (failed !== 0) {
-              core.setFailed(`Branch cleanup had ${failed} failed deletion(s).`);
-            }
+            core.info(`Manual cleanup deleted ${deleted} non-main branch(es).`);
