@@ -31,7 +31,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - base `main`: **`54409769db333ba34c4ffa507262a2dc72f60f2a`**;
 - branch: **`feat/portfolio-coupon-isin-ledger`**;
-- PR: ще не відкрито;
+- PR: **#104 — `Portfolio: add factual coupon and per-ISIN ledger` (draft)**;
 - опублікований checkpoint лишається **v0.9.2 / 0.9.2+19**;
 - coupon зберігається як existing encrypted `PrivateCashEventKind.coupon`; нову schema не створюємо;
 - жодних прогнозних купонів у factual ledger: лише явно введені факти;
@@ -49,7 +49,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — wire factual coupon action and per-ISIN detail/ledger into the existing encrypted portfolio UI, add real-control regressions, then open PR.**
+**DOING — PR #104 opened; wait for exact-head CI, fix failures, then record VERIFIED only after all required checks are green.**
 
 ## Черга робіт
 
