@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:file_selector/file_selector.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -26,12 +27,20 @@ class PortfolioMigrationResult {
 
 abstract interface class PortfolioGateway {
   bool get supported;
+  bool get portableBackupSupported;
   bool get unlocked;
   Stream<bool> get unlockChanges;
   Future<bool> exists();
   Future<PrivatePortfolioPayload> create({required String recoverySecret});
   Future<PrivatePortfolioPayload> open();
   Future<void> save(PrivatePortfolioPayload payload);
+  Future<String?> createPortableBackup();
+  Future<PrivatePortfolioPayload?> restorePortableBackup({
+    required String recoverySecret,
+  });
+  Future<PrivatePortfolioPayload> rotateRecovery({
+    required String recoverySecret,
+  });
   Future<PortfolioMigrationResult> migrateLegacy({
     required String workspacePath,
   });
@@ -52,6 +61,9 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   @override
   bool get supported =>
       Platform.isWindows || Platform.isAndroid || Platform.isIOS;
+
+  @override
+  bool get portableBackupSupported => supported && Platform.isWindows;
 
   @override
   bool get unlocked => _session?.state.isUnlocked ?? false;
@@ -160,6 +172,70 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     } finally {
       bytes.fillRange(0, bytes.length, 0);
     }
+  }
+
+  @override
+  Future<String?> createPortableBackup() async {
+    if (!portableBackupSupported) {
+      throw UnsupportedError('portfolio.portable_backup_unsupported');
+    }
+    await _ensureReady();
+    if (!unlocked) {
+      throw StateError('vault.session_locked');
+    }
+    final now = DateTime.now().toUtc();
+    final stamp =
+        '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
+    final location = await getSaveLocation(
+      suggestedName: 'OVDP-Hub-portfolio-backup-$stamp.ovdp-vault.json',
+    );
+    if (location == null) return null;
+    final file = await _store!.createEncryptedBackup(
+      vaultId: vaultId,
+      destination: File(location.path),
+    );
+    return file.path;
+  }
+
+  @override
+  Future<PrivatePortfolioPayload?> restorePortableBackup({
+    required String recoverySecret,
+  }) async {
+    if (!portableBackupSupported) {
+      throw UnsupportedError('portfolio.portable_backup_unsupported');
+    }
+    await _ensureReady();
+    final selected = await openFile();
+    if (selected == null) return null;
+
+    final session = _session!;
+    if (session.state.isUnlocked) {
+      await session.lock();
+    }
+    final restored = await _store!.restoreEncryptedBackup(
+      vaultId: vaultId,
+      source: File(selected.path),
+      recoverySecret: recoverySecret,
+    );
+    restored.plainText.fillRange(0, restored.plainText.length, 0);
+    return open();
+  }
+
+  @override
+  Future<PrivatePortfolioPayload> rotateRecovery({
+    required String recoverySecret,
+  }) async {
+    await _ensureReady();
+    final session = _session!;
+    if (!session.state.isUnlocked) {
+      throw StateError('vault.session_locked');
+    }
+    await session.lock();
+    await _store!.rotateRecovery(
+      vaultId: vaultId,
+      recoverySecret: recoverySecret,
+    );
+    return open();
   }
 
   @override
