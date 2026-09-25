@@ -17,60 +17,32 @@ Append-only ledger: GitHub Issue **#18**
 - documentation PR #110 exact-head run #407 — success;
 - post-merge documentation run #408 — success.
 
-## Останній завершений slice
+## Останні завершені slices
 
-Статус: **DONE**
+### Post-v0.9.3 usability/product audit — DONE
+- audit base: `63227a8951f02acf426f1064e0f115c73a22fa80`;
+- audit document: `docs/AUDIT_POST_0_9_3.md`;
+- PR #116 exact head `3aed94c46f72e0edc40b42f76171b7f5c3016bd0`;
+- exact-head run #414 — success;
+- merge: `bb961f9d11d8c5a245e0fa0689fa74e7f092eb93`.
 
-Мета: **v0.9.3 user documentation + GitHub cleanup**.
-
-Завершено:
-- root GitHub README оновлено під v0.9.3;
-- localized GitHub README: UK / EN / FR / DE / ES / KO / JA;
-- user guides: UK / EN / FR / DE / ES / KO / JA;
-- native README актуалізовано;
-- PROJECT_STATE / WORKLOG / START_HERE ущільнено;
-- roadmap/changelog синхронізовано;
-- stale duplicate PR #103 і #108 закрито;
-- documentation PR #110 merged як `df505e9f…`;
-- one-time branch cleanup workflow — success;
-- **109 старих branches видалено, failed = 0**;
-- tags/releases/commit history збережено;
-- після фінального видалення sync branch live development branch = **`main` only**.
-
-## Поточний slice
-
-Статус: **DOING**
-
-Мета: **portfolio recovery / backup UX** після post-v0.9.3 audit.
-
+### Portfolio recovery / backup UX — DONE
 - base main: `bb961f9d11d8c5a245e0fa0689fa74e7f092eb93`;
-- branch: `feat/portfolio-recovery-backup-ux`;
-- scope: recovery-secret confirmation, recovery rotation, portable encrypted backup/restore через already-existing vault primitives;
-- portable file save/restore UI capability-gated; Android SAF / iOS security-scoped external-folder architecture не розширюється;
-- macOS Portfolio лишається окремим runtime validation gate.
+- PR #117 final exact head: `5d396b15f38c22457d2e1f37fb5357ef241a3d3a`;
+- exact-head run #417 — success;
+- merge: **`fc38177a69f387153ff3984d3a917a7975a4a647`**;
+- post-merge main run #418 — success, including START/source;
+- branch hygiene run #9 — success;
+- recovery secret при створенні тепер підтверджується повторним вводом;
+- recovery secret можна змінити через user-facing control;
+- Windows має user-facing portable encrypted backup та restore у порожній локальний портфель;
+- Android SAF / iOS security-scoped external-file flows не підмінені desktop API й залишаються deferred;
+- macOS Portfolio лишається окремим runtime Keychain validation gate;
+- UI та user guides синхронізовані UK / EN / FR / DE / ES / KO / JA.
 
-- base main: `63227a8951f02acf426f1064e0f115c73a22fa80`;
-- branch: `audit/post-v0.9.3-usability`;
-- перевіряються реальні user-visible navigation / Catalog / Planner / Portfolio / appearance / localization / platform flows;
-- аудит відділений від implementation: спочатку підтверджуємо хиби й пріоритет, потім один self-contained fix slice;
-- старі branches не використовуються як джерела коду.
+## Поточна наступна дія
 
-### Уже підтверджені findings
-
-1. **HIGH · data safety:** vault core має recovery lifecycle та encrypted backup/restore primitives, але `PortfolioGateway`/UI не дають користувачу portable encrypted backup/restore/rotate recovery; user guide вже радить створювати encrypted portable backup.
-2. **HIGH · recovery UX:** recovery secret при створенні портфеля вводиться один раз без confirmation, хоча потім не показується.
-3. **HIGH · macOS product gap:** v0.9.3 macOS build публікується, але `LocalEncryptedPortfolioGateway.supported` не включає macOS; lower secure-storage adapter для macOS уже існує, тому потрібен окремий runtime/provisioning validation gate, а не сліпе ввімкнення.
-4. **HIGH · Planner UX/state:** редагування `currency/start/minDate/maxDate` очищає generated positions; start/min/max TextFormField викликають `edit()` onChanged, тому ручне редагування дати може очистити composition/early exits без explicit confirmation.
-5. **MEDIUM · date UX:** Planner використовує ручний `YYYY-MM-DD`, Portfolio — ручний `DD.MM.YYYY`; календарного picker немає.
-6. **MEDIUM · localization:** CatalogView містить hardcoded Ukrainian user-facing text, попри наявні localized keys.
-7. **MEDIUM · persisted copy:** створення варіанта добірки зберігає hardcoded suffix `— варіант`, незалежно від UI language.
-8. **MEDIUM · preferences:** selected language та appearance не persist між запусками.
-9. **MEDIUM · mobile confidence:** full Portfolio real-control regression є для desktop, але немає еквівалентного phone-flow regression.
-10. **MEDIUM · portfolio/domain UX:** після partial redemption позитивний holding лишається, але sale intentionally fail-closed через відсутність redemption lot allocation; UI prefilter/disabled action погано пояснює причину.
-
-### Поточна наступна дія
-
-**DOING — PR #117 відкрито; пройти exact-head analyze/tests і real-control regressions. Після green інтегрувати PR у `main`.**
+**NEXT — Planner safe criteria/date editing:** не очищати generated composition та per-position exits під час проміжного ручного вводу `start/minDate/maxDate`; валідну зміну ключового критерію застосовувати лише як committed action з explicit confirmation, якщо вона інвалідовує вже сформований план. Persisted Planner schema не змінювати.
 
 
 ## Deferred gates
