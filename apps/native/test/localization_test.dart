@@ -71,6 +71,57 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  test('portfolio sale history and migration controls are localized', () {
+    const keys = [
+      'portfolioAddSale',
+      'portfolioAddRedemption',
+      'portfolioHistory',
+      'portfolioHistoryEmpty',
+      'portfolioSaleDate',
+      'portfolioSaleProceeds',
+      'portfolioSaleAllocation',
+      'portfolioSaleAvailable',
+      'portfolioSaleNote',
+      'portfolioSaveSale',
+      'portfolioRedemptionDate',
+      'portfolioRedemptionAmount',
+      'portfolioRedemptionUnits',
+      'portfolioRedemptionNote',
+      'portfolioSaveRedemption',
+      'portfolioHistoryPurchase',
+      'portfolioHistorySale',
+      'portfolioHistoryCoupon',
+      'portfolioHistoryRedemption',
+      'portfolioMigrationTitle',
+      'portfolioMigrationButton',
+      'portfolioMigrationExplain',
+      'portfolioMigrationPlaintextWarning',
+      'portfolioMigrationRun',
+      'portfolioMigrationMigrated',
+      'portfolioMigrationAlready',
+      'portfolioMigrationConflicts',
+      'portfolioMigrationInvalid',
+      'portfolioMigrationVerified',
+      'portfolioMigrationPlaintextRemaining',
+      'portfolioMigrationDone',
+      'portfolioAllocationRequired',
+      'portfolioSaleAfterRedemption',
+      'portfolioMigrationFailed',
+      'portfolioNoHoldingsForAction',
+      'portfolioLot',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+    }
+  });
+
   test('price source controls are localized in every supported language', () {
     const keys = [
       'addPriceSource',
