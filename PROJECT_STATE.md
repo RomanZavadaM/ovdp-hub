@@ -130,7 +130,8 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - **109 obsolete non-main branches deleted; 0 failed deletions.**
 - Old `docs/*`, `feat/*`, `feature/*`, `release/*`, `stabilize/*` and other dead branch refs are no longer development sources.
 - Published Git tags, GitHub Releases and commit history were not deleted.
-- Final live-branch target after this sync is merged: **`main` only**.
+- Final live development branch: **`main` only**.
+- Repository hygiene workflow is safe-by-default: it auto-deletes only a same-repository branch after its PR is merged; bulk deletion is manual-only (`workflow_dispatch`).
 
 ## Наступний великий крок
 
