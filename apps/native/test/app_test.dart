@@ -89,6 +89,84 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
+  testWidgets('planner date editing keeps composition until confirmed reset', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final now = DateTime.now();
+    final maturity = DateTime(
+      now.year + 1,
+      now.month,
+      now.day,
+    ).toIso8601String().substring(0, 10);
+    final json = jsonDecode(jsonEncode(catalog.json)) as Map<String, dynamic>;
+    final asset = (json['assets'] as List).single as Map<String, dynamic>;
+    asset['maturityDate'] = maturity;
+    asset['currency'] = 'UAH';
+    asset['payments'] = [
+      {'date': maturity, 'kind': 'REDEMPTION', 'amount': '1000'},
+    ];
+    final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
+
+    await tester.pumpWidget(OvdpApp(repository: repository));
+    await tester.pumpAndSettle();
+    await tapNavigationIcon(tester, Icons.event_available_outlined);
+
+    final generate = find.text('Розподілити за строками');
+    await tester.ensureVisible(generate);
+    await tester.tap(generate);
+    await tester.pumpAndSettle();
+
+    Finder saveButton() => find.widgetWithText(
+          FilledButton,
+          'Зберегти сценарій із кількістю та цінами',
+        );
+    expect(tester.widget<FilledButton>(saveButton()).onPressed, isNotNull);
+
+    final start = find.byKey(const ValueKey('planner-start-input'));
+    await tester.ensureVisible(start);
+    await tester.enterText(start, '2');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Введіть коректну дату у форматі YYYY-MM-DD.'),
+      findsOneWidget,
+    );
+    expect(tester.widget<FilledButton>(saveButton()).onPressed, isNotNull);
+
+    final changedStart = now
+        .subtract(const Duration(days: 1))
+        .toIso8601String()
+        .substring(0, 10);
+    await tester.enterText(start, changedStart);
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Змінити ключовий критерій?'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('planner-criteria-cancel')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(saveButton()).onPressed, isNotNull);
+
+    final startAgain = find.byKey(const ValueKey('planner-start-input'));
+    await tester.enterText(startAgain, changedStart);
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('planner-criteria-apply')));
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<FilledButton>(saveButton()).onPressed, isNull);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    await repository.dispose();
+  });
+
   testWidgets('planner price source controls are usable end to end', (
     tester,
   ) async {
