@@ -10,7 +10,19 @@ import '../../security/vault_device_key_store_windows.dart';
 import '../../security/vault_dpapi_protector_win32.dart';
 import '../../security/vault_session.dart';
 import '../../security/vault_store.dart';
+import '../../workspace.dart';
+import 'legacy_plaintext_migration.dart';
 import 'private_portfolio.dart';
+
+class PortfolioMigrationResult {
+  final LegacyPlaintextMigrationReport report;
+  final PrivatePortfolioPayload payload;
+
+  const PortfolioMigrationResult({
+    required this.report,
+    required this.payload,
+  });
+}
 
 abstract interface class PortfolioGateway {
   bool get supported;
@@ -20,6 +32,9 @@ abstract interface class PortfolioGateway {
   Future<PrivatePortfolioPayload> create({required String recoverySecret});
   Future<PrivatePortfolioPayload> open();
   Future<void> save(PrivatePortfolioPayload payload);
+  Future<PortfolioMigrationResult> migrateLegacy({
+    required String workspacePath,
+  });
   Future<void> lock();
   void onBackground();
   Future<void> onForeground();
@@ -145,6 +160,34 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     } finally {
       bytes.fillRange(0, bytes.length, 0);
     }
+  }
+
+  @override
+  Future<PortfolioMigrationResult> migrateLegacy({
+    required String workspacePath,
+  }) async {
+    await _ensureReady();
+    final session = _session!;
+    if (!session.state.isUnlocked) {
+      throw StateError('vault.session_locked');
+    }
+
+    final workspace = await Workspace.open(Directory(workspacePath));
+    late final LegacyPlaintextMigrationReport report;
+    try {
+      report = await LegacyPlaintextMigrator(
+        workspace: workspace,
+        vaultStore: _store!,
+      ).migrate(vaultId: vaultId);
+    } finally {
+      // The migrator writes through the durable store. Always discard the
+      // session plaintext, even when verification fails after a write, so a
+      // stale unlocked session can never overwrite migrated vault contents.
+      await session.lock();
+    }
+
+    final payload = await open();
+    return PortfolioMigrationResult(report: report, payload: payload);
   }
 
   @override
