@@ -288,6 +288,27 @@ void main() {
     }
   });
 
+  test('Planner safe criterion editing is localized in every supported language', () {
+    const keys = [
+      'plannerCriteriaResetTitle',
+      'plannerCriteriaResetBody',
+      'plannerCriteriaCancel',
+      'plannerCriteriaApply',
+      'plannerCriteriaInvalidDate',
+      'plannerCriteriaInvalidRange',
+    ];
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(
+          strings.text(key),
+          isNot(key),
+          reason: '${language.code} must localize $key',
+        );
+      }
+    }
+  });
+
   test('Planner export controls are localized in every supported language', () {
     const keys = [
       'exportCsv',
