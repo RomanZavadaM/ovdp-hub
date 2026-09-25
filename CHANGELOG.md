@@ -4,9 +4,20 @@
 
 ## [Unreleased]
 
-- Post-v0.9.3 documentation cleanup: current multilingual GitHub descriptions and user guides; no product-behavior change.
-- Active product/architecture docs were refreshed for v0.9.3 and obsolete `READINESS_0_9_0.md` was removed; historical release evidence remains in CHANGELOG/releases.
-- Next product work starts from an актуальний-main usability audit; Android SAF / iOS security-scoped external-folder access remains deferred.
+### Portfolio recovery / backup UX
+- Recovery secret при створенні encrypted portfolio тепер потрібно підтвердити повторним вводом.
+- Додано user-facing rotation recovery secret поверх уже наявного vault lifecycle.
+- На Windows додано створення portable encrypted portfolio backup і restore у порожній локальний портфель через existing authenticated vault backup/restore primitives.
+- Success feedback для recovery/backup actions замінює застарілий SnackBar замість прихованої черги повідомлень.
+- Нові controls і user guides синхронізовано UK/EN/FR/DE/ES/KO/JA.
+- Android SAF / iOS security-scoped external-file access не емулюється desktop API й лишається deferred.
+- macOS encrypted Portfolio лишається gated до реальної Keychain runtime/provisioning перевірки.
+- PR #117: exact-head run #417 — success; merge `fc38177a69f387153ff3984d3a917a7975a4a647`; post-merge run #418 — success.
+
+### Post-v0.9.3 audit
+- Usability/product audit зафіксовано в `docs/AUDIT_POST_0_9_3.md`; PR #116 → `bb961f9d11d8c5a245e0fa0689fa74e7f092eb93`.
+- Наступний high-priority slice: non-destructive Planner criteria/date editing.
+- Post-v0.9.3 multilingual GitHub descriptions/user guides та active architecture/product docs лишаються актуальними; obsolete `READINESS_0_9_0.md` видалено.
 
 ## [0.9.3] — 2026-09-25
 
