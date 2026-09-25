@@ -41,7 +41,13 @@ Append-only ledger: GitHub Issue **#18**
 
 Статус: **DOING**
 
-Мета: **post-v0.9.3 usability/product audit** на фактичному `main`.
+Мета: **portfolio recovery / backup UX** після post-v0.9.3 audit.
+
+- base main: `bb961f9d11d8c5a245e0fa0689fa74e7f092eb93`;
+- branch: `feat/portfolio-recovery-backup-ux`;
+- scope: recovery-secret confirmation, recovery rotation, portable encrypted backup/restore через already-existing vault primitives;
+- portable file save/restore UI capability-gated; Android SAF / iOS security-scoped external-folder architecture не розширюється;
+- macOS Portfolio лишається окремим runtime validation gate.
 
 - base main: `63227a8951f02acf426f1064e0f115c73a22fa80`;
 - branch: `audit/post-v0.9.3-usability`;
@@ -64,7 +70,8 @@ Append-only ledger: GitHub Issue **#18**
 
 ### Поточна наступна дія
 
-**DOING — audit document оформлено; відкрити audit PR, пройти exact-head checks, інтегрувати аудит у `main`. Після merge перший implementation slice: `portfolio-recovery-backup-ux`.**
+**DOING — завершити localization/docs, відкрити PR для `portfolio-recovery-backup-ux`, пройти exact-head analyze/tests і real-control regressions. Після green інтегрувати PR у `main`.**
+
 
 ## Deferred gates
 
