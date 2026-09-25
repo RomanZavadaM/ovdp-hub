@@ -173,14 +173,19 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     }
 
     final workspace = await Workspace.open(Directory(workspacePath));
-    final report = await LegacyPlaintextMigrator(
-      workspace: workspace,
-      vaultStore: _store!,
-    ).migrate(vaultId: vaultId);
+    late final LegacyPlaintextMigrationReport report;
+    try {
+      report = await LegacyPlaintextMigrator(
+        workspace: workspace,
+        vaultStore: _store!,
+      ).migrate(vaultId: vaultId);
+    } finally {
+      // The migrator writes through the durable store. Always discard the
+      // session plaintext, even when verification fails after a write, so a
+      // stale unlocked session can never overwrite migrated vault contents.
+      await session.lock();
+    }
 
-    // The migrator writes through the durable store. Re-open the session so
-    // its in-memory plaintext cannot later overwrite the migrated payload.
-    await session.lock();
     final payload = await open();
     return PortfolioMigrationResult(report: report, payload: payload);
   }
