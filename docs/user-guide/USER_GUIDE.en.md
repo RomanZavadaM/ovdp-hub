@@ -13,7 +13,7 @@ OVDP Hub is a local-first application for Ukrainian government bonds (OVDP): mar
 **iOS:** the published package is unsigned and requires separate Apple signing/provisioning.
 
 ## Language and appearance
-UI languages: Ukrainian, English, French, German, Spanish, Korean, Japanese. Appearance: Classic, Workbench, Light Dashboard.
+UI languages: Ukrainian, English, French, German, Spanish, Korean, Japanese. Appearance: Classic, Workbench, Light Dashboard. The selected language and appearance are stored locally on this device and restored on the next launch.
 
 ## Market and ISIN
 Use the catalog to search/filter bonds. The ISIN card keeps NBU, MinFin, and seller observations separate and shows source date, retrieval time, and freshness/status. Yield-only or nominal data is never silently treated as a tradable market price.
