@@ -142,6 +142,10 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(
+      find.byKey(const ValueKey('portfolio-sale-date')),
+      '24.09.2026',
+    );
+    await tester.enterText(
       find.byKey(const ValueKey('portfolio-sale-proceeds')),
       '2100',
     );
@@ -161,6 +165,10 @@ void main() {
     await tester.tap(addRedemption);
     await tester.pumpAndSettle();
 
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-redemption-date')),
+      '25.09.2026',
+    );
     await tester.enterText(
       find.byKey(const ValueKey('portfolio-redemption-amount')),
       '1000',
