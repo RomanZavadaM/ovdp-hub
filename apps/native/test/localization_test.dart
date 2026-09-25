@@ -34,7 +34,17 @@ void main() {
 
     expect(find.text('Catalog'), findsWidgets);
     expect(find.text('Refresh directly from NBU'), findsOneWidget);
+
+    final search = find.byKey(const ValueKey('catalog-search'));
+    expect(search, findsOneWidget);
+    await tester.ensureVisible(search);
+    await tester.pumpAndSettle();
     expect(find.text('Search by ISIN'), findsOneWidget);
+
+    final longHorizon = find.byKey(const ValueKey('catalog-horizon-long'));
+    expect(longHorizon, findsOneWidget);
+    await tester.ensureVisible(longHorizon);
+    await tester.pumpAndSettle();
     expect(find.text('All maturities'), findsOneWidget);
     expect(find.text('Up to 12 months'), findsOneWidget);
     expect(find.text('From 24 months'), findsOneWidget);
