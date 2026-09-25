@@ -315,7 +315,6 @@ class PortfolioView extends StatelessWidget {
         ),
       ),
     );
-    secret.dispose();
   }
 
   Future<void> _addPurchase(BuildContext context) async {
@@ -466,9 +465,6 @@ class PortfolioView extends StatelessWidget {
       ),
     );
 
-    for (final controller in [isin, units, date, amount, fee, broker]) {
-      controller.dispose();
-    }
   }
 
   Future<void> _addSale(BuildContext context) async {
@@ -689,12 +685,6 @@ class PortfolioView extends StatelessWidget {
       ),
     );
 
-    for (final controller in allocationControllers.values) {
-      controller.dispose();
-    }
-    for (final controller in [date, proceeds, fee, note]) {
-      controller.dispose();
-    }
   }
 
   Future<void> _addRedemption(BuildContext context) async {
@@ -849,9 +839,6 @@ class PortfolioView extends StatelessWidget {
       ),
     );
 
-    for (final controller in [date, units, amount, note]) {
-      controller.dispose();
-    }
   }
 
   Future<void> _migrateLegacy(BuildContext context) async {
