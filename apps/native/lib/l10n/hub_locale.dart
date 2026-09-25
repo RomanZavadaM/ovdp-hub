@@ -27,8 +27,18 @@ class LocaleState {
 }
 
 class LocaleCubit extends Cubit<LocaleState> {
-  LocaleCubit() : super(const LocaleState());
-  void select(AppLanguage language) => emit(LocaleState(language: language));
+  final ValueChanged<AppLanguage>? onSelected;
+
+  LocaleCubit({
+    AppLanguage initialLanguage = AppLanguage.uk,
+    this.onSelected,
+  }) : super(LocaleState(language: initialLanguage));
+
+  void select(AppLanguage language) {
+    if (state.language == language) return;
+    emit(LocaleState(language: language));
+    onSelected?.call(language);
+  }
 }
 
 class HubStrings {
