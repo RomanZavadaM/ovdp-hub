@@ -13,7 +13,7 @@ OVDP Hub ist eine Local-first-Anwendung für ukrainische Staatsanleihen (OVDP): 
 **iOS:** das veröffentlichte Paket ist unsigned und benötigt separates Apple Signing/Provisioning.
 
 ## Sprache und Erscheinungsbild
-Sprachen: Ukrainisch, Englisch, Französisch, Deutsch, Spanisch, Koreanisch und Japanisch. Ansichten: Classic, Workbench, Light Dashboard.
+Sprachen: Ukrainisch, Englisch, Französisch, Deutsch, Spanisch, Koreanisch und Japanisch. Ansichten: Classic, Workbench, Light Dashboard. Gewählte Sprache und Ansicht werden lokal auf diesem Gerät gespeichert und beim nächsten Start wiederhergestellt.
 
 ## Markt und ISIN
 Im Katalog können Anleihen gesucht und gefiltert werden. Die ISIN-Karte trennt NBU-, MinFin- und Verkäuferdaten und zeigt Datum, Quelle und Freshness/Status. Yield-only oder Nominalwerte werden nicht stillschweigend als handelbarer Marktpreis verwendet.
