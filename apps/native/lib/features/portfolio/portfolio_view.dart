@@ -1356,7 +1356,7 @@ class _HoldingCard extends StatelessWidget {
           FilledButton(
             key: ValueKey('portfolio-details-close-${holding.isin}'),
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(strings.text('portfolioMigrationDone')),
+            child: Text(strings.text('portfolioClose')),
           ),
         ],
       ),
@@ -1376,6 +1376,7 @@ class _HistoryEntry {
   final int? units;
   final String amount;
   final String currency;
+  final String? note;
 
   const _HistoryEntry({
     required this.date,
@@ -1384,6 +1385,7 @@ class _HistoryEntry {
     required this.units,
     required this.amount,
     required this.currency,
+    this.note,
   });
 }
 
@@ -1405,6 +1407,7 @@ class _PortfolioHistory extends StatelessWidget {
           units: lot.units,
           amount: lot.tradeAmount.toString(),
           currency: lot.currency,
+          note: lot.brokerAccountLabel,
         ),
       for (final disposal in payload.disposals)
         if (isin == null || disposal.isin == isin)
@@ -1415,6 +1418,7 @@ class _PortfolioHistory extends StatelessWidget {
           units: disposal.units,
           amount: disposal.proceedsAmount.toString(),
           currency: disposal.currency,
+          note: disposal.note,
         ),
       for (final event in payload.cashEvents)
         if (isin == null || event.isin == isin)
@@ -1427,6 +1431,7 @@ class _PortfolioHistory extends StatelessWidget {
           units: event.units,
           amount: event.amount.toString(),
           currency: event.currency,
+          note: event.note,
         ),
     ]..sort((a, b) {
         final byDate = b.date.compareTo(a.date);
@@ -1467,6 +1472,9 @@ class _PortfolioHistory extends StatelessWidget {
                   _displayIsoDate(entries[index].date),
                   if (entries[index].units != null) '× ${entries[index].units}',
                   '${entries[index].amount} ${entries[index].currency}',
+                  if (entries[index].note != null &&
+                      entries[index].note!.trim().isNotEmpty)
+                    entries[index].note!.trim(),
                 ].join(' · '),
               ),
             ),
