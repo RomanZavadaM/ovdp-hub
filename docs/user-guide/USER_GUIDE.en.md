@@ -46,6 +46,8 @@ The migration wizard copies supported user-specific legacy data into the encrypt
 ## Backup and updates
 Before major updates, lock the portfolio, back up the workspace, create/verify an encrypted portable backup, and keep recovery material separately. For desktop updates, extract the new release into a new program folder and keep the workspace until the new version is verified.
 
+On Windows, **My portfolio** can create a portable encrypted backup and restore an empty local portfolio from it. The recovery secret is entered twice at creation and can be changed later. Android/iOS external-file flows remain deferred to the separate SAF/security-scoped access stage.
+
 ## Checksums
 Use `SHA256SUMS.txt` from the GitHub Release to verify downloaded archives when needed.
 
