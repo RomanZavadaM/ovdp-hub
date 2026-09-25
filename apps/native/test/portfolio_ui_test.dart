@@ -179,7 +179,7 @@ void main() {
       find.text(
         'Вихідні JSON-файли залишаться на місці. Програма не видаляє їх автоматично.',
       ),
-      findsOneWidget,
+      findsWidgets,
     );
 
     await tester.tap(find.byKey(const ValueKey('portfolio-migration-run')));
