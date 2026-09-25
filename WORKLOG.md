@@ -65,7 +65,7 @@ Append-only ledger: GitHub Issue **#18**
 
 ## Поточна наступна дія
 
-**DOING — PR #120 open; first exact-head run #422 correctly failed because CatalogView was still hardcoded. Real UI wiring is now fixed; rerun exact-head analyze/tests and integrate only after green.**
+**DOING — PR #120 open. Runs #422/#424 exposed that earlier LF-based patch did not modify CRLF CatalogView. Real CRLF-normalized UI patch is now committed and verified to remove all stale Ukrainian literals; visible-control regression scrolls to the actual search/horizon controls. Run new exact-head analyze/tests and integrate only after green.**
 
 ## Deferred gates
 
