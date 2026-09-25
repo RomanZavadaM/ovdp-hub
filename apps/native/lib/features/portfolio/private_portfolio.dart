@@ -606,6 +606,44 @@ class PrivateHolding {
 }
 
 @immutable
+class PrivateFactualCashSummary {
+  final String currency;
+  final Decimal acquisitionTradeAmount;
+  final Decimal knownAcquisitionFees;
+  final bool hasUnknownAcquisitionFees;
+  final Decimal disposalProceeds;
+  final Decimal knownDisposalFees;
+  final bool hasUnknownDisposalFees;
+  final Decimal couponReceipts;
+  final Decimal redemptionReceipts;
+
+  const PrivateFactualCashSummary({
+    required this.currency,
+    required this.acquisitionTradeAmount,
+    required this.knownAcquisitionFees,
+    required this.hasUnknownAcquisitionFees,
+    required this.disposalProceeds,
+    required this.knownDisposalFees,
+    required this.hasUnknownDisposalFees,
+    required this.couponReceipts,
+    required this.redemptionReceipts,
+  });
+
+  bool get hasUnknownFees =>
+      hasUnknownAcquisitionFees || hasUnknownDisposalFees;
+
+  Decimal get totalInflows =>
+      disposalProceeds + couponReceipts + redemptionReceipts;
+
+  Decimal? get exactNetCashResult => hasUnknownFees
+      ? null
+      : totalInflows -
+          acquisitionTradeAmount -
+          knownAcquisitionFees -
+          knownDisposalFees;
+}
+
+@immutable
 class PrivatePortfolioPayload {
   final String portfolioId;
   final List<PrivateAcquisitionLot> acquisitionLots;
@@ -853,6 +891,98 @@ class PrivatePortfolioPayload {
         )
         .toList()
       ..sort((a, b) => a.isin.compareTo(b.isin));
+    return List.unmodifiable(result);
+  }
+
+  List<String> get closedPositionIsins {
+    final open = holdings.map((holding) => holding.isin).toSet();
+    final closed = acquisitionLots
+        .map((lot) => lot.isin)
+        .toSet()
+        .where((isin) => !open.contains(isin))
+        .toList()
+      ..sort();
+    return List.unmodifiable(closed);
+  }
+
+  String currencyForIsin(String isin) {
+    final currencies = acquisitionLots
+        .where((lot) => lot.isin == isin)
+        .map((lot) => lot.currency)
+        .toSet();
+    if (currencies.length != 1) {
+      throw StateError('portfolio.position_not_found');
+    }
+    return currencies.single;
+  }
+
+  List<PrivateFactualCashSummary> get factualCashSummaries {
+    final currencies = acquisitionLots.map((lot) => lot.currency).toSet().toList()
+      ..sort();
+    final result = <PrivateFactualCashSummary>[];
+
+    for (final currency in currencies) {
+      var acquisitionTradeAmount = Decimal.zero;
+      var knownAcquisitionFees = Decimal.zero;
+      var hasUnknownAcquisitionFees = false;
+      var disposalProceeds = Decimal.zero;
+      var knownDisposalFees = Decimal.zero;
+      var hasUnknownDisposalFees = false;
+      var couponReceipts = Decimal.zero;
+      var redemptionReceipts = Decimal.zero;
+
+      for (final lot in acquisitionLots.where((lot) => lot.currency == currency)) {
+        acquisitionTradeAmount += lot.tradeAmount;
+        switch (lot.feeStatus) {
+          case AcquisitionFeeStatus.known:
+            knownAcquisitionFees += lot.feeTotal!;
+            break;
+          case AcquisitionFeeStatus.unknown:
+            hasUnknownAcquisitionFees = true;
+            break;
+        }
+      }
+
+      for (final disposal in disposals.where(
+        (disposal) => disposal.currency == currency,
+      )) {
+        disposalProceeds += disposal.proceedsAmount;
+        switch (disposal.feeStatus) {
+          case DisposalFeeStatus.known:
+            knownDisposalFees += disposal.feeTotal!;
+            break;
+          case DisposalFeeStatus.unknown:
+            hasUnknownDisposalFees = true;
+            break;
+        }
+      }
+
+      for (final event in cashEvents.where((event) => event.currency == currency)) {
+        switch (event.kind) {
+          case PrivateCashEventKind.coupon:
+            couponReceipts += event.amount;
+            break;
+          case PrivateCashEventKind.redemption:
+            redemptionReceipts += event.amount;
+            break;
+        }
+      }
+
+      result.add(
+        PrivateFactualCashSummary(
+          currency: currency,
+          acquisitionTradeAmount: acquisitionTradeAmount,
+          knownAcquisitionFees: knownAcquisitionFees,
+          hasUnknownAcquisitionFees: hasUnknownAcquisitionFees,
+          disposalProceeds: disposalProceeds,
+          knownDisposalFees: knownDisposalFees,
+          hasUnknownDisposalFees: hasUnknownDisposalFees,
+          couponReceipts: couponReceipts,
+          redemptionReceipts: redemptionReceipts,
+        ),
+      );
+    }
+
     return List.unmodifiable(result);
   }
 
