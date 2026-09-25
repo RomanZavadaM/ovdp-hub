@@ -2,107 +2,104 @@
 
 **🇺🇦 Українська** · [🇬🇧 English](docs/readme/README.en.md) · [🇫🇷 Français](docs/readme/README.fr.md) · [🇩🇪 Deutsch](docs/readme/README.de.md) · [🇪🇸 Español](docs/readme/README.es.md) · [🇰🇷 한국어](docs/readme/README.ko.md) · [🇯🇵 日本語](docs/readme/README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.2](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.2) (0.9.2+19)**
+> **Поточний тестовий prerelease: [OVDP Hub v0.9.3](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.3) — 0.9.3+20**
 >
-> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/SHA256SUMS.txt)
+> **Завантаження:** [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/OVDP-Hub-0.9.3-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/OVDP-Hub-0.9.3-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/OVDP-Hub-0.9.3-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/OVDP-Hub-0.9.3-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/OVDP-Hub-0.9.3-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/SHA256SUMS.txt)
 
----
+## Про продукт
 
-### Що це
+**OVDP Hub** — локальний Flutter/Dart-застосунок для роботи з українськими ОВДП: каталог і джерела ринку, сценарне планування, порівняння варіантів та власний зашифрований фактичний портфель.
 
-**OVDP Hub** — встановлюваний Flutter/Dart-застосунок для огляду українських ОВДП, ринкових джерел та власних інвестиційних сценаріїв. Цільові платформи: **Windows, macOS, Android, iOS**. Web/PWA не входить до активного продукту.
+Підтримувані тестові платформи: **Windows, macOS, Android та iOS**. Активний продукт знаходиться в `apps/native`; старі web-прототипи не є актуальною продуктовою лінією.
 
-Активний код: `apps/native`. Поточний опублікований checkpoint — **0.9.2+19**. Він включає «Світлу панель», Planner reserve floor, deterministic CSV/ICS exports, encrypted-vault/private-portfolio foundation, а також нові user-facing **«Економічний пульс»** і **«Мій портфель»** з першою фактичною encrypted purchase/holdings flow. Legacy migration wizard ще не підключено.
+## Основні можливості v0.9.3
 
-### Що вже працює
+- каталог ОВДП на базі публічних даних НБУ;
+- картка ISIN з окремими шарами **НБУ / Мінфін / продавці**, датою, джерелом і freshness/status;
+- календар і структуровані результати аукціонів Мінфіну;
+- кілька спостережень ціни та явний пріоритет джерел;
+- планувальник бюджету, резерву, строків, потреб і cashflow;
+- явні припущення щодо комісій, податків, FX та дострокового продажу;
+- нейтральне порівняння **A/B/C** без автоматичного «кращого» варіанта;
+- reserve floor / мінімальний ліквідний залишок;
+- deterministic CSV/ICS exports;
+- постійний **«Економічний пульс»**;
+- **«Мій портфель»**: локальне encrypted-сховище, purchase/sale/coupon/redemption, історія та ledger по ISIN;
+- закриті позиції залишаються доступними в історії;
+- фактичний грошовий підсумок по валюті з окремими купівлями, продажами, купонами, погашеннями та відомими комісіями;
+- невідомі комісії не підміняються нулем;
+- explicit non-destructive legacy migration wizard з перевіркою зашифрованої копії;
+- UI та user-facing повідомлення: **UK / EN / FR / DE / ES / KO / JA**;
+- три оформлення: Classic, «Робочий кабінет» і «Світла панель».
 
-- локальний каталог ОВДП на базі публічних даних НБУ;
-- пошук, фільтри, графіки виплат і порівняння випусків;
-- окремі шари даних **НБУ / Мінфін / продавці** з provenance, source date, retrieved time та freshness/status;
-- структурований календар аукціонів Мінфіну та детальні результати placement/switch аукціонів;
-- кілька джерел ціни з явним пріоритетом користувача;
-- планувальник бюджету, резерву, строків і майбутніх витрат;
-- явні purchase-fee assumptions: невідома комісія не прирівнюється до нуля;
-- перевірений податковий профіль для фізособи-резидента України / ОВДП / 2026 з чітким розрізненням **unknown** та **verified zero**;
-- явне FX-порівняння з ручним курсом, датою та URL джерела без змішування валют у базовому cashflow;
-- достроковий продаж по кожній позиції з власною датою та BID/ручною exit-ціною;
-- основна майбутня потреба може бути регулярною; повторення зберігається як typed правило, додаткові потреби — як окремі one-off записи;
-- нейтральне порівняння **A/B/C** для 2–3 збережених сценаріїв із strict comparability та без автоматичного «кращого» варіанта;
-- reserve floor / мінімальний залишок як typed правило: з указаної дати сума має лишатися ліквідною й не вважається витратою;
-- локальні deterministic CSV/ICS exports із Planner scenario/needs/coverage/cashflow у папку `exports/` активного workspace; PDF відкладено до стабілізації звіту;
-- generated Planner copy / preset labels зберігаються як stable IDs і локалізуються при показі; власні назви користувача лишаються literal;
-- постійний **«Економічний пульс»** з NBU FX і MinFin auction indicators, source/date та fail-closed unavailable state;
-- **«Мій портфель»**: локальний encrypted portfolio, create/open/lock, factual purchase та derived holdings;
-- збереження сценаріїв у переносній робочій папці JSON;
-- активний UI та основні user-facing помилки локалізовані **UK / EN / FR / DE / ES / KO / JA**.
+## Важливо про розрахунки
 
-Номінальна ставка не вважається ринковою дохідністю, yield-only не стає ціною автоматично, а невідомі комісії, податки чи FX не підміняються нулем.
+OVDP Hub не виконує операції купівлі/продажу і не є брокером. Номінал, yield, котирування та припущення не підміняють фактичну ціну угоди.
 
-### Планувальник
+Фактичний грошовий підсумок портфеля **не включає поточну ринкову вартість відкритих позицій**, тому не є оцінкою портфеля чи показником інвестиційної дохідності. Якщо комісія невідома, точний net-result не показується.
 
-Планувальник працює в одній валюті сценарію та підтримує режими розподілу за строками, максимізації розрахункового прибутку й покриття майбутніх витрат. Повну ціну та кількість можна редагувати вручну. Підтримуються додаткові витрати, резерв, затримка зарахування і збереження сценарію.
+## Встановлення
 
-Розвиток після опублікованого 0.9.0:
+### Windows
+1. Завантажте `OVDP-Hub-0.9.3-Windows-x64.zip`.
+2. Розпакуйте **весь ZIP** у звичайну папку.
+3. Запустіть `ovdp_hub.exe` із розпакованої папки. DLL і ресурси мають залишатися поруч.
+4. Збірка тестова й поки без production code-signing, тому Windows може показати SmartScreen.
 
-1. **DONE** — явний пріоритет джерел ціни;
-2. **DONE** — purchase-fee assumptions;
-3. **DONE** — verified tax assumptions;
-4. **DONE** — FX assumptions;
-5. **DONE** — exit assumptions;
-6. **DONE** — neutral A/B/C comparison;
-7. **DONE** — generated Planner copy / preset-label localization + regression;
-8. **DONE** — v0.9.0 prerelease checkpoint;
-9. **DONE** — reserve floor / мінімальний залишок;
-10. **DONE** — локальні deterministic CSV/ICS exports; PDF deferred;
-11. **DONE** — encrypted-vault threat model + audited crypto/device-key stack;
-12. **DONE** — atomic encrypted local vault, recovery/backup, rollback detection і session locking;
-13. **DONE** — recovery lifecycle + non-destructive local delete controls;
-14. **DONE** — private portfolio factual domain: acquisitions/cash events/disposals + explicit lot allocation;
-15. **DONE** — non-destructive legacy plaintext migration core / private payload schema v3;
-16. **DONE** — v0.9.1+18 full prerelease checkpoint;
-17. **DONE** — persistent «Економічний пульс» + first encrypted «Мій портфель» flow у v0.9.2+19;
-18. **NEXT** — factual sale/redemption/history + explicit legacy migration wizard; mobile external-folder permissions deferred.
+### macOS
+1. Завантажте й розпакуйте `OVDP-Hub-0.9.3-macOS.zip`.
+2. Відкрийте `ovdp_hub.app`.
+3. Поточний prerelease не notarized/signing production-ready; macOS може вимагати підтвердження запуску через **System Settings → Privacy & Security → Open Anyway** після першої спроби.
 
-OVDP Hub не виконує купівлю чи продаж і не підтверджує доступність інструмента у продавця.
+### Android
+Розпакуйте Android ZIP, встановіть `OVDP-Hub.apk` і, якщо система попросить, дозвольте встановлення застосунків із цього джерела. Це test-build із development signing, не Play Store release.
 
-### Дані та приватність
+### iOS
+Опублікований пакет **unsigned**. Він не є готовим App Store/Ad Hoc пакетом і потребує окремого Apple signing/provisioning для встановлення.
 
-Каталоги й сценарії зберігаються на пристрої. На desktop можна відкрити або скопіювати робочу папку. OVDP Hub не має сервера приватних портфельних даних.
+### START/source
+START-пакет призначений для запуску з вихідного коду. Потрібні Flutter **3.47.5** та інструменти збірки відповідної ОС. У Windows використовуйте `START.bat`, у macOS — `START.command`.
 
-У v0.9.2 уже є перевірена внутрішня encrypted-vault foundation (authenticated encryption, platform device keys, recovery/backup, rollback/session lifecycle) і non-destructive migration core. **Але поточні legacy `sets/*.json` у звичайному workspace все ще plaintext, доки user-facing migration/vault flow не буде окремо підключено.** Migration core не має delete API й не видаляє source JSON автоматично. Не використовуйте legacy workspace для ключів підпису, KYC-документів чи інших секретів.
+## Керівництво користувача
 
-### Швидке тестування
+Повне керівництво: **[Українською](docs/user-guide/USER_GUIDE.uk.md)**.
 
-Звичайні зміни запускають `flutter analyze`, `flutter test` і START-пакування. START запускається через `START.bat` у Windows або `START.command` у macOS. Для першого запуску потрібен Flutter 3.47.5 та інструменти збірки відповідної ОС.
+Інші мови: [English](docs/user-guide/USER_GUIDE.en.md) · [Français](docs/user-guide/USER_GUIDE.fr.md) · [Deutsch](docs/user-guide/USER_GUIDE.de.md) · [Español](docs/user-guide/USER_GUIDE.es.md) · [한국어](docs/user-guide/USER_GUIDE.ko.md) · [日本語](docs/user-guide/USER_GUIDE.ja.md).
 
-Формальний prerelease збирає Windows/macOS/Android/iOS, START/source, `SHA256SUMS.txt`, legal notices, незмінний tag і GitHub Release.
+## Дані, приватність і резервні копії
 
-### Авторські права
+OVDP Hub працює local-first: приватний портфель не надсилається на центральний сервер OVDP Hub. Encrypted portfolio використовує локальне authenticated encryption, platform device keys, recovery/backup, rollback detection і session locking.
+
+Legacy workspace-файли можуть залишатися plaintext. Migration wizard **не видаляє source JSON автоматично**. Після перевірки перенесення користувач сам вирішує, що робити зі старими файлами.
+
+Перед оновленням або перенесенням на інший ПК/Mac зробіть резервну копію робочої папки й encrypted backup портфеля.
+
+## Перевірка релізу
+
+Release pipeline v0.9.3 пройшов:
+- `flutter analyze` і повний `flutter test`;
+- Windows/macOS release build;
+- пакування ZIP;
+- запуск executable **саме з розпакованого release ZIP** та перевірку version/build і contract;
+- Android release test build;
+- unsigned iOS build;
+- START/source package;
+- `SHA256SUMS.txt` та legal notices.
+
+## Документація
+
+- [Керівництва користувача](docs/user-guide/README.md)
+- [Release notes v0.9.3](docs/releases/RELEASE_NOTES_v0_9_3.md)
+- [Changelog](CHANGELOG.md)
+- [Roadmap](docs/roadmap.md)
+- [START_HERE — відновлення розробки](START_HERE.md)
+- [PROJECT_STATE](PROJECT_STATE.md)
+- [WORKLOG](WORKLOG.md)
+
+## Авторські права
 
 **Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.**
 
-OVDP Hub — **proprietary software**. Публічний репозиторій не надає open-source ліцензії та не означає дозволу на копіювання, модифікацію, перепублікацію, продаж або створення похідних версій.
+OVDP Hub — **proprietary software**. Публічний репозиторій не є open-source ліцензією й не надає дозволу на копіювання, модифікацію, перепублікацію, продаж або створення похідних продуктів без письмового дозволу правовласника.
 
 Див. [LICENSE.md](LICENSE.md), [COPYRIGHT.md](COPYRIGHT.md), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), [LEGAL_AND_COPYRIGHT.md](docs/LEGAL_AND_COPYRIGHT.md).
-
-### Для розробника
-
-```sh
-cd apps/native
-flutter pub get
-flutter analyze
-flutter test
-flutter build windows --release
-```
-
-Також підтримуються `flutter build macos --release`, `flutter build apk --release`, `flutter build ipa --release`.
-
-Ключові файли стану: [START_HERE.md](START_HERE.md), [PROJECT_STATE.md](PROJECT_STATE.md), [PROJECT_RULES.md](PROJECT_RULES.md), [WORKLOG.md](WORKLOG.md), [CHANGELOG.md](CHANGELOG.md).
-
----
-
-### Мови / Languages
-
-**🇺🇦 Українська** · [🇬🇧 English](docs/readme/README.en.md) · [🇫🇷 Français](docs/readme/README.fr.md) · [🇩🇪 Deutsch](docs/readme/README.de.md) · [🇪🇸 Español](docs/readme/README.es.md) · [🇰🇷 한국어](docs/readme/README.ko.md) · [🇯🇵 日本語](docs/readme/README.ja.md)
-
-> Інші мови винесені в окремі README-файли, щоб GitHub не показував усі переклади однією довгою сторінкою.

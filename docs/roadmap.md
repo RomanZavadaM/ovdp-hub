@@ -96,7 +96,7 @@
 - [x] Factual sale/redemption/history UI + explicit non-destructive legacy migration wizard — PR #101, exact-head run #390, merge `c255c937…`, post-merge run #391.
 - [x] User-facing factual coupon entry + per-ISIN portfolio detail/ledger — PR #104, exact-head run #395, merge `c8d26862…`, post-merge run #396.
 - [x] Factual portfolio cash/result summary + access to closed ISIN positions — PR #106, exact-head run #399, merge `310afcc2…`, post-merge run #400; unknown fees remain explicit and market value is not presented as fact.
-- [ ] **DOING:** v0.9.3+20 full cross-platform prerelease checkpoint after three post-v0.9.2 user-visible portfolio slices.
+- [x] **v0.9.3+20 RELEASED:** full cross-platform prerelease after three post-v0.9.2 user-visible portfolio slices; PR #109 → `e2ec9632…`, main run #405 and publish run #106 — success.
 - [ ] Android SAF / iOS security-scoped access для зовнішніх папок — deferred до mobile external-workspace/vault slice.
 
 ## Distribution readiness
@@ -123,3 +123,10 @@
 - [x] Планувальник — статичний UI UK/EN/FR/DE/ES/KO/JA.
 - [x] Domain/error повідомлення з Cubit/Repository/parser/domain validation переведені на typed коди й локалізоване відображення UK/EN/FR/DE/ES/KO/JA.
 - [x] Generated planner copy / preset labels: stable persisted generated-copy IDs + display-time `HubStrings` для UK/EN/FR/DE/ES/KO/JA; user-authored text literal — PR #61, run #189 (110/110), final run #190.
+
+
+## Після v0.9.3
+
+- [ ] **NEXT:** post-v0.9.3 usability/product audit на актуальному `main`: пройти реальні navigation/portfolio/planner flows як цілісний продукт і сформувати один наступний self-contained slice.
+- [ ] Android SAF / iOS security-scoped external-folder access — deferred до окремого mobile storage gate.
+- [ ] Production signing/notarization/store distribution — окремий distribution-readiness gate.
