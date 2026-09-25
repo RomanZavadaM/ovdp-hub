@@ -37,11 +37,34 @@ Append-only ledger: GitHub Issue **#18**
 - tags/releases/commit history збережено;
 - після фінального видалення sync branch live development branch = **`main` only**.
 
-## Поточна наступна дія
+## Поточний slice
 
-**NEXT — post-v0.9.3 usability/product audit на актуальному `main`: пройти реальні user-visible navigation / portfolio / planner flows як цілісний продукт, знайти UX/logic gaps і сформувати один наступний self-contained slice.**
+Статус: **DOING**
 
-Не відновлювати старі feature/docs/release branches як джерела коду.
+Мета: **post-v0.9.3 usability/product audit** на фактичному `main`.
+
+- base main: `63227a8951f02acf426f1064e0f115c73a22fa80`;
+- branch: `audit/post-v0.9.3-usability`;
+- перевіряються реальні user-visible navigation / Catalog / Planner / Portfolio / appearance / localization / platform flows;
+- аудит відділений від implementation: спочатку підтверджуємо хиби й пріоритет, потім один self-contained fix slice;
+- старі branches не використовуються як джерела коду.
+
+### Уже підтверджені findings
+
+1. **HIGH · data safety:** vault core має recovery lifecycle та encrypted backup/restore primitives, але `PortfolioGateway`/UI не дають користувачу portable encrypted backup/restore/rotate recovery; user guide вже радить створювати encrypted portable backup.
+2. **HIGH · recovery UX:** recovery secret при створенні портфеля вводиться один раз без confirmation, хоча потім не показується.
+3. **HIGH · macOS product gap:** v0.9.3 macOS build публікується, але `LocalEncryptedPortfolioGateway.supported` не включає macOS; lower secure-storage adapter для macOS уже існує, тому потрібен окремий runtime/provisioning validation gate, а не сліпе ввімкнення.
+4. **HIGH · Planner UX/state:** редагування `currency/start/minDate/maxDate` очищає generated positions; start/min/max TextFormField викликають `edit()` onChanged, тому ручне редагування дати може очистити composition/early exits без explicit confirmation.
+5. **MEDIUM · date UX:** Planner використовує ручний `YYYY-MM-DD`, Portfolio — ручний `DD.MM.YYYY`; календарного picker немає.
+6. **MEDIUM · localization:** CatalogView містить hardcoded Ukrainian user-facing text, попри наявні localized keys.
+7. **MEDIUM · persisted copy:** створення варіанта добірки зберігає hardcoded suffix `— варіант`, незалежно від UI language.
+8. **MEDIUM · preferences:** selected language та appearance не persist між запусками.
+9. **MEDIUM · mobile confidence:** full Portfolio real-control regression є для desktop, але немає еквівалентного phone-flow regression.
+10. **MEDIUM · portfolio/domain UX:** після partial redemption позитивний holding лишається, але sale intentionally fail-closed через відсутність redemption lot allocation; UI prefilter/disabled action погано пояснює причину.
+
+### Поточна наступна дія
+
+**DOING — audit document оформлено; відкрити audit PR, пройти exact-head checks, інтегрувати аудит у `main`. Після merge перший implementation slice: `portfolio-recovery-backup-ux`.**
 
 ## Deferred gates
 
