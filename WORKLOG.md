@@ -32,7 +32,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - base `main`: **`97695e360ba118814ab71978e65a96eb3b407df8`**;
 - branch: **`release/v0.9.3`**;
 - target version/build: **0.9.3+20**;
-- PR: ще не відкрито;
+- PR: **#108 — `Release: OVDP Hub v0.9.3+20` (draft)**;
 - release scope: три user-visible portfolio slices після v0.9.2 — sale/redemption/history + migration wizard; factual coupon + per-ISIN ledger; factual cash summary + closed positions;
 - private payload schema не змінюється;
 - legacy migration лишається explicit + non-destructive; source JSON не видаляються автоматично;
@@ -53,7 +53,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — finish v0.9.3+20 metadata/docs, open release PR, pass exact packaged-artifact gates, then merge and verify the full Publish native prerelease pipeline.**
+**DOING — PR #108 opened; verify exact latest head through Flutter + Windows/macOS packaged-artifact release gates before marking ready/merging.**
 
 ## Черга робіт
 
