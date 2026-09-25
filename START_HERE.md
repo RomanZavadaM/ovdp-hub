@@ -54,10 +54,11 @@
 - Languages: UK / EN / FR / DE / ES / KO / JA
 - v0.9.3 includes factual sale/redemption/history, coupon, per-ISIN ledger, factual cash summary, closed positions and explicit non-destructive legacy migration wizard.
 - Unknown fees remain explicit; market value is not presented as factual result.
-- Current DOING: **v0.9.3 user documentation + repository cleanup** on `docs/v0.9.3-user-guides`.
-- Stale duplicate PR #103 and #108 are closed.
+- v0.9.3 documentation/user-guide cleanup is **DONE**: PR #110 → `df505e9f…`, exact-head run #407 and post-merge run #408 — success.
+- Repository branch cleanup is **DONE**: 109 obsolete branches deleted, 0 failures; stale PR #103/#108 closed; tags/releases/history preserved.
 - Android SAF / iOS security-scoped external-folder access remains deferred.
 - Production signing/notarization remains deferred.
+- **NEXT:** post-v0.9.3 usability/product audit from current `main`; do not restore old branches.
 
 ## Rule for new chats
 
