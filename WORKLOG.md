@@ -64,7 +64,7 @@ Append-only ledger: GitHub Issue **#18**
 
 ### Поточна наступна дія
 
-**DOING — оформити `docs/AUDIT_POST_0_9_3.md`, звірити findings із тестами/кодом, визначити один перший fix slice та відкрити audit PR.**
+**DOING — audit document оформлено; відкрити audit PR, пройти exact-head checks, інтегрувати аудит у `main`. Після merge перший implementation slice: `portfolio-recovery-backup-ux`.**
 
 ## Deferred gates
 
