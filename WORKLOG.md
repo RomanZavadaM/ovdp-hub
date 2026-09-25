@@ -40,9 +40,25 @@ Append-only ledger: GitHub Issue **#18**
 - macOS Portfolio лишається окремим runtime Keychain validation gate;
 - UI та user guides синхронізовані UK / EN / FR / DE / ES / KO / JA.
 
+## Поточний slice
+
+Статус: **DOING**
+
+Мета: **Planner safe criteria/date editing**.
+
+- base main: `89d46c99ce0e8160aefb12d3edd55658b3f92460`;
+- branch: `feat/planner-safe-date-editing`;
+- persisted Planner schema не змінюється;
+- `currency/start/minDate/maxDate` відокремлені від звичайного per-keystroke edit;
+- date draft живе локально в UI і не змінює Cubit, доки дата не валідна та не committed;
+- якщо сформована composition/early exits уже існує, зміна ключового критерію вимагає explicit confirmation;
+- Cancel зберігає поточний plan;
+- Apply робить controlled reset composition/exits;
+- unit + visible-control + localization regressions додані.
+
 ## Поточна наступна дія
 
-**NEXT — Planner safe criteria/date editing:** не очищати generated composition та per-position exits під час проміжного ручного вводу `start/minDate/maxDate`; валідну зміну ключового критерію застосовувати лише як committed action з explicit confirmation, якщо вона інвалідовує вже сформований план. Persisted Planner schema не змінювати.
+**DOING — відкрити PR, пройти exact-head analyze/tests. Після green інтегрувати Planner safe-editing у `main` і перейти до наступного audit finding.**
 
 
 ## Deferred gates
