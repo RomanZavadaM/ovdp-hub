@@ -39,6 +39,12 @@ void main() {
     await cubit.create('a-secure-recovery-secret');
     expect(cubit.state.unlocked, isTrue);
 
+    expect(await cubit.createPortableBackup(), gateway.backupPath);
+    expect(gateway.backupCalls, 1);
+    expect(await cubit.rotateRecovery('a-new-secure-recovery-secret'), isTrue);
+    expect(gateway.rotateRecoveryCalls, 1);
+    expect(gateway.lastRecoverySecret, 'a-new-secure-recovery-secret');
+
     final bond = catalog.bonds.single;
     await cubit.addAcquisition(
       isin: bond.isin,
@@ -102,6 +108,138 @@ void main() {
 
     await cubit.close();
     await hub.dispose();
+  });
+
+  testWidgets('portfolio recovery confirmation backup and rotation use visible controls', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final hub = FakeRepository(catalog);
+    final gateway = FakePortfolioGateway(portableBackupSupported: true);
+    await tester.pumpWidget(
+      OvdpApp(repository: hub, portfolioGateway: gateway),
+    );
+    await tester.pumpAndSettle();
+
+    final portfolioNavigation = find.descendant(
+      of: find.byType(StudioSidebar),
+      matching: find.byIcon(Icons.account_balance_wallet_outlined),
+    );
+    await tester.tap(portfolioNavigation);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('portfolio-create')));
+    await tester.pumpAndSettle();
+
+    const secret = 'a-secure-recovery-secret';
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-create-recovery-secret')),
+      secret,
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-create-recovery-confirm')),
+      'a-different-recovery-secret',
+    );
+    await tester.tap(find.byKey(const ValueKey('portfolio-create-save')));
+    await tester.pumpAndSettle();
+    expect(find.text('Паролі відновлення не збігаються.'), findsOneWidget);
+    expect(gateway.stored, isNull);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-create-recovery-confirm')),
+      secret,
+    );
+    await tester.tap(find.byKey(const ValueKey('portfolio-create-save')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Відновлення та резервна копія'), findsOneWidget);
+
+    final backup = find.byKey(const ValueKey('portfolio-create-backup'));
+    await tester.ensureVisible(backup);
+    await tester.tap(backup);
+    await tester.pumpAndSettle();
+    expect(gateway.backupCalls, 1);
+    expect(
+      find.textContaining('OVDP-Hub-portfolio-backup.ovdp-vault.json'),
+      findsOneWidget,
+    );
+
+    final rotate = find.byKey(const ValueKey('portfolio-rotate-recovery'));
+    await tester.ensureVisible(rotate);
+    await tester.tap(rotate);
+    await tester.pumpAndSettle();
+
+    const newSecret = 'another-secure-recovery-secret';
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-rotate-recovery-secret')),
+      newSecret,
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-rotate-recovery-confirm')),
+      newSecret,
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('portfolio-rotate-recovery-save')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(gateway.rotateRecoveryCalls, 1);
+    expect(gateway.lastRecoverySecret, newSecret);
+    expect(find.text('Пароль відновлення оновлено.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('portable encrypted backup can restore an empty local portfolio', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final hub = FakeRepository(catalog);
+    final gateway = FakePortfolioGateway(portableBackupSupported: true);
+    await tester.pumpWidget(
+      OvdpApp(repository: hub, portfolioGateway: gateway),
+    );
+    await tester.pumpAndSettle();
+
+    final portfolioNavigation = find.descendant(
+      of: find.byType(StudioSidebar),
+      matching: find.byIcon(Icons.account_balance_wallet_outlined),
+    );
+    await tester.tap(portfolioNavigation);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('portfolio-restore-backup')));
+    await tester.pumpAndSettle();
+
+    const secret = 'a-secure-recovery-secret';
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-restore-recovery-secret')),
+      secret,
+    );
+    await tester.tap(find.byKey(const ValueKey('portfolio-restore-run')));
+    await tester.pumpAndSettle();
+
+    expect(gateway.restoreCalls, 1);
+    expect(gateway.lastRecoverySecret, secret);
+    expect(find.text('Відновлення та резервна копія'), findsOneWidget);
+    expect(
+      find.text('Портфель відновлено із зашифрованої резервної копії.'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
 
   testWidgets('sale redemption history and migration wizard use visible controls', (
