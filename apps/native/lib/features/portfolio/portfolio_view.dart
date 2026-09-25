@@ -171,6 +171,14 @@ class PortfolioView extends StatelessWidget {
               icon: const Icon(Icons.payments_outlined),
               label: Text(strings.text('portfolioAddRedemption')),
             ),
+            OutlinedButton.icon(
+              key: const ValueKey('portfolio-add-coupon'),
+              onPressed: state.busy || holdings.isEmpty
+                  ? null
+                  : () => _addCoupon(context),
+              icon: const Icon(Icons.savings_outlined),
+              label: Text(strings.text('portfolioAddCoupon')),
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -182,7 +190,9 @@ class PortfolioView extends StatelessWidget {
             ),
           )
         else
-          ...holdings.map((holding) => _HoldingCard(holding: holding)),
+          ...holdings.map(
+            (holding) => _HoldingCard(holding: holding, payload: payload),
+          ),
         const SizedBox(height: 18),
         Text(
           strings.text('portfolioHistory'),
@@ -687,6 +697,136 @@ class PortfolioView extends StatelessWidget {
 
   }
 
+  Future<void> _addCoupon(BuildContext context) async {
+    final strings = HubStrings(context.read<LocaleCubit>().state.language);
+    final cubit = context.read<PortfolioCubit>();
+    final payload = cubit.state.payload;
+    if (payload == null || payload.holdings.isEmpty) return;
+
+    final isins = payload.holdings.map((holding) => holding.isin).toList()
+      ..sort();
+    var selectedIsin = isins.first;
+    final date = TextEditingController(text: _todayDisplay(DateTime.now()));
+    final amount = TextEditingController();
+    final note = TextEditingController();
+    String? localError;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(strings.text('portfolioAddCoupon')),
+          content: SizedBox(
+            width: 520,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    key: const ValueKey('portfolio-coupon-isin'),
+                    initialValue: selectedIsin,
+                    decoration: const InputDecoration(labelText: 'ISIN'),
+                    items: isins
+                        .map(
+                          (isin) => DropdownMenuItem(
+                            value: isin,
+                            child: Text(isin),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedIsin = value;
+                          localError = null;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    key: const ValueKey('portfolio-coupon-date'),
+                    controller: date,
+                    decoration: InputDecoration(
+                      labelText: strings.text('portfolioCouponDate'),
+                      hintText: 'DD.MM.YYYY',
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    key: const ValueKey('portfolio-coupon-amount'),
+                    controller: amount,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                      labelText: strings.text('portfolioCouponAmount'),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    key: const ValueKey('portfolio-coupon-note'),
+                    controller: note,
+                    decoration: InputDecoration(
+                      labelText: strings.text('portfolioCouponNote'),
+                    ),
+                  ),
+                  if (localError != null) ...[
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        localError!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(strings.text('portfolioCancel')),
+            ),
+            FilledButton(
+              key: const ValueKey('portfolio-save-coupon'),
+              onPressed: () async {
+                final iso = _dateToIso(date.text.trim());
+                if (iso == null || amount.text.trim().isEmpty) {
+                  setState(() {
+                    localError = strings.text('portfolioInvalidInput');
+                  });
+                  return;
+                }
+                await cubit.addCoupon(
+                  isin: selectedIsin,
+                  date: iso,
+                  amount: amount.text.trim().replaceAll(',', '.'),
+                  note: note.text,
+                );
+                if (!dialogContext.mounted) return;
+                if (cubit.state.errorCode == null) {
+                  Navigator.pop(dialogContext);
+                } else {
+                  setState(() {
+                    localError = _portfolioErrorText(
+                      strings,
+                      cubit.state.errorCode!,
+                    );
+                  });
+                }
+              },
+              child: Text(strings.text('portfolioSaveCoupon')),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _addRedemption(BuildContext context) async {
     final strings = HubStrings(context.read<LocaleCubit>().state.language);
     final cubit = context.read<PortfolioCubit>();
@@ -986,6 +1126,9 @@ String _portfolioErrorText(HubStrings strings, String code) => switch (code) {
       'portfolio.disposal_lot_overallocated' ||
       'portfolio.disposal_exceeds_units' ||
       'portfolio.invalid_event_amount' ||
+      'portfolio.event_without_acquisition' ||
+      'portfolio.event_before_acquisition' ||
+      'portfolio.coupon_has_units' ||
       'portfolio.redemption_units_required' ||
       'portfolio.redemption_exceeds_units' =>
         strings.text('portfolioInvalidInput'),
@@ -1110,7 +1253,12 @@ class _SummaryTile extends StatelessWidget {
 
 class _HoldingCard extends StatelessWidget {
   final PrivateHolding holding;
-  const _HoldingCard({required this.holding});
+  final PrivatePortfolioPayload payload;
+
+  const _HoldingCard({
+    required this.holding,
+    required this.payload,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1137,10 +1285,80 @@ class _HoldingCard extends StatelessWidget {
               ? holding.currency
               : '${holding.currency} · ${strings.text('portfolioMaturity')} ${_displayIsoDate(bond.maturity)}',
         ),
-        trailing: Text(
-          '× ${holding.units}',
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '× ${holding.units}',
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(width: 6),
+            IconButton(
+              key: ValueKey('portfolio-details-${holding.isin}'),
+              tooltip: strings.text('portfolioDetails'),
+              onPressed: () => _showDetails(context, bond),
+              icon: const Icon(Icons.receipt_long_outlined),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _showDetails(BuildContext context, Bond? bond) async {
+    final strings = HubStrings(context.read<LocaleCubit>().state.language);
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        key: ValueKey('portfolio-isin-dialog-${holding.isin}'),
+        title: Text(
+          '${strings.text('portfolioIsinDetails')} · ${holding.isin}',
+        ),
+        content: SizedBox(
+          width: 620,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    Chip(
+                      label: Text(
+                        '${strings.text('portfolioCurrentUnits')}: ${holding.units}',
+                      ),
+                    ),
+                    Chip(label: Text(holding.currency)),
+                    if (bond != null)
+                      Chip(
+                        label: Text(
+                          '${strings.text('portfolioMaturity')}: ${_displayIsoDate(bond.maturity)}',
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  strings.text('portfolioHistory'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 6),
+                _PortfolioHistory(payload: payload, isin: holding.isin),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          FilledButton(
+            key: ValueKey('portfolio-details-close-${holding.isin}'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(strings.text('portfolioMigrationDone')),
+          ),
+        ],
       ),
     );
   }
@@ -1171,14 +1389,16 @@ class _HistoryEntry {
 
 class _PortfolioHistory extends StatelessWidget {
   final PrivatePortfolioPayload payload;
-  const _PortfolioHistory({required this.payload});
+  final String? isin;
+  const _PortfolioHistory({required this.payload, this.isin});
 
   @override
   Widget build(BuildContext context) {
     final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     final entries = <_HistoryEntry>[
       for (final lot in payload.acquisitionLots)
-        _HistoryEntry(
+        if (isin == null || lot.isin == isin)
+          _HistoryEntry(
           date: lot.acquiredOn,
           isin: lot.isin,
           kindKey: 'portfolioHistoryPurchase',
@@ -1187,7 +1407,8 @@ class _PortfolioHistory extends StatelessWidget {
           currency: lot.currency,
         ),
       for (final disposal in payload.disposals)
-        _HistoryEntry(
+        if (isin == null || disposal.isin == isin)
+          _HistoryEntry(
           date: disposal.disposedOn,
           isin: disposal.isin,
           kindKey: 'portfolioHistorySale',
@@ -1196,7 +1417,8 @@ class _PortfolioHistory extends StatelessWidget {
           currency: disposal.currency,
         ),
       for (final event in payload.cashEvents)
-        _HistoryEntry(
+        if (isin == null || event.isin == isin)
+          _HistoryEntry(
           date: event.date,
           isin: event.isin,
           kindKey: event.kind == PrivateCashEventKind.coupon
