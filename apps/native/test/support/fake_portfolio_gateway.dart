@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:ovdp_hub/features/portfolio/legacy_plaintext_migration.dart';
 import 'package:ovdp_hub/features/portfolio/portfolio_gateway.dart';
 import 'package:ovdp_hub/features/portfolio/private_portfolio.dart';
 
@@ -8,6 +9,8 @@ class FakePortfolioGateway implements PortfolioGateway {
   PrivatePortfolioPayload? stored;
   bool locked = true;
   final _unlockChanges = StreamController<bool>.broadcast(sync: true);
+  int migrationCalls = 0;
+  String? lastMigrationWorkspacePath;
 
   FakePortfolioGateway({
     this.supported = true,
@@ -50,6 +53,33 @@ class FakePortfolioGateway implements PortfolioGateway {
   Future<void> save(PrivatePortfolioPayload payload) async {
     if (locked) throw StateError('vault.session_locked');
     stored = payload;
+  }
+
+  @override
+  Future<PortfolioMigrationResult> migrateLegacy({
+    required String workspacePath,
+  }) async {
+    if (locked) throw StateError('vault.session_locked');
+    final value = stored;
+    if (value == null) throw StateError('portfolio.open_failed');
+    migrationCalls++;
+    lastMigrationWorkspacePath = workspacePath;
+    final report = LegacyPlaintextMigrationReport(
+      vaultId: 'primary-portfolio',
+      vaultRevisionBefore: 1,
+      vaultRevisionAfter: 2,
+      sourceFileCount: 2,
+      plaintextFilesStillPresent: 2,
+      migratedCount: 1,
+      alreadyMigratedCount: 1,
+      conflictCount: 0,
+      invalidCount: 0,
+      publicAssetSnapshotsOmitted: 2,
+      portfolioFactsCreated: 0,
+      encryptedCopyVerified: true,
+      items: const [],
+    );
+    return PortfolioMigrationResult(report: report, payload: value);
   }
 
   @override
