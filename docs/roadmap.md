@@ -127,6 +127,12 @@
 
 ## Після v0.9.3
 
-- [ ] **NEXT:** post-v0.9.3 usability/product audit на актуальному `main`: пройти реальні navigation/portfolio/planner flows як цілісний продукт і сформувати один наступний self-contained slice.
+- [x] Post-v0.9.3 usability/product audit — PR #116; findings зафіксовано в `docs/AUDIT_POST_0_9_3.md`.
+- [x] Portfolio recovery / backup UX — PR #117: recovery-secret confirmation, rotation, Windows portable encrypted backup/restore, UK/EN/FR/DE/ES/KO/JA; exact-head #417, merge `fc38177a…`, post-merge #418.
+- [ ] **NEXT:** Planner safe criteria/date editing — проміжний текст у `start/minDate/maxDate` не має очищати generated composition; валідна зміна критерію, що інвалідовує план, потребує explicit confirmation.
+- [ ] Unified date-control UX / picker для Planner + Portfolio — окремий наступний slice після state-safety foundation.
+- [ ] Catalog localization literals + persisted collection variant copy cleanup.
+- [ ] Persist language/appearance preferences.
+- [ ] macOS Portfolio runtime Keychain validation + enablement — окремий platform gate.
 - [ ] Android SAF / iOS security-scoped external-folder access — deferred до окремого mobile storage gate.
 - [ ] Production signing/notarization/store distribution — окремий distribution-readiness gate.
