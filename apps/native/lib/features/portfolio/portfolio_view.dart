@@ -87,6 +87,13 @@ class PortfolioView extends StatelessWidget {
     final payload = state.payload!;
     final holdings = payload.holdings;
     final totalUnits = holdings.fold<int>(0, (sum, item) => sum + item.units);
+    final canSell = holdings.any(
+      (holding) => !payload.cashEvents.any(
+        (event) =>
+            event.isin == holding.isin &&
+            event.kind == PrivateCashEventKind.redemption,
+      ),
+    );
     return _PortfolioShell(
       children: [
         Row(
@@ -150,7 +157,7 @@ class PortfolioView extends StatelessWidget {
             ),
             OutlinedButton.icon(
               key: const ValueKey('portfolio-add-sale'),
-              onPressed: state.busy || holdings.isEmpty
+              onPressed: state.busy || !canSell
                   ? null
                   : () => _addSale(context),
               icon: const Icon(Icons.sell_outlined),
@@ -975,11 +982,25 @@ String _portfolioErrorText(HubStrings strings, String code) => switch (code) {
       'portfolio.issue_not_in_catalog' =>
         strings.text('portfolioIssueMissing'),
       'vault.session_locked' => strings.text('portfolioLockedBody'),
+      'portfolio.disposal_after_redemption' =>
+        strings.text('portfolioSaleAfterRedemption'),
+      'portfolio.disposal_allocation_required' =>
+        strings.text('portfolioAllocationRequired'),
       'portfolio.invalid_units' ||
       'portfolio.invalid_date' ||
       'portfolio.invalid_trade_amount' ||
       'portfolio.invalid_fee_total' ||
-      'portfolio.invalid_isin' =>
+      'portfolio.invalid_isin' ||
+      'portfolio.invalid_disposal_units' ||
+      'portfolio.invalid_disposal_proceeds' ||
+      'portfolio.invalid_disposal_fee_total' ||
+      'portfolio.known_disposal_fee_missing_value' ||
+      'portfolio.disposal_allocation_units_mismatch' ||
+      'portfolio.disposal_lot_overallocated' ||
+      'portfolio.disposal_exceeds_units' ||
+      'portfolio.invalid_event_amount' ||
+      'portfolio.redemption_units_required' ||
+      'portfolio.redemption_exceeds_units' =>
         strings.text('portfolioInvalidInput'),
       _ => strings.text('portfolioOperationFailed'),
     };
