@@ -12,6 +12,12 @@ import 'package:ovdp_hub/ui_preferences.dart';
 
 import 'support/fake_repository.dart';
 
+Future<void> _pumpUi(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 250));
+  await tester.pump(const Duration(milliseconds: 250));
+}
+
 void main() {
   late Catalog catalog;
 
@@ -68,19 +74,19 @@ void main() {
         uiPreferencesStore: store,
       ),
     );
-    await tester.pumpAndSettle();
+    await _pumpUi(tester);
 
     expect(find.text('Каталог'), findsWidgets);
     await tester.tap(find.byTooltip('Мова / Language'));
-    await tester.pumpAndSettle();
+    await _pumpUi(tester);
     await tester.tap(find.text('English'));
-    await tester.pumpAndSettle();
+    await _pumpUi(tester);
 
     expect(find.text('Catalog'), findsWidgets);
     await tester.tap(find.byTooltip('Interface design'));
-    await tester.pumpAndSettle();
+    await _pumpUi(tester);
     await tester.tap(find.text('Light Dashboard design'));
-    await tester.pumpAndSettle();
+    await _pumpUi(tester);
 
     expect(find.byType(DashboardHeader), findsOneWidget);
     expect(store.current.language, AppLanguage.en);
@@ -88,7 +94,7 @@ void main() {
     await store.flush();
 
     await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pumpAndSettle();
+    await _pumpUi(tester);
 
     final reopened = await UiPreferencesStore.open(file);
     expect(reopened.current.language, AppLanguage.en);
@@ -101,7 +107,7 @@ void main() {
         uiPreferencesStore: reopened,
       ),
     );
-    await tester.pumpAndSettle();
+    await _pumpUi(tester);
 
     expect(find.byType(DashboardHeader), findsOneWidget);
     expect(find.text('Catalog'), findsWidgets);
@@ -109,6 +115,6 @@ void main() {
     expect(tester.takeException(), isNull);
 
     await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pumpAndSettle();
+    await _pumpUi(tester);
   });
 }
