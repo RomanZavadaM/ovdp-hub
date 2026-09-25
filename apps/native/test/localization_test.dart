@@ -83,6 +83,7 @@ void main() {
       'portfolioDetails',
       'portfolioIsinDetails',
       'portfolioCurrentUnits',
+      'portfolioClose',
       'portfolioHistory',
       'portfolioHistoryEmpty',
       'portfolioSaleDate',
