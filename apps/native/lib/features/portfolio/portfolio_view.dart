@@ -37,10 +37,25 @@ class PortfolioView extends StatelessWidget {
             icon: Icons.account_balance_wallet_outlined,
           ),
           const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: state.busy ? null : () => _createPortfolio(context),
-            icon: const Icon(Icons.lock_outline),
-            label: Text(strings.text('portfolioCreate')),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              FilledButton.icon(
+                onPressed: state.busy ? null : () => _createPortfolio(context),
+                icon: const Icon(Icons.lock_outline),
+                label: Text(strings.text('portfolioCreate')),
+              ),
+              if (state.portableBackupSupported)
+                OutlinedButton.icon(
+                  key: const ValueKey('portfolio-restore-backup'),
+                  onPressed: state.busy
+                      ? null
+                      : () => _restorePortableBackup(context),
+                  icon: const Icon(Icons.settings_backup_restore_outlined),
+                  label: Text(strings.text('portfolioRestoreBackup')),
+                ),
+            ],
           ),
           const SizedBox(height: 10),
           _SecurityNote(text: strings.text('portfolioSecurityNote')),
@@ -234,6 +249,63 @@ class PortfolioView extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const Icon(Icons.security_outlined),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        strings.text('portfolioRecoveryBackupTitle'),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 5),
+                      Text(strings.text('portfolioRecoveryBackupInfo')),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (state.portableBackupSupported)
+                            OutlinedButton.icon(
+                              key: const ValueKey('portfolio-create-backup'),
+                              onPressed: state.busy
+                                  ? null
+                                  : () => _createPortableBackup(context),
+                              icon: const Icon(Icons.save_alt_outlined),
+                              label: Text(strings.text('portfolioBackupCreate')),
+                            ),
+                          OutlinedButton.icon(
+                            key: const ValueKey('portfolio-rotate-recovery'),
+                            onPressed: state.busy
+                                ? null
+                                : () => _rotateRecovery(context),
+                            icon: const Icon(Icons.password_outlined),
+                            label: Text(strings.text('portfolioRecoveryChange')),
+                          ),
+                        ],
+                      ),
+                      if (!state.portableBackupSupported) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          strings.text('portfolioBackupUnavailable'),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 const Icon(Icons.move_to_inbox_outlined),
                 const SizedBox(width: 12),
                 Expanded(
@@ -280,6 +352,7 @@ class PortfolioView extends StatelessWidget {
     final strings = HubStrings(context.read<LocaleCubit>().state.language);
     final cubit = context.read<PortfolioCubit>();
     final secret = TextEditingController();
+    final confirmSecret = TextEditingController();
     var hidden = true;
     String? localError;
 
@@ -297,19 +370,33 @@ class PortfolioView extends StatelessWidget {
                 Text(strings.text('portfolioRecoveryExplain')),
                 const SizedBox(height: 12),
                 TextField(
+                  key: const ValueKey('portfolio-create-recovery-secret'),
                   controller: secret,
                   obscureText: hidden,
                   enableSuggestions: false,
                   autocorrect: false,
                   decoration: InputDecoration(
                     labelText: strings.text('portfolioRecoverySecret'),
-                    errorText: localError,
                     suffixIcon: IconButton(
                       onPressed: () => setState(() => hidden = !hidden),
                       icon: Icon(
-                        hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        hidden
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                       ),
                     ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  key: const ValueKey('portfolio-create-recovery-confirm'),
+                  controller: confirmSecret,
+                  obscureText: hidden,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    labelText: strings.text('portfolioRecoveryConfirm'),
+                    errorText: localError,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -333,6 +420,12 @@ class PortfolioView extends StatelessWidget {
                   });
                   return;
                 }
+                if (secret.text != confirmSecret.text) {
+                  setState(() {
+                    localError = strings.text('portfolioRecoveryMismatch');
+                  });
+                  return;
+                }
                 await cubit.create(secret.text);
                 if (!dialogContext.mounted) return;
                 if (cubit.state.unlocked) {
@@ -351,6 +444,199 @@ class PortfolioView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _createPortableBackup(BuildContext context) async {
+    final strings = HubStrings(context.read<LocaleCubit>().state.language);
+    final path = await context.read<PortfolioCubit>().createPortableBackup();
+    if (!context.mounted || path == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          strings.text('portfolioBackupSaved').replaceAll('{path}', path),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _restorePortableBackup(BuildContext context) async {
+    final strings = HubStrings(context.read<LocaleCubit>().state.language);
+    final cubit = context.read<PortfolioCubit>();
+    final secret = TextEditingController();
+    var hidden = true;
+    String? localError;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(strings.text('portfolioRestoreTitle')),
+          content: SizedBox(
+            width: 460,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(strings.text('portfolioRestoreExplain')),
+                const SizedBox(height: 12),
+                TextField(
+                  key: const ValueKey('portfolio-restore-recovery-secret'),
+                  controller: secret,
+                  obscureText: hidden,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    labelText: strings.text('portfolioRecoverySecret'),
+                    errorText: localError,
+                    suffixIcon: IconButton(
+                      onPressed: () => setState(() => hidden = !hidden),
+                      icon: Icon(
+                        hidden
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(strings.text('portfolioCancel')),
+            ),
+            FilledButton(
+              key: const ValueKey('portfolio-restore-run'),
+              onPressed: () async {
+                if (secret.text.length < 12) {
+                  setState(() {
+                    localError = strings.text('portfolioRecoveryShort');
+                  });
+                  return;
+                }
+                final restored = await cubit.restorePortableBackup(secret.text);
+                if (!dialogContext.mounted) return;
+                if (restored == true) {
+                  Navigator.pop(dialogContext);
+                } else if (restored == false) {
+                  setState(() {
+                    localError = _portfolioErrorText(
+                      strings,
+                      cubit.state.errorCode ?? 'portfolio.operation_failed',
+                    );
+                  });
+                }
+              },
+              child: Text(strings.text('portfolioRestoreBackup')),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!context.mounted || !cubit.state.unlocked) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(strings.text('portfolioRestoreDone'))),
+    );
+  }
+
+  Future<void> _rotateRecovery(BuildContext context) async {
+    final strings = HubStrings(context.read<LocaleCubit>().state.language);
+    final cubit = context.read<PortfolioCubit>();
+    final secret = TextEditingController();
+    final confirmSecret = TextEditingController();
+    var hidden = true;
+    String? localError;
+    var changed = false;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(strings.text('portfolioRecoveryChangeTitle')),
+          content: SizedBox(
+            width: 460,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  key: const ValueKey('portfolio-rotate-recovery-secret'),
+                  controller: secret,
+                  obscureText: hidden,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    labelText: strings.text('portfolioRecoverySecret'),
+                    suffixIcon: IconButton(
+                      onPressed: () => setState(() => hidden = !hidden),
+                      icon: Icon(
+                        hidden
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  key: const ValueKey('portfolio-rotate-recovery-confirm'),
+                  controller: confirmSecret,
+                  obscureText: hidden,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    labelText: strings.text('portfolioRecoveryConfirm'),
+                    errorText: localError,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(strings.text('portfolioCancel')),
+            ),
+            FilledButton(
+              key: const ValueKey('portfolio-rotate-recovery-save'),
+              onPressed: () async {
+                if (secret.text.length < 12) {
+                  setState(() {
+                    localError = strings.text('portfolioRecoveryShort');
+                  });
+                  return;
+                }
+                if (secret.text != confirmSecret.text) {
+                  setState(() {
+                    localError = strings.text('portfolioRecoveryMismatch');
+                  });
+                  return;
+                }
+                changed = await cubit.rotateRecovery(secret.text);
+                if (!dialogContext.mounted) return;
+                if (changed) {
+                  Navigator.pop(dialogContext);
+                } else {
+                  setState(() {
+                    localError = _portfolioErrorText(
+                      strings,
+                      cubit.state.errorCode ?? 'portfolio.operation_failed',
+                    );
+                  });
+                }
+              },
+              child: Text(strings.text('portfolioRecoveryChange')),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!context.mounted || !changed) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(strings.text('portfolioRecoveryChanged'))),
     );
   }
 
