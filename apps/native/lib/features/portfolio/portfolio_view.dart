@@ -86,6 +86,11 @@ class PortfolioView extends StatelessWidget {
 
     final payload = state.payload!;
     final holdings = payload.holdings;
+    final portfolioIsins = payload.acquisitionLots
+        .map((lot) => lot.isin)
+        .toSet()
+        .toList()
+      ..sort();
     final totalUnits = holdings.fold<int>(0, (sum, item) => sum + item.units);
     final canSell = holdings.any(
       (holding) => !payload.cashEvents.any(
@@ -171,6 +176,14 @@ class PortfolioView extends StatelessWidget {
               icon: const Icon(Icons.payments_outlined),
               label: Text(strings.text('portfolioAddRedemption')),
             ),
+            OutlinedButton.icon(
+              key: const ValueKey('portfolio-add-coupon'),
+              onPressed: state.busy || portfolioIsins.isEmpty
+                  ? null
+                  : () => _addCoupon(context),
+              icon: const Icon(Icons.savings_outlined),
+              label: Text(strings.text('portfolioAddCoupon')),
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -184,9 +197,23 @@ class PortfolioView extends StatelessWidget {
         else
           ...holdings.map((holding) => _HoldingCard(holding: holding)),
         const SizedBox(height: 18),
-        Text(
-          strings.text('portfolioHistory'),
-          style: Theme.of(context).textTheme.titleLarge,
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                strings.text('portfolioHistory'),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            OutlinedButton.icon(
+              key: const ValueKey('portfolio-open-isin-ledger'),
+              onPressed: portfolioIsins.isEmpty
+                  ? null
+                  : () => _showIsinLedger(context),
+              icon: const Icon(Icons.receipt_long_outlined),
+              label: Text(strings.text('portfolioOpenIsinLedger')),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         _PortfolioHistory(payload: payload),
@@ -841,6 +868,216 @@ class PortfolioView extends StatelessWidget {
 
   }
 
+  Future<void> _addCoupon(BuildContext context) async {
+    final strings = HubStrings(context.read<LocaleCubit>().state.language);
+    final cubit = context.read<PortfolioCubit>();
+    final payload = cubit.state.payload;
+    if (payload == null || payload.acquisitionLots.isEmpty) return;
+
+    final isins = payload.acquisitionLots
+        .map((lot) => lot.isin)
+        .toSet()
+        .toList()
+      ..sort();
+    var selectedIsin = isins.first;
+    final date = TextEditingController(text: _todayDisplay(DateTime.now()));
+    final amount = TextEditingController();
+    final note = TextEditingController();
+    String? localError;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(strings.text('portfolioAddCoupon')),
+          content: SizedBox(
+            width: 520,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    key: const ValueKey('portfolio-coupon-isin'),
+                    initialValue: selectedIsin,
+                    decoration: const InputDecoration(labelText: 'ISIN'),
+                    items: isins
+                        .map(
+                          (isin) => DropdownMenuItem(
+                            value: isin,
+                            child: Text(isin),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedIsin = value;
+                          localError = null;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    key: const ValueKey('portfolio-coupon-date'),
+                    controller: date,
+                    decoration: InputDecoration(
+                      labelText: strings.text('portfolioCouponDate'),
+                      hintText: 'DD.MM.YYYY',
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    key: const ValueKey('portfolio-coupon-amount'),
+                    controller: amount,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                      labelText: strings.text('portfolioCouponAmount'),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    key: const ValueKey('portfolio-coupon-note'),
+                    controller: note,
+                    decoration: InputDecoration(
+                      labelText: strings.text('portfolioCouponNote'),
+                    ),
+                  ),
+                  if (localError != null) ...[
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        localError!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(strings.text('portfolioCancel')),
+            ),
+            FilledButton(
+              key: const ValueKey('portfolio-save-coupon'),
+              onPressed: () async {
+                final iso = _dateToIso(date.text.trim());
+                if (iso == null || amount.text.trim().isEmpty) {
+                  setState(() {
+                    localError = strings.text('portfolioInvalidInput');
+                  });
+                  return;
+                }
+                await cubit.addCoupon(
+                  isin: selectedIsin,
+                  date: iso,
+                  amount: amount.text.trim().replaceAll(',', '.'),
+                  note: note.text,
+                );
+                if (!dialogContext.mounted) return;
+                if (cubit.state.errorCode == null) {
+                  Navigator.pop(dialogContext);
+                } else {
+                  setState(() {
+                    localError = _portfolioErrorText(
+                      strings,
+                      cubit.state.errorCode!,
+                    );
+                  });
+                }
+              },
+              child: Text(strings.text('portfolioSaveCoupon')),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showIsinLedger(BuildContext context) async {
+    final strings = HubStrings(context.read<LocaleCubit>().state.language);
+    final payload = context.read<PortfolioCubit>().state.payload;
+    if (payload == null || payload.acquisitionLots.isEmpty) return;
+
+    final isins = payload.acquisitionLots
+        .map((lot) => lot.isin)
+        .toSet()
+        .toList()
+      ..sort();
+    var selectedIsin = isins.first;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) {
+          final currentUnits = payload.holdings
+              .where((holding) => holding.isin == selectedIsin)
+              .fold<int>(0, (sum, holding) => sum + holding.units);
+          return AlertDialog(
+            title: Text(strings.text('portfolioIsinLedger')),
+            content: SizedBox(
+              width: 620,
+              height: 560,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  DropdownButtonFormField<String>(
+                    key: const ValueKey('portfolio-ledger-isin'),
+                    initialValue: selectedIsin,
+                    decoration: InputDecoration(
+                      labelText: strings.text('portfolioLedgerSelectIsin'),
+                    ),
+                    items: isins
+                        .map(
+                          (isin) => DropdownMenuItem(
+                            value: isin,
+                            child: Text(isin),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => selectedIsin = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${strings.text('portfolioLedgerCurrentUnits')}: $currentUnits',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: _PortfolioHistory(
+                        payload: payload,
+                        isin: selectedIsin,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              FilledButton(
+                key: const ValueKey('portfolio-ledger-close'),
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(strings.text('portfolioMigrationDone')),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _migrateLegacy(BuildContext context) async {
     final strings = HubStrings(context.read<LocaleCubit>().state.language);
     final cubit = context.read<PortfolioCubit>();
@@ -986,6 +1223,10 @@ String _portfolioErrorText(HubStrings strings, String code) => switch (code) {
       'portfolio.disposal_lot_overallocated' ||
       'portfolio.disposal_exceeds_units' ||
       'portfolio.invalid_event_amount' ||
+      'portfolio.event_without_acquisition' ||
+      'portfolio.event_before_acquisition' ||
+      'portfolio.coupon_has_units' ||
+      'portfolio.note_too_long' ||
       'portfolio.redemption_units_required' ||
       'portfolio.redemption_exceeds_units' =>
         strings.text('portfolioInvalidInput'),
@@ -1171,7 +1412,8 @@ class _HistoryEntry {
 
 class _PortfolioHistory extends StatelessWidget {
   final PrivatePortfolioPayload payload;
-  const _PortfolioHistory({required this.payload});
+  final String? isin;
+  const _PortfolioHistory({required this.payload, this.isin});
 
   @override
   Widget build(BuildContext context) {
@@ -1206,13 +1448,17 @@ class _PortfolioHistory extends StatelessWidget {
           amount: event.amount.toString(),
           currency: event.currency,
         ),
-    ]..sort((a, b) {
-        final byDate = b.date.compareTo(a.date);
-        if (byDate != 0) return byDate;
-        final byIsin = a.isin.compareTo(b.isin);
-        if (byIsin != 0) return byIsin;
-        return a.kindKey.compareTo(b.kindKey);
-      });
+    ];
+    if (isin != null) {
+      entries.removeWhere((entry) => entry.isin != isin);
+    }
+    entries.sort((a, b) {
+      final byDate = b.date.compareTo(a.date);
+      if (byDate != 0) return byDate;
+      final byIsin = a.isin.compareTo(b.isin);
+      if (byIsin != 0) return byIsin;
+      return a.kindKey.compareTo(b.kindKey);
+    });
 
     if (entries.isEmpty) {
       return Card(
