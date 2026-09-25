@@ -24,7 +24,7 @@ void main() {
     catalog = Catalog.parse(jsonEncode(json));
   });
 
-  test('portfolio keeps factual purchase sale redemption through lock and reopen', () async {
+  test('portfolio keeps factual purchase sale coupon redemption through lock and reopen', () async {
     final hub = FakeRepository(catalog);
     final gateway = FakePortfolioGateway();
     final cubit = PortfolioCubit(
@@ -68,14 +68,24 @@ void main() {
     expect(cubit.state.payload!.disposals, hasLength(1));
     expect(cubit.state.payload!.holdings.single.units, 3);
 
+    await cubit.addCoupon(
+      isin: bond.isin,
+      date: '2026-09-25',
+      amount: '125.50',
+      note: 'Factual coupon',
+    );
+    expect(cubit.state.payload!.cashEvents, hasLength(1));
+    expect(cubit.state.payload!.cashEvents.single.kind, PrivateCashEventKind.coupon);
+    expect(cubit.state.payload!.holdings.single.units, 3);
+
     await cubit.addRedemption(
       isin: bond.isin,
       units: 1,
-      date: '2026-09-25',
+      date: '2026-09-26',
       amount: '1000.00',
       note: 'Factual redemption',
     );
-    expect(cubit.state.payload!.cashEvents, hasLength(1));
+    expect(cubit.state.payload!.cashEvents, hasLength(2));
     expect(cubit.state.payload!.holdings.single.units, 2);
     expect(gateway.stored!.holdings.single.units, 2);
 
@@ -159,6 +169,29 @@ void main() {
     expect(find.text('Продаж · ${bond.isin}'), findsOneWidget);
     expect(find.text('× 3'), findsOneWidget);
 
+    final addCoupon = find.byKey(const ValueKey('portfolio-add-coupon'));
+    await tester.ensureVisible(addCoupon);
+    await tester.tap(addCoupon);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-coupon-date')),
+      '25.09.2026',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-coupon-amount')),
+      '125.50',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-coupon-note')),
+      'Фактичний купон',
+    );
+    await tester.tap(find.byKey(const ValueKey('portfolio-save-coupon')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Купон · ${bond.isin}'), findsOneWidget);
+    expect(find.text('× 3'), findsOneWidget);
+
     final addRedemption =
         find.byKey(const ValueKey('portfolio-add-redemption'));
     await tester.ensureVisible(addRedemption);
@@ -167,7 +200,7 @@ void main() {
 
     await tester.enterText(
       find.byKey(const ValueKey('portfolio-redemption-date')),
-      '25.09.2026',
+      '26.09.2026',
     );
     await tester.enterText(
       find.byKey(const ValueKey('portfolio-redemption-amount')),
@@ -178,6 +211,43 @@ void main() {
 
     expect(find.text('Погашення · ${bond.isin}'), findsOneWidget);
     expect(find.text('× 2'), findsOneWidget);
+
+    final details = find.byKey(ValueKey('portfolio-details-${bond.isin}'));
+    await tester.ensureVisible(details);
+    await tester.tap(details);
+    await tester.pumpAndSettle();
+
+    final detailsDialog =
+        find.byKey(ValueKey('portfolio-isin-dialog-${bond.isin}'));
+    expect(detailsDialog, findsOneWidget);
+    expect(
+      find.descendant(
+        of: detailsDialog,
+        matching: find.text('Деталі позиції · ${bond.isin}'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: detailsDialog,
+        matching: find.text('Поточна кількість: 2'),
+      ),
+      findsOneWidget,
+    );
+    for (final fact in ['Купівля', 'Продаж', 'Купон', 'Погашення']) {
+      expect(
+        find.descendant(
+          of: detailsDialog,
+          matching: find.text('$fact · ${bond.isin}'),
+        ),
+        findsOneWidget,
+      );
+    }
+
+    await tester.tap(
+      find.byKey(ValueKey('portfolio-details-close-${bond.isin}')),
+    );
+    await tester.pumpAndSettle();
 
     final migration = find.byKey(const ValueKey('portfolio-migration'));
     await tester.ensureVisible(migration);
