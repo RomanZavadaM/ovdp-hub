@@ -70,7 +70,7 @@ Append-only ledger: GitHub Issue **#18**
 
 ### Поточна наступна дія
 
-**DOING — завершити localization/docs, відкрити PR для `portfolio-recovery-backup-ux`, пройти exact-head analyze/tests і real-control regressions. Після green інтегрувати PR у `main`.**
+**DOING — PR #117 відкрито; пройти exact-head analyze/tests і real-control regressions. Після green інтегрувати PR у `main`.**
 
 
 ## Deferred gates
