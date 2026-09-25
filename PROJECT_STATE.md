@@ -49,7 +49,10 @@ PR **#101 — Portfolio: add factual sale history and migration wizard** exact h
 - source legacy JSON не видаляються автоматично;
 - після будь-якої migration attempt unlocked session plaintext примусово відкидається, щоб stale state не міг перезаписати durable migrated vault;
 - UK/EN/FR/DE/ES/KO/JA localization і real-control widget regression;
-- наступний user-visible slice: **factual coupon entry + per-ISIN portfolio detail/ledger**;
+- factual coupon entry на existing encrypted cash-event schema; coupon не змінює holdings і не синтезує units;
+- per-ISIN details/ledger для current holdings з purchase / sale / coupon / redemption і persisted notes;
+- PR #104 exact head `ce86507c5ad9ed1af562a5e5cbb5a93cc81ff80b` пройшов run #395, merged у `main` як `c8d26862430ac14dc25ad63da71bd016824ce91a`; post-merge run #396 — success;
+- наступний user-visible slice: **factual portfolio cash/result summary + access to closed ISIN positions**, без підміни unknown fees нулем;
 - Android SAF / iOS security-scoped external-folder access лишається deferred.
 
 ## Що входить до опублікованого 0.8.5

@@ -94,7 +94,8 @@
 - [x] **v0.9.2:** user-facing encrypted portfolio entrypoint: create/open/lock, factual acquisition, derived holdings + persistent Economic Pulse.
 - [x] Release correctness gate: exact packaged Windows/macOS ZIP → extract → execute → verify version/build + Classic/Studio/Light Dashboard contract.
 - [x] Factual sale/redemption/history UI + explicit non-destructive legacy migration wizard — PR #101, exact-head run #390, merge `c255c937…`, post-merge run #391.
-- [ ] **NEXT:** user-facing factual coupon entry + per-ISIN portfolio detail/ledger на existing encrypted cash-event core.
+- [x] User-facing factual coupon entry + per-ISIN portfolio detail/ledger — PR #104, exact-head run #395, merge `c8d26862…`, post-merge run #396.
+- [ ] **NEXT:** factual portfolio cash/result summary + access to closed ISIN positions; unknown fees must remain explicit and no market-value estimate may be presented as fact.
 - [ ] Android SAF / iOS security-scoped access для зовнішніх папок — deferred до mobile external-workspace/vault slice.
 
 ## Distribution readiness

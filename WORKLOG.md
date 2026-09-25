@@ -25,31 +25,28 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
 Мета: **user-facing factual coupon entry + per-ISIN portfolio detail/ledger**.
 
 - base `main`: **`54409769db333ba34c4ffa507262a2dc72f60f2a`**;
 - branch: **`feat/portfolio-coupon-isin-ledger`**;
-- PR: **#104 — `Portfolio: add factual coupon and per-ISIN ledger` (draft)**;
-- опублікований checkpoint лишається **v0.9.2 / 0.9.2+19**;
-- coupon зберігається як existing encrypted `PrivateCashEventKind.coupon`; нову schema не створюємо;
-- жодних прогнозних купонів у factual ledger: лише явно введені факти;
-- per-ISIN detail показує лише фактичні acquisition/sale/coupon/redemption records та derived current holding;
+- PR: **#104 — merged**;
+- exact verified feature head: **`ce86507c5ad9ed1af562a5e5cbb5a93cc81ff80b`**;
+- exact-head Flutter checks: **run #395 — success**;
+- merge `main`: **`c8d26862430ac14dc25ad63da71bd016824ce91a`**;
+- post-merge Flutter checks + START/source: **run #396 — success**;
+- опублікований checkpoint лишається **v0.9.2 / 0.9.2+19** — окремий cross-platform release у цьому integration step не створювався;
+- factual coupon використовує existing encrypted `PrivateCashEventKind.coupon`, не зберігає/synthesizes units і не змінює holdings;
+- current holding cards мають видиму per-ISIN detail action;
+- per-ISIN ledger детерміновано показує purchase / sale / coupon / redemption та persisted notes;
+- payload schema і privacy boundary не змінювались;
+- UK/EN/FR/DE/ES/KO/JA localization + real-control regression пройшли;
 - Android SAF / iOS security-scoped access лишається **DEFERRED** до mobile storage gate.
-
-Критерії готовності slice:
-1. З відкритого портфеля можна явно додати фактичний купон: ISIN, дата, сума та необов'язкова примітка; чинна schema навмисно не зберігає `units` для coupon.
-2. Купон не змінює кількість holdings і не створюється без існуючого acquisition lot.
-3. Для кожної поточної позиції є видима дія «Деталі» з per-ISIN ledger.
-4. Ledger детерміновано показує purchase / sale / coupon / redemption із датами, кількостями та сумами без синтезу невідомих даних.
-5. UK/EN/FR/DE/ES/KO/JA localization покриває новий flow.
-6. Widget/domain regressions натискають реальні controls; `flutter analyze` + `flutter test` + required CI green.
-7. Після green exact-head PR інтегрувати в `main`; повний cross-platform release — лише за окремою командою «злити у main» або release cadence.
 
 ### Поточна наступна дія
 
-**DOING — PR #104 opened; wait for exact-head CI, fix failures, then record VERIFIED only after all required checks are green.**
+**NEXT — factual portfolio cash/result summary + access to closed ISIN positions; calculate only from persisted factual costs/proceeds/coupons/redemptions and preserve unknown-fee semantics.**
 
 ## Черга робіт
 
@@ -80,8 +77,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 25. **DONE** — v0.9.2+19: user-visible «Мій портфель» + persistent «Економічний пульс» + exact packaged-artifact release gate; main `696fd4a…`, run #381, release run #102.
 26. **DONE** — User-facing factual acquisition flow + holdings summary on encrypted vault.
 27. **DONE** — User-facing factual sale/redemption/history + legacy migration wizard; PR #101 → `c255c937…`; exact-head run #390 and post-merge run #391 green.
-28. **DOING** — User-facing factual coupon entry + per-ISIN portfolio detail/ledger on the existing encrypted cash-event core.
-29. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
+28. **DONE** — User-facing factual coupon entry + per-ISIN portfolio detail/ledger; PR #104 → `c8d26862…`; exact-head run #395 and post-merge run #396 green.
+29. **NEXT** — Factual portfolio cash/result summary + access to closed ISIN positions; unknown fees must remain explicit.
+30. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
 
 ## Продуктова логіка цієї черги
 
@@ -108,6 +106,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — factual coupon + per-ISIN ledger**: PR #104 exact head `ce86507c…` passed run #395 and was squash-merged into `main` as `c8d26862430ac14dc25ad63da71bd016824ce91a`; post-merge run #396 green with START/source. Coupon uses existing encrypted cash-event schema, never changes holdings or invents units; current positions expose per-ISIN factual ledger with persisted notes.
 
 - **DONE — factual sale/redemption/history + explicit legacy migration wizard**: PR #101 exact head `961d41a0…` passed run #390 and was squash-merged into `main` as `c255c937500d17b41cf0ac8542698139539fa047`; post-merge run #391 green with START/source. Sale requires explicit acquisition-lot allocation; redemption/history are factual; migration reports migrated/already/conflict/invalid + encrypted-copy verification and never auto-deletes source JSON. Migration session plaintext is always discarded after an attempt to prevent stale overwrite.
 
