@@ -1,6 +1,6 @@
 # PROJECT_STATE — OVDP Hub
 
-Оновлено: 24.09.2026
+Оновлено: 25.09.2026
 
 ## Поточний checkpoint
 
@@ -32,10 +32,25 @@
 ### Межі 0.9.2
 
 - legacy `sets/*.json` не шифруються автоматично;
-- explicit migration/cleanup wizard — наступний user-facing gate;
+- explicit migration wizard інтегровано вже після релізу v0.9.2; source JSON не видаляються автоматично;
 - macOS portfolio unlock лишається обмеженим до Data Protection Keychain runtime/provisioning validation;
 - Android SAF / iOS security-scoped external-folder access відкладено до mobile storage slice;
 - production signing лишається deferred.
+
+## Інтегровано в `main` після v0.9.2
+
+PR **#101 — Portfolio: add factual sale history and migration wizard** exact head `961d41a0c095bbb655b88452af7f8fe4f8665b02` пройшов Flutter checks run **#390** і squash-merged у `main` як **`c255c937500d17b41cf0ac8542698139539fa047`**. Post-merge run **#391** — success.
+
+Інтегровано, але ще не видано окремим GitHub release:
+- user-facing factual sale з обов'язковим explicit allocation по acquisition lots;
+- user-facing factual redemption;
+- deterministic history для purchase / sale / coupon / redemption;
+- explicit non-destructive legacy migration wizard з migrated/already/conflict/invalid counts і encrypted-copy verification;
+- source legacy JSON не видаляються автоматично;
+- після будь-якої migration attempt unlocked session plaintext примусово відкидається, щоб stale state не міг перезаписати durable migrated vault;
+- UK/EN/FR/DE/ES/KO/JA localization і real-control widget regression;
+- наступний user-visible slice: **factual coupon entry + per-ISIN portfolio detail/ledger**;
+- Android SAF / iOS security-scoped external-folder access лишається deferred.
 
 ## Що входить до опублікованого 0.8.5
 

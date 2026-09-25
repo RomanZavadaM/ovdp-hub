@@ -132,5 +132,6 @@ Slice не є `DONE`, доки:
 - Інтегровано після v0.9.0 також: **private factual disposals / lot allocation** — schema v2, explicit sale/disposal records, explicit acquisition-lot allocation, realized factual cost/proceeds and holdings net of represented disposals
 - Інтегровано після v0.9.0 також: **non-destructive legacy plaintext migration core / private payload schema v3** — legacy collection metadata + selected ISINs + raw Planner scenario can be copied into encrypted payload; public Bond snapshots omitted; zero portfolio facts synthesized; source JSON never auto-deleted
 - Release v0.9.1: **DONE** — PR #97 → `main` `bf9b358b…`; exact-head run #337, post-merge run #338, Publish native prerelease run #72 — success; Windows/macOS/Android/iOS + START/source + SHA256/legal опубліковано
-- Наступний продуктовий slice після v0.9.2: **factual sale/redemption/history + explicit legacy migration wizard**; Android SAF / iOS security-scoped access відкладено до mobile storage gate
+- Інтегровано після v0.9.2: **factual sale/redemption/history + explicit non-destructive legacy migration wizard** — PR #101 → `main` `c255c937500d17b41cf0ac8542698139539fa047`; exact-head run #390 і post-merge run #391 — success
+- Наступний user-visible slice: **factual coupon entry + per-ISIN portfolio detail/ledger** на existing encrypted cash-event core; Android SAF / iOS security-scoped access лишається deferred до mobile storage gate
 - Live ledger: GitHub Issue **#18**
