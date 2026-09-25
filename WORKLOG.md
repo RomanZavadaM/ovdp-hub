@@ -40,26 +40,34 @@ Append-only ledger: GitHub Issue **#18**
 - macOS Portfolio лишається окремим runtime Keychain validation gate;
 - UI та user guides синхронізовані UK / EN / FR / DE / ES / KO / JA.
 
+## Останні завершені slices
+
+### Planner safe criteria/date editing — DONE
+- PR #119 exact head `adc6d5798c097dd78e8d1678afaad71ce00c1842`;
+- exact-head run #420 — success;
+- merge: **`ad3a995a3f5e405cdde7d17b00b54fa105b926e5`**;
+- post-merge run #421 — success, including START/source;
+- invalid/intermediate `start/minDate/maxDate` text no longer mutates Planner state;
+- invalidating `currency/start/minDate/maxDate` changes require explicit confirmation when composition/exits exist;
+- Cancel preserves the current plan; Apply performs the deliberate reset;
+- persisted Planner schema and calculation math unchanged.
+
 ## Поточний slice
 
 Статус: **DOING**
 
-Мета: **Planner safe criteria/date editing**.
+Мета: **Catalog localization + persisted collection variant cleanup**.
 
-- base main: `89d46c99ce0e8160aefb12d3edd55658b3f92460`;
-- branch: `feat/planner-safe-date-editing`;
-- persisted Planner schema не змінюється;
-- `currency/start/minDate/maxDate` відокремлені від звичайного per-keystroke edit;
-- date draft живе локально в UI і не змінює Cubit, доки дата не валідна та не committed;
-- якщо сформована composition/early exits уже існує, зміна ключового критерію вимагає explicit confirmation;
-- Cancel зберігає поточний plan;
-- Apply робить controlled reset composition/exits;
-- unit + visible-control + localization regressions додані.
+- base main: `ad3a995a3f5e405cdde7d17b00b54fa105b926e5`;
+- branch: `feat/localization-persisted-copy-cleanup`;
+- Catalog hardcoded Ukrainian literals replaced with existing `HubStrings` keys;
+- collection variant no longer persists automatic Ukrainian suffix `— варіант`;
+- source user-authored name is preserved for editing before save;
+- localization contract + visible English Catalog regression + Cubit variant regression added.
 
 ## Поточна наступна дія
 
-**DOING — відкрити PR, пройти exact-head analyze/tests. Після green інтегрувати Planner safe-editing у `main` і перейти до наступного audit finding.**
-
+**DOING — open PR, run exact-head analyze/tests, integrate after green.**
 
 ## Deferred gates
 
