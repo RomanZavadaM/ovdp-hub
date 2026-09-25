@@ -74,7 +74,7 @@ class OvdpApp extends StatelessWidget {
   final HubRepository? repository;
   final PortfolioGateway? portfolioGateway;
   final UiPreferencesSnapshot initialUiPreferences;
-  final UiPreferencesStore? uiPreferencesStore;
+  final UiPreferencesPersistence? uiPreferencesStore;
 
   const OvdpApp({
     super.key,
