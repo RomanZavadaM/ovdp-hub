@@ -24,7 +24,7 @@ void main() {
     catalog = Catalog.parse(jsonEncode(json));
   });
 
-  test('portfolio keeps factual purchase sale redemption through lock and reopen', () async {
+  test('portfolio keeps factual purchase sale coupon redemption through lock and reopen', () async {
     final hub = FakeRepository(catalog);
     final gateway = FakePortfolioGateway();
     final cubit = PortfolioCubit(
@@ -68,6 +68,16 @@ void main() {
     expect(cubit.state.payload!.disposals, hasLength(1));
     expect(cubit.state.payload!.holdings.single.units, 3);
 
+    await cubit.addCoupon(
+      isin: bond.isin,
+      date: '2026-09-24',
+      amount: '35.50',
+      note: 'Factual coupon',
+    );
+    expect(cubit.state.payload!.cashEvents, hasLength(1));
+    expect(cubit.state.payload!.cashEvents.single.kind, PrivateCashEventKind.coupon);
+    expect(cubit.state.payload!.holdings.single.units, 3);
+
     await cubit.addRedemption(
       isin: bond.isin,
       units: 1,
@@ -75,7 +85,7 @@ void main() {
       amount: '1000.00',
       note: 'Factual redemption',
     );
-    expect(cubit.state.payload!.cashEvents, hasLength(1));
+    expect(cubit.state.payload!.cashEvents, hasLength(2));
     expect(cubit.state.payload!.holdings.single.units, 2);
     expect(gateway.stored!.holdings.single.units, 2);
 
@@ -159,6 +169,24 @@ void main() {
     expect(find.text('Продаж · ${bond.isin}'), findsOneWidget);
     expect(find.text('× 3'), findsOneWidget);
 
+    final addCoupon = find.byKey(const ValueKey('portfolio-add-coupon'));
+    await tester.ensureVisible(addCoupon);
+    await tester.tap(addCoupon);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-coupon-date')),
+      '24.09.2026',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-coupon-amount')),
+      '35.50',
+    );
+    await tester.tap(find.byKey(const ValueKey('portfolio-save-coupon')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Купон · ${bond.isin}'), findsOneWidget);
+
     final addRedemption =
         find.byKey(const ValueKey('portfolio-add-redemption'));
     await tester.ensureVisible(addRedemption);
@@ -178,6 +206,18 @@ void main() {
 
     expect(find.text('Погашення · ${bond.isin}'), findsOneWidget);
     expect(find.text('× 2'), findsOneWidget);
+
+    final ledger = find.byKey(const ValueKey('portfolio-open-isin-ledger'));
+    await tester.ensureVisible(ledger);
+    await tester.tap(ledger);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Деталі за ISIN'), findsOneWidget);
+    expect(find.byKey(const ValueKey('portfolio-ledger-isin')), findsOneWidget);
+    expect(find.text('Поточний залишок: 2'), findsOneWidget);
+    expect(find.text('Купон · ${bond.isin}'), findsNWidgets(2));
+    await tester.tap(find.byKey(const ValueKey('portfolio-ledger-close')));
+    await tester.pumpAndSettle();
 
     final migration = find.byKey(const ValueKey('portfolio-migration'));
     await tester.ensureVisible(migration);
@@ -202,6 +242,74 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
 
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('ISIN ledger remains available for a fully closed position', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final bond = catalog.bonds.single;
+    final payload = PrivatePortfolioPayload(
+      portfolioId: 'primary',
+      acquisitionLots: [
+        PrivateAcquisitionLot(
+          id: 'closed-lot',
+          isin: bond.isin,
+          units: 1,
+          acquiredOn: '2026-09-20',
+          currency: bond.currency,
+          tradeAmount: Decimal.parse('980'),
+          feeStatus: AcquisitionFeeStatus.unknown,
+          feeTotal: null,
+        ),
+      ],
+      cashEvents: [
+        PrivateCashEvent(
+          id: 'closed-redemption',
+          isin: bond.isin,
+          kind: PrivateCashEventKind.redemption,
+          date: '2026-09-25',
+          currency: bond.currency,
+          amount: Decimal.parse('1000'),
+          units: 1,
+        ),
+      ],
+    );
+    final hub = FakeRepository(catalog);
+    final gateway = FakePortfolioGateway(stored: payload);
+
+    await tester.pumpWidget(
+      OvdpApp(repository: hub, portfolioGateway: gateway),
+    );
+    await tester.pumpAndSettle();
+
+    final portfolioNavigation = find.descendant(
+      of: find.byType(StudioSidebar),
+      matching: find.byIcon(Icons.account_balance_wallet_outlined),
+    );
+    await tester.tap(portfolioNavigation);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Відкрити портфель'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Фактичних позицій ще немає. Додайте першу купівлю ОВДП.'), findsOneWidget);
+    final ledger = find.byKey(const ValueKey('portfolio-open-isin-ledger'));
+    expect(ledger, findsOneWidget);
+    await tester.tap(ledger);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Поточний залишок: 0'), findsOneWidget);
+    expect(find.text('Погашення · ${bond.isin}'), findsNWidgets(2));
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.byKey(const ValueKey('portfolio-ledger-close')));
+    await tester.pumpAndSettle();
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
