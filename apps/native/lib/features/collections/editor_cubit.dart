@@ -79,7 +79,7 @@ class CollectionEditorCubit extends Cubit<EditorState> {
     emit(
       EditorState(
         selected: {for (final b in saved.bonds) b.isin: b},
-        name: '${saved.name} — варіант',
+        name: saved.name,
         note: saved.note,
         revision: state.revision + 1,
       ),
