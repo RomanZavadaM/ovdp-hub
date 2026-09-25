@@ -3,7 +3,7 @@ name: Cleanup obsolete branches
 on:
   push:
     branches:
-      - maintenance/cleanup-obsolete-branches
+      - main
 
 permissions:
   contents: write
@@ -13,20 +13,20 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Delete obsolete branch refs
+      - name: Delete all obsolete non-main branches
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -uo pipefail
-          current="${GITHUB_REF_NAME}"
           deleted=0
           failed=0
           mapfile -t branches < <(gh api --paginate "repos/${GITHUB_REPOSITORY}/branches?per_page=100" --jq '.[].name')
           before="${#branches[@]}"
           echo "Branches before cleanup: $before"
+
           for branch in "${branches[@]}"; do
-            if [[ "$branch" == "main" || "$branch" == "$current" ]]; then
+            if [[ "$branch" == "main" ]]; then
               continue
             fi
             echo "Deleting $branch"
@@ -37,30 +37,26 @@ jobs:
               failed=$((failed+1))
             fi
           done
-          echo "Deleted: $deleted"
-          echo "Failed: $failed"
-          {
-            echo "### OVDP Hub branch cleanup"
-            echo "- branches before: $before"
-            echo "- deleted obsolete branches: $deleted"
-            echo "- failed deletions: $failed"
-            echo "- preserved: main"
-            echo "- tags/releases are untouched"
-          } >> "$GITHUB_STEP_SUMMARY"
 
           gh issue comment 18 --repo "$GITHUB_REPOSITORY" --body "### 25.09.2026 — repository branch cleanup executed
 
-One-time maintenance cleanup from \`$current\`:
+One-time post-v0.9.3 cleanup:
 - branches before cleanup: **$before**;
 - obsolete non-main branches deleted: **$deleted**;
 - failed deletions: **$failed**;
-- preserved live development branch: **\`main\`**;
+- preserved live branch: **\`main\`**;
 - Git tags, GitHub Releases and commit history were not deleted.
 
-The maintenance branch deletes itself after this comment."
+Next: convert this one-time workflow into a safe manual cleanup + auto-delete-on-merged-PR maintenance workflow."
 
-          echo "Deleting maintenance branch $current"
-          gh api -X DELETE "repos/${GITHUB_REPOSITORY}/git/refs/heads/${current}"
+          {
+            echo "### OVDP Hub branch cleanup"
+            echo "- branches before: $before"
+            echo "- deleted obsolete non-main branches: $deleted"
+            echo "- failed deletions: $failed"
+            echo "- preserved: main"
+            echo "- tags/releases untouched"
+          } >> "$GITHUB_STEP_SUMMARY"
 
           if [[ "$failed" -ne 0 ]]; then
             exit 1
