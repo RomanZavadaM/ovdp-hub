@@ -26,10 +26,10 @@ macOS наразі орієнтований на пряме тестове по�
 
 Основна мова — українська. Оболонка має вибір Українська / English / Français / Deutsch / Español / 한국어 / 日本語. Повний переклад функціональних модулів розширюється поетапно; український текст є еталоном змісту.
 
-## Приватність і encrypted portfolio у 0.9.2
+## Приватність і encrypted portfolio у 0.9.3
 
 У кодовій базі є перевірена encrypted-vault foundation: XChaCha20-Poly1305 envelope, Argon2id recovery, platform device-key adapters, atomic local vault store, encrypted backup/restore, rollback detection, session locking, recovery lifecycle та private payload schema v3.
 
-У v0.9.2 підключено перший user-facing encrypted portfolio flow: create/open/lock, factual OVDP acquisition та derived holdings. Non-destructive migration core для legacy `sets/*.json` інтегрований, але **migration/cleanup wizard ще не підключено**. Поточні legacy workspace JSON не стають автоматично зашифрованими після оновлення.
+У v0.9.3 user-facing encrypted portfolio охоплює factual purchase/sale/redemption/coupon, per-ISIN ledger, closed positions, factual cash summary та explicit non-destructive migration wizard. Legacy `sets/*.json` не переписуються і не видаляються автоматично; migration запускається лише явною дією користувача.
 
-Desktop release gate тепер перевіряє exact packaged Windows/macOS ZIP: розпаковує його, запускає packaged executable і звіряє version/build та три appearance. Наступний user-facing slice — factual sale/redemption/history + explicit legacy migration wizard; Android SAF / iOS security-scoped access відкладено до mobile storage gate.
+Desktop release gate перевіряє exact packaged Windows/macOS ZIP: розпаковує його, запускає packaged executable і звіряє version/build та три appearance. Android SAF / iOS security-scoped external-folder access відкладено до mobile storage gate.
