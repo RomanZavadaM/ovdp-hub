@@ -44,6 +44,8 @@ L’assistant copie les données legacy prises en charge vers le payload chiffr�
 ## Sauvegarde et mise à jour
 Avant une mise à jour importante : verrouiller le portefeuille, sauvegarder le workspace, vérifier le backup chiffré portable et conserver le recovery material séparément. Pour une mise à jour desktop, utilisez un nouveau dossier programme et gardez les données jusqu’à vérification.
 
+Sous Windows, **Mon portefeuille** peut créer une sauvegarde chiffrée portable et restaurer un portefeuille local vide à partir de celle-ci. Le secret de récupération est saisi deux fois lors de la création et peut être modifié ensuite. Les flux de fichiers externes Android/iOS restent différés jusqu’à l’étape SAF/security-scoped dédiée.
+
 ## Vérification et problèmes fréquents
 Le fichier `SHA256SUMS.txt` permet de vérifier les archives. SmartScreen / avertissement macOS peut apparaître avec ce prerelease non signé. « Frais inconnus » est un état explicite. Le ZIP iOS unsigned ne s’installe pas directement.
 
