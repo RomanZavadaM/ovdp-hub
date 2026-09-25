@@ -31,7 +31,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - base `main`: **`e379f71c0bd3e10278aee415f3d80293198b46f5`**;
 - branch: **`feat/portfolio-factual-results-closed-positions`**;
-- PR: ще не відкрито;
+- PR: **#106 — `Portfolio: add factual cash summary and closed positions` (draft)**;
 - опублікований checkpoint лишається **v0.9.2 / 0.9.2+19**;
 - summary рахується тільки з persisted acquisition trade amounts, explicit fees, sale proceeds, coupons і redemptions;
 - жодна market/current value не входить у factual cash result;
@@ -53,7 +53,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — add deterministic factual cash-summary domain helpers, expose closed positions and their ledger in UI, then cover known/unknown fee semantics with real-control regressions.**
+**DOING — PR #106 opened; wait for exact-head CI, fix any failures, then record VERIFIED only after all required checks are green.**
 
 ## Черга робіт
 
