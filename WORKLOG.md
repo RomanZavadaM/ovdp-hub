@@ -25,35 +25,29 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
 Мета: **factual portfolio cash/result summary + access to closed ISIN positions**.
 
 - base `main`: **`e379f71c0bd3e10278aee415f3d80293198b46f5`**;
 - branch: **`feat/portfolio-factual-results-closed-positions`**;
-- PR: **#106 — `Portfolio: add factual cash summary and closed positions` (draft)**;
-- опублікований checkpoint лишається **v0.9.2 / 0.9.2+19**;
-- summary рахується тільки з persisted acquisition trade amounts, explicit fees, sale proceeds, coupons і redemptions;
-- жодна market/current value не входить у factual cash result;
-- якщо хоча б одна acquisition/disposal fee у валюті unknown, exact net cash result для цієї валюти лишається **unknown**, а не підміняється нулем;
-- current holdings і closed positions лишаються різними user-facing групами;
-- closed ISIN має лишатися доступним для factual ledger навіть при `units == 0`;
-- payload schema/privacy boundary не змінюємо;
+- PR: **#106 — merged**;
+- exact verified feature head: **`40ea1175d19a320bee02c79a2877db8873431766`**;
+- exact-head Flutter checks: **run #399 — success**;
+- merge `main`: **`310afcc26728597e01d31c896d39b860bf4f20b5`**;
+- post-merge Flutter checks + START/source: **run #400 — success**;
+- опублікований checkpoint поки **v0.9.2 / 0.9.2+19**;
+- factual cash summary рахується лише з persisted purchase amounts, explicit fees, sale proceeds, coupons і redemptions;
+- exact net cash result існує лише коли всі relevant acquisition/disposal fees у валюті відомі;
+- unknown fees не підміняються нулем;
+- market/current value відкритих позицій не входить у factual result;
+- closed ISIN (`units == 0`) лишаються видимими й відкривають factual ledger;
+- payload schema/privacy boundary не змінювались;
 - Android SAF / iOS security-scoped access лишається **DEFERRED**.
-
-Критерії готовності slice:
-1. Є deterministic domain summary по кожній валюті: purchase trade cash outflow, known fees, sale proceeds, coupons, redemptions.
-2. Exact net factual cash result показується лише коли всі acquisition/disposal fees у цій валюті відомі; інакше UI явно показує unknown.
-3. UI прямо пояснює, що це cash result, а не market value або оцінка відкритих позицій.
-4. Закриті ISIN (`units == 0`) показуються окремо й мають доступ до того самого factual ledger.
-5. UK/EN/FR/DE/ES/KO/JA localization покриває summary/closed-position flow.
-6. Domain/widget regressions перевіряють known-fee та unknown-fee semantics і реальні controls.
-7. `flutter analyze` + `flutter test` + required CI green; після цього exact-head PR інтегрувати в `main`.
-8. Повний cross-platform release — лише за окремою командою «злити у main» або release cadence.
 
 ### Поточна наступна дія
 
-**DOING — PR #106 opened; wait for exact-head CI, fix any failures, then record VERIFIED only after all required checks are green.**
+**NEXT — release-cadence checkpoint v0.9.3+20: freeze current main, prepare multilingual release notes/version bump, verify exact PR head, integrate, then publish Windows/macOS/Android/iOS + START/source with packaged-artifact gates.**
 
 ## Черга робіт
 
@@ -85,8 +79,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 26. **DONE** — User-facing factual acquisition flow + holdings summary on encrypted vault.
 27. **DONE** — User-facing factual sale/redemption/history + legacy migration wizard; PR #101 → `c255c937…`; exact-head run #390 and post-merge run #391 green.
 28. **DONE** — User-facing factual coupon entry + per-ISIN portfolio detail/ledger; PR #104 → `c8d26862…`; exact-head run #395 and post-merge run #396 green.
-29. **DOING** — Factual portfolio cash/result summary + access to closed ISIN positions; unknown fees must remain explicit.
-30. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
+29. **DONE** — Factual portfolio cash/result summary + access to closed ISIN positions; PR #106 → `310afcc2…`; exact-head run #399 and post-merge run #400 green.
+30. **NEXT** — v0.9.3+20 full cross-platform prerelease checkpoint after three post-v0.9.2 user-visible portfolio slices.
+31. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
 
 ## Продуктова логіка цієї черги
 
@@ -113,6 +108,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — factual cash summary + closed positions**: PR #106 exact head `40ea1175…` passed run #399 and was squash-merged into `main` as `310afcc26728597e01d31c896d39b860bf4f20b5`; post-merge run #400 green with START/source. Summary uses only persisted cash facts, exact net result is withheld when fees are unknown, and closed ISINs remain inspectable through factual ledger.
 
 - **DONE — factual coupon + per-ISIN ledger**: PR #104 exact head `ce86507c…` passed run #395 and was squash-merged into `main` as `c8d26862430ac14dc25ad63da71bd016824ce91a`; post-merge run #396 green with START/source. Coupon uses existing encrypted cash-event schema, never changes holdings or invents units; current positions expose per-ISIN factual ledger with persisted notes.
 

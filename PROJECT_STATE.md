@@ -52,7 +52,12 @@ PR **#101 — Portfolio: add factual sale history and migration wizard** exact h
 - factual coupon entry на existing encrypted cash-event schema; coupon не змінює holdings і не синтезує units;
 - per-ISIN details/ledger для current holdings з purchase / sale / coupon / redemption і persisted notes;
 - PR #104 exact head `ce86507c5ad9ed1af562a5e5cbb5a93cc81ff80b` пройшов run #395, merged у `main` як `c8d26862430ac14dc25ad63da71bd016824ce91a`; post-merge run #396 — success;
-- наступний user-visible slice: **factual portfolio cash/result summary + access to closed ISIN positions**, без підміни unknown fees нулем;
+- factual cash/result summary per currency використовує лише persisted purchase amounts, explicit fees, sale proceeds, coupons і redemptions;
+- exact net cash result не показується, якщо будь-яка relevant acquisition/disposal fee unknown; unknown не підміняється нулем;
+- current market value відкритих позицій не включається у factual cash result;
+- closed ISIN positions (`units == 0`) лишаються доступними через окрему групу та factual ledger;
+- PR #106 exact head `40ea1175d19a320bee02c79a2877db8873431766` пройшов run #399, merged у `main` як `310afcc26728597e01d31c896d39b860bf4f20b5`; post-merge run #400 — success;
+- наступний checkpoint за release cadence: **v0.9.3+20 full cross-platform prerelease**;
 - Android SAF / iOS security-scoped external-folder access лишається deferred.
 
 ## Що входить до опублікованого 0.8.5
