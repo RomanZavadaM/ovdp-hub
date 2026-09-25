@@ -13,7 +13,7 @@ OVDP Hub es una aplicación local-first para bonos estatales ucranianos OVDP: fu
 **iOS:** el paquete publicado es unsigned y requiere signing/provisioning Apple por separado.
 
 ## Idioma y apariencia
-Idiomas: ucraniano, inglés, francés, alemán, español, coreano y japonés. Apariencias: Classic, Workbench y Light Dashboard.
+Idiomas: ucraniano, inglés, francés, alemán, español, coreano y japonés. Apariencias: Classic, Workbench y Light Dashboard. El idioma y la apariencia elegidos se guardan localmente en este dispositivo y se restauran en el siguiente inicio.
 
 ## Mercado e ISIN
 El catálogo permite buscar y filtrar OVDP. La ficha ISIN mantiene separados NBU, MinFin y vendedores y muestra fecha, fuente y freshness/status. Un yield-only o el nominal nunca se convierte silenciosamente en precio negociable.
