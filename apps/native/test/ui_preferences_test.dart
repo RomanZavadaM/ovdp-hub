@@ -54,14 +54,14 @@ void main() {
     expect(recovered.current.appearance, HubAppearance.studio);
   });
 
-  testWidgets('language and appearance survive an app restart', (tester) async {
+  testWidgets('visible controls persist language and appearance', (tester) async {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final directory = await Directory.systemTemp.createTemp(
-      'ovdp-ui-preferences-widget-',
+      'ovdp-ui-preferences-controls-',
     );
     addTearDown(() => directory.delete(recursive: true));
     final file = File('${directory.path}/ui-preferences.json');
@@ -76,30 +76,49 @@ void main() {
     );
     await _pumpUi(tester);
 
-    expect(find.text('Каталог'), findsWidgets);
     await tester.tap(find.byTooltip('Мова / Language'));
     await _pumpUi(tester);
     await tester.tap(find.text('English'));
     await _pumpUi(tester);
 
-    expect(find.text('Catalog'), findsWidgets);
     await tester.tap(find.byTooltip('Interface design'));
     await _pumpUi(tester);
     await tester.tap(find.text('Light Dashboard design'));
     await _pumpUi(tester);
 
     expect(find.byType(DashboardHeader), findsOneWidget);
+    expect(find.text('Catalog'), findsWidgets);
     expect(store.current.language, AppLanguage.en);
     expect(store.current.appearance, HubAppearance.dashboard);
     await store.flush();
-
-    await tester.pumpWidget(const SizedBox.shrink());
-    await _pumpUi(tester);
 
     final reopened = await UiPreferencesStore.open(file);
     expect(reopened.current.language, AppLanguage.en);
     expect(reopened.current.appearance, HubAppearance.dashboard);
 
+    await tester.pumpWidget(const SizedBox.shrink());
+    await _pumpUi(tester);
+  });
+
+  testWidgets('persisted UI preferences restore on a new app construction', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final directory = await Directory.systemTemp.createTemp(
+      'ovdp-ui-preferences-restore-',
+    );
+    addTearDown(() => directory.delete(recursive: true));
+    final file = File('${directory.path}/ui-preferences.json');
+    final store = await UiPreferencesStore.open(file);
+    await store.selectLanguage(AppLanguage.en);
+    await store.selectAppearance(HubAppearance.dashboard);
+    await store.flush();
+
+    final reopened = await UiPreferencesStore.open(file);
     await tester.pumpWidget(
       OvdpApp(
         repository: FakeRepository(catalog),
