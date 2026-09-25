@@ -86,6 +86,7 @@ class PortfolioView extends StatelessWidget {
 
     final payload = state.payload!;
     final holdings = payload.holdings;
+    final closedPositionIsins = payload.closedPositionIsins;
     final totalUnits = holdings.fold<int>(0, (sum, item) => sum + item.units);
     final canSell = holdings.any(
       (holding) => !payload.cashEvents.any(
@@ -140,6 +141,17 @@ class PortfolioView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
+        if (payload.factualCashSummaries.isNotEmpty) ...[
+          Text(
+            strings.text('portfolioCashSummary'),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 6),
+          Text(strings.text('portfolioCashSummaryInfo')),
+          const SizedBox(height: 8),
+          _FactualCashSummary(payload: payload),
+          const SizedBox(height: 18),
+        ],
         Text(
           strings.text('portfolioHoldings'),
           style: Theme.of(context).textTheme.titleLarge,
@@ -193,6 +205,21 @@ class PortfolioView extends StatelessWidget {
           ...holdings.map(
             (holding) => _HoldingCard(holding: holding, payload: payload),
           ),
+        if (closedPositionIsins.isNotEmpty) ...[
+          const SizedBox(height: 18),
+          Text(
+            strings.text('portfolioClosedPositions'),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          ...closedPositionIsins.map(
+            (isin) => _ClosedPositionCard(
+              isin: isin,
+              currency: payload.currencyForIsin(isin),
+              payload: payload,
+            ),
+          ),
+        ],
         const SizedBox(height: 18),
         Text(
           strings.text('portfolioHistory'),
@@ -1251,6 +1278,116 @@ class _SummaryTile extends StatelessWidget {
       );
 }
 
+class _FactualCashSummary extends StatelessWidget {
+  final PrivatePortfolioPayload payload;
+  const _FactualCashSummary({required this.payload});
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = HubStrings(context.watch<LocaleCubit>().state.language);
+    return Column(
+      children: [
+        for (final summary in payload.factualCashSummaries)
+          Card(
+            key: ValueKey('portfolio-cash-${summary.currency}'),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    summary.currency,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  _CashRow(
+                    label: strings.text('portfolioCashPurchases'),
+                    value:
+                        '${summary.acquisitionTradeAmount} ${summary.currency}',
+                  ),
+                  _CashRow(
+                    label: strings.text('portfolioCashSales'),
+                    value: '${summary.disposalProceeds} ${summary.currency}',
+                  ),
+                  _CashRow(
+                    label: strings.text('portfolioCashCoupons'),
+                    value: '${summary.couponReceipts} ${summary.currency}',
+                  ),
+                  _CashRow(
+                    label: strings.text('portfolioCashRedemptions'),
+                    value:
+                        '${summary.redemptionReceipts} ${summary.currency}',
+                  ),
+                  _CashRow(
+                    label: strings.text('portfolioCashKnownFees'),
+                    value:
+                        '${summary.knownAcquisitionFees + summary.knownDisposalFees} ${summary.currency}',
+                  ),
+                  if (summary.hasUnknownFees)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.warning_amber_outlined, size: 18),
+                          const SizedBox(width: 7),
+                          Expanded(
+                            child: Text(
+                              strings.text('portfolioCashUnknownFeesFlag'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const Divider(height: 20),
+                  _CashRow(
+                    label: strings.text('portfolioCashNet'),
+                    value: summary.exactNetCashResult == null
+                        ? strings.text('portfolioCashNetUnknown')
+                        : '${summary.exactNetCashResult} ${summary.currency}',
+                    emphasize: true,
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CashRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool emphasize;
+
+  const _CashRow({
+    required this.label,
+    required this.value,
+    this.emphasize = false,
+  });
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: Text(label)),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                value,
+                textAlign: TextAlign.end,
+                style: emphasize
+                    ? const TextStyle(fontWeight: FontWeight.w700)
+                    : null,
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
 class _HoldingCard extends StatelessWidget {
   final PrivateHolding holding;
   final PrivatePortfolioPayload payload;
@@ -1263,16 +1400,7 @@ class _HoldingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = HubStrings(context.watch<LocaleCubit>().state.language);
-    final catalog = context.read<HubRepository>().current?.catalog;
-    Bond? bond;
-    if (catalog != null) {
-      for (final item in catalog.bonds) {
-        if (item.isin == holding.isin) {
-          bond = item;
-          break;
-        }
-      }
-    }
+    final bond = _portfolioBondFor(context, holding.isin);
     return Card(
       child: ListTile(
         leading: const Icon(Icons.account_balance_outlined),
@@ -1299,7 +1427,14 @@ class _HoldingCard extends StatelessWidget {
             IconButton(
               key: ValueKey('portfolio-details-${holding.isin}'),
               tooltip: strings.text('portfolioDetails'),
-              onPressed: () => _showDetails(context, bond),
+              onPressed: () => _showPortfolioIsinDetails(
+                context,
+                payload: payload,
+                isin: holding.isin,
+                currency: holding.currency,
+                units: holding.units,
+                bond: bond,
+              ),
               icon: const Icon(Icons.receipt_long_outlined),
             ),
           ],
@@ -1307,61 +1442,128 @@ class _HoldingCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Future<void> _showDetails(BuildContext context, Bond? bond) async {
-    final strings = HubStrings(context.read<LocaleCubit>().state.language);
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        key: ValueKey('portfolio-isin-dialog-${holding.isin}'),
+class _ClosedPositionCard extends StatelessWidget {
+  final String isin;
+  final String currency;
+  final PrivatePortfolioPayload payload;
+
+  const _ClosedPositionCard({
+    required this.isin,
+    required this.currency,
+    required this.payload,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = HubStrings(context.watch<LocaleCubit>().state.language);
+    final bond = _portfolioBondFor(context, isin);
+    return Card(
+      child: ListTile(
+        key: ValueKey('portfolio-closed-$isin'),
+        leading: const Icon(Icons.task_alt_outlined),
         title: Text(
-          '${strings.text('portfolioIsinDetails')} · ${holding.isin}',
+          isin,
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
-        content: SizedBox(
-          width: 620,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    Chip(
-                      label: Text(
-                        '${strings.text('portfolioCurrentUnits')}: ${holding.units}',
-                      ),
-                    ),
-                    Chip(label: Text(holding.currency)),
-                    if (bond != null)
-                      Chip(
-                        label: Text(
-                          '${strings.text('portfolioMaturity')}: ${_displayIsoDate(bond.maturity)}',
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  strings.text('portfolioHistory'),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 6),
-                _PortfolioHistory(payload: payload, isin: holding.isin),
-              ],
-            ),
-          ),
+        subtitle: Text(
+          [
+            currency,
+            strings.text('portfolioClosedPosition'),
+            if (bond != null)
+              '${strings.text('portfolioMaturity')} ${_displayIsoDate(bond.maturity)}',
+          ].join(' · '),
         ),
-        actions: [
-          FilledButton(
-            key: ValueKey('portfolio-details-close-${holding.isin}'),
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(strings.text('portfolioClose')),
+        trailing: IconButton(
+          key: ValueKey('portfolio-closed-details-$isin'),
+          tooltip: strings.text('portfolioDetails'),
+          onPressed: () => _showPortfolioIsinDetails(
+            context,
+            payload: payload,
+            isin: isin,
+            currency: currency,
+            units: 0,
+            bond: bond,
           ),
-        ],
+          icon: const Icon(Icons.receipt_long_outlined),
+        ),
       ),
     );
   }
+}
+
+Bond? _portfolioBondFor(BuildContext context, String isin) {
+  final catalog = context.read<HubRepository>().current?.catalog;
+  if (catalog == null) return null;
+  for (final item in catalog.bonds) {
+    if (item.isin == isin) return item;
+  }
+  return null;
+}
+
+Future<void> _showPortfolioIsinDetails(
+  BuildContext context, {
+  required PrivatePortfolioPayload payload,
+  required String isin,
+  required String currency,
+  required int units,
+  required Bond? bond,
+}) async {
+  final strings = HubStrings(context.read<LocaleCubit>().state.language);
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      key: ValueKey('portfolio-isin-dialog-$isin'),
+      title: Text(
+        '${strings.text('portfolioIsinDetails')} · $isin',
+      ),
+      content: SizedBox(
+        width: 620,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  Chip(
+                    label: Text(
+                      '${strings.text('portfolioCurrentUnits')}: $units',
+                    ),
+                  ),
+                  Chip(label: Text(currency)),
+                  if (units == 0)
+                    Chip(label: Text(strings.text('portfolioClosedPosition'))),
+                  if (bond != null)
+                    Chip(
+                      label: Text(
+                        '${strings.text('portfolioMaturity')}: ${_displayIsoDate(bond.maturity)}',
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                strings.text('portfolioHistory'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 6),
+              _PortfolioHistory(payload: payload, isin: isin),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        FilledButton(
+          key: ValueKey('portfolio-details-close-$isin'),
+          onPressed: () => Navigator.pop(dialogContext),
+          child: Text(strings.text('portfolioClose')),
+        ),
+      ],
+    ),
+  );
 }
 
 String _displayIsoDate(String value) =>
