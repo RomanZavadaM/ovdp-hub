@@ -25,29 +25,35 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **factual portfolio cash/result summary + access to closed ISIN positions**.
+Мета: **v0.9.3+20 full cross-platform prerelease checkpoint**.
 
-- base `main`: **`e379f71c0bd3e10278aee415f3d80293198b46f5`**;
-- branch: **`feat/portfolio-factual-results-closed-positions`**;
-- PR: **#106 — merged**;
-- exact verified feature head: **`40ea1175d19a320bee02c79a2877db8873431766`**;
-- exact-head Flutter checks: **run #399 — success**;
-- merge `main`: **`310afcc26728597e01d31c896d39b860bf4f20b5`**;
-- post-merge Flutter checks + START/source: **run #400 — success**;
-- опублікований checkpoint поки **v0.9.2 / 0.9.2+19**;
-- factual cash summary рахується лише з persisted purchase amounts, explicit fees, sale proceeds, coupons і redemptions;
-- exact net cash result існує лише коли всі relevant acquisition/disposal fees у валюті відомі;
-- unknown fees не підміняються нулем;
-- market/current value відкритих позицій не входить у factual result;
-- closed ISIN (`units == 0`) лишаються видимими й відкривають factual ledger;
-- payload schema/privacy boundary не змінювались;
-- Android SAF / iOS security-scoped access лишається **DEFERRED**.
+- base `main`: **`97695e360ba118814ab71978e65a96eb3b407df8`**;
+- branch: **`release/v0.9.3`**;
+- target version/build: **0.9.3+20**;
+- PR: ще не відкрито;
+- release scope: три user-visible portfolio slices після v0.9.2 — sale/redemption/history + migration wizard; factual coupon + per-ISIN ledger; factual cash summary + closed positions;
+- private payload schema не змінюється;
+- legacy migration лишається explicit + non-destructive; source JSON не видаляються автоматично;
+- exact packaged Windows/macOS ZIP smoke є обов'язковим release gate;
+- final publication має включати Windows/macOS/Android/iOS + START/source + SHA256 + legal notices;
+- Android SAF / iOS security-scoped external-folder access лишається **DEFERRED**;
+- production signing/notarization лишається **DEFERRED**.
+
+Критерії готовності:
+1. `apps/native/pubspec.yaml` = **0.9.3+20**.
+2. Release notes у `docs/releases/RELEASE_NOTES_v0_9_3.md` містять UK/EN/FR/DE/ES/KO/JA.
+3. README/CHANGELOG/PROJECT_STATE/START_HERE синхронізовані з candidate scope без хибної заяви про автоматичну legacy migration.
+4. Exact release PR head проходить `flutter analyze`, full `flutter test`, Windows build/package/smoke і macOS build/package/smoke.
+5. Release PR інтегрується exact-head у `main`.
+6. Main release pipeline збирає й публікує Windows/macOS/Android/iOS + START/source + checksums/legal.
+7. Tag `v0.9.3` незмінно вказує на release commit; assets і published release перевірені.
+8. Лише після успішної публікації checkpoint стає DONE.
 
 ### Поточна наступна дія
 
-**NEXT — release-cadence checkpoint v0.9.3+20: freeze current main, prepare multilingual release notes/version bump, verify exact PR head, integrate, then publish Windows/macOS/Android/iOS + START/source with packaged-artifact gates.**
+**DOING — finish v0.9.3+20 metadata/docs, open release PR, pass exact packaged-artifact gates, then merge and verify the full Publish native prerelease pipeline.**
 
 ## Черга робіт
 
@@ -80,7 +86,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 27. **DONE** — User-facing factual sale/redemption/history + legacy migration wizard; PR #101 → `c255c937…`; exact-head run #390 and post-merge run #391 green.
 28. **DONE** — User-facing factual coupon entry + per-ISIN portfolio detail/ledger; PR #104 → `c8d26862…`; exact-head run #395 and post-merge run #396 green.
 29. **DONE** — Factual portfolio cash/result summary + access to closed ISIN positions; PR #106 → `310afcc2…`; exact-head run #399 and post-merge run #400 green.
-30. **NEXT** — v0.9.3+20 full cross-platform prerelease checkpoint after three post-v0.9.2 user-visible portfolio slices.
+30. **DOING** — v0.9.3+20 full cross-platform prerelease checkpoint after three post-v0.9.2 user-visible portfolio slices.
 31. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
 
 ## Продуктова логіка цієї черги
