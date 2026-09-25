@@ -2,15 +2,15 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · **🇫🇷 Français** · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.2](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.2) (0.9.2+19)**
+> **Current published prerelease / Поточний опублікований prerelease: [OVDP Hub v0.9.3](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.3) (0.9.3+20)**
 >
-> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/OVDP-Hub-0.9.2-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.2/SHA256SUMS.txt)
+> Downloads / Завантаження: [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/OVDP-Hub-0.9.3-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/OVDP-Hub-0.9.3-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/OVDP-Hub-0.9.3-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/OVDP-Hub-0.9.3-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/OVDP-Hub-0.9.3-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.3/SHA256SUMS.txt)
 
 ---
 
-### Checkpoint v0.9.2
+### Checkpoint v0.9.3
 
-**v0.9.2+19** ajoute le **Pouls économique** permanent et le premier flux utilisateur **Mon portefeuille** : créer/ouvrir/verrouiller un portefeuille local chiffré, ajouter un achat factuel d’OVDP et afficher les positions dérivées. Un nouveau gate vérifie aussi le ZIP/exécutable desktop réellement distribué.
+**v0.9.3+20** complète le cycle factuel du portefeuille visible : ventes avec allocation explicite aux lots, remboursements et coupons factuels, historique, ledger par ISIN, positions clôturées, synthèse de trésorerie par devise et assistant explicite de migration legacy non destructive. Les frais inconnus restent inconnus et la valeur de marché n’est jamais présentée comme résultat de trésorerie factuel.
 
 **Limite de confidentialité :** les `sets/*.json` legacy ne sont toujours pas chiffrés automatiquement. Le wizard migration/nettoyage reste une étape utilisateur séparée; Android SAF / iOS security-scoped est différé.
 
@@ -19,7 +19,7 @@
 
 **OVDP Hub** est une application Flutter/Dart installable pour consulter les obligations d’État ukrainiennes (OVDP), leurs sources de marché et créer des scénarios d’investissement personnels. Plateformes cibles : **Windows, macOS, Android et iOS**. Web/PWA ne fait pas partie du produit actif.
 
-Code actif : `apps/native`. Le checkpoint actuel est **0.9.2+19**. Il inclut les améliorations UI/Planner/exports après 0.9.0 ainsi que la fondation interne vérifiée du coffre chiffré, du domaine privé et de la migration. L’interface utilisateur vault/migration/portfolio reste différée.
+Code actif : `apps/native`. Le checkpoint actuel est **0.9.3+20**. Il comprend le Pouls économique et le point d’entrée portefeuille chiffré de v0.9.2, plus les flux factuels vente/remboursement/coupon/historique/reporting et migration intégrés ensuite.
 
 ### Fonctions disponibles
 
@@ -59,7 +59,7 @@ Développement après le checkpoint 0.9.0 publié :
 8. **DONE** — checkpoint prerelease v0.9.0;
 9. **DONE** — reserve floor / solde minimum;
 10. **DONE** — exports locaux déterministes CSV/ICS ; PDF différé;
-11. **DONE** — fondation coffre chiffré / domaine privé / migration non destructive; 12. **DONE** — checkpoint v0.9.2+18; 13. **NEXT** — Android SAF / accès iOS security-scoped aux dossiers externes; l’UX vault/migration reste un gate séparé.
+11. **DONE** — fondation coffre chiffré / domaine privé / migration non destructive; 12. **DONE** — checkpoint v0.9.2+19; 13. **DONE** — vente/remboursement/historique + assistant de migration; 14. **DONE** — coupon + ledger par ISIN; 15. **DONE** — synthèse cash factuelle + positions clôturées; 16. **DOING** — checkpoint v0.9.3+20.
 
 OVDP Hub n’exécute aucune transaction et ne confirme pas la disponibilité d’un instrument chez un vendeur.
 
@@ -67,7 +67,7 @@ OVDP Hub n’exécute aucune transaction et ne confirme pas la disponibilité d�
 
 Les catalogues et scénarios sont stockés sur l’appareil. Sur desktop, l’utilisateur peut ouvrir ou copier un dossier de travail. OVDP Hub ne dispose pas d’un serveur central de données privées de portefeuille.
 
-Le JSON legacy utilisé par le flux utilisateur actuel des sélections reste **en clair** jusqu’à ce qu’un futur flux explicite vault/migration soit raccordé et exécuté avec succès. v0.9.2 contient la fondation vérifiée du coffre chiffré, du payload privé et de la migration, mais ne réécrit ni ne supprime automatiquement les `sets/*.json` existants. N’y stockez pas de clés de signature, documents KYC ou autres secrets.
+Les JSON legacy des sélections **ne sont pas migrés automatiquement par l’installation de v0.9.3**. L’assistant explicite copie les métadonnées privées prises en charge dans le coffre chiffré et vérifie la copie, tandis que les `sets/*.json` source restent en place et ne sont jamais supprimés automatiquement. N’y stockez pas de clés de signature, documents KYC ou autres secrets.
 
 ### Test rapide
 
