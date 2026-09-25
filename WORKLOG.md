@@ -64,15 +64,24 @@ Append-only ledger: GitHub Issue **#18**
 
 ## Поточний slice
 
-Статус: **IDLE / SAVED**
+Статус: **DOING**
 
-Активного implementation PR немає. Поточний інтегрований `main`:
-**`5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`**.
+Мета: **persist UI language + appearance across launches**.
+
+- base main: `d6ed407af6c1106f9cd8f3808f4e0f2d52a5b2ef`;
+- replacement branch: `feat/ui-preferences-persistence-v2`;
+- PR #121 superseded because docs-sync made the old branch conflict with current `main`;
+- non-sensitive UI preferences live in app-support `ui-preferences.json`, not workspace/private vault;
+- no new dependency: existing `path_provider` + `path`;
+- selected UK/EN/FR/DE/ES/KO/JA language and Classic/Workbench/Light Dashboard restore on next launch;
+- corrupt/invalid preference JSON fails safe to Ukrainian + Workbench;
+- run #430 on old PR: analyze green, 195 tests passed, 1 widget restart test timed out in `pumpAndSettle`;
+- restart regression now uses bounded pumps but still performs real save → flush → reopen → reconstruct;
+- user guides updated in all seven languages.
 
 ## Поточна наступна дія
 
-**NEXT — persist non-sensitive UI preferences: selected language + appearance.**  
-Зберігати їх окремо від workspace/private vault; не змішувати з приватними даними. Потрібні restart/persistence regressions. Після цього окремо повернутися до unified date-control UX/picker, macOS Portfolio runtime validation та mobile external-folder gates.
+**DOING — open replacement PR from `feat/ui-preferences-persistence-v2`, close stale PR #121, run exact-head analyze/tests, integrate only after green.**
 
 ## Deferred gates
 
