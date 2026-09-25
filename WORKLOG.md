@@ -39,7 +39,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - Android SAF / iOS security-scoped access лишається **DEFERRED** до mobile storage gate.
 
 Критерії готовності slice:
-1. З відкритого портфеля можна явно додати фактичний купон: ISIN, дата, сума, необов'язкова кількість/примітка.
+1. З відкритого портфеля можна явно додати фактичний купон: ISIN, дата, сума та необов'язкова примітка; чинна schema навмисно не зберігає `units` для coupon.
 2. Купон не змінює кількість holdings і не створюється без існуючого acquisition lot.
 3. Для кожної поточної позиції є видима дія «Деталі» з per-ISIN ledger.
 4. Ledger детерміновано показує purchase / sale / coupon / redemption із датами, кількостями та сумами без синтезу невідомих даних.
