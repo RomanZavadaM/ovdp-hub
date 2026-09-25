@@ -58,10 +58,13 @@
 - Repository branch cleanup is **DONE**: 109 obsolete branches deleted, 0 failures; stale PR #103/#108 closed; tags/releases/history preserved.
 - Post-v0.9.3 usability/product audit is **DONE**: PR #116 → `bb961f9d…`; canonical findings are in `docs/AUDIT_POST_0_9_3.md`.
 - First audit fix is **DONE**: PR #117 → `fc38177a…`; recovery confirmation/rotation plus Windows portable encrypted backup/restore; exact-head #417 and post-merge #418 — success.
+- Planner safe criteria/date editing is **DONE**: PR #119 → `ad3a995a…`; exact-head #420 and post-merge #421 — success.
+- Catalog localization + locale-neutral collection variant cleanup is **DONE**: PR #120 → `5638f56e…`; final exact-head #428 and post-merge #429 — success. Runs #422/#424 are retained as useful failed evidence that caught a no-op CRLF patch.
+- Current integrated main: **`5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`**.
 - Android SAF / iOS security-scoped external-folder access remains deferred.
 - macOS encrypted Portfolio remains gated on real Keychain runtime/provisioning validation.
 - Production signing/notarization remains deferred.
-- **NEXT:** Planner safe criteria/date editing — no per-keystroke destruction of generated positions/early exits; valid committed change + explicit confirmation before reset.
+- **NEXT:** persist selected language + appearance between launches as non-sensitive UI preferences, separate from workspace/private vault.
 
 ## Rule for new chats
 

@@ -90,6 +90,8 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - PR #109 → `e2ec96322a1acb953589eeeb45e8ec50cd5d198a`: v0.9.3+20 release checkpoint; PR release run #105, post-merge #405, publish #106.
 - PR #116 → `bb961f9d11d8c5a245e0fa0689fa74e7f092eb93`: post-v0.9.3 usability/product audit; exact-head run #414.
 - PR #117 → `fc38177a69f387153ff3984d3a917a7975a4a647`: recovery confirmation + recovery rotation + Windows portable encrypted backup/restore UX; exact-head run #417, post-merge #418.
+- PR #119 → `ad3a995a3f5e405cdde7d17b00b54fa105b926e5`: safe committed Planner criteria/date editing; exact-head #420, post-merge #421.
+- PR #120 → `5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`: real Catalog localization wiring + locale-neutral collection variants; final exact-head #428, post-merge #429.
 
 ## Дані та privacy
 
@@ -142,4 +144,4 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 
 ## Наступний великий крок
 
-**NEXT — Planner safe criteria/date editing:** прибрати destructive per-keystroke reset для `start/minDate/maxDate`, комітити лише валідну зміну й запитувати explicit confirmation перед очищенням уже сформованої composition/early exits. Mobile external-folder permissions, macOS Portfolio runtime validation і production signing залишаються окремими gate.
+**NEXT — persist selected language and appearance between launches.** Це non-sensitive UI preferences: зберігати окремо від workspace/private vault, з restart/persistence regression. Planner destructive date editing і Catalog localization audit gaps уже закриті в `main`. Unified date-control UX/picker, macOS Portfolio runtime validation, mobile external-folder permissions і production signing залишаються окремими gate.
