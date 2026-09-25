@@ -44,6 +44,8 @@ Der Assistent kopiert unterstützte Legacy-Nutzerdaten in den verschlüsselten P
 ## Backup und Update
 Vor großen Updates Portfolio sperren, Workspace sichern, verschlüsseltes portables Backup prüfen und Recovery Material getrennt aufbewahren. Desktop-Updates in einen neuen Programmordner entpacken und Workspace behalten, bis die neue Version geprüft ist.
 
+Unter Windows kann **Mein Portfolio** eine portable verschlüsselte Sicherung erstellen und daraus ein leeres lokales Portfolio wiederherstellen. Das Wiederherstellungsgeheimnis wird bei der Erstellung zweimal eingegeben und kann später geändert werden. Android/iOS-Dateizugriff bleibt bis zum separaten SAF/security-scoped Schritt zurückgestellt.
+
 ## Prüfung und typische Probleme
 `SHA256SUMS.txt` dient zur Download-Prüfung. SmartScreen/macOS-Warnungen sind beim unsignierten Test-Prerelease möglich. „Unknown fee“ ist ein bewusster Zustand. Das iOS-Paket ist unsigned und nicht direkt installierbar.
 

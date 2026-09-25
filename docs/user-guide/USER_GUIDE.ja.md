@@ -44,6 +44,8 @@ migration wizard は対応するユーザー legacy データを暗号化 payloa
 ## バックアップと更新
 大きな更新前にポートフォリオをロックし、workspace をバックアップし、encrypted portable backup を確認し、recovery material を別に保管してください。Desktop 更新は新しいプログラムフォルダーに展開し、新版を確認するまで workspace を保持してください。
 
+Windows の **マイポートフォリオ**では、持ち運べる暗号化バックアップを作成し、それを使って空のローカルポートフォリオを復元できます。作成時には復旧シークレットを2回入力し、後から変更することもできます。Android/iOS の外部ファイルフローは別の SAF/security-scoped 段階まで延期されています。
+
 ## 検証とよくある問題
 GitHub Release の `SHA256SUMS.txt` でダウンロードを検証できます。unsigned test prerelease のため SmartScreen/macOS 警告が出る場合があります。「Unknown fee」は意図した状態です。iOS unsigned ZIP はそのままではインストールできません。
 

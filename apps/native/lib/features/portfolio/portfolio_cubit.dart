@@ -12,6 +12,7 @@ import 'private_portfolio.dart';
 @immutable
 class PortfolioState {
   final bool supported;
+  final bool portableBackupSupported;
   final bool exists;
   final bool busy;
   final PrivatePortfolioPayload? payload;
@@ -20,6 +21,7 @@ class PortfolioState {
 
   const PortfolioState({
     this.supported = true,
+    this.portableBackupSupported = false,
     this.exists = false,
     this.busy = false,
     this.payload,
@@ -31,6 +33,7 @@ class PortfolioState {
 
   PortfolioState copyWith({
     bool? supported,
+    bool? portableBackupSupported,
     bool? exists,
     bool? busy,
     PrivatePortfolioPayload? payload,
@@ -41,6 +44,8 @@ class PortfolioState {
     bool clearError = false,
   }) => PortfolioState(
     supported: supported ?? this.supported,
+    portableBackupSupported:
+        portableBackupSupported ?? this.portableBackupSupported,
     exists: exists ?? this.exists,
     busy: busy ?? this.busy,
     payload: clearPayload ? null : payload ?? this.payload,
@@ -62,7 +67,12 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     this.gateway, {
     DateTime Function()? clock,
   }) : clock = clock ?? DateTime.now,
-       super(PortfolioState(supported: gateway.supported)) {
+       super(
+         PortfolioState(
+           supported: gateway.supported,
+           portableBackupSupported: gateway.portableBackupSupported,
+         ),
+       ) {
     _lockSubscription = gateway.unlockChanges.listen((unlocked) {
       if (!unlocked && !isClosed && state.payload != null) {
         emit(state.copyWith(clearPayload: true, clearMigrationReport: true));
@@ -72,7 +82,12 @@ class PortfolioCubit extends Cubit<PortfolioState> {
 
   Future<void> initialize() async {
     if (!gateway.supported) {
-      emit(const PortfolioState(supported: false));
+      emit(
+        PortfolioState(
+          supported: false,
+          portableBackupSupported: gateway.portableBackupSupported,
+        ),
+      );
       return;
     }
     await _run(() async {
@@ -311,6 +326,106 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     await gateway.save(next);
     emit(state.copyWith(payload: next, busy: false, clearError: true));
   });
+
+  Future<String?> createPortableBackup() async {
+    if (state.busy ||
+        !gateway.supported ||
+        !gateway.portableBackupSupported ||
+        state.payload == null) {
+      return null;
+    }
+    emit(state.copyWith(busy: true, clearError: true));
+    try {
+      final path = await gateway.createPortableBackup();
+      if (!isClosed) emit(state.copyWith(busy: false, clearError: true));
+      return path;
+    } catch (error) {
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            busy: false,
+            errorCode: _safeErrorCode(error),
+          ),
+        );
+      }
+      return null;
+    }
+  }
+
+  Future<bool?> restorePortableBackup(String recoverySecret) async {
+    if (state.busy ||
+        !gateway.supported ||
+        !gateway.portableBackupSupported) {
+      return false;
+    }
+    emit(state.copyWith(busy: true, clearError: true));
+    try {
+      final payload = await gateway.restorePortableBackup(
+        recoverySecret: recoverySecret,
+      );
+      if (payload == null) {
+        if (!isClosed) emit(state.copyWith(busy: false, clearError: true));
+        return null;
+      }
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            exists: true,
+            payload: payload,
+            busy: false,
+            clearMigrationReport: true,
+            clearError: true,
+          ),
+        );
+      }
+      return true;
+    } catch (error) {
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            busy: false,
+            clearPayload: true,
+            errorCode: _safeErrorCode(error),
+          ),
+        );
+      }
+      return false;
+    }
+  }
+
+  Future<bool> rotateRecovery(String recoverySecret) async {
+    if (state.busy || !gateway.supported || state.payload == null) {
+      return false;
+    }
+    emit(state.copyWith(busy: true, clearError: true));
+    try {
+      final payload = await gateway.rotateRecovery(
+        recoverySecret: recoverySecret,
+      );
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            payload: payload,
+            busy: false,
+            clearMigrationReport: true,
+            clearError: true,
+          ),
+        );
+      }
+      return true;
+    } catch (error) {
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            busy: false,
+            clearPayload: true,
+            errorCode: _safeErrorCode(error),
+          ),
+        );
+      }
+      return false;
+    }
+  }
 
   Future<void> migrateLegacy() => _run(() async {
     if (state.payload == null) {

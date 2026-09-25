@@ -44,6 +44,8 @@ El asistente copia datos legacy compatibles al payload cifrado y verifica la cop
 ## Copias de seguridad y actualizaciones
 Antes de una actualización importante, bloquee la cartera, haga copia del workspace, verifique el backup cifrado portátil y guarde el recovery material por separado. Para actualizar desktop, use una nueva carpeta del programa y conserve los datos hasta verificar la nueva versión.
 
+En Windows, **Mi cartera** puede crear una copia cifrada portátil y restaurar con ella una cartera local vacía. El secreto de recuperación se introduce dos veces al crear la cartera y puede cambiarse después. Los flujos de archivos externos Android/iOS siguen diferidos hasta la etapa SAF/security-scoped separada.
+
 ## Verificación y problemas comunes
 Use `SHA256SUMS.txt` para verificar descargas. SmartScreen o avisos de macOS son posibles en este prerelease sin firma de producción. “Unknown fee” es un estado intencional. El paquete iOS unsigned no se instala directamente.
 

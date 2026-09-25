@@ -44,6 +44,8 @@ A/B/C는 호환되는 저장 시나리오 2–3개를 비교하지만 자동 win
 ## 백업/업데이트
 큰 업데이트 전에는 포트폴리오를 잠그고 workspace를 백업하며 encrypted portable backup을 확인하고 recovery material을 별도 보관하세요. Desktop 업데이트는 새 프로그램 폴더에 풀고 새 버전을 확인할 때까지 기존 workspace를 유지하세요.
 
+Windows의 **내 포트폴리오**에서는 휴대 가능한 암호화 백업을 만들고 이를 이용해 비어 있는 로컬 포트폴리오를 복원할 수 있습니다. 포트폴리오 생성 시 복구 비밀문구를 두 번 입력하며 이후 변경할 수도 있습니다. Android/iOS 외부 파일 흐름은 별도 SAF/security-scoped 단계까지 보류됩니다.
+
 ## 검증과 일반 문제
 GitHub Release의 `SHA256SUMS.txt`로 다운로드 파일을 검증할 수 있습니다. unsigned 테스트 prerelease이므로 SmartScreen/macOS 경고가 나올 수 있습니다. “Unknown fee”는 오류가 아니라 의도된 상태입니다. iOS unsigned ZIP은 직접 설치할 수 없습니다.
 
