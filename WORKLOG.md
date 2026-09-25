@@ -25,6 +25,7 @@ Append-only ledger: GitHub Issue **#18**
 Мета: **v0.9.3 user documentation + GitHub cleanup**.
 
 - branch: `docs/v0.9.3-user-guides`;
+- PR: **#110 — draft**;
 - root GitHub README: rewritten for v0.9.3;
 - localized GitHub descriptions: UK / EN / FR / DE / ES / KO / JA;
 - user guides: UK / EN / FR / DE / ES / KO / JA;
