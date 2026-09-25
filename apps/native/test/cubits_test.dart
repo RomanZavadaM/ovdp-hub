@@ -52,6 +52,24 @@ void main() {
       await collections.close();
     },
   );
+  test('collection variant keeps user-authored name without locale suffix', () async {
+    final editor = CollectionEditorCubit(repository);
+    final source = SavedSet(
+      'My saved set',
+      'note',
+      '2026-09-25T00:00:00Z',
+      [catalog.bonds.first],
+    );
+
+    editor.variant(source);
+
+    expect(editor.state.name, 'My saved set');
+    expect(editor.state.name.contains('варіант'), false);
+    expect(editor.state.selected.keys, contains(catalog.bonds.first.isin));
+
+    await editor.close();
+  });
+
   test('cancelled and failed switches keep draft and active path', () async {
     final editor = CollectionEditorCubit(repository)..edit(name: 'Не втратити');
     final workspace = WorkspaceCubit(repository, editor);
