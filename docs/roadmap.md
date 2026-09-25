@@ -96,7 +96,7 @@
 - [x] Factual sale/redemption/history UI + explicit non-destructive legacy migration wizard — PR #101, exact-head run #390, merge `c255c937…`, post-merge run #391.
 - [x] User-facing factual coupon entry + per-ISIN portfolio detail/ledger — PR #104, exact-head run #395, merge `c8d26862…`, post-merge run #396.
 - [x] Factual portfolio cash/result summary + access to closed ISIN positions — PR #106, exact-head run #399, merge `310afcc2…`, post-merge run #400; unknown fees remain explicit and market value is not presented as fact.
-- [ ] **NEXT:** v0.9.3+20 full cross-platform prerelease checkpoint after three post-v0.9.2 user-visible portfolio slices.
+- [ ] **DOING:** v0.9.3+20 full cross-platform prerelease checkpoint after three post-v0.9.2 user-visible portfolio slices.
 - [ ] Android SAF / iOS security-scoped access для зовнішніх папок — deferred до mobile external-workspace/vault slice.
 
 ## Distribution readiness
