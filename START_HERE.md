@@ -135,5 +135,6 @@ Slice не є `DONE`, доки:
 - Інтегровано після v0.9.2: **factual sale/redemption/history + explicit non-destructive legacy migration wizard** — PR #101 → `main` `c255c937500d17b41cf0ac8542698139539fa047`; exact-head run #390 і post-merge run #391 — success
 - Інтегровано після v0.9.2 також: **factual coupon entry + per-ISIN factual ledger** — PR #104 → `main` `c8d26862430ac14dc25ad63da71bd016824ce91a`; exact-head run #395 і post-merge run #396 — success
 - Інтегровано після v0.9.2 також: **factual portfolio cash/result summary + closed ISIN access** — PR #106 → `main` `310afcc26728597e01d31c896d39b860bf4f20b5`; exact-head run #399 і post-merge run #400 — success; unknown fees remain explicit and market value is not presented as factual result
-- Наступний checkpoint за release cadence: **v0.9.3+20 full cross-platform prerelease** з Windows/macOS/Android/iOS + START/source; Android SAF / iOS security-scoped access лишається deferred до mobile storage gate
+- Активний release candidate: **v0.9.3+20**, branch `release/v0.9.3`; scope — factual sale/redemption/history + migration wizard + factual coupon/per-ISIN ledger + factual cash summary/closed positions
+- Поточна дія: пройти exact-head release PR gates, інтегрувати в `main`, потім перевірити повний Publish native prerelease для Windows/macOS/Android/iOS + START/source; Android SAF / iOS security-scoped access лишається deferred
 - Live ledger: GitHub Issue **#18**
