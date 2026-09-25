@@ -453,7 +453,9 @@ class PortfolioView extends StatelessWidget {
     final strings = HubStrings(context.read<LocaleCubit>().state.language);
     final path = await context.read<PortfolioCubit>().createPortableBackup();
     if (!context.mounted || path == null) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
       SnackBar(
         content: Text(
           strings.text('portfolioBackupSaved').replaceAll('{path}', path),
@@ -539,7 +541,9 @@ class PortfolioView extends StatelessWidget {
     );
 
     if (!context.mounted || !cubit.state.unlocked) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
       SnackBar(content: Text(strings.text('portfolioRestoreDone'))),
     );
   }
@@ -637,7 +641,9 @@ class PortfolioView extends StatelessWidget {
     );
 
     if (!context.mounted || !changed) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
       SnackBar(content: Text(strings.text('portfolioRecoveryChanged'))),
     );
   }
