@@ -42,6 +42,7 @@ class PortfolioView extends StatelessWidget {
             runSpacing: 10,
             children: [
               FilledButton.icon(
+                key: const ValueKey('portfolio-create'),
                 onPressed: state.busy ? null : () => _createPortfolio(context),
                 icon: const Icon(Icons.lock_outline),
                 label: Text(strings.text('portfolioCreate')),
@@ -413,6 +414,7 @@ class PortfolioView extends StatelessWidget {
               child: Text(strings.text('portfolioCancel')),
             ),
             FilledButton(
+              key: const ValueKey('portfolio-create-save'),
               onPressed: () async {
                 if (secret.text.length < 12) {
                   setState(() {
