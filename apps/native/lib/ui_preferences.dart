@@ -52,13 +52,21 @@ class UiPreferencesSnapshot {
   }
 }
 
-class UiPreferencesStore {
+abstract interface class UiPreferencesPersistence {
+  UiPreferencesSnapshot get current;
+  Future<void> selectLanguage(AppLanguage language);
+  Future<void> selectAppearance(HubAppearance appearance);
+  Future<void> flush();
+}
+
+class UiPreferencesStore implements UiPreferencesPersistence {
   final File file;
   UiPreferencesSnapshot _current;
   Future<void> _tail = Future.value();
 
   UiPreferencesStore._(this.file, this._current);
 
+  @override
   UiPreferencesSnapshot get current => _current;
 
   static Future<UiPreferencesStore> open(File file) async {
@@ -77,12 +85,15 @@ class UiPreferencesStore {
     return UiPreferencesStore._(file, current);
   }
 
+  @override
   Future<void> selectLanguage(AppLanguage language) =>
       _persist(_current.copyWith(language: language));
 
+  @override
   Future<void> selectAppearance(HubAppearance appearance) =>
       _persist(_current.copyWith(appearance: appearance));
 
+  @override
   Future<void> flush() => _tail;
 
   Future<void> _persist(UiPreferencesSnapshot next) {
