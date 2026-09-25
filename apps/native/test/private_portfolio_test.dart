@@ -384,6 +384,89 @@ void main() {
     expect(payload.holdings.single.units, 11);
   });
 
+  test('factual cash summaries preserve unknown fees and closed positions', () {
+    final payload = PrivatePortfolioPayload(
+      portfolioId: 'portfolio-cash-summary',
+      acquisitionLots: [
+        lot(
+          id: 'lot-closed',
+          isin: isinA,
+          units: 2,
+          date: '2026-01-01',
+          tradeAmount: '2000',
+          feeStatus: AcquisitionFeeStatus.known,
+          fee: '10',
+        ),
+        lot(
+          id: 'lot-open-unknown',
+          isin: isinB,
+          units: 2,
+          date: '2026-01-10',
+          currency: 'USD',
+          tradeAmount: '1900',
+          feeStatus: AcquisitionFeeStatus.unknown,
+          fee: null,
+        ),
+      ],
+      disposals: [
+        disposal(
+          id: 'sale-closed',
+          isin: isinA,
+          date: '2026-02-01',
+          units: 2,
+          proceeds: '2200',
+          feeStatus: DisposalFeeStatus.known,
+          fee: '5',
+          allocations: [
+            PrivateDisposalLotAllocation(lotId: 'lot-closed', units: 2),
+          ],
+        ),
+      ],
+      cashEvents: [
+        event(
+          id: 'coupon-closed',
+          isin: isinA,
+          kind: PrivateCashEventKind.coupon,
+          date: '2026-01-20',
+          amount: '100',
+        ),
+        event(
+          id: 'coupon-open',
+          isin: isinB,
+          kind: PrivateCashEventKind.coupon,
+          date: '2026-02-10',
+          currency: 'USD',
+          amount: '40',
+        ),
+      ],
+    );
+
+    expect(payload.holdings, hasLength(1));
+    expect(payload.holdings.single.isin, isinB);
+    expect(payload.closedPositionIsins, [isinA]);
+    expect(payload.currencyForIsin(isinA), 'UAH');
+
+    final summaries = payload.factualCashSummaries;
+    expect(summaries.map((summary) => summary.currency), ['UAH', 'USD']);
+
+    final uah = summaries.first;
+    expect(uah.acquisitionTradeAmount, Decimal.parse('2000'));
+    expect(uah.knownAcquisitionFees, Decimal.parse('10'));
+    expect(uah.disposalProceeds, Decimal.parse('2200'));
+    expect(uah.knownDisposalFees, Decimal.parse('5'));
+    expect(uah.couponReceipts, Decimal.parse('100'));
+    expect(uah.redemptionReceipts, Decimal.zero);
+    expect(uah.hasUnknownFees, isFalse);
+    expect(uah.exactNetCashResult, Decimal.parse('285'));
+
+    final usd = summaries.last;
+    expect(usd.acquisitionTradeAmount, Decimal.parse('1900'));
+    expect(usd.couponReceipts, Decimal.parse('40'));
+    expect(usd.hasUnknownAcquisitionFees, isTrue);
+    expect(usd.hasUnknownFees, isTrue);
+    expect(usd.exactNetCashResult, isNull);
+  });
+
   test('schema v1 payload decodes compatibly and re-encodes as v3', () {
     final legacy = Uint8List.fromList(
       '{"schemaVersion":1,"portfolioId":"legacy","acquisitionLots":[{"id":"lot-legacy","isin":"$isinA","units":2,"acquiredOn":"2026-01-01","currency":"UAH","tradeAmount":"2000","feeStatus":"known","feeTotal":"0"}],"cashEvents":[]}'
