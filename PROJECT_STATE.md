@@ -4,7 +4,8 @@
 
 ## Поточний checkpoint
 
-- Активна версія: **0.9.2+19**
+- Активний release candidate: **0.9.3+20**
+- Поточний опублікований checkpoint: **0.9.2+19**
 - Опублікований GitHub tag: **v0.9.2**
 - Активний продукт: **Flutter/Dart, `apps/native`**
 - Цільові платформи: Windows, macOS, Android, iOS
@@ -57,7 +58,8 @@ PR **#101 — Portfolio: add factual sale history and migration wizard** exact h
 - current market value відкритих позицій не включається у factual cash result;
 - closed ISIN positions (`units == 0`) лишаються доступними через окрему групу та factual ledger;
 - PR #106 exact head `40ea1175d19a320bee02c79a2877db8873431766` пройшов run #399, merged у `main` як `310afcc26728597e01d31c896d39b860bf4f20b5`; post-merge run #400 — success;
-- наступний checkpoint за release cadence: **v0.9.3+20 full cross-platform prerelease**;
+- release candidate **v0.9.3+20** готується у `release/v0.9.3`; до candidate входять PR #101, #104, #106 та всі попередні можливості v0.9.2;
+- повний release gate: exact PR head + Windows/macOS packaged ZIP smoke, потім main publish Windows/macOS/Android/iOS + START/source + SHA256/legal;
 - Android SAF / iOS security-scoped external-folder access лишається deferred.
 
 ## Що входить до опублікованого 0.8.5
