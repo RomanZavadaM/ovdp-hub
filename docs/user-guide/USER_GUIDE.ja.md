@@ -13,7 +13,7 @@ OVDP Hub はウクライナ国債 OVDP 向けの local-first アプリです。�
 **iOS:** 公開パッケージは unsigned で、別途 Apple signing/provisioning が必要です。
 
 ## 言語と外観
-対応言語: Ukrainian / English / Français / Deutsch / Español / 한국어 / 日本語。外観: Classic / Workbench / Light Dashboard。
+対応言語: Ukrainian / English / Français / Deutsch / Español / 한국어 / 日本語。外観: Classic / Workbench / Light Dashboard。選択した言語と外観はこの端末にローカル保存され、次回起動時に復元されます。
 
 ## 市場と ISIN
 カタログで OVDP を検索・絞り込みできます。ISIN カードでは NBU / MinFin / seller を分離し、source date、retrieved time、freshness/status を表示します。yield-only や nominal は自動的に取引価格として扱われません。
