@@ -57,7 +57,7 @@ PR **#101 — Portfolio: add factual sale history and migration wizard** exact h
 - current market value відкритих позицій не включається у factual cash result;
 - closed ISIN positions (`units == 0`) лишаються доступними через окрему групу та factual ledger;
 - PR #106 exact head `40ea1175d19a320bee02c79a2877db8873431766` пройшов run #399, merged у `main` як `310afcc26728597e01d31c896d39b860bf4f20b5`; post-merge run #400 — success;
-- наступний checkpoint за release cadence: **v0.9.3+20 full cross-platform prerelease**;
+- release candidate **v0.9.3+20** is **DOING** on `release/v0.9.3-checkpoint`; published checkpoint remains v0.9.2 until exact packaged PR gates, merge, cross-platform release pipeline and asset verification succeed;
 - Android SAF / iOS security-scoped external-folder access лишається deferred.
 
 ## Що входить до опублікованого 0.8.5

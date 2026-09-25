@@ -25,29 +25,23 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **factual portfolio cash/result summary + access to closed ISIN positions**.
+Мета: **v0.9.3+20 full cross-platform prerelease checkpoint**.
 
-- base `main`: **`e379f71c0bd3e10278aee415f3d80293198b46f5`**;
-- branch: **`feat/portfolio-factual-results-closed-positions`**;
-- PR: **#106 — merged**;
-- exact verified feature head: **`40ea1175d19a320bee02c79a2877db8873431766`**;
-- exact-head Flutter checks: **run #399 — success**;
-- merge `main`: **`310afcc26728597e01d31c896d39b860bf4f20b5`**;
-- post-merge Flutter checks + START/source: **run #400 — success**;
-- опублікований checkpoint поки **v0.9.2 / 0.9.2+19**;
-- factual cash summary рахується лише з persisted purchase amounts, explicit fees, sale proceeds, coupons і redemptions;
-- exact net cash result існує лише коли всі relevant acquisition/disposal fees у валюті відомі;
-- unknown fees не підміняються нулем;
-- market/current value відкритих позицій не входить у factual result;
-- closed ISIN (`units == 0`) лишаються видимими й відкривають factual ledger;
-- payload schema/privacy boundary не змінювались;
-- Android SAF / iOS security-scoped access лишається **DEFERRED**.
+- base `main`: **`97695e360ba118814ab71978e65a96eb3b407df8`**;
+- branch: **`release/v0.9.3-checkpoint`**;
+- version/build: **`0.9.3+20`**;
+- release notes: **`docs/releases/RELEASE_NOTES_v0_9_3.md`**, UK/EN/FR/DE/ES/KO/JA;
+- scope frozen: PR #101 + #104 + #106 user-visible portfolio slices only; no new feature scope;
+- required PR gates: Flutter analyze/test + exact packaged Windows/macOS ZIP smoke;
+- required post-merge release gates: Windows/macOS/Android/iOS + START/source + SHA256SUMS + legal notices;
+- immutable target tag/release: **`v0.9.3`**;
+- published checkpoint remains **v0.9.2 / 0.9.2+19** until release publication succeeds.
 
 ### Поточна наступна дія
 
-**NEXT — release-cadence checkpoint v0.9.3+20: freeze current main, prepare multilingual release notes/version bump, verify exact PR head, integrate, then publish Windows/macOS/Android/iOS + START/source with packaged-artifact gates.**
+**DOING — open the v0.9.3 release PR, require exact-head green package gates, merge only that verified head, then verify the main-triggered Publish native prerelease run and published assets before marking the checkpoint DONE.**
 
 ## Черга робіт
 
@@ -80,7 +74,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 27. **DONE** — User-facing factual sale/redemption/history + legacy migration wizard; PR #101 → `c255c937…`; exact-head run #390 and post-merge run #391 green.
 28. **DONE** — User-facing factual coupon entry + per-ISIN portfolio detail/ledger; PR #104 → `c8d26862…`; exact-head run #395 and post-merge run #396 green.
 29. **DONE** — Factual portfolio cash/result summary + access to closed ISIN positions; PR #106 → `310afcc2…`; exact-head run #399 and post-merge run #400 green.
-30. **NEXT** — v0.9.3+20 full cross-platform prerelease checkpoint after three post-v0.9.2 user-visible portfolio slices.
+30. **DOING** — v0.9.3+20 full cross-platform prerelease checkpoint after three post-v0.9.2 user-visible portfolio slices.
 31. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
 
 ## Продуктова логіка цієї черги
