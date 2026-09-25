@@ -31,7 +31,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 - base `main`: **`ef81484c57defe7146d9fefe8a59ba6c2e33c00d`**;
 - branch: **`feat/portfolio-sale-history-migration-wizard`**;
-- PR: ще не відкрито;
+- PR: **#101 — `Portfolio: add factual sale history and migration wizard` (draft)**;
 - опублікований checkpoint лишається **v0.9.2 / 0.9.2+19**;
 - існуючий encrypted vault/private payload є єдиним сховищем фактичних приватних даних;
 - existing schema v2 disposal/lot-allocation та schema v3 legacy-copy core повторно не винаходимо — піднімаємо їх у user-facing UX;
@@ -50,7 +50,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ### Поточна наступна дія
 
-**DOING — wire sale/redemption/history and explicit legacy migration wizard into the existing encrypted portfolio gateway/cubit/view; then add localized real-control regressions and open a PR.**
+**DOING — PR #101 opened at head `54cd77a98c56c16d3d6bcea87f4b531322cadf62`; wait for exact-head CI, fix any failures, then record VERIFIED only after all required checks are green.**
 
 ## Черга робіт
 
