@@ -40,8 +40,6 @@ Append-only ledger: GitHub Issue **#18**
 - macOS Portfolio лишається окремим runtime Keychain validation gate;
 - UI та user guides синхронізовані UK / EN / FR / DE / ES / KO / JA.
 
-## Останні завершені slices
-
 ### Planner safe criteria/date editing — DONE
 - PR #119 exact head `adc6d5798c097dd78e8d1678afaad71ce00c1842`;
 - exact-head run #420 — success;
@@ -67,7 +65,7 @@ Append-only ledger: GitHub Issue **#18**
 
 ## Поточна наступна дія
 
-**DOING — open PR, run exact-head analyze/tests, integrate after green.**
+**DOING — PR #120 open; first exact-head run #422 correctly failed because CatalogView was still hardcoded. Real UI wiring is now fixed; rerun exact-head analyze/tests and integrate only after green.**
 
 ## Deferred gates
 
