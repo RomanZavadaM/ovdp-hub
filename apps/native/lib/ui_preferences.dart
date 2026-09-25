@@ -83,6 +83,8 @@ class UiPreferencesStore {
   Future<void> selectAppearance(HubAppearance appearance) =>
       _persist(_current.copyWith(appearance: appearance));
 
+  Future<void> flush() => _tail;
+
   Future<void> _persist(UiPreferencesSnapshot next) {
     _current = next;
     final write = _tail.then((_) async {
