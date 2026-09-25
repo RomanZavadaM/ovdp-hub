@@ -1,6 +1,6 @@
 # Roadmap OVDP Hub
 
-Оновлено: 24.09.2026. Цей roadmap стосується лише активного Flutter-продукту.
+Оновлено: 25.09.2026. Цей roadmap стосується лише активного Flutter-продукту.
 
 ## Продуктовий напрямок до 0.9.0
 
@@ -93,7 +93,8 @@
 - [x] Non-destructive legacy plaintext migration core — private payload schema v3; strict/idempotent/conflict-aware mapping, full encrypted verification, zero synthesized portfolio facts and no delete API; PR #95, post-merge run #331.
 - [x] **v0.9.2:** user-facing encrypted portfolio entrypoint: create/open/lock, factual acquisition, derived holdings + persistent Economic Pulse.
 - [x] Release correctness gate: exact packaged Windows/macOS ZIP → extract → execute → verify version/build + Classic/Studio/Light Dashboard contract.
-- [ ] **NEXT:** factual sale/redemption/history UI + explicit legacy migration wizard/cleanup action.
+- [x] Factual sale/redemption/history UI + explicit non-destructive legacy migration wizard — PR #101, exact-head run #390, merge `c255c937…`, post-merge run #391.
+- [ ] **NEXT:** user-facing factual coupon entry + per-ISIN portfolio detail/ledger на existing encrypted cash-event core.
 - [ ] Android SAF / iOS security-scoped access для зовнішніх папок — deferred до mobile external-workspace/vault slice.
 
 ## Distribution readiness
