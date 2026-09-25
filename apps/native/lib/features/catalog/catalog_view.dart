@@ -31,9 +31,7 @@ class CatalogView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeading(strings.text('openWorkspace')),
-          const Text(
-            'Каталог і збережені набори будуть доступні без інтернету.',
-          ),
+          Text(strings.text('catalogOffline')),
           FilledButton(
             onPressed: () => context.read<NavigationCubit>().select(3),
             child: Text(strings.text('setupStorage')),
@@ -74,9 +72,7 @@ class CatalogView extends StatelessWidget {
         Text(
           '${strings.text('loaded')}: ${state.catalog!.json['retrievedAt']}${state.stale ? ' · ${strings.text('stale24')}' : ''}',
         ),
-        const Text(
-          'Номінальна ставка не є дохідністю купівлі. Цін брокерів у каталозі немає.',
-        ),
+        Text(strings.text('nominalNotYield')),
         const SizedBox(height: 12),
         FilledButton.icon(
           onPressed: busy ? null : cubit.refresh,
@@ -85,10 +81,11 @@ class CatalogView extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         TextFormField(
+          key: const ValueKey('catalog-search'),
           initialValue: state.query,
-          decoration: const InputDecoration(
-            labelText: 'Пошук за ISIN',
-            prefixIcon: Icon(Icons.search),
+          decoration: InputDecoration(
+            labelText: strings.text('searchIsin'),
+            prefixIcon: const Icon(Icons.search),
           ),
           onChanged: (v) => cubit.filter(query: v),
         ),
@@ -114,11 +111,12 @@ class CatalogView extends StatelessWidget {
           spacing: 10,
           children: [
             for (final h in {
-              'all': 'Усі строки',
-              'short': 'До 12 місяців',
-              'long': 'Від 24 місяців',
+              'all': strings.text('allTerms'),
+              'short': strings.text('upTo12'),
+              'long': strings.text('from24'),
             }.entries)
               ChoiceChip(
+                key: ValueKey('catalog-horizon-${h.key}'),
                 label: Text(h.value),
                 selected: state.horizon == h.key,
                 onSelected: (_) => cubit.filter(horizon: h.key),
@@ -128,7 +126,7 @@ class CatalogView extends StatelessWidget {
         if (editor.dirty) const CollectionEditorView(),
         const SizedBox(height: 16),
         if (state.visible.isEmpty)
-          const Text('За цими критеріями випусків немає.'),
+          Text(strings.text('noIssues')),
         ...state.visible.map(
           (b) => Card(
             child: ListTile(
