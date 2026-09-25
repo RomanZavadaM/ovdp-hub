@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 - Post-v0.9.3 documentation cleanup: current multilingual GitHub descriptions and user guides; no product-behavior change.
+- Active product/architecture docs were refreshed for v0.9.3 and obsolete `READINESS_0_9_0.md` was removed; historical release evidence remains in CHANGELOG/releases.
 - Next product work starts from an актуальний-main usability audit; Android SAF / iOS security-scoped external-folder access remains deferred.
 
 ## [0.9.3] — 2026-09-25
