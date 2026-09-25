@@ -56,9 +56,12 @@
 - Unknown fees remain explicit; market value is not presented as factual result.
 - v0.9.3 documentation/user-guide cleanup is **DONE**: PR #110 → `df505e9f…`, exact-head run #407 and post-merge run #408 — success.
 - Repository branch cleanup is **DONE**: 109 obsolete branches deleted, 0 failures; stale PR #103/#108 closed; tags/releases/history preserved.
+- Post-v0.9.3 usability/product audit is **DONE**: PR #116 → `bb961f9d…`; canonical findings are in `docs/AUDIT_POST_0_9_3.md`.
+- First audit fix is **DONE**: PR #117 → `fc38177a…`; recovery confirmation/rotation plus Windows portable encrypted backup/restore; exact-head #417 and post-merge #418 — success.
 - Android SAF / iOS security-scoped external-folder access remains deferred.
+- macOS encrypted Portfolio remains gated on real Keychain runtime/provisioning validation.
 - Production signing/notarization remains deferred.
-- **NEXT:** post-v0.9.3 usability/product audit from current `main`; do not restore old branches.
+- **NEXT:** Planner safe criteria/date editing — no per-keystroke destruction of generated positions/early exits; valid committed change + explicit confirmation before reset.
 
 ## Rule for new chats
 
