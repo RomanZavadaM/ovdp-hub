@@ -121,6 +121,17 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - `WORKLOG.md` — активний slice;
 - `START_HERE.md` — recovery protocol.
 
+## Repository cleanup
+
+- Documentation PR #110 merged into `main` as **`df505e9ff7f3ebc2d9635935216bfe1eefaaf82d`**.
+- PR #110 exact-head run **#407 — success**; post-merge main run **#408 — success**, including START/source.
+- Stale duplicate PR #103 and #108 closed.
+- One-time cleanup workflow run **#1** on `maintenance/one-time-branch-cleanup` — success.
+- **109 obsolete non-main branches deleted; 0 failed deletions.**
+- Old `docs/*`, `feat/*`, `feature/*`, `release/*`, `stabilize/*` and other dead branch refs are no longer development sources.
+- Published Git tags, GitHub Releases and commit history were not deleted.
+- Final live-branch target after this sync is merged: **`main` only**.
+
 ## Наступний великий крок
 
-Після завершення документаційного cleanup: **post-v0.9.3 usability/product audit на актуальному main**, без повернення до старих feature branches. Mobile external-folder permissions і production signing залишаються окремими gate.
+**NEXT — post-v0.9.3 usability/product audit на актуальному `main`**, без повернення до старих feature branches. Mobile external-folder permissions і production signing залишаються окремими gate.
