@@ -35,6 +35,50 @@ class PlannerView extends StatelessWidget {
     return stored;
   }
 
+  Future<bool> _commitInvalidatingCriterion(
+    BuildContext context,
+    PlannerCubit cubit,
+    HubStrings strings,
+    String key,
+    String value,
+  ) async {
+    final error = cubit.invalidatingCriterionError(key, value);
+    if (error != null) {
+      final message = error == 'planner.criteria_invalid_date'
+          ? strings.text('plannerCriteriaInvalidDate')
+          : strings.text('plannerCriteriaInvalidRange');
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
+      return false;
+    }
+
+    if (cubit.invalidatingCriterionRequiresReset(key, value)) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(strings.text('plannerCriteriaResetTitle')),
+          content: Text(strings.text('plannerCriteriaResetBody')),
+          actions: [
+            TextButton(
+              key: const ValueKey('planner-criteria-cancel'),
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(strings.text('plannerCriteriaCancel')),
+            ),
+            FilledButton(
+              key: const ValueKey('planner-criteria-apply'),
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(strings.text('plannerCriteriaApply')),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !context.mounted) return false;
+    }
+
+    return cubit.commitInvalidatingCriterion(key, value);
+  }
+
   Future<void> _addPriceSource(
     BuildContext context,
     PlannerCubit cubit,
@@ -421,7 +465,13 @@ class PlannerView extends StatelessWidget {
                 selected: currency == cur,
                 onSelected: disabled
                     ? null
-                    : (_) => cubit.edit('currency', cur),
+                    : (_) => _commitInvalidatingCriterion(
+                          context,
+                          cubit,
+                          strings,
+                          'currency',
+                          cur,
+                        ),
               ),
           ],
         ),
@@ -432,9 +482,6 @@ class PlannerView extends StatelessWidget {
             for (final field in {
               'budget': strings.text('budgetField'),
               'reserve': strings.text('reserveField'),
-              'start': strings.text('startField'),
-              'minDate': strings.text('minDateField'),
-              'maxDate': strings.text('maxDateField'),
             }.entries)
               SizedBox(
                 width: 280,
@@ -444,6 +491,29 @@ class PlannerView extends StatelessWidget {
                   enabled: !disabled,
                   decoration: InputDecoration(labelText: field.value),
                   onChanged: (v) => cubit.edit(field.key, v),
+                ),
+              ),
+            for (final field in {
+              'start': strings.text('startField'),
+              'minDate': strings.text('minDateField'),
+              'maxDate': strings.text('maxDateField'),
+            }.entries)
+              SizedBox(
+                width: 280,
+                child: _CommittedPlannerDateField(
+                  key: ValueKey('${field.key}-${state.revision}'),
+                  criterionKey: field.key,
+                  value: c[field.key]!,
+                  label: field.value,
+                  enabled: !disabled,
+                  invalidDateText: strings.text('plannerCriteriaInvalidDate'),
+                  onCommit: (value) => _commitInvalidatingCriterion(
+                    context,
+                    cubit,
+                    strings,
+                    field.key,
+                    value,
+                  ),
                 ),
               ),
           ],
@@ -1229,4 +1299,118 @@ class PlannerView extends StatelessWidget {
       ],
     );
   }
+}
+
+class _CommittedPlannerDateField extends StatefulWidget {
+  final String criterionKey;
+  final String value;
+  final String label;
+  final bool enabled;
+  final String invalidDateText;
+  final Future<bool> Function(String value) onCommit;
+
+  const _CommittedPlannerDateField({
+    super.key,
+    required this.criterionKey,
+    required this.value,
+    required this.label,
+    required this.enabled,
+    required this.invalidDateText,
+    required this.onCommit,
+  });
+
+  @override
+  State<_CommittedPlannerDateField> createState() =>
+      _CommittedPlannerDateFieldState();
+}
+
+class _CommittedPlannerDateFieldState
+    extends State<_CommittedPlannerDateField> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+  String? _errorText;
+  bool _committing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value);
+    _focusNode = FocusNode()..addListener(_onFocusChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant _CommittedPlannerDateField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_focusNode.hasFocus &&
+        widget.value != oldWidget.value &&
+        _controller.text != widget.value) {
+      _controller.text = widget.value;
+    }
+  }
+
+  void _onFocusChanged() {
+    if (!_focusNode.hasFocus) {
+      _commit();
+    }
+  }
+
+  bool _validIsoDate(String value) {
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) return false;
+    final parsed = DateTime.tryParse('${value}T00:00:00Z');
+    return parsed != null &&
+        parsed.toIso8601String().substring(0, 10) == value;
+  }
+
+  Future<void> _commit() async {
+    if (_committing || !widget.enabled) return;
+    final value = _controller.text.trim();
+    if (value == widget.value) {
+      if (_errorText != null && mounted) {
+        setState(() => _errorText = null);
+      }
+      return;
+    }
+    if (!_validIsoDate(value)) {
+      if (mounted) setState(() => _errorText = widget.invalidDateText);
+      return;
+    }
+
+    _committing = true;
+    final accepted = await widget.onCommit(value);
+    if (!mounted) return;
+    if (!accepted) {
+      _controller.text = widget.value;
+    }
+    setState(() {
+      _errorText = null;
+      _committing = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode
+      ..removeListener(_onFocusChanged)
+      ..dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => TextFormField(
+        key: ValueKey('planner-${widget.criterionKey}-input'),
+        controller: _controller,
+        focusNode: _focusNode,
+        enabled: widget.enabled && !_committing,
+        keyboardType: TextInputType.datetime,
+        textInputAction: TextInputAction.done,
+        decoration: InputDecoration(
+          labelText: widget.label,
+          errorText: _errorText,
+        ),
+        onChanged: (_) {
+          if (_errorText != null) setState(() => _errorText = null);
+        },
+        onFieldSubmitted: (_) => _commit(),
+      );
 }
