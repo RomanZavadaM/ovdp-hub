@@ -4,7 +4,24 @@
 
 ## [Unreleased]
 
-- Після v0.9.2 наступний user-facing напрям: продаж/погашення/історія портфеля та явний legacy migration wizard.
+- Наступний функціональний slice визначається після публікації v0.9.3; mobile external-folder access лишається deferred до окремого storage gate.
+
+## [0.9.3] — 2026-09-25
+
+### Factual portfolio continuation
+- Додано user-facing factual sale/redemption/history з явним allocation продажу по acquisition lots без вигаданого FIFO/LIFO.
+- Додано explicit non-destructive legacy migration wizard з encrypted-copy verification; source JSON не видаляється автоматично.
+- Додано factual coupon entry та єдиний per-ISIN ledger для purchase/sale/coupon/redemption.
+- Додано factual cash summary по валюті: purchase amounts, sale proceeds, coupons, redemptions і known fees.
+- Unknown acquisition/disposal fees не підміняються нулем; exact net cash result відсутній, якщо релевантна комісія невідома.
+- Закриті ISIN-позиції залишаються доступними через factual ledger.
+- Market/current value відкритих позицій не включається у factual cash result.
+
+### Release checkpoint
+- Версія застосунку: **0.9.3+20**.
+- Повний prerelease checkpoint: Windows/macOS exact packaged ZIP smoke, Android test, unsigned iOS, START/source, SHA256SUMS та legal notices.
+- UI/portfolio release notes: UK/EN/FR/DE/ES/KO/JA.
+- Android SAF / iOS security-scoped external-folder access лишається deferred.
 
 ## [0.9.2] — 2026-09-24
 
