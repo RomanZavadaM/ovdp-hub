@@ -50,22 +50,34 @@ Append-only ledger: GitHub Issue **#18**
 - Cancel preserves the current plan; Apply performs the deliberate reset;
 - persisted Planner schema and calculation math unchanged.
 
+### Catalog localization + persisted collection variant cleanup — DONE
+- PR #120 final exact head `fa0d6e829c2c5e54e5b03fe5d59f45efd437f782`;
+- failed evidence runs #422/#424 retained: tests caught that an LF-based patch had not modified CRLF `CatalogView`;
+- final exact-head run #428 — success;
+- merge: **`5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`**;
+- post-merge run #429 — success, including START/source;
+- Catalog offline/search/horizon/nominal/empty-state copy is now wired through existing `HubStrings`;
+- collection variant draft no longer persists automatic Ukrainian suffix `— варіант`;
+- visible English regression verifies actual controls, not only dictionary keys.
+
 ## Поточний slice
 
 Статус: **DOING**
 
-Мета: **Catalog localization + persisted collection variant cleanup**.
+Мета: **persist UI language + appearance across launches**.
 
-- base main: `ad3a995a3f5e405cdde7d17b00b54fa105b926e5`;
-- branch: `feat/localization-persisted-copy-cleanup`;
-- Catalog hardcoded Ukrainian literals replaced with existing `HubStrings` keys;
-- collection variant no longer persists automatic Ukrainian suffix `— варіант`;
-- source user-authored name is preserved for editing before save;
-- localization contract + visible English Catalog regression + Cubit variant regression added.
+- base main: `5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`;
+- branch: `feat/ui-preferences-persistence`;
+- non-sensitive UI preferences live in app-support `ui-preferences.json`, not workspace/vault;
+- no new dependency: existing `path_provider` + `path` are used;
+- selected UK/EN/FR/DE/ES/KO/JA language and Classic/Workbench/Light Dashboard appearance restore on next launch;
+- corrupt/invalid preference JSON fails safe to Ukrainian + Workbench;
+- file-store round-trip and visible-control restart regressions added;
+- user guides updated in all seven languages.
 
 ## Поточна наступна дія
 
-**DOING — PR #120 open. Runs #422/#424 exposed that earlier LF-based patch did not modify CRLF CatalogView. Real CRLF-normalized UI patch is now committed and verified to remove all stale Ukrainian literals; visible-control regression scrolls to the actual search/horizon controls. Run new exact-head analyze/tests and integrate only after green.**
+**DOING — open PR, run exact-head analyze/tests and visible restart regression; integrate after green.**
 
 ## Deferred gates
 
