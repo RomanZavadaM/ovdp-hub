@@ -25,28 +25,32 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **user-facing factual sale/redemption/history + explicit non-destructive legacy migration wizard**.
+Мета: **user-facing factual coupon entry + per-ISIN portfolio detail/ledger**.
 
-- base `main`: **`ef81484c57defe7146d9fefe8a59ba6c2e33c00d`**;
-- branch: **`feat/portfolio-sale-history-migration-wizard`**;
-- PR: **#101 — merged**;
-- exact verified feature head: **`961d41a0c095bbb655b88452af7f8fe4f8665b02`**;
-- exact-head Flutter checks: **run #390 — success**;
-- merge `main`: **`c255c937500d17b41cf0ac8542698139539fa047`**;
-- post-merge Flutter checks + START/source: **run #391 — success**;
-- опублікований checkpoint лишається **v0.9.2 / 0.9.2+19** — новий cross-platform release у цьому звичайному integration step не створювався;
-- factual sale використовує лише explicit acquisition-lot allocation; програма не вгадує походження проданих облігацій;
-- factual redemption, deterministic history і migration wizard працюють поверх existing encrypted vault/private payload;
-- legacy migration лишається **non-destructive**: source JSON не видаляються автоматично;
-- після будь-якої migration attempt unlocked plaintext session примусово відкидається, щоб stale session не могла перезаписати durable migrated vault;
-- UK/EN/FR/DE/ES/KO/JA localization + real-control regression пройшли;
-- Android SAF / iOS security-scoped access лишається **DEFERRED** до mobile storage gate.
+- base `main`: **`54409769db333ba34c4ffa507262a2dc72f60f2a`**;
+- branch: **`feat/portfolio-coupon-ledger`**;
+- PR: ще не відкрито;
+- опублікований checkpoint лишається **v0.9.2 / 0.9.2+19**;
+- existing encrypted private payload / `PrivateCashEventKind.coupon` є єдиною основою — schema bump не потрібен;
+- coupon має бути лише фактом: ISIN, дата, сума, опційна примітка; програма не прогнозує купон і не підставляє суму з публічного графіка;
+- per-ISIN ledger має показувати фактичні purchase / sale / coupon / redemption для конкретного випуску, включно із закритими позиціями;
+- Android SAF / iOS security-scoped external access лишається **DEFERRED**.
+
+Критерії готовності slice:
+1. З відкритого encrypted portfolio користувач може додати factual coupon через видиму дію.
+2. Coupon вимагає existing acquired ISIN, явну дату та positive factual amount; currency береться лише з existing factual acquisition для цього ISIN.
+3. Portfolio history одразу показує coupon як factual event.
+4. Є user-facing per-ISIN detail/ledger, доступний і для повністю проданих/погашених ISIN, а не лише current holdings.
+5. Ledger не створює derived/inferred transactions і не підміняє публічний coupon schedule фактом.
+6. UK/EN/FR/DE/ES/KO/JA localization покриває нові controls.
+7. Widget/domain regressions натискають реальні controls; `flutter analyze` + `flutter test` + required CI green.
+8. Після green exact-head PR інтегрувати в `main`; full cross-platform release — лише за release cadence або прямою командою власника.
 
 ### Поточна наступна дія
 
-**NEXT — user-facing factual coupon entry + per-ISIN portfolio detail/ledger on top of the existing encrypted cash-event core; keep mobile external-folder work DEFERRED.**
+**DOING — wire factual coupon action and an all-ISIN factual ledger into the existing PortfolioCubit/PortfolioView, then add real-control regressions and open PR.**
 
 ## Черга робіт
 
@@ -77,7 +81,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 25. **DONE** — v0.9.2+19: user-visible «Мій портфель» + persistent «Економічний пульс» + exact packaged-artifact release gate; main `696fd4a…`, run #381, release run #102.
 26. **DONE** — User-facing factual acquisition flow + holdings summary on encrypted vault.
 27. **DONE** — User-facing factual sale/redemption/history + legacy migration wizard; PR #101 → `c255c937…`; exact-head run #390 and post-merge run #391 green.
-28. **NEXT** — User-facing factual coupon entry + per-ISIN portfolio detail/ledger on the existing encrypted cash-event core.
+28. **DOING** — User-facing factual coupon entry + per-ISIN portfolio detail/ledger on the existing encrypted cash-event core.
 29. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
 
 ## Продуктова логіка цієї черги
