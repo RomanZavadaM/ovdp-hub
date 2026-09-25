@@ -25,32 +25,28 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DONE**
 
 Мета: **user-facing factual sale/redemption/history + explicit non-destructive legacy migration wizard**.
 
 - base `main`: **`ef81484c57defe7146d9fefe8a59ba6c2e33c00d`**;
 - branch: **`feat/portfolio-sale-history-migration-wizard`**;
-- PR: **#101 — `Portfolio: add factual sale history and migration wizard` (draft)**;
-- опублікований checkpoint лишається **v0.9.2 / 0.9.2+19**;
-- існуючий encrypted vault/private payload є єдиним сховищем фактичних приватних даних;
-- existing schema v2 disposal/lot-allocation та schema v3 legacy-copy core повторно не винаходимо — піднімаємо їх у user-facing UX;
-- legacy migration лишається **non-destructive**: plaintext source не видаляється автоматично;
+- PR: **#101 — merged**;
+- exact verified feature head: **`961d41a0c095bbb655b88452af7f8fe4f8665b02`**;
+- exact-head Flutter checks: **run #390 — success**;
+- merge `main`: **`c255c937500d17b41cf0ac8542698139539fa047`**;
+- post-merge Flutter checks + START/source: **run #391 — success**;
+- опублікований checkpoint лишається **v0.9.2 / 0.9.2+19** — новий cross-platform release у цьому звичайному integration step не створювався;
+- factual sale використовує лише explicit acquisition-lot allocation; програма не вгадує походження проданих облігацій;
+- factual redemption, deterministic history і migration wizard працюють поверх existing encrypted vault/private payload;
+- legacy migration лишається **non-destructive**: source JSON не видаляються автоматично;
+- після будь-якої migration attempt unlocked plaintext session примусово відкидається, щоб stale session не могла перезаписати durable migrated vault;
+- UK/EN/FR/DE/ES/KO/JA localization + real-control regression пройшли;
 - Android SAF / iOS security-scoped access лишається **DEFERRED** до mobile storage gate.
-
-Критерії готовності slice:
-1. Користувач може з відкритого зашифрованого портфеля додати фактичний продаж із явним ISIN, датою, кількістю, виручкою/комісією та розподілом по наявних acquisition lots.
-2. Користувач може зафіксувати фактичне погашення як private cash event без синтезу невідомих даних.
-3. «Мій портфель» показує детерміновану історію придбань, продажів, купонів і погашень та оновлені holdings.
-4. Є явний wizard legacy migration: пояснення → запуск → звіт; вихідні plaintext files не видаляються автоматично.
-5. Migration UI показує migrated / already migrated / conflict / invalid counts і факт перевірки encrypted copy; помилки не маскуються.
-6. UK/EN/FR/DE/ES/KO/JA localization покриває новий user-facing flow.
-7. Widget/domain regressions натискають реальні controls; `flutter analyze` + `flutter test` + required CI green.
-8. Після green exact-head PR інтегрувати в `main`; повний cross-platform release робити лише за окремою командою «злити у main» або за release cadence.
 
 ### Поточна наступна дія
 
-**DOING — PR #101 opened at head `54cd77a98c56c16d3d6bcea87f4b531322cadf62`; wait for exact-head CI, fix any failures, then record VERIFIED only after all required checks are green.**
+**NEXT — user-facing factual coupon entry + per-ISIN portfolio detail/ledger on top of the existing encrypted cash-event core; keep mobile external-folder work DEFERRED.**
 
 ## Черга робіт
 
@@ -80,8 +76,9 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 24. **DONE** — v0.9.1+18 full prerelease checkpoint; PR #97 → `bf9b358b…`; run #337, main run #338 and release run #72 green; immutable `v0.9.1` published with all platform assets.
 25. **DONE** — v0.9.2+19: user-visible «Мій портфель» + persistent «Економічний пульс» + exact packaged-artifact release gate; main `696fd4a…`, run #381, release run #102.
 26. **DONE** — User-facing factual acquisition flow + holdings summary on encrypted vault.
-27. **DOING** — User-facing factual sale/redemption/history + legacy migration wizard.
-28. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
+27. **DONE** — User-facing factual sale/redemption/history + legacy migration wizard; PR #101 → `c255c937…`; exact-head run #390 and post-merge run #391 green.
+28. **NEXT** — User-facing factual coupon entry + per-ISIN portfolio detail/ledger on the existing encrypted cash-event core.
+29. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
 
 ## Продуктова логіка цієї черги
 
@@ -108,6 +105,8 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 - поточний опублікований v0.8.8 не переписувати; кожен наступний повний checkpoint отримує нову версію/build.
 
 ## Нещодавно завершено
+
+- **DONE — factual sale/redemption/history + explicit legacy migration wizard**: PR #101 exact head `961d41a0…` passed run #390 and was squash-merged into `main` as `c255c937500d17b41cf0ac8542698139539fa047`; post-merge run #391 green with START/source. Sale requires explicit acquisition-lot allocation; redemption/history are factual; migration reports migrated/already/conflict/invalid + encrypted-copy verification and never auto-deletes source JSON. Migration session plaintext is always discarded after an attempt to prevent stale overwrite.
 
 - **DONE — v0.9.2+19 full prerelease checkpoint**: main `696fd4a07e5e23c4a44d9aeb8bd745671acfb52a`; post-merge run #381 success; Publish native prerelease run #102 success; tag/release `v0.9.2` published with Windows/macOS/Android/iOS/START, SHA256SUMS and legal notices. Real packaged desktop ZIP smoke verifies build metadata and Classic/Studio/Light Dashboard contract before publish.
 
