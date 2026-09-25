@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/hub_repository.dart';
+import 'legacy_plaintext_migration.dart';
 import 'portfolio_gateway.dart';
 import 'private_portfolio.dart';
 
@@ -14,6 +15,7 @@ class PortfolioState {
   final bool exists;
   final bool busy;
   final PrivatePortfolioPayload? payload;
+  final LegacyPlaintextMigrationReport? migrationReport;
   final String? errorCode;
 
   const PortfolioState({
@@ -21,6 +23,7 @@ class PortfolioState {
     this.exists = false,
     this.busy = false,
     this.payload,
+    this.migrationReport,
     this.errorCode,
   });
 
@@ -32,6 +35,8 @@ class PortfolioState {
     bool? busy,
     PrivatePortfolioPayload? payload,
     bool clearPayload = false,
+    LegacyPlaintextMigrationReport? migrationReport,
+    bool clearMigrationReport = false,
     String? errorCode,
     bool clearError = false,
   }) => PortfolioState(
@@ -39,6 +44,9 @@ class PortfolioState {
     exists: exists ?? this.exists,
     busy: busy ?? this.busy,
     payload: clearPayload ? null : payload ?? this.payload,
+    migrationReport: clearMigrationReport
+        ? null
+        : migrationReport ?? this.migrationReport,
     errorCode: clearError ? null : errorCode ?? this.errorCode,
   );
 }
@@ -57,7 +65,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
        super(PortfolioState(supported: gateway.supported)) {
     _lockSubscription = gateway.unlockChanges.listen((unlocked) {
       if (!unlocked && !isClosed && state.payload != null) {
-        emit(state.copyWith(clearPayload: true));
+        emit(state.copyWith(clearPayload: true, clearMigrationReport: true));
       }
     });
   }
@@ -80,6 +88,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
         exists: true,
         payload: payload,
         busy: false,
+        clearMigrationReport: true,
         clearError: true,
       ),
     );
@@ -92,6 +101,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
         exists: true,
         payload: payload,
         busy: false,
+        clearMigrationReport: true,
         clearError: true,
       ),
     );
@@ -101,7 +111,13 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     if (state.busy) return;
     await gateway.lock();
     if (!isClosed) {
-      emit(state.copyWith(clearPayload: true, clearError: true));
+      emit(
+        state.copyWith(
+          clearPayload: true,
+          clearMigrationReport: true,
+          clearError: true,
+        ),
+      );
     }
   }
 
@@ -154,6 +170,128 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     emit(state.copyWith(payload: next, busy: false, clearError: true));
   });
 
+  Future<void> addDisposal({
+    required String isin,
+    required String disposedOn,
+    required String proceedsAmount,
+    required bool feeKnown,
+    String? feeTotal,
+    required Map<String, int> lotAllocations,
+    String? note,
+  }) => _run(() async {
+    final current = state.payload;
+    if (current == null) {
+      throw StateError('vault.session_locked');
+    }
+    final normalizedIsin = isin.trim().toUpperCase();
+    final lots = current.acquisitionLots
+        .where((lot) => lot.isin == normalizedIsin)
+        .toList();
+    if (lots.isEmpty) {
+      throw const FormatException('portfolio.disposal_without_acquisition');
+    }
+    final allocations = lotAllocations.entries
+        .where((entry) => entry.value > 0)
+        .map(
+          (entry) => PrivateDisposalLotAllocation(
+            lotId: entry.key,
+            units: entry.value,
+          ),
+        )
+        .toList();
+    if (allocations.isEmpty) {
+      throw const FormatException('portfolio.disposal_allocation_required');
+    }
+    final units = allocations.fold<int>(
+      0,
+      (sum, allocation) => sum + allocation.units,
+    );
+    final now = clock().toUtc();
+    final trimmedNote = note?.trim();
+    final disposal = PrivateDisposal(
+      id: 'sale:${now.microsecondsSinceEpoch}:${current.disposals.length + 1}',
+      isin: normalizedIsin,
+      disposedOn: disposedOn,
+      units: units,
+      currency: lots.first.currency,
+      proceedsAmount: Decimal.parse(proceedsAmount.trim()),
+      feeStatus:
+          feeKnown ? DisposalFeeStatus.known : DisposalFeeStatus.unknown,
+      feeTotal: feeKnown ? Decimal.parse((feeTotal ?? '0').trim()) : null,
+      allocations: allocations,
+      note: trimmedNote == null || trimmedNote.isEmpty ? null : trimmedNote,
+    );
+    final next = PrivatePortfolioPayload(
+      portfolioId: current.portfolioId,
+      acquisitionLots: current.acquisitionLots,
+      cashEvents: current.cashEvents,
+      disposals: [...current.disposals, disposal],
+      legacyCollections: current.legacyCollections,
+    );
+    await gateway.save(next);
+    emit(state.copyWith(payload: next, busy: false, clearError: true));
+  });
+
+  Future<void> addRedemption({
+    required String isin,
+    required int units,
+    required String date,
+    required String amount,
+    String? note,
+  }) => _run(() async {
+    final current = state.payload;
+    if (current == null) {
+      throw StateError('vault.session_locked');
+    }
+    final normalizedIsin = isin.trim().toUpperCase();
+    final lots = current.acquisitionLots
+        .where((lot) => lot.isin == normalizedIsin)
+        .toList();
+    if (lots.isEmpty) {
+      throw const FormatException('portfolio.event_without_acquisition');
+    }
+    final now = clock().toUtc();
+    final trimmedNote = note?.trim();
+    final event = PrivateCashEvent(
+      id: 'redemption:${now.microsecondsSinceEpoch}:${current.cashEvents.length + 1}',
+      isin: normalizedIsin,
+      kind: PrivateCashEventKind.redemption,
+      date: date,
+      currency: lots.first.currency,
+      amount: Decimal.parse(amount.trim()),
+      units: units,
+      note: trimmedNote == null || trimmedNote.isEmpty ? null : trimmedNote,
+    );
+    final next = PrivatePortfolioPayload(
+      portfolioId: current.portfolioId,
+      acquisitionLots: current.acquisitionLots,
+      cashEvents: [...current.cashEvents, event],
+      disposals: current.disposals,
+      legacyCollections: current.legacyCollections,
+    );
+    await gateway.save(next);
+    emit(state.copyWith(payload: next, busy: false, clearError: true));
+  });
+
+  Future<void> migrateLegacy() => _run(() async {
+    if (state.payload == null) {
+      throw StateError('vault.session_locked');
+    }
+    final workspacePath = hubRepository.current?.path;
+    if (workspacePath == null || workspacePath.isEmpty) {
+      throw StateError('workspace.not_open');
+    }
+    final result = await gateway.migrateLegacy(workspacePath: workspacePath);
+    emit(
+      state.copyWith(
+        payload: result.payload,
+        migrationReport: result.report,
+        busy: false,
+        clearError: true,
+      ),
+    );
+  });
+
   Future<void> _run(Future<void> Function() operation) async {
     if (state.busy || !gateway.supported) return;
     emit(state.copyWith(busy: true, clearError: true));
@@ -186,11 +324,14 @@ class PortfolioCubit extends Cubit<PortfolioState> {
   Future<void> onForeground() async {
     await gateway.onForeground();
     if (!gateway.unlocked && !isClosed && state.payload != null) {
-      emit(state.copyWith(clearPayload: true));
+      emit(state.copyWith(clearPayload: true, clearMigrationReport: true));
     }
   }
 
   void dismissError() => emit(state.copyWith(clearError: true));
+
+  void dismissMigrationReport() =>
+      emit(state.copyWith(clearMigrationReport: true));
 
   @override
   Future<void> close() async {
