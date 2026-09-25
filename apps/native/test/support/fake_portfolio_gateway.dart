@@ -6,14 +6,22 @@ import 'package:ovdp_hub/features/portfolio/private_portfolio.dart';
 class FakePortfolioGateway implements PortfolioGateway {
   @override
   final bool supported;
+  @override
+  final bool portableBackupSupported;
   PrivatePortfolioPayload? stored;
   bool locked = true;
   final _unlockChanges = StreamController<bool>.broadcast(sync: true);
   int migrationCalls = 0;
+  int backupCalls = 0;
+  int restoreCalls = 0;
+  int rotateRecoveryCalls = 0;
   String? lastMigrationWorkspacePath;
+  String? lastRecoverySecret;
+  String backupPath = 'local/OVDP-Hub-portfolio-backup.ovdp-vault.json';
 
   FakePortfolioGateway({
     this.supported = true,
+    this.portableBackupSupported = true,
     this.stored,
   });
 
@@ -53,6 +61,44 @@ class FakePortfolioGateway implements PortfolioGateway {
   Future<void> save(PrivatePortfolioPayload payload) async {
     if (locked) throw StateError('vault.session_locked');
     stored = payload;
+  }
+
+  @override
+  Future<String?> createPortableBackup() async {
+    if (!portableBackupSupported) {
+      throw UnsupportedError('portfolio.portable_backup_unsupported');
+    }
+    if (locked) throw StateError('vault.session_locked');
+    backupCalls++;
+    return backupPath;
+  }
+
+  @override
+  Future<PrivatePortfolioPayload?> restorePortableBackup({
+    required String recoverySecret,
+  }) async {
+    if (!portableBackupSupported) {
+      throw UnsupportedError('portfolio.portable_backup_unsupported');
+    }
+    restoreCalls++;
+    lastRecoverySecret = recoverySecret;
+    stored ??= PrivatePortfolioPayload(portfolioId: 'primary');
+    locked = false;
+    _unlockChanges.add(true);
+    return stored;
+  }
+
+  @override
+  Future<PrivatePortfolioPayload> rotateRecovery({
+    required String recoverySecret,
+  }) async {
+    if (locked) throw StateError('vault.session_locked');
+    if (recoverySecret.length < 12) {
+      throw const FormatException('portfolio.recovery_secret_too_short');
+    }
+    rotateRecoveryCalls++;
+    lastRecoverySecret = recoverySecret;
+    return stored ?? (throw StateError('portfolio.open_failed'));
   }
 
   @override
