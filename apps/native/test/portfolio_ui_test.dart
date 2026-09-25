@@ -113,6 +113,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final bond = catalog.bonds.single;
+    const closedIsin = 'UA4000999999';
     final payload = PrivatePortfolioPayload(
       portfolioId: 'primary',
       acquisitionLots: [
@@ -125,6 +126,31 @@ void main() {
           tradeAmount: Decimal.parse('4900'),
           feeStatus: AcquisitionFeeStatus.known,
           feeTotal: Decimal.parse('10'),
+        ),
+        PrivateAcquisitionLot(
+          id: 'lot-closed',
+          isin: closedIsin,
+          units: 1,
+          acquiredOn: '2026-09-20',
+          currency: bond.currency,
+          tradeAmount: Decimal.parse('950'),
+          feeStatus: AcquisitionFeeStatus.known,
+          feeTotal: Decimal.parse('5'),
+        ),
+      ],
+      disposals: [
+        PrivateDisposal(
+          id: 'sale-closed',
+          isin: closedIsin,
+          disposedOn: '2026-09-21',
+          units: 1,
+          currency: bond.currency,
+          proceedsAmount: Decimal.parse('1000'),
+          feeStatus: DisposalFeeStatus.known,
+          feeTotal: Decimal.parse('2'),
+          allocations: [
+            PrivateDisposalLotAllocation(lotId: 'lot-closed', units: 1),
+          ],
         ),
       ],
     );
@@ -145,6 +171,10 @@ void main() {
 
     await tester.tap(find.text('Відкрити портфель'));
     await tester.pumpAndSettle();
+
+    expect(find.text('Фактичний грошовий підсумок'), findsOneWidget);
+    expect(find.byKey(const ValueKey('portfolio-cash-UAH')), findsOneWidget);
+    expect(find.byKey(const ValueKey('portfolio-closed-$closedIsin')), findsOneWidget);
 
     final addSale = find.byKey(const ValueKey('portfolio-add-sale'));
     await tester.ensureVisible(addSale);
@@ -168,6 +198,11 @@ void main() {
 
     expect(find.text('Продаж · ${bond.isin}'), findsOneWidget);
     expect(find.text('× 3'), findsOneWidget);
+    expect(
+      find.text('Невідомий через невідомі комісії'),
+      findsOneWidget,
+    );
+    expect(find.text('Є невідомі комісії'), findsOneWidget);
 
     final addCoupon = find.byKey(const ValueKey('portfolio-add-coupon'));
     await tester.ensureVisible(addCoupon);
@@ -246,6 +281,48 @@ void main() {
 
     await tester.tap(
       find.byKey(ValueKey('portfolio-details-close-${bond.isin}')),
+    );
+    await tester.pumpAndSettle();
+
+    final closedDetails =
+        find.byKey(const ValueKey('portfolio-closed-details-$closedIsin'));
+    await tester.ensureVisible(closedDetails);
+    await tester.tap(closedDetails);
+    await tester.pumpAndSettle();
+
+    final closedDialog =
+        find.byKey(const ValueKey('portfolio-isin-dialog-$closedIsin'));
+    expect(closedDialog, findsOneWidget);
+    expect(
+      find.descendant(
+        of: closedDialog,
+        matching: find.text('Поточна кількість: 0'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: closedDialog,
+        matching: find.text('Закрита позиція'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: closedDialog,
+        matching: find.text('Купівля · $closedIsin'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: closedDialog,
+        matching: find.text('Продаж · $closedIsin'),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('portfolio-details-close-$closedIsin')),
     );
     await tester.pumpAndSettle();
 
