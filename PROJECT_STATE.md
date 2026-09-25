@@ -63,7 +63,12 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - local encrypted vault;
 - create / open / lock;
 - inactivity/background locking;
-- recovery / portable encrypted backup;
+- recovery secret confirmation at portfolio creation;
+- user-facing recovery secret rotation;
+- portable encrypted backup/restore primitives;
+- Windows user-facing portable encrypted backup and restore into an empty local portfolio;
+- Android/iOS external-file backup UI remains deferred to SAF/security-scoped access;
+- macOS encrypted Portfolio remains disabled pending real Keychain runtime/provisioning validation;
 - rollback/crash recovery controls;
 - factual acquisition;
 - factual sale/disposal з explicit acquisition-lot allocation;
@@ -83,6 +88,8 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - PR #104 → `c8d26862430ac14dc25ad63da71bd016824ce91a`: factual coupon + per-ISIN ledger; exact-head #395, post-merge #396.
 - PR #106 → `310afcc26728597e01d31c896d39b860bf4f20b5`: factual cash summary + closed positions; exact-head #399, post-merge #400.
 - PR #109 → `e2ec96322a1acb953589eeeb45e8ec50cd5d198a`: v0.9.3+20 release checkpoint; PR release run #105, post-merge #405, publish #106.
+- PR #116 → `bb961f9d11d8c5a245e0fa0689fa74e7f092eb93`: post-v0.9.3 usability/product audit; exact-head run #414.
+- PR #117 → `fc38177a69f387153ff3984d3a917a7975a4a647`: recovery confirmation + recovery rotation + Windows portable encrypted backup/restore UX; exact-head run #417, post-merge #418.
 
 ## Дані та privacy
 
@@ -135,4 +142,4 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 
 ## Наступний великий крок
 
-**NEXT — post-v0.9.3 usability/product audit на актуальному `main`**, без повернення до старих feature branches. Mobile external-folder permissions і production signing залишаються окремими gate.
+**NEXT — Planner safe criteria/date editing:** прибрати destructive per-keystroke reset для `start/minDate/maxDate`, комітити лише валідну зміну й запитувати explicit confirmation перед очищенням уже сформованої composition/early exits. Mobile external-folder permissions, macOS Portfolio runtime validation і production signing залишаються окремими gate.
