@@ -4,7 +4,8 @@
 
 ## [Unreleased]
 
-- Наступний функціональний slice визначається після публікації v0.9.3; mobile external-folder access лишається deferred до окремого storage gate.
+- Post-v0.9.3 documentation cleanup: current multilingual GitHub descriptions and user guides; no product-behavior change.
+- Next product work starts from an актуальний-main usability audit; Android SAF / iOS security-scoped external-folder access remains deferred.
 
 ## [0.9.3] — 2026-09-25
 
