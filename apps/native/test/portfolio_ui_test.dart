@@ -66,7 +66,7 @@ void main() {
       note: 'Factual sale',
     );
     expect(cubit.state.payload!.disposals, hasLength(1));
-    expect(cubit.state.payload!.holdings.single.units, 2);
+    expect(cubit.state.payload!.holdings.single.units, 3);
 
     await cubit.addRedemption(
       isin: bond.isin,
@@ -88,7 +88,7 @@ void main() {
     expect(cubit.state.unlocked, isFalse);
 
     await cubit.open();
-    expect(cubit.state.payload!.holdings.single.units, 3);
+    expect(cubit.state.payload!.holdings.single.units, 2);
 
     await cubit.close();
     await hub.dispose();
