@@ -232,6 +232,45 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     emit(state.copyWith(payload: next, busy: false, clearError: true));
   });
 
+  Future<void> addCoupon({
+    required String isin,
+    required String date,
+    required String amount,
+    String? note,
+  }) => _run(() async {
+    final current = state.payload;
+    if (current == null) {
+      throw StateError('vault.session_locked');
+    }
+    final normalizedIsin = isin.trim().toUpperCase();
+    final lots = current.acquisitionLots
+        .where((lot) => lot.isin == normalizedIsin)
+        .toList();
+    if (lots.isEmpty) {
+      throw const FormatException('portfolio.event_without_acquisition');
+    }
+    final now = clock().toUtc();
+    final trimmedNote = note?.trim();
+    final event = PrivateCashEvent(
+      id: 'coupon:${now.microsecondsSinceEpoch}:${current.cashEvents.length + 1}',
+      isin: normalizedIsin,
+      kind: PrivateCashEventKind.coupon,
+      date: date,
+      currency: lots.first.currency,
+      amount: Decimal.parse(amount.trim()),
+      note: trimmedNote == null || trimmedNote.isEmpty ? null : trimmedNote,
+    );
+    final next = PrivatePortfolioPayload(
+      portfolioId: current.portfolioId,
+      acquisitionLots: current.acquisitionLots,
+      cashEvents: [...current.cashEvents, event],
+      disposals: current.disposals,
+      legacyCollections: current.legacyCollections,
+    );
+    await gateway.save(next);
+    emit(state.copyWith(payload: next, busy: false, clearError: true));
+  });
+
   Future<void> addRedemption({
     required String isin,
     required int units,
