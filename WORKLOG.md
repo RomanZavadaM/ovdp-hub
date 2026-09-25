@@ -50,15 +50,17 @@ Append-only ledger: GitHub Issue **#18**
 - Cancel preserves the current plan; Apply performs the deliberate reset;
 - persisted Planner schema and calculation math unchanged.
 
+## Останні завершені slices
+
 ### Catalog localization + persisted collection variant cleanup — DONE
 - PR #120 final exact head `fa0d6e829c2c5e54e5b03fe5d59f45efd437f782`;
-- failed evidence runs #422/#424 retained: tests caught that an LF-based patch had not modified CRLF `CatalogView`;
+- first runs #422/#424 correctly failed and exposed a no-op CRLF patch;
 - final exact-head run #428 — success;
 - merge: **`5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`**;
 - post-merge run #429 — success, including START/source;
-- Catalog offline/search/horizon/nominal/empty-state copy is now wired through existing `HubStrings`;
-- collection variant draft no longer persists automatic Ukrainian suffix `— варіант`;
-- visible English regression verifies actual controls, not only dictionary keys.
+- remaining Catalog user-facing literals now use existing `HubStrings` UK/EN/FR/DE/ES/KO/JA;
+- visible English regression reaches the actual search/horizon controls;
+- collection variant no longer persists automatic Ukrainian suffix `— варіант`; user-authored name stays locale-neutral.
 
 ## Поточний slice
 
@@ -66,18 +68,20 @@ Append-only ledger: GitHub Issue **#18**
 
 Мета: **persist UI language + appearance across launches**.
 
-- base main: `5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`;
+- base main after state sync: `d6ed407af6c1106f9cd8f3808f4e0f2d52a5b2ef`;
 - branch: `feat/ui-preferences-persistence`;
-- non-sensitive UI preferences live in app-support `ui-preferences.json`, not workspace/vault;
+- PR: **#121**;
+- non-sensitive UI preferences live in app-support `ui-preferences.json`, not workspace/private vault;
 - no new dependency: existing `path_provider` + `path` are used;
 - selected UK/EN/FR/DE/ES/KO/JA language and Classic/Workbench/Light Dashboard appearance restore on next launch;
 - corrupt/invalid preference JSON fails safe to Ukrainian + Workbench;
 - file-store round-trip and visible-control restart regressions added;
-- user guides updated in all seven languages.
+- user guides updated in all seven languages;
+- first run #430: analyze green, 195 tests passed, 1 restart widget test timed out on `pumpAndSettle`; test has been changed to bounded pumps while keeping real flush/reopen/reconstruct verification.
 
 ## Поточна наступна дія
 
-**DOING — open PR, run exact-head analyze/tests and visible restart regression; integrate after green.**
+**DOING — run new exact-head analyze/tests for PR #121 after bounded restart-test fix; integrate only after green.**
 
 ## Deferred gates
 
