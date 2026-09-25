@@ -321,21 +321,72 @@ class PlannerCubit extends Cubit<PlannerState> {
     return result;
   }
 
+  static const _invalidatingCriteria = {
+    'currency',
+    'start',
+    'minDate',
+    'maxDate',
+  };
+
+  bool get hasGeneratedComposition =>
+      state.inputs.isNotEmpty || state.positionExits.isNotEmpty;
+
+  String? invalidatingCriterionError(String key, String value) {
+    if (!_invalidatingCriteria.contains(key)) return null;
+    final next = {...state.criteria, key: value.trim()};
+    final currency = next['currency'];
+    if (!['UAH', 'USD', 'EUR'].contains(currency)) {
+      return 'planner.criteria_invalid_range';
+    }
+    try {
+      final start = isoDate(next['start']!);
+      final minDate = isoDate(next['minDate']!);
+      final maxDate = isoDate(next['maxDate']!);
+      if (minDate.isAfter(maxDate) || !maxDate.isAfter(start)) {
+        return 'planner.criteria_invalid_range';
+      }
+    } on FormatException {
+      return 'planner.criteria_invalid_date';
+    }
+    return null;
+  }
+
+  bool invalidatingCriterionRequiresReset(String key, String value) =>
+      _invalidatingCriteria.contains(key) &&
+      state.criteria[key] != value.trim() &&
+      hasGeneratedComposition;
+
+  bool commitInvalidatingCriterion(String key, String value) {
+    if (state.busy || state.locked || !_invalidatingCriteria.contains(key)) {
+      return false;
+    }
+    final normalized = value.trim();
+    if (state.criteria[key] == normalized) return true;
+    if (invalidatingCriterionError(key, normalized) != null) return false;
+    _recalculate(
+      state.copyWith(
+        criteria: {...state.criteria, key: normalized},
+        inputs: const {},
+        fees: key == 'currency' ? FeeAssumptions.unknown() : null,
+        fx: key == 'currency' ? const [] : null,
+        positionExits: const [],
+        saved: false,
+        clearError: true,
+        revision: state.revision + 1,
+      ),
+    );
+    return true;
+  }
+
   void edit(String key, String value) {
     if (state.busy || state.locked) return;
-    final resetPositions = [
-      'currency',
-      'start',
-      'minDate',
-      'maxDate',
-    ].contains(key);
+    if (_invalidatingCriteria.contains(key)) {
+      commitInvalidatingCriterion(key, value);
+      return;
+    }
     _recalculate(
       state.copyWith(
         criteria: {...state.criteria, key: value},
-        inputs: resetPositions ? {} : null,
-        fees: key == 'currency' ? FeeAssumptions.unknown() : null,
-        fx: key == 'currency' ? const [] : null,
-        positionExits: resetPositions ? const [] : null,
         saved: false,
         clearError: true,
       ),

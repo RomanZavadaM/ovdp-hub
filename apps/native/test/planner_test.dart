@@ -178,6 +178,38 @@ void main() {
       await repository.dispose();
     },
   );
+  test('invalidating Planner criteria validate before composition reset', () async {
+    final repository = FakeRepository(data);
+    final cubit = PlannerCubit(
+      repository,
+      clock: () => DateTime.utc(2026, 9, 21),
+    );
+
+    cubit.generate();
+    expect(cubit.state.inputs, isNotEmpty);
+    expect(cubit.hasGeneratedComposition, true);
+
+    expect(
+      cubit.invalidatingCriterionError('start', '2'),
+      'planner.criteria_invalid_date',
+    );
+    expect(cubit.commitInvalidatingCriterion('start', '2'), false);
+    expect(cubit.state.inputs, isNotEmpty);
+
+    const changedStart = '2026-09-20';
+    expect(
+      cubit.invalidatingCriterionRequiresReset('start', changedStart),
+      true,
+    );
+    expect(cubit.commitInvalidatingCriterion('start', changedStart), true);
+    expect(cubit.state.criteria['start'], changedStart);
+    expect(cubit.state.inputs, isEmpty);
+    expect(cubit.state.positionExits, isEmpty);
+
+    await cubit.close();
+    await repository.dispose();
+  });
+
   test('generated Planner copy uses stable ids and preserves user text', () async {
     final repository = FakeRepository(data);
     final cubit = PlannerCubit(
