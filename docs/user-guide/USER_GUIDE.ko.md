@@ -13,7 +13,7 @@ OVDP Hub는 우크라이나 국채 OVDP를 위한 local-first 앱입니다. 시�
 **iOS:** 공개 패키지는 unsigned이며 별도의 Apple signing/provisioning이 필요합니다.
 
 ## 언어와 화면
-지원 언어: Ukrainian, English, Français, Deutsch, Español, 한국어, 日本語. 화면 모드: Classic, Workbench, Light Dashboard.
+지원 언어: Ukrainian, English, Français, Deutsch, Español, 한국어, 日本語. 화면 모드: Classic, Workbench, Light Dashboard. 선택한 언어와 화면 모드는 이 기기에 로컬로 저장되며 다음 실행 때 복원됩니다.
 
 ## 시장/ISIN
 카탈로그에서 OVDP를 검색/필터링할 수 있습니다. ISIN 카드에서 NBU, MinFin, 판매자 데이터를 분리해 보여 주고 source date, retrieval time, freshness/status를 표시합니다. yield-only나 nominal 값은 자동으로 실제 거래 가격으로 취급되지 않습니다.
