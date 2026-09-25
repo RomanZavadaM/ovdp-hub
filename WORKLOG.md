@@ -50,22 +50,29 @@ Append-only ledger: GitHub Issue **#18**
 - Cancel preserves the current plan; Apply performs the deliberate reset;
 - persisted Planner schema and calculation math unchanged.
 
+## Останні завершені slices
+
+### Catalog localization + persisted collection variant cleanup — DONE
+- PR #120 final exact head `fa0d6e829c2c5e54e5b03fe5d59f45efd437f782`;
+- first runs #422/#424 correctly failed and exposed a no-op CRLF patch;
+- final exact-head run #428 — success;
+- merge: **`5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`**;
+- post-merge run #429 — success, including START/source;
+- remaining Catalog user-facing literals now use existing `HubStrings` UK/EN/FR/DE/ES/KO/JA;
+- visible English regression reaches the actual search/horizon controls;
+- collection variant no longer persists automatic Ukrainian suffix `— варіант`; user-authored name stays locale-neutral.
+
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **IDLE / SAVED**
 
-Мета: **Catalog localization + persisted collection variant cleanup**.
-
-- base main: `ad3a995a3f5e405cdde7d17b00b54fa105b926e5`;
-- branch: `feat/localization-persisted-copy-cleanup`;
-- Catalog hardcoded Ukrainian literals replaced with existing `HubStrings` keys;
-- collection variant no longer persists automatic Ukrainian suffix `— варіант`;
-- source user-authored name is preserved for editing before save;
-- localization contract + visible English Catalog regression + Cubit variant regression added.
+Активного implementation PR немає. Поточний інтегрований `main`:
+**`5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`**.
 
 ## Поточна наступна дія
 
-**DOING — PR #120 open. Runs #422/#424 exposed that earlier LF-based patch did not modify CRLF CatalogView. Real CRLF-normalized UI patch is now committed and verified to remove all stale Ukrainian literals; visible-control regression scrolls to the actual search/horizon controls. Run new exact-head analyze/tests and integrate only after green.**
+**NEXT — persist non-sensitive UI preferences: selected language + appearance.**  
+Зберігати їх окремо від workspace/private vault; не змішувати з приватними даними. Потрібні restart/persistence regressions. Після цього окремо повернутися до unified date-control UX/picker, macOS Portfolio runtime validation та mobile external-folder gates.
 
 ## Deferred gates
 
