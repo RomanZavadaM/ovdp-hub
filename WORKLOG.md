@@ -25,28 +25,31 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 
 ## Поточний slice
 
-Статус: **DONE**
+Статус: **DOING**
 
-Мета: **user-facing factual sale/redemption/history + explicit non-destructive legacy migration wizard**.
+Мета: **user-facing factual coupon entry + per-ISIN portfolio detail/ledger**.
 
-- base `main`: **`ef81484c57defe7146d9fefe8a59ba6c2e33c00d`**;
-- branch: **`feat/portfolio-sale-history-migration-wizard`**;
-- PR: **#101 — merged**;
-- exact verified feature head: **`961d41a0c095bbb655b88452af7f8fe4f8665b02`**;
-- exact-head Flutter checks: **run #390 — success**;
-- merge `main`: **`c255c937500d17b41cf0ac8542698139539fa047`**;
-- post-merge Flutter checks + START/source: **run #391 — success**;
-- опублікований checkpoint лишається **v0.9.2 / 0.9.2+19** — новий cross-platform release у цьому звичайному integration step не створювався;
-- factual sale використовує лише explicit acquisition-lot allocation; програма не вгадує походження проданих облігацій;
-- factual redemption, deterministic history і migration wizard працюють поверх existing encrypted vault/private payload;
-- legacy migration лишається **non-destructive**: source JSON не видаляються автоматично;
-- після будь-якої migration attempt unlocked plaintext session примусово відкидається, щоб stale session не могла перезаписати durable migrated vault;
-- UK/EN/FR/DE/ES/KO/JA localization + real-control regression пройшли;
+- base `main`: **`54409769db333ba34c4ffa507262a2dc72f60f2a`**;
+- branch: **`feat/portfolio-coupon-isin-ledger`**;
+- PR: ще не відкрито;
+- опублікований checkpoint лишається **v0.9.2 / 0.9.2+19**;
+- coupon зберігається як existing encrypted `PrivateCashEventKind.coupon`; нову schema не створюємо;
+- жодних прогнозних купонів у factual ledger: лише явно введені факти;
+- per-ISIN detail показує лише фактичні acquisition/sale/coupon/redemption records та derived current holding;
 - Android SAF / iOS security-scoped access лишається **DEFERRED** до mobile storage gate.
+
+Критерії готовності slice:
+1. З відкритого портфеля можна явно додати фактичний купон: ISIN, дата, сума, необов'язкова кількість/примітка.
+2. Купон не змінює кількість holdings і не створюється без існуючого acquisition lot.
+3. Для кожної поточної позиції є видима дія «Деталі» з per-ISIN ledger.
+4. Ledger детерміновано показує purchase / sale / coupon / redemption із датами, кількостями та сумами без синтезу невідомих даних.
+5. UK/EN/FR/DE/ES/KO/JA localization покриває новий flow.
+6. Widget/domain regressions натискають реальні controls; `flutter analyze` + `flutter test` + required CI green.
+7. Після green exact-head PR інтегрувати в `main`; повний cross-platform release — лише за окремою командою «злити у main» або release cadence.
 
 ### Поточна наступна дія
 
-**NEXT — user-facing factual coupon entry + per-ISIN portfolio detail/ledger on top of the existing encrypted cash-event core; keep mobile external-folder work DEFERRED.**
+**DOING — wire factual coupon action and per-ISIN detail/ledger into the existing encrypted portfolio UI, add real-control regressions, then open PR.**
 
 ## Черга робіт
 
@@ -77,7 +80,7 @@ Append-only журнал: GitHub Issue **#18 — OVDP Hub — live development l
 25. **DONE** — v0.9.2+19: user-visible «Мій портфель» + persistent «Економічний пульс» + exact packaged-artifact release gate; main `696fd4a…`, run #381, release run #102.
 26. **DONE** — User-facing factual acquisition flow + holdings summary on encrypted vault.
 27. **DONE** — User-facing factual sale/redemption/history + legacy migration wizard; PR #101 → `c255c937…`; exact-head run #390 and post-merge run #391 green.
-28. **NEXT** — User-facing factual coupon entry + per-ISIN portfolio detail/ledger on the existing encrypted cash-event core.
+28. **DOING** — User-facing factual coupon entry + per-ISIN portfolio detail/ledger on the existing encrypted cash-event core.
 29. **DEFERRED** — Android SAF / iOS security-scoped external-folder access; return before mobile vault/external-workspace UX claim.
 
 ## Продуктова логіка цієї черги
