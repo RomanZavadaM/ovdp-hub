@@ -9,11 +9,7 @@
 1. Прочитати `PROJECT_RULES.md`.
 2. Прочитати `PROJECT_STATE.md`.
 3. Прочитати `WORKLOG.md`.
-4. Перевірити фактичний GitHub:
-   - `main` SHA;
-   - відкриті PR;
-   - active PR head;
-   - останні workflow runs.
+4. Перевірити фактичний GitHub: `main` SHA, відкриті PR, active PR head, останні workflow runs.
 5. Прочитати останні записи GitHub Issue **#18**.
 6. Якщо GitHub і текст суперечать одне одному — GitHub має пріоритет, після чого документацію треба синхронізувати.
 7. Продовжити перший `DOING` / `NEXT`; merged роботу не повторювати.
@@ -26,7 +22,7 @@
 - GitHub Issue #18 — append-only development ledger.
 - `apps/native/pubspec.yaml` — machine source of version/build.
 - `docs/roadmap.md` — середньостроковий roadmap.
-- `CHANGELOG.md` і `docs/releases/` — історія релізів; не переносити стару історію назад у active state docs.
+- `CHANGELOG.md` і `docs/releases/` — історія релізів.
 
 ## Команда власника «злити у main»
 
@@ -48,39 +44,44 @@
 - Active product: `apps/native` Flutter/Dart
 - Published checkpoint: **v0.9.3 / 0.9.3+20**
 - Release commit: `e2ec96322a1acb953589eeeb45e8ec50cd5d198a`
-- Full publish: **#106 success**
+- Current integrated product baseline before mobile-storage PR: `89887d39d2bb2c4e894ca09e4141161559992f7b`
 - Platforms: Windows / macOS / Android / iOS
 - Languages: UK / EN / FR / DE / ES / KO / JA
-- Current integrated product baseline: **`4c1617b3f0636c6ca33a35b2f992766dc4649cde`**.
 
-### Останні інтегровані slices
+### Mobile external storage foundation — current checkpoint
 
-- Post-v0.9.3 audit — PR #116 → `bb961f9d…`.
-- Portfolio recovery / Windows portable encrypted backup UX — PR #117 → `fc38177a…`.
-- Planner safe criteria/date editing — PR #119 → `ad3a995a…`.
-- Catalog localization + locale-neutral collection variant — PR #120 → `5638f56e…`.
-- UI language + appearance persistence — PR #123 → `6e6326c6…`.
-- Unified Planner/Portfolio date controls — PR #125 → `c94fbce6…`.
-- **macOS encrypted Portfolio Keychain runtime gate + enablement — DONE:** PR #127 → **`4c1617b3f0636c6ca33a35b2f992766dc4649cde`**.
+- Branch: `feat/mobile-external-storage`
+- PR: **#130 — Ready**
+- Verified implementation head before docs sync: **`7e26ef3cc691e683f7b9ca2a6d2c631690eb95fb`**.
+- Run **#496 — SUCCESS**:
+  - `flutter analyze` + **212/212 tests**;
+  - Windows release package + packaged smoke;
+  - macOS release package + packaged smoke;
+  - Android release APK compile/package;
+  - iOS release `--no-codesign` compile/package.
+- Android artifact: `OVDP-Hub-Android-test-496-1`, SHA-256 `6c6da1dda2489b03b174710be439434899fc5dc3151475dc5b084f507d9eb7d8`.
+- iOS artifact: `OVDP-Hub-iOS-unsigned-496-1`, SHA-256 `bf533e28070e7ed179d1078563f5eda7b0c9277f840ac67daa828686f6acf6e6`.
+- Windows/macOS artifacts also uploaded and packaged-smoke green.
+- Run #491 intentionally exposed an iOS SDK compile error (`withSecurityScope` unavailable on iOS); fixed by UIKit-compatible bookmark options, then #496 proved the fix.
 
-### macOS Portfolio — підтверджений стан
+### What this proves / does not prove
 
-- До enablement packaged macOS app реально пройшов Keychain/vault create → open → lock/reopen → backup/restore → recovery rotation → cleanup: Gate A run **#462 — success**.
-- Після enablement той самий runtime contract повторно пройшов у run **#464 — success**.
-- Final docs-synced exact-head run **#465 — success**: `flutter analyze`, **204 tests**, Windows packaged smoke, macOS packaged Keychain/vault smoke.
-- PR #127 merged у `main` як **`4c1617b3…`**.
-- Post-merge main run **#466 — success**, including verify + START/source.
-- START artifact: `OVDP-Hub-0.9.3-test-466-1-START`, SHA-256 `5b7dcb427357ab88785223434d6ab3784e1682e6ecb75a592cca9a6431ea21cb`.
-- Encrypted Portfolio now supports Windows / macOS / Android / iOS at the app-local vault/device-key level.
-- macOS device key/revision state uses system Keychain with packaged runtime validation.
-- Portable external-file backup/restore UI remains **Windows-only**; macOS file flow is not silently enabled.
-- Existing v0.9.3 release was not republished after merge: release push preflight correctly skipped publish/build jobs.
+Confirmed now:
+- Android SAF bridge compiles in release APK;
+- iOS security-scoped picker/bookmark bridge compiles in unsigned release build;
+- Dart contract and fail-closed regressions are covered;
+- desktop behavior remains green.
 
-## Deferred / NEXT
+Not yet claimed as complete:
+- physical Android device runtime: folder picker, persisted URI grant after relaunch, grant loss/revocation;
+- physical iOS device runtime: folder picker, bookmark restore after relaunch, security-scope access and revocation/provider edge cases.
 
-- **NEXT — Android SAF + iOS security-scoped external-folder access.** Ціль: нормальний user-facing external workspace/backup file flow на mobile без підміни desktop filesystem API.
-- Production signing/notarization/store distribution remains a separate later gate.
-- Windows production code signing, macOS Developer ID + notarization, Android production keystore, iOS signing/distribution, installers/auto-update — deferred.
+## NEXT
+
+1. Finish this docs-synced exact-head PR gate.
+2. Integrate PR #130 into `main` if final exact-head remains green.
+3. Next slice: **real-device runtime validation for Android SAF and iOS external-folder/bookmark persistence**. Do not call mobile external storage fully production-ready before those runtime gates are recorded.
+4. Production signing/notarization/store distribution remains a later separate gate.
 
 ## Rule for new chats
 

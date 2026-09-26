@@ -1,6 +1,6 @@
 # Roadmap OVDP Hub
 
-Оновлено: **26.09.2026**. Цей roadmap стосується лише активного Flutter-продукту `apps/native`.
+Оновлено: **26.09.2026**. Цей roadmap стосується активного Flutter-продукту `apps/native`.
 
 ## Продуктовий принцип
 
@@ -11,74 +11,76 @@
 ## Завершені продуктові етапи
 
 ### 0.9 «Ринок» — DONE / RELEASED
-- [x] NBU instrument/contractual payments.
-- [x] MinFin calendar + placement/switch results з provenance і fail-closed parsers.
-- [x] Seller observations без вигаданої market price.
-- [x] Source date / retrievedAt / freshness/status.
-- [x] Multiple `PriceObservation` + explicit user priority.
-- [x] Yield-only / nominal не стають market price автоматично.
-- [x] v0.9.0 released.
+- NBU instrument/contractual payments;
+- MinFin calendar + placement/switch results з provenance і fail-closed parsers;
+- seller observations без вигаданої market price;
+- source date / freshness/status;
+- multiple `PriceObservation` + explicit user priority;
+- v0.9.0 released.
 
 ### Planner next generation — DONE
-- [x] Typed scenario/schema adapters.
-- [x] Explicit purchase fees / unknown state.
-- [x] Effective-dated tax assumptions.
-- [x] Explicit FX assumptions.
-- [x] Per-position early exit.
-- [x] One-off / recurring needs.
-- [x] Reserve floor.
-- [x] Neutral A/B/C comparison для 2–3 compatible scenarios без automatic winner.
-- [x] Deterministic CSV/ICS exports.
-- [x] Safe criteria/date editing with explicit reset confirmation.
-- [x] Unified locale-friendly Planner/Portfolio date-control UX; canonical persisted dates remain `YYYY-MM-DD`.
+- typed scenarios, fees/tax/FX assumptions;
+- per-position early exit;
+- one-off / recurring needs + reserve floor;
+- neutral A/B/C comparison;
+- deterministic CSV/ICS;
+- safe criteria/date editing + shared locale-friendly date control.
 
 ### UI / localization — DONE for current scope
-- [x] Classic / Workbench / Light Dashboard.
-- [x] UK / EN / FR / DE / ES / KO / JA.
-- [x] Catalog and domain/error localization.
-- [x] Locale-neutral user-authored collection names.
-- [x] Language + appearance persistence in non-sensitive app preferences, separate from workspace/private vault.
+- Classic / Workbench / Light Dashboard;
+- UK / EN / FR / DE / ES / KO / JA;
+- locale-neutral user names;
+- language + appearance persistence outside private vault/workspace.
 
-### Encrypted vault / factual portfolio — DONE for current factual scope
-- [x] Threat model and audited crypto stack.
-- [x] Platform device-key adapters.
-- [x] Local encrypted vault lifecycle, recovery-wrapped DEK, atomic recovery, rollback detection.
-- [x] Session/inactivity/background locking.
-- [x] Recovery enable/rotate/remove + local deletion lifecycle.
-- [x] Private factual payload/domain.
-- [x] Acquisition lots / derived holdings.
-- [x] Explicit factual sale/disposal allocation.
-- [x] Coupon / redemption.
-- [x] Per-ISIN ledger + closed positions.
-- [x] Factual per-currency cash summary with unknown-fee semantics.
-- [x] Non-destructive legacy plaintext migration wizard.
-- [x] Recovery-secret confirmation/rotation UX.
-- [x] Windows user-facing portable encrypted backup/restore.
-- [x] v0.9.3+20 released after factual Portfolio slices.
+### Encrypted factual portfolio — DONE for current factual scope
+- audited crypto/vault lifecycle and recovery;
+- Windows DPAPI, macOS Keychain, Android/iOS secure device state;
+- factual acquisition / sale allocation / coupon / redemption / ledger / cash summary;
+- non-destructive plaintext migration;
+- Windows portable encrypted backup/restore;
+- v0.9.3+20 released.
 
-## Після v0.9.3
+## Після v0.9.3 — завершені інтегровані slices
 
-- [x] Post-v0.9.3 usability/product audit — PR #116; findings in `docs/AUDIT_POST_0_9_3.md`.
-- [x] Portfolio recovery / backup UX — PR #117; exact-head #417, merge `fc38177a…`, post-merge #418.
-- [x] Planner safe criteria/date editing — PR #119; exact-head #420, merge `ad3a995a…`, post-merge #421.
-- [x] Catalog localization + persisted collection variant cleanup — PR #120; final exact-head #428, merge `5638f56e…`, post-merge #429.
-- [x] Persist language/appearance preferences — PR #123; exact-head #439, merge `6e6326c6…`, post-merge #440.
-- [x] Unified date-control UX / picker for Planner + Portfolio — PR #125; final exact-head #452, Ready #453 packaged desktop smoke, merge `c94fbce6…`, post-merge #454.
-- [x] **macOS Portfolio runtime Keychain validation + enablement — PR #127.** Proof-before-enable run #462; post-enable run #464; final docs-synced #465 with **204 tests** + Windows/macOS packaged smoke; merge **`4c1617b3…`**; post-merge #466 + START/source success.
+- Post-v0.9.3 usability/product audit — PR #116.
+- Portfolio recovery / backup UX — PR #117.
+- Planner safe criteria/date editing — PR #119.
+- Catalog localization + collection cleanup — PR #120.
+- Persist language/appearance — PR #123.
+- Unified date controls — PR #125.
+- macOS Portfolio Keychain runtime validation + enablement — PR #127; final #465, merge `4c1617b3…`, post-merge #466.
 
-## Поточний NEXT
+## Поточний mobile storage foundation
 
-- [ ] **NEXT — Android SAF + iOS security-scoped external-folder access.**
-  - Android: supported user-facing external workspace/backup file flow через SAF; no desktop path assumptions.
-  - iOS: supported external file/folder flow через security-scoped platform contract/bookmarks.
-  - Persistent access/permission loss must fail closed and surface explicitly.
-  - Add platform-specific runtime/regression evidence, not compile-only mocks.
-  - Do not change encrypted Portfolio schema or financial math in this slice.
+PR **#130** implements Android SAF + iOS picker/bookmark external-storage contracts without changing Portfolio crypto or financial math.
 
-## Після mobile storage gate
+Verified pre-docs head `7e26ef3cc691e683f7b9ca2a6d2c631690eb95fb`, run **#496 — SUCCESS**:
+- analyze + **212/212 tests**;
+- Windows/macOS packaged smoke;
+- Android release APK compile/package;
+- unsigned iOS release compile/package.
+
+This closes the **implementation + release compile gate**, not the real-device runtime gate.
+
+## Current NEXT — mobile real-device runtime validation
+
+- [ ] Android physical device:
+  - SAF folder selection;
+  - persisted read/write URI grant across app relaunch;
+  - workspace read/write/list/delete;
+  - revoked/missing provider permission fails closed.
+- [ ] iOS physical device:
+  - folder picker selection;
+  - bookmark persistence/resolution across relaunch;
+  - security-scoped workspace read/write/list/delete;
+  - stale/lost/provider permission fails closed.
+- [ ] Record device/OS, exact build/artifact, steps and outcomes in Issue #18 + maintenance gate.
+- [ ] Only after this evidence may mobile external workspace/backup be described as runtime-validated.
+
+## Після mobile runtime gate
 
 - [ ] Production signing / distribution readiness:
-  - Windows Authenticode code signing;
+  - Windows Authenticode;
   - macOS Developer ID + notarization;
   - Android production keystore/store distribution;
   - iOS signing/distribution.
@@ -91,7 +93,8 @@
 - Windows device state: DPAPI.
 - macOS device state: system Keychain, real packaged lifecycle smoke enforced.
 - Android/iOS device state: platform secure storage.
-- Portable external-file backup/restore UI: **Windows-only** until mobile/macOS file-flow gates are explicitly completed.
+- Windows portable encrypted external backup: runtime-supported.
+- Android/iOS external storage bridge: implementation + release compile validated; **real-device persistent-access gate still pending**.
 
 ## Незмінні межі
 
