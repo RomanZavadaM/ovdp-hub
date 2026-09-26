@@ -1,6 +1,6 @@
 # WORKLOG — OVDP Hub
 
-Оновлено: **25.09.2026**
+Оновлено: **26.09.2026**
 
 Точка входу: `START_HERE.md`  
 Постійні правила: `PROJECT_RULES.md`  
@@ -50,8 +50,6 @@ Append-only ledger: GitHub Issue **#18**
 - Cancel preserves the current plan; Apply performs the deliberate reset;
 - persisted Planner schema and calculation math unchanged.
 
-## Останні завершені slices
-
 ### Catalog localization + persisted collection variant cleanup — DONE
 - PR #120 final exact head `fa0d6e829c2c5e54e5b03fe5d59f45efd437f782`;
 - first runs #422/#424 correctly failed and exposed a no-op CRLF patch;
@@ -70,18 +68,21 @@ Append-only ledger: GitHub Issue **#18**
 
 - base main: `d6ed407af6c1106f9cd8f3808f4e0f2d52a5b2ef`;
 - replacement branch: `feat/ui-preferences-persistence-v2`;
-- PR #121 superseded because docs-sync made the old branch conflict with current `main`;
+- active draft PR: **#123**;
+- PR #121 closed as superseded after docs-sync changed the current `main` base;
 - non-sensitive UI preferences live in app-support `ui-preferences.json`, not workspace/private vault;
 - no new dependency: existing `path_provider` + `path`;
 - selected UK/EN/FR/DE/ES/KO/JA language and Classic/Workbench/Light Dashboard restore on next launch;
 - corrupt/invalid preference JSON fails safe to Ukrainian + Workbench;
-- run #430 on old PR: analyze green, 195 tests passed, 1 widget restart test timed out in `pumpAndSettle`;
-- restart regression now uses bounded pumps but still performs real save → flush → reopen → reconstruct;
+- old run #430: analyze green, 195 tests passed, 1 restart widget test timed out in `pumpAndSettle`;
+- replacement exact-head run **#435** on `c3a68fbc7f0ee8db277c9b03ed2ed950e6c8e2c2`: pub get + analyze green, **195 tests passed, exactly 2 new UI-preference widget tests timed out**; downstream platform/source jobs skipped;
+- diagnosis: real async `dart:io` persistence is being awaited from `testWidgets` fake-async context; the ordinary async file round-trip/corrupt-data persistence test is green;
+- fix direction: keep actual file persistence in ordinary async tests, test real visible controls against a synchronous/in-memory persistence spy, and test app reconstruction from the resulting persisted snapshot without blocking widget fake-async;
 - user guides updated in all seven languages.
 
 ## Поточна наступна дія
 
-**DOING — open replacement PR from `feat/ui-preferences-persistence-v2`, close stale PR #121, run exact-head analyze/tests, integrate only after green.**
+**DOING — repair only `ui_preferences_test.dart` regression structure, rerun exact-head CI, and integrate PR #123 only after green checks.**
 
 ## Deferred gates
 
