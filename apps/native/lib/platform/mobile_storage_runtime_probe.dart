@@ -358,7 +358,7 @@ class MobileStorageRuntimeProbe {
     'preparedLaunchId': preparedLaunchId,
     'phase': phase,
     'updatedAt': updatedAt,
-    if (verifiedLaunchId != null) 'verifiedLaunchId': verifiedLaunchId,
+    'verifiedLaunchId': ?verifiedLaunchId,
   });
 
   static void _validateProbe(
