@@ -93,7 +93,9 @@ jobs:
           if-no-files-found: error
   android:
     needs: verify
-    if: github.event_name == 'workflow_dispatch' && contains(fromJSON('["android","all"]'), inputs.packages)
+    if: >-
+      (github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
+      (github.event_name == 'workflow_dispatch' && contains(fromJSON('["android","all"]'), inputs.packages))
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -124,7 +126,9 @@ jobs:
           if-no-files-found: error
   ios:
     needs: verify
-    if: github.event_name == 'workflow_dispatch' && contains(fromJSON('["ios","all"]'), inputs.packages)
+    if: >-
+      (github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
+      (github.event_name == 'workflow_dispatch' && contains(fromJSON('["ios","all"]'), inputs.packages))
     runs-on: macos-latest
     defaults:
       run:
