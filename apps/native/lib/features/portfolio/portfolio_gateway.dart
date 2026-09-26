@@ -73,9 +73,8 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   final _unlockChanges = StreamController<bool>.broadcast(sync: true);
 
   LocalEncryptedPortfolioGateway({
-    MobileExternalStorage mobileExternalStorage =
-        const MethodChannelMobileExternalStorage(),
-  }) : _mobileExternalStorage = mobileExternalStorage;
+    this._mobileExternalStorage = const MethodChannelMobileExternalStorage(),
+  });
 
   @override
   bool get supported =>
@@ -233,7 +232,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
       if (bytes.isEmpty || bytes.length > _maxPortableBackupBytes) {
         throw const FormatException('vault.file_too_large');
       }
-      return _mobileExternalStorage.exportEncryptedBackup(
+      return await _mobileExternalStorage.exportEncryptedBackup(
         suggestedName: suggestedName,
         bytes: bytes,
       );
@@ -273,7 +272,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     final staging = await _portableBackupStagingFile('import');
     try {
       await staging.writeAsBytes(bytes, flush: true);
-      return _restorePortableBackupFile(
+      return await _restorePortableBackupFile(
         staging,
         recoverySecret: recoverySecret,
       );
