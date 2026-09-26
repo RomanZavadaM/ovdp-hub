@@ -18,6 +18,32 @@ Future<void> _pumpUi(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 250));
 }
 
+class _MemoryUiPreferences implements UiPreferencesPersistence {
+  UiPreferencesSnapshot _current;
+
+  _MemoryUiPreferences([
+    this._current = const UiPreferencesSnapshot(),
+  ]);
+
+  @override
+  UiPreferencesSnapshot get current => _current;
+
+  @override
+  Future<void> selectLanguage(AppLanguage language) {
+    _current = _current.copyWith(language: language);
+    return Future<void>.value();
+  }
+
+  @override
+  Future<void> selectAppearance(HubAppearance appearance) {
+    _current = _current.copyWith(appearance: appearance);
+    return Future<void>.value();
+  }
+
+  @override
+  Future<void> flush() => Future<void>.value();
+}
+
 void main() {
   late Catalog catalog;
 
@@ -54,24 +80,21 @@ void main() {
     expect(recovered.current.appearance, HubAppearance.studio);
   });
 
-  testWidgets('visible controls persist language and appearance', (tester) async {
+  testWidgets('visible controls update persisted preference contract', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final directory = await Directory.systemTemp.createTemp(
-      'ovdp-ui-preferences-controls-',
-    );
-    addTearDown(() => directory.delete(recursive: true));
-    final file = File('${directory.path}/ui-preferences.json');
-    final store = await UiPreferencesStore.open(file);
+    final preferences = _MemoryUiPreferences();
 
     await tester.pumpWidget(
       OvdpApp(
         repository: FakeRepository(catalog),
-        initialUiPreferences: store.current,
-        uiPreferencesStore: store,
+        initialUiPreferences: preferences.current,
+        uiPreferencesStore: preferences,
       ),
     );
     await _pumpUi(tester);
@@ -88,19 +111,14 @@ void main() {
 
     expect(find.byType(DashboardHeader), findsOneWidget);
     expect(find.text('Catalog'), findsWidgets);
-    expect(store.current.language, AppLanguage.en);
-    expect(store.current.appearance, HubAppearance.dashboard);
-    await store.flush();
-
-    final reopened = await UiPreferencesStore.open(file);
-    expect(reopened.current.language, AppLanguage.en);
-    expect(reopened.current.appearance, HubAppearance.dashboard);
+    expect(preferences.current.language, AppLanguage.en);
+    expect(preferences.current.appearance, HubAppearance.dashboard);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await _pumpUi(tester);
   });
 
-  testWidgets('persisted UI preferences restore on a new app construction', (
+  testWidgets('restored snapshot is applied on a new app construction', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1280, 900);
@@ -108,22 +126,18 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final directory = await Directory.systemTemp.createTemp(
-      'ovdp-ui-preferences-restore-',
+    final restored = _MemoryUiPreferences(
+      const UiPreferencesSnapshot(
+        language: AppLanguage.en,
+        appearance: HubAppearance.dashboard,
+      ),
     );
-    addTearDown(() => directory.delete(recursive: true));
-    final file = File('${directory.path}/ui-preferences.json');
-    final store = await UiPreferencesStore.open(file);
-    await store.selectLanguage(AppLanguage.en);
-    await store.selectAppearance(HubAppearance.dashboard);
-    await store.flush();
 
-    final reopened = await UiPreferencesStore.open(file);
     await tester.pumpWidget(
       OvdpApp(
         repository: FakeRepository(catalog),
-        initialUiPreferences: reopened.current,
-        uiPreferencesStore: reopened,
+        initialUiPreferences: restored.current,
+        uiPreferencesStore: restored,
       ),
     );
     await _pumpUi(tester);
