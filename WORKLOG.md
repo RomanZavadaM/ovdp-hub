@@ -80,34 +80,49 @@ Append-only ledger: GitHub Issue **#18**
 - user guides updated in all seven languages;
 - CI now enforces Windows + macOS packaged desktop smoke automatically when a PR is Ready.
 
-## Поточний slice
-
-Статус: **DOING / VERIFY GREEN, PACKAGED GATES NEXT**
-
-Мета: **unified reusable date-control UX / picker для Planner + Portfolio**.
-
+### Unified reusable date-control UX — DONE
 - base main: `62bf948b1550cb723f12aa18e8ed7070df54f9ed`;
 - branch: `feat/unified-date-controls`;
-- active draft PR: **#125**;
-- reusable `HubDateField` має locale-friendly compact display, calendar picker, keyboard/ISO fallback і strict invalid-date handling;
-- canonical persistence залишається `YYYY-MM-DD`; persisted Planner/Portfolio schema не змінюються;
-- Planner `start/minDate/maxDate` зберігає explicit reset-confirmation contract; shared control також підключений до need/expense/reserve-floor/FX/position-exit dates;
-- Portfolio purchase/sale/coupon/redemption dialogs використовують той самий shared control, але передають у domain лише canonical ISO;
-- existing sale/coupon/redemption visible-control keys збережені;
-- додано real-control regression для Planner invalid draft + visible picker;
-- додано phone-sized Portfolio regression: navigation → open → add purchase → date picker, з overflow/exception check;
-- run #447 виявив brittle text-only regression assert; canonical Planner date при цьому не змінювався;
-- run #449 виявив test-only analyze error через неіснуючий `TextFormField.decoration` getter;
-- regression виправлено через перевірку rendered `InputDecorator.errorText`, production code не змінювався;
-- exact-head implementation/test commit: `063d1d7dc90753a8118a40c7a812cb069f6f7eac`;
-- exact-head run **#450 — success**: `flutter analyze` + повний `flutter test` green;
-- цей WORKLOG update є docs-only зміною; після нього потрібен фінальний exact-head verify перед Ready.
+- PR #125 final head: **`c0b37782a0d70b03a6bc8a6f971b4c8d3b99d16f`**;
+- reusable `HubDateField`: locale-friendly compact display, calendar picker, keyboard/ISO fallback, strict invalid-date handling;
+- canonical persistence лишилася `YYYY-MM-DD`; Planner/Portfolio persisted schema не змінені;
+- Planner `start/minDate/maxDate` зберіг explicit reset-confirmation contract; shared control також підключено до need/expense/reserve-floor/FX/position-exit dates;
+- Portfolio purchase/sale/coupon/redemption dialogs використовують той самий control і передають у domain лише canonical ISO;
+- real Planner regression перевіряє invalid draft без зміни canonical state + visible picker;
+- phone-sized Portfolio regression перевіряє navigation → open → add purchase → date picker без overflow/exception;
+- run #447 виявив brittle localized-text test assertion; run #449 — test-only analyze error через неіснуючий getter; production behavior не послаблювали;
+- implementation/test head `063d1d7dc90753a8118a40c7a812cb069f6f7eac`, run #450 — success;
+- final docs-synced exact-head run **#452 — success**;
+- Ready run **#453 — success**: verify + Windows/macOS release build + versioned package + exact packaged executable smoke;
+- Windows artifact: `OVDP-Hub-0.9.3-b20-windows-453-1-8bca4fc`, digest `02f3c98e436dc5b93e9268a77cc5e337fa8c2f7f3e6f0e025b37ad691175dd5f`;
+- macOS artifact: `OVDP-Hub-0.9.3-b20-macos-453-1-8bca4fc`, digest `b2985005b79d12a9bd1c1091de7b98036f2d5e301dd7631ffea987635ebfa10a`;
+- merge: **`c94fbce63bc53cc9f1a2b87a555f056c14e533f5`**;
+- post-merge main run **#454 — success**, including verify + START/source;
+- START artifact: `OVDP-Hub-0.9.3-test-454-1-START`, digest `3aef90daf2a3f9ce4760577aafc84128a8b512fc1dccdc05df1667f7cf9917c3`.
+
+## Поточний slice
+
+Статус: **IDLE / SAVED — NEXT READY**
+
+Поточний інтегрований product baseline:
+**`c94fbce63bc53cc9f1a2b87a555f056c14e533f5`**.
+
+Поточна `docs/sync-after-date-controls` — лише state-sync документації після вже інтегрованого PR #125; не є implementation source.
 
 ## Поточна наступна дія
 
-**DOING — пройти фінальний exact-head verify на docs-synced head, перевести PR #125 у Ready, дочекатися автоматичних Windows + macOS packaged build/smoke gates і інтегрувати PR у `main` лише після повністю green exact-head.**
+**NEXT — macOS Portfolio runtime Keychain validation + enablement.**
 
-Після цього окремо повернутися до macOS Portfolio runtime Keychain validation/enablement, mobile external-folder access і distribution signing gates.
+Scope наступного implementation slice:
+- не вмикати macOS лише додаванням `Platform.isMacOS`;
+- реальний macOS Keychain create/open/lock/reopen smoke;
+- backup/recovery lifecycle smoke;
+- packaged macOS app runtime validation;
+- лише після green увімкнути macOS у `PortfolioGateway.supported`;
+- оновити platform capability docs та real-control/platform regressions;
+- не змішувати цей slice з Android SAF / iOS security-scoped storage або production signing/notarization.
+
+Після цього окремими gates лишаються mobile external-folder access, distribution signing і подальші audit UX/domain slices.
 
 ## Deferred gates
 
