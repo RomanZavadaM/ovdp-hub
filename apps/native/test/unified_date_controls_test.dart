@@ -60,8 +60,13 @@ void main() {
       await tester.pump();
 
       expect(cubit.state.criteria['start'], originalStart);
+      final startDecorator = find.descendant(
+        of: startInput,
+        matching: find.byType(InputDecorator),
+      );
+      expect(startDecorator, findsOneWidget);
       expect(
-        tester.widget<TextFormField>(startInput).decoration?.errorText,
+        tester.widget<InputDecorator>(startDecorator).decoration.errorText,
         isNotNull,
       );
 
