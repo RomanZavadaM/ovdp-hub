@@ -88,24 +88,45 @@ PR: **#127**
 
 ## Поточний slice
 
-Статус: **IDLE / SAVED — NEXT READY**
+Статус: **DOING — mobile external storage gate**
 
-Поточний інтегрований product baseline:
-**`4c1617b3f0636c6ca33a35b2f992766dc4649cde`**.
+Base main: `89887d39d2bb2c4e894ca09e4141161559992f7b`  
+Branch: `feat/mobile-external-storage`  
+PR: **#130 — Mobile: add external storage foundation (draft)**
 
-Поточна `docs/sync-after-macos-keychain` — лише state-sync після вже інтегрованого PR #127; не є implementation source.
+Вже реалізовано:
+- platform-neutral `MobileExternalStorage` MethodChannel contract;
+- Android SAF bridge з persisted tree grant і bounded I/O;
+- iOS security-scoped bookmark bridge з coordinated I/O;
+- Android/iOS portable encrypted Portfolio backup/restore через app-private staging без зміни vault schema/crypto;
+- `MobileExternalWorkspace` використовує app-owned `OVDP-Hub-Workspace` subtree у вибраній папці;
+- workspace settings зберігають opaque grant id + label, а втрата permission fail-closed;
+- нова/порожня зовнішня папка обробляється окремо від втрати grant;
+- desktop `FileHubRepository` поведінка не замінена мобільною логікою;
+- legacy plaintext migration тепер бере тільки `hubRepository.current?.localPath`, тому mobile display label не може бути помилково використаний як filesystem path;
+- `.github/workflows/native.yml` підготовлений так, щоб Ready PR запускав Android release APK та unsigned iOS release compile gates поряд із desktop gates.
+
+Підтверджений проміжний checkpoint:
+- head `02d809145f3d47f30c10b1e38f3b75583303eb51`;
+- `flutter analyze` — PASS;
+- `flutter test` — **212 tests PASS**;
+- mobile storage regressions: traversal rejection, lost native permission, oversized import, cancellation;
+- external workspace regressions: reopen via opaque grant + fail-closed after grant loss.
+
+Поточний head: **`b8bb8ae89c9ec5e3eb9f0bba25d7af72f6caddd7`**.
+- exact-head run **#488**: `flutter analyze` PASS, `flutter test` FAILURE;
+- Android/iOS/desktop jobs у #488 skipped, бо PR ще draft і verify не green;
+- причина failing test ще не вважається встановленою до аналізу job log;
+- PR **не переводити в Ready і не merge**, доки exact-head analyze/tests не green.
 
 ## Поточна наступна дія
 
-**NEXT — Android SAF + iOS security-scoped external-folder access.**
+**NEXT — розібрати конкретний failing test у run #488, виправити тільки його причину, отримати green exact-head analyze + full tests, потім перевести PR #130 у Ready і запустити Android APK + unsigned iOS + desktop compile/package gates.**
 
-Scope наступного implementation slice:
-- user-facing external workspace / backup file flow на Android через SAF, без прямого desktop path assumption;
-- user-facing external file/folder access на iOS через security-scoped platform contract/bookmarks;
-- не змінювати encrypted Portfolio schema або фінансову математику;
-- не змішувати цей slice з production signing/notarization/store distribution;
-- fail closed, якщо external permission/persistent access втрачений;
-- додати реальні platform regressions/gates, а не лише compile mocks.
+Після green native gates:
+- зафіксувати artifacts/runs у Issue #18 і цьому WORKLOG;
+- синхронізувати `START_HERE.md`, `PROJECT_STATE.md`, product/platform docs;
+- тільки після цього вирішувати інтеграцію PR #130 у `main`.
 
 ## Deferred gates
 
@@ -130,4 +151,4 @@ Scope наступного implementation slice:
 4. цей `WORKLOG.md`;
 5. фактичний GitHub `main` / open PR / CI;
 6. останні записи Issue #18;
-7. продовжити `NEXT`.
+7. продовжити поточний `NEXT`, не повторюючи завершені checkpoints.
