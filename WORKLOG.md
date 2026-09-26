@@ -82,26 +82,27 @@ Append-only ledger: GitHub Issue **#18**
 
 ## Поточний slice
 
-Статус: **IDLE / SAVED**
+Статус: **DOING**
 
-Активного implementation PR немає. Поточний інтегрований product baseline:
-**`6e6326c6c8ed00e86908a1eb533bd0cb80bdfaaf`**.
+Мета: **unified reusable date-control UX / picker для Planner + Portfolio**.
 
-Поточна `docs/sync-after-ui-preferences` — лише state-sync документації після вже інтегрованого PR #123; не є окремим implementation source.
+- base main: `62bf948b1550cb723f12aa18e8ed7070df54f9ed`;
+- branch: `feat/unified-date-controls`;
+- active draft PR: **#125**;
+- reusable `HubDateField` має locale-friendly compact display, calendar picker, keyboard/ISO fallback і strict invalid-date handling;
+- canonical persistence залишається `YYYY-MM-DD`; persisted Planner/Portfolio schema не змінюються;
+- Planner `start/minDate/maxDate` зберігає explicit reset-confirmation contract; shared control також підключений до need/expense/reserve-floor/FX/position-exit dates;
+- Portfolio purchase/sale/coupon/redemption dialogs використовують той самий shared control, але передають у domain лише canonical ISO;
+- existing sale/coupon/redemption visible-control keys збережені;
+- додано real-control regression для Planner invalid draft + visible picker;
+- додано phone-sized Portfolio regression: navigation → open → add purchase → date picker, з overflow/exception check;
+- тимчасовий assert-based patch workflow та helper були self-deleting і не входять у product diff;
+- current implementation/test head before this WORKLOG update: `e07e8ea3fe2c41a0d280e9a42e2e3a0bcddccb18`;
+- exact-head verify run #447 запущено; результат ще не зафіксований.
 
 ## Поточна наступна дія
 
-**NEXT — unified reusable date-control UX / picker для Planner + Portfolio.**
-
-Scope наступного implementation slice:
-- один reusable date control замість двох несумісних manual UX;
-- locale-friendly display;
-- calendar picker + keyboard fallback;
-- explicit invalid/intermediate validation;
-- canonical existing date persistence;
-- **без зміни persisted Planner/Portfolio schema**;
-- не ламати вже інтегровану Planner confirmation/state-safety поведінку;
-- real visible-control regressions для Planner і Portfolio, включно з phone-sized reachability.
+**DOING — дочекатися exact-head analyze/tests для PR #125, виправити тільки фактичні regressions, після green перевести PR у Ready і пройти автоматичні Windows + macOS packaged smoke gates. Інтегрувати в `main` лише після повністю green exact-head.**
 
 Після цього окремо повернутися до macOS Portfolio runtime Keychain validation/enablement, mobile external-folder access і distribution signing gates.
 
