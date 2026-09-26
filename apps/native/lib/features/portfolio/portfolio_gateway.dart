@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:file_selector/file_selector.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import '../../platform/mobile_external_storage.dart';
 import '../../security/vault_crypto.dart';
 import '../../security/vault_device_key_store.dart';
 import '../../security/vault_device_key_store_secure.dart';
@@ -57,20 +59,32 @@ bool isEncryptedPortfolioPlatformSupported(String operatingSystem) => const {
   'macos',
 }.contains(operatingSystem);
 
+bool isPortablePortfolioBackupPlatformSupported(String operatingSystem) =>
+    const {'windows', 'android', 'ios'}.contains(operatingSystem);
+
 class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   static const vaultId = 'primary-portfolio';
   static const portfolioId = 'primary';
+  static const _maxPortableBackupBytes = 20 * 1024 * 1024;
 
+  final MobileExternalStorage _mobileExternalStorage;
   LocalVaultStore? _store;
   VaultSessionController? _session;
   final _unlockChanges = StreamController<bool>.broadcast(sync: true);
+
+  LocalEncryptedPortfolioGateway({
+    MobileExternalStorage mobileExternalStorage =
+        const MethodChannelMobileExternalStorage(),
+  }) : _mobileExternalStorage = mobileExternalStorage;
 
   @override
   bool get supported =>
       isEncryptedPortfolioPlatformSupported(Platform.operatingSystem);
 
   @override
-  bool get portableBackupSupported => supported && Platform.isWindows;
+  bool get portableBackupSupported =>
+      supported &&
+      isPortablePortfolioBackupPlatformSupported(Platform.operatingSystem);
 
   @override
   bool get unlocked => _session?.state.isUnlocked ?? false;
@@ -193,15 +207,39 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     final now = DateTime.now().toUtc();
     final stamp =
         '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
-    final location = await getSaveLocation(
-      suggestedName: 'OVDP-Hub-portfolio-backup-$stamp.ovdp-vault.json',
-    );
-    if (location == null) return null;
-    final file = await _store!.createEncryptedBackup(
-      vaultId: vaultId,
-      destination: File(location.path),
-    );
-    return file.path;
+    final suggestedName =
+        'OVDP-Hub-portfolio-backup-$stamp.ovdp-vault.json';
+
+    if (Platform.isWindows) {
+      final location = await getSaveLocation(suggestedName: suggestedName);
+      if (location == null) return null;
+      final file = await _store!.createEncryptedBackup(
+        vaultId: vaultId,
+        destination: File(location.path),
+      );
+      return file.path;
+    }
+
+    if (!_mobileExternalStorage.supported) {
+      throw UnsupportedError('portfolio.portable_backup_unsupported');
+    }
+    final staging = await _portableBackupStagingFile('export');
+    try {
+      final file = await _store!.createEncryptedBackup(
+        vaultId: vaultId,
+        destination: staging,
+      );
+      final bytes = await file.readAsBytes();
+      if (bytes.isEmpty || bytes.length > _maxPortableBackupBytes) {
+        throw const FormatException('vault.file_too_large');
+      }
+      return _mobileExternalStorage.exportEncryptedBackup(
+        suggestedName: suggestedName,
+        bytes: bytes,
+      );
+    } finally {
+      if (await staging.exists()) await staging.delete();
+    }
   }
 
   @override
@@ -212,20 +250,62 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
       throw UnsupportedError('portfolio.portable_backup_unsupported');
     }
     await _ensureReady();
-    final selected = await openFile();
-    if (selected == null) return null;
 
+    if (Platform.isWindows) {
+      final selected = await openFile();
+      if (selected == null) return null;
+      return _restorePortableBackupFile(
+        File(selected.path),
+        recoverySecret: recoverySecret,
+      );
+    }
+
+    if (!_mobileExternalStorage.supported) {
+      throw UnsupportedError('portfolio.portable_backup_unsupported');
+    }
+    final bytes = await _mobileExternalStorage.importEncryptedBackup(
+      maxBytes: _maxPortableBackupBytes,
+    );
+    if (bytes == null) return null;
+    if (bytes.isEmpty || bytes.length > _maxPortableBackupBytes) {
+      throw const FormatException('vault.file_too_large');
+    }
+    final staging = await _portableBackupStagingFile('import');
+    try {
+      await staging.writeAsBytes(bytes, flush: true);
+      return _restorePortableBackupFile(
+        staging,
+        recoverySecret: recoverySecret,
+      );
+    } finally {
+      if (await staging.exists()) await staging.delete();
+    }
+  }
+
+  Future<PrivatePortfolioPayload> _restorePortableBackupFile(
+    File source, {
+    required String recoverySecret,
+  }) async {
     final session = _session!;
     if (session.state.isUnlocked) {
       await session.lock();
     }
     final restored = await _store!.restoreEncryptedBackup(
       vaultId: vaultId,
-      source: File(selected.path),
+      source: source,
       recoverySecret: recoverySecret,
     );
     restored.plainText.fillRange(0, restored.plainText.length, 0);
     return open();
+  }
+
+  Future<File> _portableBackupStagingFile(String operation) async {
+    final root = Directory(
+      p.join((await getTemporaryDirectory()).path, 'OVDP Hub', 'portable'),
+    );
+    await root.create(recursive: true);
+    final nonce = DateTime.now().toUtc().microsecondsSinceEpoch;
+    return File(p.join(root.path, '$operation-$nonce.ovdp-vault.json'));
   }
 
   @override
