@@ -60,11 +60,14 @@
 - First audit fix is **DONE**: PR #117 → `fc38177a…`; recovery confirmation/rotation plus Windows portable encrypted backup/restore; exact-head #417 and post-merge #418 — success.
 - Planner safe criteria/date editing is **DONE**: PR #119 → `ad3a995a…`; exact-head #420 and post-merge #421 — success.
 - Catalog localization + locale-neutral collection variant cleanup is **DONE**: PR #120 → `5638f56e…`; final exact-head #428 and post-merge #429 — success. Runs #422/#424 are retained as useful failed evidence that caught a no-op CRLF patch.
-- Current integrated main: **`5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`**.
+- Language + appearance persistence is **DONE**: PR #123 → `6e6326c6…`; exact-head run #439 — 197/197 tests + Windows/macOS packaged smoke; post-merge main run #440 — verify + START/source success.
+- Non-sensitive UI preferences are stored in app-support `ui-preferences.json`, separate from workspace/private vault; corrupt/unknown data fails safe to Ukrainian + Workbench.
+- Ready user-visible PRs now automatically enforce packaged Windows + macOS smoke before merge.
+- Current integrated product baseline: **`6e6326c6c8ed00e86908a1eb533bd0cb80bdfaaf`**.
 - Android SAF / iOS security-scoped external-folder access remains deferred.
 - macOS encrypted Portfolio remains gated on real Keychain runtime/provisioning validation.
 - Production signing/notarization remains deferred.
-- **NEXT:** persist selected language + appearance between launches as non-sensitive UI preferences, separate from workspace/private vault.
+- **NEXT:** unified reusable date-control UX / picker for Planner + Portfolio: locale-friendly display, picker + keyboard fallback, canonical existing persistence, explicit validation, no persisted-schema change.
 
 ## Rule for new chats
 
