@@ -1,0 +1,30 @@
+name: Fix iOS mobile bookmarks
+
+on:
+  pull_request:
+    types: [synchronize]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.ref == 'feat/mobile-external-storage' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/mobile-external-storage
+      - name: Apply exact iOS bookmark patch
+        run: python3 scripts/fix-ios-mobile-bookmarks.py
+      - name: Commit AppDelegate only
+        run: |
+          git config user.name "ovdp-hub-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add apps/native/ios/Runner/AppDelegate.swift
+          if git diff --cached --quiet; then
+            echo "No AppDelegate changes to commit"
+            exit 0
+          fi
+          git commit -m "iOS: use UIKit-supported directory bookmarks"
+          git push origin HEAD:feat/mobile-external-storage
