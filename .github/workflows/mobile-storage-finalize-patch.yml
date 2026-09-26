@@ -1,0 +1,31 @@
+name: Mobile storage finalize patch
+
+on:
+  pull_request:
+    types: [synchronize]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.ref == 'feat/mobile-external-storage' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/mobile-external-storage
+      - name: Apply exact patch
+        run: python3 scripts/mobile-storage-finalize-patch.py
+      - name: Commit patched sources and remove helper
+        run: |
+          rm scripts/mobile-storage-finalize-patch.py .github/workflows/mobile-storage-finalize-patch.yml
+          git config user.name "ovdp-hub-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add apps/native/lib/features/portfolio/portfolio_cubit.dart .github/workflows/native.yml scripts/mobile-storage-finalize-patch.py .github/workflows/mobile-storage-finalize-patch.yml
+          if git diff --cached --quiet; then
+            echo "No patch changes to commit"
+            exit 0
+          fi
+          git commit -m "Mobile: finalize legacy path and compile gates"
+          git push origin HEAD:feat/mobile-external-storage
