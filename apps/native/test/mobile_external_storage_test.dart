@@ -6,6 +6,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const channel = MethodChannel(MethodChannelMobileExternalStorage.channelName);
+  const storage = MethodChannelMobileExternalStorage(supportedOverride: true);
 
   tearDown(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -31,7 +32,6 @@ void main() {
           return null;
         });
 
-    const storage = MethodChannelMobileExternalStorage();
     await expectLater(
       storage.readWorkspaceText(
         grantId: '12345678',
@@ -49,7 +49,6 @@ void main() {
           throw PlatformException(code: 'workspace.external_permission_lost');
         });
 
-    const storage = MethodChannelMobileExternalStorage();
     await expectLater(
       storage.workspaceFolderAvailable('12345678'),
       throwsA(
@@ -69,7 +68,6 @@ void main() {
           return Uint8List(9);
         });
 
-    const storage = MethodChannelMobileExternalStorage();
     await expectLater(
       storage.importEncryptedBackup(maxBytes: 8),
       throwsFormatException,
@@ -80,7 +78,6 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async => null);
 
-    const storage = MethodChannelMobileExternalStorage();
     expect(await storage.importEncryptedBackup(maxBytes: 1024), isNull);
   });
 }
