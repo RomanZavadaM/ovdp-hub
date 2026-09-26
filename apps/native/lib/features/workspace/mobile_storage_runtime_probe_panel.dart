@@ -1,15 +1,24 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../build_info.dart';
 import '../../l10n/hub_locale.dart';
 import '../../platform/mobile_external_storage.dart';
 import '../../platform/mobile_storage_runtime_probe.dart';
 import 'mobile_storage_runtime_probe_strings.dart';
 
 class MobileStorageRuntimeProbePanel extends StatefulWidget {
-  const MobileStorageRuntimeProbePanel({super.key});
+  final MobileStorageRuntimeProbe? probe;
+  final bool? supportedOverride;
+
+  const MobileStorageRuntimeProbePanel({
+    super.key,
+    this.probe,
+    this.supportedOverride,
+  });
 
   @override
   State<MobileStorageRuntimeProbePanel> createState() =>
@@ -30,7 +39,10 @@ class _MobileStorageRuntimeProbePanelState
   @override
   void initState() {
     super.initState();
-    _supported = const MethodChannelMobileExternalStorage().supported;
+    _supported =
+        widget.supportedOverride ??
+        widget.probe?.storage.supported ??
+        const MethodChannelMobileExternalStorage().supported;
     if (_supported) {
       unawaited(_load());
     } else {
@@ -40,7 +52,7 @@ class _MobileStorageRuntimeProbePanelState
 
   Future<void> _load() async {
     try {
-      final probe = await MobileStorageRuntimeProbe.platform();
+      final probe = widget.probe ?? await MobileStorageRuntimeProbe.platform();
       final snapshot = await probe.load();
       if (!mounted) return;
       setState(() {
@@ -126,6 +138,12 @@ class _MobileStorageRuntimeProbePanelState
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 6),
+            SelectableText(
+              'OVDP Hub $appDisplayVersion · '
+              '${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
+              style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 10),
             Text(strings.intro),
