@@ -15,7 +15,12 @@ class FakeRepository implements HubRepository {
   final Map<String, String> exportedFiles = {};
   Completer<void>? gate;
   FakeRepository(Catalog catalog)
-    : current = WorkspaceSnapshot('local', catalog, []);
+    : current = WorkspaceSnapshot(
+        'local',
+        catalog,
+        [],
+        localPath: 'local',
+      );
   @override
   Stream<WorkspaceSnapshot> get changes => controller.stream;
   @override
@@ -29,7 +34,12 @@ class FakeRepository implements HubRepository {
     await gate?.future;
     if (switchError != null) throw switchError!;
     if (switchAccepted) {
-      current = WorkspaceSnapshot('new', current!.catalog, []);
+      current = WorkspaceSnapshot(
+        'new',
+        current!.catalog,
+        [],
+        localPath: 'new',
+      );
       controller.add(current!);
     }
     return switchAccepted;
@@ -51,10 +61,13 @@ class FakeRepository implements HubRepository {
     saves++;
     await gate?.future;
     if (saveError != null) throw saveError!;
-    current = WorkspaceSnapshot(current!.path, current!.catalog, [
-      collection,
-      ...current!.sets,
-    ]);
+    current = WorkspaceSnapshot(
+      current!.path,
+      current!.catalog,
+      [collection, ...current!.sets],
+      localPath: current!.localPath,
+      external: current!.external,
+    );
     controller.add(current!);
   }
 

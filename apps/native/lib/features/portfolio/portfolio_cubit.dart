@@ -431,7 +431,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     if (state.payload == null) {
       throw StateError('vault.session_locked');
     }
-    final workspacePath = hubRepository.current?.path;
+    final workspacePath = hubRepository.current?.localPath;
     if (workspacePath == null || workspacePath.isEmpty) {
       throw StateError('workspace.not_open');
     }
