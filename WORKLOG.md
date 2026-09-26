@@ -7,7 +7,7 @@
 Підтверджений стан main: `PROJECT_STATE.md`  
 Append-only ledger: GitHub Issue **#18**
 
-> Детальні проміжні runs і невдалі спроби зберігаються в Issue #18. Тут — тільки контрольні точки, поточний PR і точний NEXT.
+> Детальні проміжні runs і невдалі спроби зберігаються в Issue #18. Тут — остання інтегрована контрольна точка і точний NEXT.
 
 ## Поточний опублікований checkpoint
 
@@ -20,69 +20,75 @@ Append-only ledger: GitHub Issue **#18**
 
 ## Останній інтегрований baseline
 
-До mobile-storage slice `main` = **`89887d39d2bb2c4e894ca09e4141161559992f7b`**.
+`main` = **`5934984a3ad763f8c9f77bd0872077c381adacc2`**.
 
-Раніше завершено: post-v0.9.3 audit; Portfolio recovery/Windows portable backup; Planner safe date/criteria editing; catalog localization; persisted UI preferences; unified date controls; macOS Portfolio Keychain runtime validation + enablement.
+## Mobile external storage foundation — DONE
 
-## Поточний slice — mobile external storage foundation
-
-Статус: **READY FOR FINAL DOCS-SYNC GATE; NOT MERGED YET**
-
-Branch: `feat/mobile-external-storage`  
-PR: **#130 — Mobile: add external storage foundation**
+PR: **#130 — Mobile: add external storage foundation**  
+Merge: **`5934984a3ad763f8c9f77bd0872077c381adacc2`**
 
 ### Реалізовано
 
 - platform-neutral `MobileExternalStorage` MethodChannel contract;
 - Android SAF bridge з persisted tree grant і bounded read/write/list/delete;
 - iOS document/folder picker bridge, bookmarks, `startAccessingSecurityScopedResource()` і coordinated I/O;
-- Android/iOS encrypted Portfolio backup transport через app-private staging, без зміни vault schema/crypto;
+- Android/iOS encrypted Portfolio backup transport через app-private staging без зміни vault schema/crypto;
 - `MobileExternalWorkspace` з app-owned `OVDP-Hub-Workspace` subtree;
-- persisted settings містять тільки opaque grant id + display label;
-- втрата permission/grant fail-closed, без мовчазного fallback/recreate;
-- legacy plaintext migration використовує тільки `WorkspaceSnapshot.localPath`, mobile label не трактується як filesystem path;
+- persisted settings містять opaque grant id + display label;
+- permission/grant loss fail-closed, без мовчазного fallback/recreate;
+- legacy plaintext migration використовує тільки `WorkspaceSnapshot.localPath`;
 - desktop `FileHubRepository` не замінений мобільною логікою;
-- Ready PR workflow тепер реально компілює Android release APK та unsigned iOS release поряд із Windows/macOS package gates.
+- Ready PR workflow компілює Android release APK та unsigned iOS release поряд із Windows/macOS packaged gates.
 
-### Виявлені та виправлені проблеми
+### Проблеми, які gate реально зловив
 
-1. Run **#488**: два Portfolio tests впали, бо test `FakeRepository` не моделював новий `WorkspaceSnapshot.localPath`. Виправлено без послаблення production checks.
-2. Head `de16fcc2ba2b40dbe6feda61fd21b0fe49c19c04`, run **#490**: analyze + **212/212 tests PASS**.
-3. Ready run **#491**: Windows/macOS green, але iOS compile впав — `withSecurityScope` bookmark option unavailable on iOS SDK.
-4. iOS bridge переведено на UIKit-compatible `.minimalBookmark` / `.withoutUI`, при цьому доступ і далі відкривається через `startAccessingSecurityScopedResource()`.
-5. Temporary one-shot helper/workflow для патчу прибрані; у PR лишився тільки production change.
+1. Run **#488**: test `FakeRepository` не моделював новий `WorkspaceSnapshot.localPath`; виправлено без послаблення production checks.
+2. Run **#491**: iOS compile впав через macOS-only `.withSecurityScope` bookmark option.
+3. iOS bridge переведено на UIKit-compatible `.minimalBookmark` / `.withoutUI`, при цьому scoped access лишився через `startAccessingSecurityScopedResource()`.
 
-### Підтверджений native checkpoint
+### Фінальний exact-head gate
 
-Verified head before this docs sync: **`7e26ef3cc691e683f7b9ca2a6d2c631690eb95fb`**.
+Docs-synced PR head: **`f6243794eea927e4b73cb85f666739d62c633e8f`**.
 
-Run **#496 — SUCCESS**:
-- verify: `flutter analyze` + **212/212 tests**;
-- Windows release package + packaged smoke — success;
-- macOS release package + packaged smoke — success;
-- Android `flutter build apk --release` + package upload — success;
-- iOS `flutter build ios --release --no-codesign` + package upload — success.
+Run **#497 — SUCCESS**:
+- `flutter analyze` + **212/212 tests**;
+- Windows release package + packaged smoke;
+- macOS release package + packaged smoke;
+- Android `flutter build apk --release` + package upload;
+- iOS `flutter build ios --release --no-codesign` + package upload.
 
-Artifacts:
-- `OVDP-Hub-0.9.3-b20-windows-496-1-58da42d`, SHA-256 `6bfd224e8d34917fd17d3aa66c091c0c49a5108c6dc142bf1841071bca227879`;
-- `OVDP-Hub-0.9.3-b20-macos-496-1-58da42d`, SHA-256 `a1b8bdd58c5f4d1d2bf931fb4113e2f29afabb1765349563a9b82d832006a446`;
-- `OVDP-Hub-Android-test-496-1`, SHA-256 `6c6da1dda2489b03b174710be439434899fc5dc3151475dc5b084f507d9eb7d8`;
-- `OVDP-Hub-iOS-unsigned-496-1`, SHA-256 `bf533e28070e7ed179d1078563f5eda7b0c9277f840ac67daa828686f6acf6e6`.
+Artifacts #497:
+- Windows `OVDP-Hub-0.9.3-b20-windows-497-1-e0ebc58`, SHA-256 `a7a8484354ce7500dd775e6db20efa9d38e6f940d1d479c176e59de4908bd2d5`;
+- macOS `OVDP-Hub-0.9.3-b20-macos-497-1-e0ebc58`, SHA-256 `6b45a99794c394a1e6d55ef4b8e0a332a43b063d16f951d58e49a0417036c7f9`;
+- Android `OVDP-Hub-Android-test-497-1`, SHA-256 `835e8993f91d8f03db4922bc630619a3be69dabcd0bb5ea3dd146260aa386fac`;
+- iOS `OVDP-Hub-iOS-unsigned-497-1`, SHA-256 `dfcabda484a0fb507c382eb47b3ae54e9341976f348ee077665ba5230a84e88d`.
 
-### Межа доказу
+### Post-merge
 
-Цей checkpoint доводить contract tests + release compilation/package на всіх 4 платформах. Він **не замінює реальний mobile device runtime gate**.
+- PR #130 merged into `main` as **`5934984a…`**;
+- post-merge run **#498 — SUCCESS**, verify + START/source;
+- START artifact `OVDP-Hub-0.9.3-test-498-1-START`, SHA-256 `caf066800744f7b9a055f9577d59e47e5ceeaf8100569949d93cc2253f3253fd`.
 
-Ще треба перевірити на фізичних пристроях:
-- Android SAF picker → persistent URI permission → relaunch → read/write → revoked grant fail-closed;
-- iOS folder picker → bookmark save/restore → relaunch → scoped read/write → permission/provider loss fail-closed.
+## Межа доказу
 
-## NEXT
+PR #130 закриває implementation + contract-test + release compile/package gate. Він **не закриває physical-device persistent-access runtime gate**.
 
-1. Final docs-synced exact-head CI на PR #130.
-2. Якщо green — звичайна технічна інтеграція PR #130 у `main`.
-3. Записати merge SHA + post-merge main run в Issue #18.
-4. Наступний окремий slice — **Android/iOS real-device external-storage runtime validation**.
+Не вважати ще доведеним:
+- Android SAF grant persistence після relaunch на реальному пристрої;
+- Android revoke/provider-loss behavior на реальному пристрої;
+- iOS bookmark persistence/resolution після relaunch на реальному пристрої;
+- iOS stale/lost/provider edge cases на реальному пристрої.
+
+## Поточний NEXT
+
+**Android/iOS real-device external-storage runtime validation.**
+
+Порядок:
+1. Підготувати вузький runtime-validation harness/checklist без зміни crypto/schema/financial math.
+2. Android: picker → persisted grant → relaunch → read/write/list/delete → revoked grant fail-closed.
+3. iOS: picker → bookmark restore → relaunch → security-scoped read/write/list/delete → permission/provider loss fail-closed.
+4. Для кожного тесту записати device/OS, exact build/artifact, steps і outcome в Issue #18 + maintenance gate.
+5. Лише після фактичного device evidence можна позначити mobile external storage runtime-validated.
 
 ## Deferred gates
 
@@ -95,8 +101,8 @@ Artifacts:
 ## Термінологія власника
 
 - **«інтегрувати PR у main»** = звичайний технічний merge після green checks.
-- **«злити у main»** = повний cross-platform test-release checkpoint з новою version/build, platform artifacts, START/source, checksums/legal, tag і GitHub prerelease.
+- **«злити у main»** = full cross-platform test-release checkpoint з новою version/build, platform artifacts, START/source, checksums/legal, tag і GitHub prerelease.
 
 ## Recovery
 
-Новий чат читає `START_HERE.md` → `PROJECT_RULES.md` → `PROJECT_STATE.md` → цей `WORKLOG.md` → фактичний GitHub → останні Issue #18 записи. Завершені checkpoints не повторювати.
+Новий чат читає `START_HERE.md` → `PROJECT_RULES.md` → `PROJECT_STATE.md` → цей `WORKLOG.md` → фактичний GitHub → останні Issue #18 записи. Завершений PR #130 не повторювати.

@@ -1,6 +1,6 @@
 # Roadmap OVDP Hub
 
-Оновлено: **26.09.2026**. Цей roadmap стосується активного Flutter-продукту `apps/native`.
+Оновлено: **26.09.2026**. Roadmap стосується активного Flutter-продукту `apps/native`.
 
 ## Продуктовий принцип
 
@@ -12,10 +12,10 @@
 
 ### 0.9 «Ринок» — DONE / RELEASED
 - NBU instrument/contractual payments;
-- MinFin calendar + placement/switch results з provenance і fail-closed parsers;
+- MinFin calendar + placement/switch results;
 - seller observations без вигаданої market price;
-- source date / freshness/status;
-- multiple `PriceObservation` + explicit user priority;
+- provenance/freshness/status;
+- multiple `PriceObservation` + user priority;
 - v0.9.0 released.
 
 ### Planner next generation — DONE
@@ -40,27 +40,37 @@
 - Windows portable encrypted backup/restore;
 - v0.9.3+20 released.
 
-## Після v0.9.3 — завершені інтегровані slices
+## Після v0.9.3 — інтегровані slices
 
-- Post-v0.9.3 usability/product audit — PR #116.
-- Portfolio recovery / backup UX — PR #117.
-- Planner safe criteria/date editing — PR #119.
-- Catalog localization + collection cleanup — PR #120.
-- Persist language/appearance — PR #123.
-- Unified date controls — PR #125.
-- macOS Portfolio Keychain runtime validation + enablement — PR #127; final #465, merge `4c1617b3…`, post-merge #466.
+- PR #116 — post-v0.9.3 usability/product audit.
+- PR #117 — Portfolio recovery / Windows backup UX.
+- PR #119 — Planner safe criteria/date editing.
+- PR #120 — Catalog localization + collection cleanup.
+- PR #123 — persisted language/appearance.
+- PR #125 — unified date controls.
+- PR #127 — macOS Portfolio Keychain runtime validation + enablement; final #465, merge `4c1617b3…`, post-merge #466.
+- **PR #130 — Android SAF + iOS security-scoped external-storage foundation; final #497, merge `5934984a…`, post-merge #498.**
 
-## Поточний mobile storage foundation
+## Mobile external storage foundation — DONE for implementation/compile scope
 
-PR **#130** implements Android SAF + iOS picker/bookmark external-storage contracts without changing Portfolio crypto or financial math.
+PR #130 integrated:
+- Android SAF persisted tree-grant contract;
+- iOS picker/bookmark/security-scope contract;
+- app-private staging for encrypted Portfolio backups;
+- `MobileExternalWorkspace` app-owned subtree;
+- explicit fail-closed permission loss;
+- no desktop path substitution;
+- native Android/iOS compile/package gates in CI.
 
-Verified pre-docs head `7e26ef3cc691e683f7b9ca2a6d2c631690eb95fb`, run **#496 — SUCCESS**:
+Final exact-head run **#497 — SUCCESS**:
 - analyze + **212/212 tests**;
 - Windows/macOS packaged smoke;
 - Android release APK compile/package;
 - unsigned iOS release compile/package.
 
-This closes the **implementation + release compile gate**, not the real-device runtime gate.
+Post-merge main run **#498 — SUCCESS**, including START/source.
+
+This closes implementation + compile/package, **not physical-device persistent-access runtime validation**.
 
 ## Current NEXT — mobile real-device runtime validation
 
@@ -94,7 +104,7 @@ This closes the **implementation + release compile gate**, not the real-device r
 - macOS device state: system Keychain, real packaged lifecycle smoke enforced.
 - Android/iOS device state: platform secure storage.
 - Windows portable encrypted external backup: runtime-supported.
-- Android/iOS external storage bridge: implementation + release compile validated; **real-device persistent-access gate still pending**.
+- Android/iOS external storage bridge: implementation + release compile validated; **real-device persistent-access gate pending**.
 
 ## Незмінні межі
 
