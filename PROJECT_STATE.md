@@ -15,8 +15,8 @@
 - Основна гілка: `main`
 - Основна мова: українська
 - Додаткові UI-мови: EN / FR / DE / ES / KO / JA
-- Поточний інтегрований post-release baseline: **`5934984a3ad763f8c9f77bd0872077c381adacc2`**
-- Останній post-merge main verification: **run #498 — success**, verify + START/source.
+- Поточний інтегрований post-release baseline: **`e6e0a6ae3fb74b6fab8adf155eb6d3d338a11959`**
+- Останній post-merge main verification: **run #512 — success**, `flutter analyze` + **218 tests** + START/source.
 
 ## Published assets v0.9.3
 
@@ -92,17 +92,19 @@ Published v0.9.3 artifacts remain immutable. Після post-release integration
 
 ### Android
 - encrypted app-local Portfolio/device-key path supported;
-- **Android SAF external-storage foundation integrated in PR #130**;
+- Android SAF external-storage foundation integrated in PR #130;
 - persisted tree-grant contract, bounded read/write/list/delete, encrypted backup transport and fail-closed semantics implemented;
+- **real-device runtime probe UI integrated in PR #132**;
 - release APK compile/package verified;
-- **physical-device persisted-grant runtime validation still pending**.
+- physical-device persisted-grant/revoke runtime evidence still pending.
 
 ### iOS
 - encrypted app-local Portfolio/device-key path supported;
-- **iOS external-storage foundation integrated in PR #130**;
+- iOS external-storage foundation integrated in PR #130;
 - document/folder picker, bookmark persistence contract, `startAccessingSecurityScopedResource()` and coordinated I/O implemented;
+- **real-device runtime probe UI integrated in PR #132**;
 - unsigned release compile/package verified;
-- **physical-device bookmark persistence/provider-loss runtime validation still pending**.
+- physical-device bookmark/provider-loss runtime evidence still pending.
 
 ## Mobile external storage foundation — DONE for implementation/compile scope
 
@@ -111,14 +113,36 @@ PR #130 → merge **`5934984a3ad763f8c9f77bd0872077c381adacc2`**.
 Evidence:
 - exact-head docs-synced PR head `f6243794eea927e4b73cb85f666739d62c633e8f`;
 - final PR run **#497 — success**: `flutter analyze`, **212 tests**, Windows/macOS packaged smoke, Android release APK compile/package, iOS unsigned release compile/package;
-- #497 Windows artifact `OVDP-Hub-0.9.3-b20-windows-497-1-e0ebc58`, SHA-256 `a7a8484354ce7500dd775e6db20efa9d38e6f940d1d479c176e59de4908bd2d5`;
-- #497 macOS artifact `OVDP-Hub-0.9.3-b20-macos-497-1-e0ebc58`, SHA-256 `6b45a99794c394a1e6d55ef4b8e0a332a43b063d16f951d58e49a0417036c7f9`;
-- #497 Android artifact `OVDP-Hub-Android-test-497-1`, SHA-256 `835e8993f91d8f03db4922bc630619a3be69dabcd0bb5ea3dd146260aa386fac`;
-- #497 iOS artifact `OVDP-Hub-iOS-unsigned-497-1`, SHA-256 `dfcabda484a0fb507c382eb47b3ae54e9341976f348ee077665ba5230a84e88d`;
-- post-merge main run **#498 — success**, verify + START/source;
-- START artifact `OVDP-Hub-0.9.3-test-498-1-START`, SHA-256 `caf066800744f7b9a055f9577d59e47e5ceeaf8100569949d93cc2253f3253fd`.
+- post-merge main run **#498 — success**, verify + START/source.
 
-Important boundary: compile/package + contract tests are proven. Physical-device persistent external-access semantics are **not yet claimed as validated**.
+## Mobile real-device runtime probe harness — DONE for implementation/CI scope
+
+PR #132 → squash merge **`e6e0a6ae3fb74b6fab8adf155eb6d3d338a11959`**.
+
+Реалізовано:
+- production-backed two-phase `MobileStorageRuntimeProbe` поверх Android SAF / iOS bookmark bridge;
+- phase 1: picker → write → read → list;
+- app-private pending state with opaque grant/bookmark ref, display label, token, launch id;
+- completion у тому самому process launch заборонена;
+- phase 2 після terminate/relaunch: persisted access check → old probe read/list → rewrite/read → delete → final list verification;
+- permission/provider loss fail-closed;
+- видима mobile validation panel у `Сховище`;
+- локалізація UK / EN / FR / DE / ES / KO / JA;
+- app version + OS visible for evidence screenshot;
+- maintenance protocol: `docs/maintenance/MOBILE_STORAGE_RUNTIME_VALIDATION.md`.
+
+Verification:
+- exact PR head **`4d59750c0bea01d39cf495ab054befc1beb6e266`**;
+- run #510 — `flutter analyze` + **218/218 tests** success;
+- final Ready run **#511 — success**: verify, Windows/macOS packaged smoke, Android release APK, unsigned iOS release;
+- Windows #511 SHA-256 `749375aa8666c2205840d2f41723ffdd3526fe017d219337dae78952f5374214`;
+- macOS #511 SHA-256 `4664f2cdea03d4fcb61469037192c395c0fc8a92f9e62af61e6a94a091a69431`;
+- Android #511 SHA-256 `9e848a0330986f67e6df1c0c98413e34c8ce2ace5dbd3b5e6cacc781ca3894e0`;
+- iOS #511 SHA-256 `ab5a6755ffd016d4b3e38892e2ac45f1694e80c0245dbfbdd89f5be6b959872a`;
+- post-merge `main` run **#512 — success**: `flutter analyze`, **218/218 tests**, START/source;
+- START #512 SHA-256 `a9d62bd77b433c26f3ab9fdfa4d1ac9b8b385dab22b4e5b2a5b6a12798e4a4f9`.
+
+Important boundary: implementation, regression and compile/package evidence are proven. **Physical-device persistent external-access semantics are not yet claimed as validated.**
 
 ## Ключові post-release integrations
 
@@ -129,14 +153,15 @@ Important boundary: compile/package + contract tests are proven. Physical-device
 - PR #123: language/appearance persistence.
 - PR #125: unified Planner/Portfolio date controls.
 - PR #127 → `4c1617b3…`: macOS Keychain runtime proof + encrypted Portfolio enablement.
-- **PR #130 → `5934984a…`: Android SAF + iOS security-scoped external-storage foundation.**
+- PR #130 → `5934984a…`: Android SAF + iOS security-scoped external-storage foundation.
+- **PR #132 → `e6e0a6ae…`: mobile two-phase real-device runtime probe harness.**
 
 ## CI / verification rules now active
 
 - Ready PR with user-visible desktop changes builds/packages Windows + macOS and smokes packaged executable.
 - macOS smoke includes real Keychain/vault lifecycle contract.
 - Ready PR mobile-storage changes compile/package Android release APK and unsigned iOS release build.
-- `main` push verification produces START/source artifact.
+- `main` push verification runs analyze/tests and produces START/source artifact.
 - Production signing/distribution remains separate.
 
 ## Дані та privacy
@@ -167,10 +192,12 @@ Important boundary: compile/package + contract tests are proven. Physical-device
 
 ## Наступний крок
 
-**NEXT — Android/iOS real-device external-storage runtime validation.**
+**NEXT — Android/iOS real-device external-storage runtime validation через інтегровану self-test панель.**
 
 Потрібен фактичний device evidence для:
-- Android SAF picker → persisted URI grant → relaunch → read/write/list/delete → revoked grant/provider loss fail-closed;
-- iOS folder picker → bookmark save/restore → relaunch → security-scoped read/write/list/delete → stale/lost/provider access fail-closed.
+- Android SAF picker → persisted URI grant → terminate/relaunch → read/write/list/delete → revoked grant/provider loss fail-closed;
+- iOS folder picker → bookmark save/restore → terminate/relaunch → security-scoped read/write/list/delete → stale/lost/provider access fail-closed.
 
-Без цього mobile external storage не називати повністю runtime-validated.
+Android можна тестувати на APK із run #511. iOS unsigned CI artifact є лише compile evidence; для iPhone потрібен development-signed build/Xcode або інша підписана тестова збірка.
+
+Без Android + iOS device evidence mobile external storage не називати повністю `RUNTIME VALIDATED`.
