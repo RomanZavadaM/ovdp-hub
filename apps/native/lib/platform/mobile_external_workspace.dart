@@ -31,22 +31,29 @@ class MobileExternalWorkspace {
     }
     final workspace = MobileExternalWorkspace(storage: storage, grant: grant);
     await workspace.checkAvailable();
+
+    if (create) {
+      try {
+        await storage.writeWorkspaceText(
+          grantId: grant.id,
+          relativePath: '$rootDirectory/$marker',
+          content: jsonEncode({'schemaVersion': 1, 'application': 'ovdp-hub'}),
+          replace: false,
+        );
+        await workspace._ensureCategoryDirectories();
+        return workspace;
+      } on StateError catch (error) {
+        if (error.message != 'workspace.external_file_exists') rethrow;
+      }
+    }
+
     final markerText = await storage.readWorkspaceText(
       grantId: grant.id,
       relativePath: '$rootDirectory/$marker',
       maxBytes: 64 * 1024,
     );
     if (markerText == null) {
-      if (!create) {
-        throw StateError('workspace.empty_or_hub_required');
-      }
-      await storage.writeWorkspaceText(
-        grantId: grant.id,
-        relativePath: '$rootDirectory/$marker',
-        content: jsonEncode({'schemaVersion': 1, 'application': 'ovdp-hub'}),
-        replace: false,
-      );
-      return workspace;
+      throw StateError('workspace.empty_or_hub_required');
     }
     final metadata = jsonDecode(markerText);
     if (metadata is! Map ||
@@ -55,6 +62,17 @@ class MobileExternalWorkspace {
       throw const FormatException('workspace.unknown_version');
     }
     return workspace;
+  }
+
+  Future<void> _ensureCategoryDirectories() async {
+    for (final category in const ['catalogs', 'sets', 'exports']) {
+      await storage.writeWorkspaceText(
+        grantId: grant.id,
+        relativePath: '$rootDirectory/$category/.keep',
+        content: '',
+        replace: true,
+      );
+    }
   }
 
   Future<void> checkAvailable() async {
