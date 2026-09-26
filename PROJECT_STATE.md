@@ -1,6 +1,6 @@
 # PROJECT_STATE — OVDP Hub
 
-Оновлено: **25.09.2026**
+Оновлено: **26.09.2026**
 
 Цей файл містить лише підтверджений актуальний стан `main`. Детальна історія версій — у `CHANGELOG.md`, `docs/releases/` та GitHub Issue #18.
 
@@ -17,6 +17,7 @@
 - Основна гілка: **`main`**
 - Основна мова: українська
 - Додаткові UI-мови: EN / FR / DE / ES / KO / JA
+- Поточний інтегрований product baseline після release: **`6e6326c6c8ed00e86908a1eb533bd0cb80bdfaaf`**
 
 ## Опубліковані assets v0.9.3
 
@@ -51,13 +52,18 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - reserve floor;
 - neutral A/B/C comparison для 2–3 compatible scenarios без automatic winner;
 - deterministic CSV / ICS exports;
-- stable generated-copy localization.
+- stable generated-copy localization;
+- invalid/intermediate manual date drafts не очищають composition;
+- зміни ключових критеріїв, що інвалідовують сформований план, вимагають explicit confirmation.
 
 ### UI
 - Classic;
 - «Робочий кабінет» / Workbench;
 - «Світла панель» / Light Dashboard;
-- UK / EN / FR / DE / ES / KO / JA.
+- UK / EN / FR / DE / ES / KO / JA;
+- selected UI language та appearance зберігаються між запусками в app-support `ui-preferences.json`;
+- UI preferences не змішуються з workspace/private vault;
+- corrupt/unknown preference JSON fail-safe повертає Ukrainian + Workbench замість блокування запуску.
 
 ### Encrypted vault / «Мій портфель»
 - local encrypted vault;
@@ -92,6 +98,13 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - PR #117 → `fc38177a69f387153ff3984d3a917a7975a4a647`: recovery confirmation + recovery rotation + Windows portable encrypted backup/restore UX; exact-head run #417, post-merge #418.
 - PR #119 → `ad3a995a3f5e405cdde7d17b00b54fa105b926e5`: safe committed Planner criteria/date editing; exact-head #420, post-merge #421.
 - PR #120 → `5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`: real Catalog localization wiring + locale-neutral collection variants; final exact-head #428, post-merge #429.
+- PR #123 → `6e6326c6c8ed00e86908a1eb533bd0cb80bdfaaf`: language/appearance persistence + fail-safe app preferences; exact-head #439 with **197/197 tests** and packaged Windows/macOS smoke, post-merge #440 with verify + START/source success.
+
+## Перевірка user-visible desktop змін
+
+- Ready PR із user-visible змінами тепер автоматично запускає Windows + macOS release build, versioned packaging і exact packaged executable smoke.
+- Manual `workflow_dispatch` packages лишається доступним для окремих checkpoint/release перевірок.
+- Android/iOS production/release packaging не перетворюється на обов’язковий gate кожного звичайного PR.
 
 ## Дані та privacy
 
@@ -99,6 +112,7 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - Private portfolio зберігається локально в encrypted vault.
 - Legacy workspace JSON може залишатися plaintext.
 - Migration не видаляє source JSON автоматично.
+- Non-sensitive UI preferences зберігаються окремо від workspace/vault.
 - Не зберігати signing keys, KYC-документи чи інші secrets у legacy plaintext workspace.
 - Робочі папки, vault, DB, keys і персональні файли не комітяться в Git.
 
@@ -139,9 +153,9 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - **109 obsolete non-main branches deleted; 0 failed deletions.**
 - Old `docs/*`, `feat/*`, `feature/*`, `release/*`, `stabilize/*` and other dead branch refs are no longer development sources.
 - Published Git tags, GitHub Releases and commit history were not deleted.
-- Final live development branch: **`main` only**.
+- Temporary active branch/PR refs are development transport only; merged code in `main` remains source of truth.
 - Repository hygiene workflow is safe-by-default: it auto-deletes only a same-repository branch after its PR is merged; bulk deletion is manual-only (`workflow_dispatch`).
 
 ## Наступний великий крок
 
-**NEXT — persist selected language and appearance between launches.** Це non-sensitive UI preferences: зберігати окремо від workspace/private vault, з restart/persistence regression. Planner destructive date editing і Catalog localization audit gaps уже закриті в `main`. Unified date-control UX/picker, macOS Portfolio runtime validation, mobile external-folder permissions і production signing залишаються окремими gate.
+**NEXT — unified reusable date-control UX / picker для Planner + Portfolio.** Ціль: locale-friendly display, picker + keyboard fallback, explicit validation, canonical existing persistence і **без зміни persisted schema**. Planner state-safety foundation уже інтегрований, тому цей slice має уніфікувати саме користувацький ввід/вибір дат, а не переписувати Planner domain. Після нього окремими gate лишаються macOS Portfolio runtime Keychain validation, mobile external-folder permissions і production signing/distribution.
