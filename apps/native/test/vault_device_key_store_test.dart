@@ -54,7 +54,7 @@ void main() {
 
     expect(mac['accessibility'], 'unlocked_this_device');
     expect(mac['synchronizable'], 'false');
-    expect(mac['usesDataProtectionKeychain'], 'true');
+    expect(mac['usesDataProtectionKeychain'], 'false');
     expect(mac['useSecureEnclave'], 'false');
   });
 
