@@ -2,7 +2,9 @@
 
 Оновлено: **26.09.2026**
 
-Цей файл містить лише підтверджений актуальний стан `main`. Детальна історія — у `CHANGELOG.md`, `docs/releases/` та GitHub Issue #18.
+Цей файл містить лише підтверджений актуальний стан продукту в `main`. Детальна історія — у `CHANGELOG.md`, `docs/releases/` та GitHub Issue #18.
+
+> **Baseline semantics:** SHA product baseline нижче означає останній коміт, що змінював product code. Пізніші docs-only sync коміти не змінюють цей baseline. Фактичний branch head `main` завжди перевіряється безпосередньо в GitHub під час startup protocol.
 
 ## Поточний checkpoint
 
@@ -15,8 +17,9 @@
 - Основна гілка: `main`
 - Основна мова: українська
 - Додаткові UI-мови: EN / FR / DE / ES / KO / JA
-- Поточний інтегрований post-release baseline: **`e6e0a6ae3fb74b6fab8adf155eb6d3d338a11959`**
-- Останній post-merge main verification: **run #512 — success**, `flutter analyze` + **218 tests** + START/source.
+- Поточний product-code baseline: **`e6e0a6ae3fb74b6fab8adf155eb6d3d338a11959`** (PR #132)
+- Останній post-merge product verification: **run #512 — success**, `flutter analyze` + **218 tests** + START/source.
+- Post-merge state docs synchronized separately by PR #133; docs-only sync не створює нового product-code baseline.
 
 ## Published assets v0.9.3
 
@@ -155,6 +158,7 @@ Important boundary: implementation, regression and compile/package evidence are 
 - PR #127 → `4c1617b3…`: macOS Keychain runtime proof + encrypted Portfolio enablement.
 - PR #130 → `5934984a…`: Android SAF + iOS security-scoped external-storage foundation.
 - **PR #132 → `e6e0a6ae…`: mobile two-phase real-device runtime probe harness.**
+- PR #133: docs-only post-merge recovery/state sync.
 
 ## CI / verification rules now active
 

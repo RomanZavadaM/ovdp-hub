@@ -4,10 +4,12 @@
 
 Точка входу: `START_HERE.md`  
 Постійні правила: `PROJECT_RULES.md`  
-Підтверджений стан main: `PROJECT_STATE.md`  
+Підтверджений стан продукту: `PROJECT_STATE.md`  
 Append-only ledger: GitHub Issue **#18**
 
-> Детальні проміжні runs і невдалі спроби зберігаються в Issue #18. Тут — остання інтегрована контрольна точка та точний NEXT, щоб новий чат не повторював завершену роботу.
+> Детальні проміжні runs і невдалі спроби зберігаються в Issue #18. Тут — остання інтегрована продуктова контрольна точка та точний NEXT, щоб новий чат не повторював завершену роботу.
+
+> **Baseline semantics:** product-code baseline — останній коміт, що змінює product code. Пізніші docs-only sync коміти можуть робити фактичний `main` SHA новішим, не змінюючи продукт. Фактичний `main` head завжди перевіряти в GitHub під час startup protocol.
 
 ## Поточний опублікований checkpoint
 
@@ -18,17 +20,19 @@ Append-only ledger: GitHub Issue **#18**
 - release run #106 — success;
 - published tag/assets immutable.
 
-## Інтегрований baseline
+## Інтегрований product-code baseline
 
-`main` = **`e6e0a6ae3fb74b6fab8adf155eb6d3d338a11959`**.
+**`e6e0a6ae3fb74b6fab8adf155eb6d3d338a11959`** (PR #132).
 
-Post-merge main run **#512 — SUCCESS**:
+Post-merge product run **#512 — SUCCESS**:
 - `flutter analyze` PASS;
 - **218/218 tests PASS**;
 - START/source PASS.
 
 START artifact: `OVDP-Hub-0.9.3-test-512-1-START`  
 SHA-256: `a9d62bd77b433c26f3ab9fdfa4d1ac9b8b385dab22b4e5b2a5b6a12798e4a4f9`.
+
+Post-merge recovery/state docs synchronized by **PR #133**. Це docs-only sync і не змінює product-code baseline.
 
 ## Mobile external-storage foundation — DONE
 
@@ -45,7 +49,7 @@ PR #130 → merge **`5934984a3ad763f8c9f77bd0872077c381adacc2`**.
 
 PR: **#132 — Mobile: add real-device external storage runtime probe**  
 Exact PR head: **`4d59750c0bea01d39cf495ab054befc1beb6e266`**  
-Squash merge: **`e6e0a6ae3fb74b6fab8adf155eb6d3d338a11959`**
+Squash merge / product baseline: **`e6e0a6ae3fb74b6fab8adf155eb6d3d338a11959`**
 
 ### Реалізовано
 
@@ -86,7 +90,7 @@ Artifacts / SHA-256:
 
 ### Post-merge #512 — SUCCESS
 
-- main `e6e0a6ae…`;
+- product baseline `e6e0a6ae…`;
 - analyze PASS;
 - **218 tests PASS**;
 - START/source PASS.
@@ -137,4 +141,4 @@ Harness implementation, regression tests та compile/package gates закрит
 
 Новий чат читає `START_HERE.md` → `PROJECT_RULES.md` → `PROJECT_STATE.md` → цей `WORKLOG.md` → фактичний GitHub → останні Issue #18 записи.
 
-PR #130, #131 і #132 не повторювати. Код harness інтегрований у `main`; наступна робота залежить від фізичного Android/iOS device evidence.
+PR #130, #131, #132 і #133 не повторювати. Код harness інтегрований; наступна робота залежить від фізичного Android/iOS device evidence.
