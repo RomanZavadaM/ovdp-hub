@@ -18,9 +18,9 @@
 
 - `PROJECT_RULES.md` — незмінні правила проєкту.
 - `PROJECT_STATE.md` — лише підтверджений інтегрований стан `main`.
-- `WORKLOG.md` — активний slice, branch/PR/head/checks/next action.
+- `WORKLOG.md` — активний slice / точний NEXT.
 - GitHub Issue #18 — append-only development ledger.
-- `apps/native/pubspec.yaml` — machine source of version/build.
+- `apps/native/pubspec.yaml` — machine source version/build.
 - `docs/roadmap.md` — середньостроковий roadmap.
 - `CHANGELOG.md` і `docs/releases/` — історія релізів.
 
@@ -44,44 +44,51 @@
 - Active product: `apps/native` Flutter/Dart
 - Published checkpoint: **v0.9.3 / 0.9.3+20**
 - Release commit: `e2ec96322a1acb953589eeeb45e8ec50cd5d198a`
-- Current integrated product baseline before mobile-storage PR: `89887d39d2bb2c4e894ca09e4141161559992f7b`
+- Current integrated `main`: **`5934984a3ad763f8c9f77bd0872077c381adacc2`**
 - Platforms: Windows / macOS / Android / iOS
 - Languages: UK / EN / FR / DE / ES / KO / JA
 
-### Mobile external storage foundation — current checkpoint
+## Останні інтегровані slices
 
-- Branch: `feat/mobile-external-storage`
-- PR: **#130 — Ready**
-- Verified implementation head before docs sync: **`7e26ef3cc691e683f7b9ca2a6d2c631690eb95fb`**.
-- Run **#496 — SUCCESS**:
-  - `flutter analyze` + **212/212 tests**;
-  - Windows release package + packaged smoke;
-  - macOS release package + packaged smoke;
-  - Android release APK compile/package;
-  - iOS release `--no-codesign` compile/package.
-- Android artifact: `OVDP-Hub-Android-test-496-1`, SHA-256 `6c6da1dda2489b03b174710be439434899fc5dc3151475dc5b084f507d9eb7d8`.
-- iOS artifact: `OVDP-Hub-iOS-unsigned-496-1`, SHA-256 `bf533e28070e7ed179d1078563f5eda7b0c9277f840ac67daa828686f6acf6e6`.
-- Windows/macOS artifacts also uploaded and packaged-smoke green.
-- Run #491 intentionally exposed an iOS SDK compile error (`withSecurityScope` unavailable on iOS); fixed by UIKit-compatible bookmark options, then #496 proved the fix.
+- macOS Portfolio Keychain runtime validation + enablement — PR #127 → `4c1617b3…`.
+- Mobile external-storage foundation — **PR #130 → `5934984a…` — DONE**.
 
-### What this proves / does not prove
+### PR #130 — підтверджений стан
 
-Confirmed now:
-- Android SAF bridge compiles in release APK;
-- iOS security-scoped picker/bookmark bridge compiles in unsigned release build;
-- Dart contract and fail-closed regressions are covered;
-- desktop behavior remains green.
+Реалізовано:
+- Android SAF bridge з persisted tree grants;
+- iOS document/folder picker + bookmark/security-scope bridge;
+- Android/iOS encrypted Portfolio backup transport через app-private staging;
+- `MobileExternalWorkspace` з app-owned `OVDP-Hub-Workspace` subtree;
+- opaque grant id + display label замість вигаданих filesystem paths;
+- permission loss / missing grant fail-closed;
+- legacy plaintext migration використовує тільки реальний `WorkspaceSnapshot.localPath`;
+- Ready PR CI тепер компілює Android release APK та unsigned iOS release поряд із desktop packaged gates.
 
-Not yet claimed as complete:
-- physical Android device runtime: folder picker, persisted URI grant after relaunch, grant loss/revocation;
-- physical iOS device runtime: folder picker, bookmark restore after relaunch, security-scope access and revocation/provider edge cases.
+Фінальний exact-head PR run **#497 — SUCCESS** на `f6243794…`:
+- `flutter analyze` + **212/212 tests**;
+- Windows/macOS packaged smoke;
+- Android release APK compile/package;
+- iOS unsigned release compile/package.
+
+PR #130 merged у `main` як **`5934984a3ad763f8c9f77bd0872077c381adacc2`**.
+Post-merge main run **#498 — SUCCESS**, verify + START/source.
+START artifact: `OVDP-Hub-0.9.3-test-498-1-START`, SHA-256 `caf066800744f7b9a055f9577d59e47e5ceeaf8100569949d93cc2253f3253fd`.
+
+### Межа доказу
+
+PR #130 доводить contract tests і release compilation/package на всіх 4 платформах, але **не є доказом persistent external-storage runtime на фізичних Android/iOS пристроях**.
 
 ## NEXT
 
-1. Finish this docs-synced exact-head PR gate.
-2. Integrate PR #130 into `main` if final exact-head remains green.
-3. Next slice: **real-device runtime validation for Android SAF and iOS external-folder/bookmark persistence**. Do not call mobile external storage fully production-ready before those runtime gates are recorded.
-4. Production signing/notarization/store distribution remains a later separate gate.
+**Наступний окремий slice — Android/iOS real-device external-storage runtime validation.**
+
+Потрібно зафіксувати реальні сценарії:
+- Android SAF picker → persisted URI permission → relaunch → read/write/list/delete → revoked grant fail-closed;
+- iOS folder picker → bookmark save/restore → relaunch → security-scoped read/write/list/delete → stale/lost/provider failure fail-closed.
+
+До появи такого device evidence mobile external storage не називати повністю runtime-validated.
+Production signing/notarization/store distribution — окремий пізніший gate.
 
 ## Rule for new chats
 
@@ -89,4 +96,4 @@ Recommended phrase:
 
 > **Продовжуємо OVDP Hub. Відкрий у GitHub `START_HERE.md` і продовжуй строго за ним.**
 
-Цього достатньо: не покладатися на пам’ять старого чату й не відновлювати старі branches як джерела коду.
+Цього достатньо: не покладатися на пам’ять старого чату й не відновлювати merged branches як джерела коду.
