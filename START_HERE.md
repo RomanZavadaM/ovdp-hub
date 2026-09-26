@@ -61,13 +61,15 @@
 - Planner safe criteria/date editing is **DONE**: PR #119 → `ad3a995a…`; exact-head #420 and post-merge #421 — success.
 - Catalog localization + locale-neutral collection variant cleanup is **DONE**: PR #120 → `5638f56e…`; final exact-head #428 and post-merge #429 — success. Runs #422/#424 are retained as useful failed evidence that caught a no-op CRLF patch.
 - Language + appearance persistence is **DONE**: PR #123 → `6e6326c6…`; exact-head run #439 — 197/197 tests + Windows/macOS packaged smoke; post-merge main run #440 — verify + START/source success.
+- Unified reusable date-control UX is **DONE**: PR #125 → `c94fbce6…`; final exact-head #452 — success; Ready run #453 — verify + Windows/macOS packaged smoke success; post-merge main run #454 — verify + START/source success.
+- Planner criteria/needs/reserve/FX/exit і Portfolio purchase/sale/coupon/redemption тепер використовують один locale-friendly date control з calendar picker + keyboard fallback; persisted/domain dates залишаються canonical `YYYY-MM-DD`.
 - Non-sensitive UI preferences are stored in app-support `ui-preferences.json`, separate from workspace/private vault; corrupt/unknown data fails safe to Ukrainian + Workbench.
-- Ready user-visible PRs now automatically enforce packaged Windows + macOS smoke before merge.
-- Current integrated product baseline: **`6e6326c6c8ed00e86908a1eb533bd0cb80bdfaaf`**.
+- Ready user-visible PRs automatically enforce packaged Windows + macOS smoke before merge.
+- Current integrated product baseline: **`c94fbce63bc53cc9f1a2b87a555f056c14e533f5`**.
 - Android SAF / iOS security-scoped external-folder access remains deferred.
 - macOS encrypted Portfolio remains gated on real Keychain runtime/provisioning validation.
 - Production signing/notarization remains deferred.
-- **NEXT:** unified reusable date-control UX / picker for Planner + Portfolio: locale-friendly display, picker + keyboard fallback, canonical existing persistence, explicit validation, no persisted-schema change.
+- **NEXT:** macOS Portfolio runtime Keychain validation + enablement. Спочатку потрібні реальні create/open/lock/reopen і backup/recovery lifecycle checks у packaged macOS app; лише після green можна вмикати macOS у `PortfolioGateway.supported` і оновлювати capability docs.
 
 ## Rule for new chats
 
