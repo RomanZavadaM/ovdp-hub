@@ -116,6 +116,39 @@ try {
     throw 'Light Dashboard appearance label is missing from packaged executable contract'
   }
 
+  if ($Platform -eq 'macos') {
+    $vaultSmokeFile = Join-Path $verifyRoot 'runtime-macos-vault-smoke.json'
+    $previousVaultSmokeFile = $env:OVDP_MACOS_VAULT_SMOKE_FILE
+    try {
+      $env:OVDP_MACOS_VAULT_SMOKE_FILE = $vaultSmokeFile
+      & $binary.FullName
+      if ($LASTEXITCODE -ne 0) {
+        throw "Packaged macOS Keychain/vault runtime smoke failed with exit code $LASTEXITCODE"
+      }
+    }
+    finally {
+      if ($null -eq $previousVaultSmokeFile) {
+        Remove-Item Env:OVDP_MACOS_VAULT_SMOKE_FILE -ErrorAction SilentlyContinue
+      } else {
+        $env:OVDP_MACOS_VAULT_SMOKE_FILE = $previousVaultSmokeFile
+      }
+    }
+
+    if (!(Test-Path -LiteralPath $vaultSmokeFile)) {
+      throw 'Packaged macOS executable did not write vault runtime smoke JSON'
+    }
+    $vaultSmoke = Get-Content -LiteralPath $vaultSmokeFile -Raw | ConvertFrom-Json
+    if ([string]$vaultSmoke.platform -ne 'macos') {
+      throw "Unexpected vault smoke platform: $($vaultSmoke.platform)"
+    }
+    foreach ($field in @('success','keychainRoundTrip','sessionLockReopen','backupRestore','recoveryRotation','cleanup')) {
+      if ($vaultSmoke.$field -ne $true) {
+        throw "macOS vault runtime smoke field '$field' is not true. Error: $($vaultSmoke.error)"
+      }
+    }
+    Write-Host 'PASS: packaged macOS app completed real Keychain/vault create-open-lock-reopen-backup-restore-rotation-cleanup smoke.'
+  }
+
   Write-Host "PASS: packaged $Platform artifact $ExpectedVersion+$ExpectedBuild exposes classic/studio/dashboard."
 }
 finally {
