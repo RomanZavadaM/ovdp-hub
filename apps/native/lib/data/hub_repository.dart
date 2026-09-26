@@ -59,10 +59,10 @@ class FileHubRepository implements HubRepository {
 
   FileHubRepository({
     http.Client? client,
-    MobileExternalStorage mobileExternalStorage =
-        const MethodChannelMobileExternalStorage(),
+    MobileExternalStorage? storage,
   }) : _client = client ?? http.Client(),
-       _mobileExternalStorage = mobileExternalStorage;
+       _mobileExternalStorage =
+           storage ?? const MethodChannelMobileExternalStorage();
 
   @override
   Stream<WorkspaceSnapshot> get changes => _changes.stream;
@@ -184,14 +184,6 @@ class FileHubRepository implements HubRepository {
         external: true,
       ),
     );
-  }
-
-  Future<Catalog?> _readCatalog() {
-    final mobile = _mobileWorkspace;
-    if (mobile != null) return mobile.catalog();
-    final local = _workspace;
-    if (local != null) return local.catalog();
-    throw StateError('workspace.not_open');
   }
 
   Future<List<SavedSet>> _readSets() {
