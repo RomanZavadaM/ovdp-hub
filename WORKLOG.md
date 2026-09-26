@@ -56,7 +56,7 @@ Append-only ledger: GitHub Issue **#18**
 - final exact-head run #428 — success;
 - merge: **`5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`**;
 - post-merge run #429 — success, including START/source;
-- remaining Catalog user-facing literals now use existing `HubStrings` UK/EN/FR/DE/ES/KO/JA`;
+- remaining Catalog user-facing literals now use existing `HubStrings` UK/EN/FR/DE/ES/KO/JA;
 - visible English regression reaches the actual search/horizon controls;
 - collection variant no longer persists automatic Ukrainian suffix `— варіант`; user-authored name stays locale-neutral.
 
