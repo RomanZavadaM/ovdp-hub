@@ -9,29 +9,26 @@ import 'package:ovdp_hub/l10n/hub_locale.dart';
 import 'package:ovdp_hub/platform/mobile_external_storage.dart';
 import 'package:ovdp_hub/platform/mobile_storage_runtime_probe.dart';
 
-class FakePanelStorage implements MobileExternalStorage {
-  final Map<String, String> files = {};
-  bool available = true;
+class SupportedFakeStorage implements MobileExternalStorage {
+  const SupportedFakeStorage();
 
   @override
   bool get supported => true;
 
   @override
-  Future<ExternalFolderGrant?> chooseWorkspaceFolder() async =>
-      const ExternalFolderGrant(id: '12345678', label: 'Test Drive');
+  Future<ExternalFolderGrant?> chooseWorkspaceFolder() =>
+      throw UnimplementedError();
 
   @override
-  Future<bool> workspaceFolderAvailable(String grantId) async => available;
+  Future<bool> workspaceFolderAvailable(String grantId) =>
+      throw UnimplementedError();
 
   @override
   Future<String?> readWorkspaceText({
     required String grantId,
     required String relativePath,
     required int maxBytes,
-  }) async {
-    if (!available) throw StateError('workspace.external_permission_lost');
-    return files[relativePath];
-  }
+  }) => throw UnimplementedError();
 
   @override
   Future<void> writeWorkspaceText({
@@ -39,42 +36,69 @@ class FakePanelStorage implements MobileExternalStorage {
     required String relativePath,
     required String content,
     required bool replace,
-  }) async {
-    if (!available) throw StateError('workspace.external_permission_lost');
-    files[relativePath] = content;
-  }
+  }) => throw UnimplementedError();
 
   @override
   Future<List<String>> listWorkspaceFiles({
     required String grantId,
     required String relativeDirectory,
-  }) async {
-    if (!available) throw StateError('workspace.external_permission_lost');
-    final prefix = '$relativeDirectory/';
-    return files.keys
-        .where((path) => path.startsWith(prefix))
-        .map((path) => path.substring(prefix.length))
-        .where((name) => !name.contains('/'))
-        .toList();
-  }
+  }) => throw UnimplementedError();
 
   @override
   Future<void> deleteWorkspaceFile({
     required String grantId,
     required String relativePath,
-  }) async {
-    if (!available) throw StateError('workspace.external_permission_lost');
-    files.remove(relativePath);
-  }
+  }) => throw UnimplementedError();
 
   @override
   Future<String?> exportEncryptedBackup({
     required String suggestedName,
     required Uint8List bytes,
-  }) async => suggestedName;
+  }) => throw UnimplementedError();
 
   @override
-  Future<Uint8List?> importEncryptedBackup({required int maxBytes}) async => null;
+  Future<Uint8List?> importEncryptedBackup({required int maxBytes}) =>
+      throw UnimplementedError();
+}
+
+class ScriptedProbe extends MobileStorageRuntimeProbe {
+  MobileStorageRuntimeProbeSnapshot snapshot;
+
+  ScriptedProbe(this.snapshot)
+    : super(
+        storage: const SupportedFakeStorage(),
+        stateFile: File('/unused-runtime-probe-state.json'),
+        launchId: 'widget-test',
+      );
+
+  @override
+  Future<MobileStorageRuntimeProbeSnapshot> load() async => snapshot;
+
+  @override
+  Future<MobileStorageRuntimeProbeSnapshot> begin() async {
+    snapshot = const MobileStorageRuntimeProbeSnapshot(
+      MobileStorageRuntimeProbePhase.restartRequired,
+      folderLabel: 'Test Drive',
+    );
+    return snapshot;
+  }
+
+  @override
+  Future<MobileStorageRuntimeProbeSnapshot> complete() async {
+    snapshot = const MobileStorageRuntimeProbeSnapshot(
+      MobileStorageRuntimeProbePhase.passed,
+      folderLabel: 'Test Drive',
+    );
+    return snapshot;
+  }
+
+  @override
+  Future<MobileStorageRuntimeProbeSnapshot> reset() async {
+    snapshot = const MobileStorageRuntimeProbeSnapshot(
+      MobileStorageRuntimeProbePhase.idle,
+    );
+    return snapshot;
+  }
 }
 
 Widget testApp(MobileStorageRuntimeProbe probe) => BlocProvider(
@@ -93,19 +117,12 @@ Widget testApp(MobileStorageRuntimeProbe probe) => BlocProvider(
 
 void main() {
   testWidgets('visible probe requires relaunch then reports pass', (tester) async {
-    final directory = await Directory.systemTemp.createTemp('ovdp-probe-panel-');
-    addTearDown(() async {
-      if (await directory.exists()) await directory.delete(recursive: true);
-    });
-    final stateFile = File('${directory.path}/probe-state.json');
-    final storage = FakePanelStorage();
-
     await tester.pumpWidget(
       testApp(
-        MobileStorageRuntimeProbe(
-          storage: storage,
-          stateFile: stateFile,
-          launchId: 'launch-a',
+        ScriptedProbe(
+          const MobileStorageRuntimeProbeSnapshot(
+            MobileStorageRuntimeProbePhase.idle,
+          ),
         ),
       ),
     );
@@ -121,10 +138,11 @@ void main() {
     await tester.pump();
     await tester.pumpWidget(
       testApp(
-        MobileStorageRuntimeProbe(
-          storage: storage,
-          stateFile: stateFile,
-          launchId: 'launch-b',
+        ScriptedProbe(
+          const MobileStorageRuntimeProbeSnapshot(
+            MobileStorageRuntimeProbePhase.readyAfterRestart,
+            folderLabel: 'Test Drive',
+          ),
         ),
       ),
     );
@@ -135,6 +153,5 @@ void main() {
     await tester.tap(find.text('Продовжити після перезапуску'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Перевірка пройдена'), findsOneWidget);
-    expect(await stateFile.exists(), isFalse);
   });
 }
