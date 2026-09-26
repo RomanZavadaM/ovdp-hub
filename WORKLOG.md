@@ -60,29 +60,50 @@ Append-only ledger: GitHub Issue **#18**
 - visible English regression reaches the actual search/horizon controls;
 - collection variant no longer persists automatic Ukrainian suffix `— варіант`; user-authored name stays locale-neutral.
 
-## Поточний slice
-
-Статус: **DOING**
-
-Мета: **persist UI language + appearance across launches**.
-
+### UI language + appearance persistence — DONE
 - base main: `d6ed407af6c1106f9cd8f3808f4e0f2d52a5b2ef`;
 - replacement branch: `feat/ui-preferences-persistence-v2`;
-- active draft PR: **#123**;
-- PR #121 closed as superseded after docs-sync changed the current `main` base;
-- non-sensitive UI preferences live in app-support `ui-preferences.json`, not workspace/private vault;
-- no new dependency: existing `path_provider` + `path`;
-- selected UK/EN/FR/DE/ES/KO/JA language and Classic/Workbench/Light Dashboard restore on next launch;
+- PR #121 was closed as superseded after docs-sync moved the current `main` base;
+- active replacement PR #123 final head: **`bc07bbb35ff5f06ead51ac00e3e62a158576b708`**;
+- old run #430 exposed one stale `pumpAndSettle` widget timeout;
+- run #435 exposed two real `dart:io` waits inside `testWidgets` fake-async after **195 tests passed**;
+- regression structure fixed without weakening production persistence: real file round-trip/corrupt fallback stays in ordinary async tests; visible controls use an in-memory persistence contract; app reconstruction applies the restored snapshot;
+- exact-head run **#439 — success**: `flutter analyze`, **197/197 tests**, Windows package + exact packaged executable smoke, macOS package + exact packaged executable smoke;
+- Windows PR artifact: `OVDP-Hub-0.9.3-b20-windows-439-1-fec7e71`, digest `aeb82caa1a315cdd2119e08856b916e4943c432fd7d8804f1933290e4bcd3a7b`;
+- macOS PR artifact: `OVDP-Hub-0.9.3-b20-macos-439-1-fec7e71`, digest `91023cb20145e293349874af4048f9ae5f4b5d41b8f485111dbe8a5ecb416651`;
+- merge: **`6e6326c6c8ed00e86908a1eb533bd0cb80bdfaaf`**;
+- post-merge main run **#440 — success**, including verify + START/source;
+- START artifact: `OVDP-Hub-0.9.3-test-440-1-START`, digest `1a3cd5dd7e14792d126c10d45ec4f54d7eaca5f4f3fd3f440ae52c6badd31d49`;
+- selected UK/EN/FR/DE/ES/KO/JA language and Classic/Workbench/Light Dashboard now restore across launches;
 - corrupt/invalid preference JSON fails safe to Ukrainian + Workbench;
-- old run #430: analyze green, 195 tests passed, 1 restart widget test timed out in `pumpAndSettle`;
-- replacement exact-head run **#435** on `c3a68fbc7f0ee8db277c9b03ed2ed950e6c8e2c2`: pub get + analyze green, **195 tests passed, exactly 2 new UI-preference widget tests timed out**; downstream platform/source jobs skipped;
-- diagnosis: real async `dart:io` persistence is being awaited from `testWidgets` fake-async context; the ordinary async file round-trip/corrupt-data persistence test is green;
-- fix direction: keep actual file persistence in ordinary async tests, test real visible controls against a synchronous/in-memory persistence spy, and test app reconstruction from the resulting persisted snapshot without blocking widget fake-async;
-- user guides updated in all seven languages.
+- UI preferences live in app-support `ui-preferences.json`, not workspace/private vault;
+- user guides updated in all seven languages;
+- CI now enforces Windows + macOS packaged desktop smoke automatically when a PR is Ready.
+
+## Поточний slice
+
+Статус: **IDLE / SAVED**
+
+Активного implementation PR немає. Поточний інтегрований product baseline:
+**`6e6326c6c8ed00e86908a1eb533bd0cb80bdfaaf`**.
+
+Поточна `docs/sync-after-ui-preferences` — лише state-sync документації після вже інтегрованого PR #123; не є окремим implementation source.
 
 ## Поточна наступна дія
 
-**DOING — repair only `ui_preferences_test.dart` regression structure, rerun exact-head CI, and integrate PR #123 only after green checks.**
+**NEXT — unified reusable date-control UX / picker для Planner + Portfolio.**
+
+Scope наступного implementation slice:
+- один reusable date control замість двох несумісних manual UX;
+- locale-friendly display;
+- calendar picker + keyboard fallback;
+- explicit invalid/intermediate validation;
+- canonical existing date persistence;
+- **без зміни persisted Planner/Portfolio schema**;
+- не ламати вже інтегровану Planner confirmation/state-safety поведінку;
+- real visible-control regressions для Planner і Portfolio, включно з phone-sized reachability.
+
+Після цього окремо повернутися до macOS Portfolio runtime Keychain validation/enablement, mobile external-folder access і distribution signing gates.
 
 ## Deferred gates
 
