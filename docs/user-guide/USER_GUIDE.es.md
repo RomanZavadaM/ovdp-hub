@@ -24,7 +24,7 @@ Un escenario usa una sola divisa base. Configure presupuesto, reserva, horizonte
 A/B/C compara 2–3 escenarios compatibles sin elegir automáticamente un ganador. Los CSV/ICS se guardan localmente en `exports/`.
 
 ## Mi cartera
-La cartera es un flujo local cifrado con crear/abrir/bloquear.
+La cartera es un flujo local cifrado con crear/abrir/bloquear. En el main actual posterior a v0.9.3, la cartera cifrada es compatible con Windows, macOS, Android e iOS. En macOS, la clave del dispositivo y el estado de revisión se guardan en el Keychain del sistema; antes de habilitarlo, la aplicación macOS empaquetada superó un smoke real de create/open/lock/reopen, backup/restore, rotación del secreto de recuperación y limpieza final.
 
 **Compra:** registre ISIN/fecha/unidades/importe y estado de comisión.
 
@@ -42,9 +42,11 @@ No es una valoración de mercado ni una métrica de rendimiento, porque no añad
 El asistente copia datos legacy compatibles al payload cifrado y verifica la copia. La migración es no destructiva: el JSON fuente nunca se elimina automáticamente.
 
 ## Copias de seguridad y actualizaciones
-Antes de una actualización importante, bloquee la cartera, haga copia del workspace, verifique el backup cifrado portátil y guarde el recovery material por separado. Para actualizar desktop, use una nueva carpeta del programa y conserve los datos hasta verificar la nueva versión.
+Antes de una actualización importante, bloquee la cartera, haga copia del workspace, verifique el backup cifrado portátil donde ese flujo de usuario esté disponible y guarde el recovery material por separado. Para actualizar desktop, use una nueva carpeta del programa y conserve los datos hasta verificar la nueva versión.
 
-En Windows, **Mi cartera** puede crear una copia cifrada portátil y restaurar con ella una cartera local vacía. El secreto de recuperación se introduce dos veces al crear la cartera y puede cambiarse después. Los flujos de archivos externos Android/iOS siguen diferidos hasta la etapa SAF/security-scoped separada.
+En Windows, **Mi cartera** puede crear una copia cifrada portátil y restaurar con ella una cartera local vacía. El secreto de recuperación se introduce dos veces al crear la cartera y puede cambiarse después.
+
+En macOS, la cartera cifrada ya está habilitada, pero este gate de Keychain no habilitó el flujo de backup/restore portátil mediante archivos externos; sigue siendo un contrato UX/storage de plataforma separado. Los flujos de archivos externos Android/iOS siguen diferidos hasta la etapa SAF/security-scoped separada.
 
 ## Verificación y problemas comunes
 Use `SHA256SUMS.txt` para verificar descargas. SmartScreen o avisos de macOS son posibles en este prerelease sin firma de producción. “Unknown fee” es un estado intencional. El paquete iOS unsigned no se instala directamente.

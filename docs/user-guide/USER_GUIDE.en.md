@@ -26,7 +26,7 @@ A/B/C compares 2–3 compatible saved scenarios. The letters are order labels on
 CSV and ICS exports are written locally to the active workspace `exports/` folder.
 
 ## My Portfolio
-The portfolio is an encrypted local flow with create/open/lock and session/background locking.
+The portfolio is an encrypted local flow with create/open/lock and session/background locking. In the current post-v0.9.3 main it is supported on Windows, macOS, Android, and iOS. On macOS the device key and revision state are kept in the system Keychain; before enablement the packaged macOS app passed a real create/open/lock/reopen, backup/restore, recovery-rotation, and cleanup smoke.
 
 **Purchase:** record factual ISIN/date/units/amount and fee state.
 
@@ -44,9 +44,11 @@ This summary is **not market valuation or investment performance** because curre
 The migration wizard copies supported user-specific legacy data into the encrypted payload and verifies the encrypted copy. It is non-destructive: source JSON is never auto-deleted.
 
 ## Backup and updates
-Before major updates, lock the portfolio, back up the workspace, create/verify an encrypted portable backup, and keep recovery material separately. For desktop updates, extract the new release into a new program folder and keep the workspace until the new version is verified.
+Before major updates, lock the portfolio, back up the workspace, create/verify an encrypted portable backup where that user-facing flow is supported, and keep recovery material separately. For desktop updates, extract the new release into a new program folder and keep the workspace until the new version is verified.
 
-On Windows, **My portfolio** can create a portable encrypted backup and restore an empty local portfolio from it. The recovery secret is entered twice at creation and can be changed later. Android/iOS external-file flows remain deferred to the separate SAF/security-scoped access stage.
+On Windows, **My Portfolio** can create a portable encrypted backup and restore an empty local portfolio from it. The recovery secret is entered twice at creation and can be changed later.
+
+On macOS the encrypted Portfolio itself is enabled, but the user-facing portable external backup/restore file flow was not enabled by this Keychain gate; it remains a separate platform UX/storage contract. Android/iOS external-file flows remain deferred to the separate SAF/security-scoped access stage.
 
 ## Checksums
 Use `SHA256SUMS.txt` from the GitHub Release to verify downloaded archives when needed.

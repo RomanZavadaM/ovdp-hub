@@ -24,7 +24,7 @@ OVDP Hub는 우크라이나 국채 OVDP를 위한 local-first 앱입니다. 시�
 A/B/C는 호환되는 저장 시나리오 2–3개를 비교하지만 자동 winner를 선택하지 않습니다. CSV/ICS는 로컬 `exports/` 폴더에 저장됩니다.
 
 ## 내 포트폴리오
-포트폴리오는 로컬 암호화 흐름이며 create/open/lock을 지원합니다.
+포트폴리오는 로컬 암호화 흐름이며 create/open/lock을 지원합니다. 현재 post-v0.9.3 main에서는 Windows, macOS, Android, iOS에서 암호화 포트폴리오를 지원합니다. macOS에서는 기기 키와 revision 상태를 시스템 Keychain에 저장하며, 기능을 켜기 전에 패키징된 macOS 앱이 실제 create/open/lock/reopen, backup/restore, recovery secret rotation, 최종 cleanup smoke를 통과했습니다.
 
 **매수:** 실제 ISIN/날짜/수량/금액과 수수료 상태를 기록합니다.
 
@@ -42,9 +42,11 @@ A/B/C는 호환되는 저장 시나리오 2–3개를 비교하지만 자동 win
 마이그레이션 wizard는 지원되는 사용자 legacy 데이터를 암호화 payload로 복사하고 암호화 사본을 검증합니다. 원본 JSON은 자동 삭제하지 않습니다.
 
 ## 백업/업데이트
-큰 업데이트 전에는 포트폴리오를 잠그고 workspace를 백업하며 encrypted portable backup을 확인하고 recovery material을 별도 보관하세요. Desktop 업데이트는 새 프로그램 폴더에 풀고 새 버전을 확인할 때까지 기존 workspace를 유지하세요.
+큰 업데이트 전에는 포트폴리오를 잠그고 workspace를 백업하며, 해당 사용자 흐름이 지원되는 플랫폼에서는 encrypted portable backup을 확인하고 recovery material을 별도 보관하세요. Desktop 업데이트는 새 프로그램 폴더에 풀고 새 버전을 확인할 때까지 기존 workspace를 유지하세요.
 
-Windows의 **내 포트폴리오**에서는 휴대 가능한 암호화 백업을 만들고 이를 이용해 비어 있는 로컬 포트폴리오를 복원할 수 있습니다. 포트폴리오 생성 시 복구 비밀문구를 두 번 입력하며 이후 변경할 수도 있습니다. Android/iOS 외부 파일 흐름은 별도 SAF/security-scoped 단계까지 보류됩니다.
+Windows의 **내 포트폴리오**에서는 휴대 가능한 암호화 백업을 만들고 이를 이용해 비어 있는 로컬 포트폴리오를 복원할 수 있습니다. 포트폴리오 생성 시 복구 비밀문구를 두 번 입력하며 이후 변경할 수도 있습니다.
+
+macOS에서는 암호화 포트폴리오 자체는 활성화되었지만, 이번 Keychain gate로 휴대용 외부 파일 backup/restore 사용자 흐름까지 활성화한 것은 아닙니다. 이 기능은 별도의 플랫폼 UX/storage 계약으로 남아 있습니다. Android/iOS 외부 파일 흐름도 별도 SAF/security-scoped 단계까지 보류됩니다.
 
 ## 검증과 일반 문제
 GitHub Release의 `SHA256SUMS.txt`로 다운로드 파일을 검증할 수 있습니다. unsigned 테스트 prerelease이므로 SmartScreen/macOS 경고가 나올 수 있습니다. “Unknown fee”는 오류가 아니라 의도된 상태입니다. iOS unsigned ZIP은 직접 설치할 수 없습니다.

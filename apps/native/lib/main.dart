@@ -30,6 +30,7 @@ import 'features/workspace/workspace_cubit.dart';
 import 'features/workspace/workspace_view.dart';
 import 'l10n/hub_locale.dart';
 import 'release_contract.dart';
+import 'security/macos_vault_runtime_smoke.dart';
 import 'ui/components.dart';
 import 'ui/dashboard_design.dart';
 import 'ui/studio_design.dart';
@@ -61,6 +62,14 @@ Future<void> main(List<String> args) async {
     exit(0);
   }
   WidgetsFlutterBinding.ensureInitialized();
+
+  final macOsVaultSmokeFile =
+      Platform.environment['OVDP_MACOS_VAULT_SMOKE_FILE'];
+  if (macOsVaultSmokeFile != null && macOsVaultSmokeFile.isNotEmpty) {
+    final exitCode = await runMacOsVaultRuntimeSmoke(File(macOsVaultSmokeFile));
+    exit(exitCode);
+  }
+
   final uiPreferencesStore = await openPlatformUiPreferencesStore();
   runApp(
     OvdpApp(

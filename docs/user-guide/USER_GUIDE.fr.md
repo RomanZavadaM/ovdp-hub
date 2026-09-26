@@ -24,7 +24,7 @@ Un scénario utilise une seule devise. Configurez budget, réserve, horizon, bes
 A/B/C compare 2–3 scénarios compatibles sans désigner automatiquement de gagnant. Les exports CSV/ICS sont créés localement dans `exports/`.
 
 ## Mon portefeuille
-Le portefeuille est un flux local chiffré avec création/ouverture/verrouillage.
+Le portefeuille est un flux local chiffré avec création/ouverture/verrouillage. Dans le main actuel post-v0.9.3, le portefeuille chiffré est pris en charge sous Windows, macOS, Android et iOS. Sous macOS, la clé de l’appareil et l’état de révision sont conservés dans le Keychain système; avant l’activation, l’application macOS packagée a passé un smoke réel create/open/lock/reopen, backup/restore, rotation du secret de récupération et nettoyage final.
 
 **Achat :** saisir ISIN/date/unités/montant et l’état des frais.
 
@@ -42,9 +42,11 @@ Ce résumé n’est **pas** une valorisation de marché ni une mesure de perform
 L’assistant copie les données legacy prises en charge vers le payload chiffré et vérifie la copie. La migration est non destructive : le JSON source n’est jamais supprimé automatiquement.
 
 ## Sauvegarde et mise à jour
-Avant une mise à jour importante : verrouiller le portefeuille, sauvegarder le workspace, vérifier le backup chiffré portable et conserver le recovery material séparément. Pour une mise à jour desktop, utilisez un nouveau dossier programme et gardez les données jusqu’à vérification.
+Avant une mise à jour importante : verrouiller le portefeuille, sauvegarder le workspace, vérifier le backup chiffré portable là où ce flux utilisateur est pris en charge et conserver le recovery material séparément. Pour une mise à jour desktop, utilisez un nouveau dossier programme et gardez les données jusqu’à vérification.
 
-Sous Windows, **Mon portefeuille** peut créer une sauvegarde chiffrée portable et restaurer un portefeuille local vide à partir de celle-ci. Le secret de récupération est saisi deux fois lors de la création et peut être modifié ensuite. Les flux de fichiers externes Android/iOS restent différés jusqu’à l’étape SAF/security-scoped dédiée.
+Sous Windows, **Mon portefeuille** peut créer une sauvegarde chiffrée portable et restaurer un portefeuille local vide à partir de celle-ci. Le secret de récupération est saisi deux fois lors de la création et peut être modifié ensuite.
+
+Sous macOS, le portefeuille chiffré lui-même est désormais activé, mais le flux utilisateur de backup/restore via fichier externe portable n’a pas été activé par ce gate Keychain; il reste un contrat UX/storage de plateforme séparé. Les flux de fichiers externes Android/iOS restent différés jusqu’à l’étape SAF/security-scoped dédiée.
 
 ## Vérification et problèmes fréquents
 Le fichier `SHA256SUMS.txt` permet de vérifier les archives. SmartScreen / avertissement macOS peut apparaître avec ce prerelease non signé. « Frais inconnus » est un état explicite. Le ZIP iOS unsigned ne s’installe pas directement.

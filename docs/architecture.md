@@ -1,6 +1,6 @@
 # Архітектура OVDP Hub — Flutter native
 
-Оновлено: **25.09.2026**  
+Оновлено: **26.09.2026**  
 Актуальний checkpoint: **v0.9.3 / 0.9.3+20**
 
 ## Межа продукту
@@ -74,11 +74,19 @@ Vault layer включає:
 - authenticated encrypted envelope;
 - platform device-key adapters;
 - recovery material / wrapped key lifecycle;
-- portable encrypted backup/restore;
+- portable encrypted backup/restore primitives;
 - atomic local replace/recovery;
 - rollback detection;
 - manual/inactivity/background locking;
 - serialized lifecycle controls.
+
+Device-key boundary:
+
+- Windows — app-owned DPAPI state;
+- Android / iOS — platform secure storage;
+- macOS — system Keychain через `flutter_secure_storage`, без Keychain Sharing для поточного unsigned/non-provisioned test-build (`usesDataProtectionKeychain: false`).
+
+macOS adapter не вважається доведеним через compile або mock. Перед user-facing enablement packaged macOS executable реально пройшов Keychain DEK/revision round-trip, encrypted vault create/open, session lock/reopen, encrypted backup/restore, recovery rotation, old-secret rejection і cleanup. Той самий packaged runtime smoke залишається CI gate після enablement.
 
 Factual portfolio domain включає acquisition lots, explicit disposal allocations, coupon/redemption cash events, derived holdings, closed positions, per-ISIN ledger та per-currency factual cash summary.
 
@@ -94,7 +102,9 @@ Public Bond snapshots не перетворюються на private factual rec
 
 Desktop workspace може бути локальним або у user-selected/synchronized filesystem location.
 
-Mobile external-folder support через Android SAF / iOS security-scoped bookmarks **ще deferred**; до окремого storage gate mobile використовує підтримуваний app-local storage contract.
+Encrypted Portfolio підтримує Windows, macOS, Android та iOS на рівні app-local encrypted vault/device key. Це **не** означає однаковий зовнішній file flow: portable user-facing encrypted backup/restore picker наразі Windows-only.
+
+Mobile external-folder support через Android SAF / iOS security-scoped bookmarks **ще deferred**; до окремого storage gate mobile використовує підтримуваний app-local storage contract. macOS user-facing external backup/file-picker flow також не вмикається автоматично лише через Keychain validation і лишається окремим platform UX contract.
 
 ## Локалізація
 
