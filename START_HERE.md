@@ -48,28 +48,39 @@
 - Active product: `apps/native` Flutter/Dart
 - Published checkpoint: **v0.9.3 / 0.9.3+20**
 - Release commit: `e2ec96322a1acb953589eeeb45e8ec50cd5d198a`
-- Post-merge run: **#405 success**
 - Full publish: **#106 success**
 - Platforms: Windows / macOS / Android / iOS
 - Languages: UK / EN / FR / DE / ES / KO / JA
-- v0.9.3 includes factual sale/redemption/history, coupon, per-ISIN ledger, factual cash summary, closed positions and explicit non-destructive legacy migration wizard.
-- Unknown fees remain explicit; market value is not presented as factual result.
-- v0.9.3 documentation/user-guide cleanup is **DONE**: PR #110 → `df505e9f…`, exact-head run #407 and post-merge run #408 — success.
-- Repository branch cleanup is **DONE**: 109 obsolete branches deleted, 0 failures; stale PR #103/#108 closed; tags/releases/history preserved.
-- Post-v0.9.3 usability/product audit is **DONE**: PR #116 → `bb961f9d…`; canonical findings are in `docs/AUDIT_POST_0_9_3.md`.
-- First audit fix is **DONE**: PR #117 → `fc38177a…`; recovery confirmation/rotation plus Windows portable encrypted backup/restore; exact-head #417 and post-merge #418 — success.
-- Planner safe criteria/date editing is **DONE**: PR #119 → `ad3a995a…`; exact-head #420 and post-merge #421 — success.
-- Catalog localization + locale-neutral collection variant cleanup is **DONE**: PR #120 → `5638f56e…`; final exact-head #428 and post-merge #429 — success. Runs #422/#424 are retained as useful failed evidence that caught a no-op CRLF patch.
-- Language + appearance persistence is **DONE**: PR #123 → `6e6326c6…`; exact-head run #439 — 197/197 tests + Windows/macOS packaged smoke; post-merge main run #440 — verify + START/source success.
-- Unified reusable date-control UX is **DONE**: PR #125 → `c94fbce6…`; final exact-head #452 — success; Ready run #453 — verify + Windows/macOS packaged smoke success; post-merge main run #454 — verify + START/source success.
-- Planner criteria/needs/reserve/FX/exit і Portfolio purchase/sale/coupon/redemption тепер використовують один locale-friendly date control з calendar picker + keyboard fallback; persisted/domain dates залишаються canonical `YYYY-MM-DD`.
-- Non-sensitive UI preferences are stored in app-support `ui-preferences.json`, separate from workspace/private vault; corrupt/unknown data fails safe to Ukrainian + Workbench.
-- Ready user-visible PRs automatically enforce packaged Windows + macOS smoke before merge.
-- Current integrated product baseline: **`c94fbce63bc53cc9f1a2b87a555f056c14e533f5`**.
-- Android SAF / iOS security-scoped external-folder access remains deferred.
-- macOS encrypted Portfolio remains gated on real Keychain runtime/provisioning validation.
-- Production signing/notarization remains deferred.
-- **NEXT:** macOS Portfolio runtime Keychain validation + enablement. Спочатку потрібні реальні create/open/lock/reopen і backup/recovery lifecycle checks у packaged macOS app; лише після green можна вмикати macOS у `PortfolioGateway.supported` і оновлювати capability docs.
+- Current integrated product baseline: **`4c1617b3f0636c6ca33a35b2f992766dc4649cde`**.
+
+### Останні інтегровані slices
+
+- Post-v0.9.3 audit — PR #116 → `bb961f9d…`.
+- Portfolio recovery / Windows portable encrypted backup UX — PR #117 → `fc38177a…`.
+- Planner safe criteria/date editing — PR #119 → `ad3a995a…`.
+- Catalog localization + locale-neutral collection variant — PR #120 → `5638f56e…`.
+- UI language + appearance persistence — PR #123 → `6e6326c6…`.
+- Unified Planner/Portfolio date controls — PR #125 → `c94fbce6…`.
+- **macOS encrypted Portfolio Keychain runtime gate + enablement — DONE:** PR #127 → **`4c1617b3f0636c6ca33a35b2f992766dc4649cde`**.
+
+### macOS Portfolio — підтверджений стан
+
+- До enablement packaged macOS app реально пройшов Keychain/vault create → open → lock/reopen → backup/restore → recovery rotation → cleanup: Gate A run **#462 — success**.
+- Після enablement той самий runtime contract повторно пройшов у run **#464 — success**.
+- Final docs-synced exact-head run **#465 — success**: `flutter analyze`, **204 tests**, Windows packaged smoke, macOS packaged Keychain/vault smoke.
+- PR #127 merged у `main` як **`4c1617b3…`**.
+- Post-merge main run **#466 — success**, including verify + START/source.
+- START artifact: `OVDP-Hub-0.9.3-test-466-1-START`, SHA-256 `5b7dcb427357ab88785223434d6ab3784e1682e6ecb75a592cca9a6431ea21cb`.
+- Encrypted Portfolio now supports Windows / macOS / Android / iOS at the app-local vault/device-key level.
+- macOS device key/revision state uses system Keychain with packaged runtime validation.
+- Portable external-file backup/restore UI remains **Windows-only**; macOS file flow is not silently enabled.
+- Existing v0.9.3 release was not republished after merge: release push preflight correctly skipped publish/build jobs.
+
+## Deferred / NEXT
+
+- **NEXT — Android SAF + iOS security-scoped external-folder access.** Ціль: нормальний user-facing external workspace/backup file flow на mobile без підміни desktop filesystem API.
+- Production signing/notarization/store distribution remains a separate later gate.
+- Windows production code signing, macOS Developer ID + notarization, Android production keystore, iOS signing/distribution, installers/auto-update — deferred.
 
 ## Rule for new chats
 
