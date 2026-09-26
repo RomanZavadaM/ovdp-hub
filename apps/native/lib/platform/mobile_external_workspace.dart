@@ -47,11 +47,19 @@ class MobileExternalWorkspace {
       }
     }
 
-    final markerText = await storage.readWorkspaceText(
-      grantId: grant.id,
-      relativePath: '$rootDirectory/$marker',
-      maxBytes: 64 * 1024,
-    );
+    String? markerText;
+    try {
+      markerText = await storage.readWorkspaceText(
+        grantId: grant.id,
+        relativePath: '$rootDirectory/$marker',
+        maxBytes: 64 * 1024,
+      );
+    } on StateError catch (error) {
+      if (error.message != 'workspace.external_missing' &&
+          error.message != 'workspace.external_read_failed') {
+        rethrow;
+      }
+    }
     if (markerText == null) {
       throw StateError('workspace.empty_or_hub_required');
     }
