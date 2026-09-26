@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/models.dart';
@@ -89,7 +91,7 @@ void main() {
 
   test('external workspace survives reopening through opaque grant', () async {
     final catalog = Catalog.parse(
-      await DefaultAssetBundle.of(TestWidgetsFlutterBinding.ensureInitialized().renderViewElement!).loadString('assets/nbu-snapshot.json'),
+      await File('assets/nbu-snapshot.json').readAsString(),
     );
     final workspace = await MobileExternalWorkspace.open(
       storage: storage,
@@ -98,7 +100,12 @@ void main() {
     );
     await workspace.saveCatalog(catalog);
     await workspace.saveSet(
-      SavedSet('Mobile', 'note', '2026-09-26T00:00:00.000Z', [catalog.bonds.first]),
+      SavedSet(
+        'Mobile',
+        'note',
+        '2026-09-26T00:00:00.000Z',
+        [catalog.bonds.first],
+      ),
     );
 
     final reopened = await MobileExternalWorkspace.open(
