@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../l10n/hub_locale.dart';
 import '../../ui/components.dart';
+import '../../ui/date_field.dart';
 import '../navigation/navigation_cubit.dart';
 import 'planner_cubit.dart';
 import 'planner_scenario.dart';
@@ -102,7 +104,9 @@ class PlannerView extends StatelessWidget {
             ),
             TextField(
               onChanged: (value) => price = value,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
                 labelText: strings.text('priceSourceFullPrice'),
               ),
@@ -122,11 +126,7 @@ class PlannerView extends StatelessWidget {
       ),
     );
     if (submitted == true && context.mounted) {
-      cubit.addManualPriceSource(
-        input.bond.isin,
-        source,
-        price,
-      );
+      cubit.addManualPriceSource(input.bond.isin, source, price);
     }
   }
 
@@ -137,18 +137,21 @@ class PlannerView extends StatelessWidget {
     String baseCurrency,
     List<FxAssumption> current,
   ) async {
-    final targets = ['UAH', 'USD', 'EUR']
-        .where((value) => value != baseCurrency)
-        .toList(growable: false);
+    final targets = [
+      'UAH',
+      'USD',
+      'EUR',
+    ].where((value) => value != baseCurrency).toList(growable: false);
     FxAssumption? existing;
     if (current.length == 1 && current.single.fromCurrency == baseCurrency) {
       existing = current.single;
     }
     var target = existing?.toCurrency ?? targets.first;
     var rate = existing?.rate.toString() ?? '';
-    var asOf = existing?.asOf ??
-        DateTime.now().toIso8601String().substring(0, 10);
+    var asOf =
+        existing?.asOf ?? DateTime.now().toIso8601String().substring(0, 10);
     var sourceUrl = existing?.source?.sourceUrl ?? '';
+    final asOfKey = GlobalKey<HubDateFieldState>();
 
     final submitted = await showDialog<bool>(
       context: context,
@@ -189,12 +192,16 @@ class PlannerView extends StatelessWidget {
                   ),
                   onChanged: (value) => rate = value,
                 ),
-                TextFormField(
-                  initialValue: asOf,
-                  decoration: InputDecoration(
-                    labelText: strings.text('fxAsOf'),
-                  ),
-                  onChanged: (value) => asOf = value,
+                HubDateField(
+                  key: asOfKey,
+                  controlKey: 'planner-fx-asof',
+                  canonicalValue: asOf,
+                  label: strings.text('fxAsOf'),
+                  invalidDateText: strings.text('plannerCriteriaInvalidDate'),
+                  onCommit: (value) async {
+                    asOf = value;
+                    return true;
+                  },
                 ),
                 TextFormField(
                   initialValue: sourceUrl,
@@ -212,7 +219,12 @@ class PlannerView extends StatelessWidget {
               child: Text(strings.text('close')),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
+              onPressed: () async {
+                final accepted =
+                    await asOfKey.currentState?.commitPending() ?? false;
+                if (!accepted || !dialogContext.mounted) return;
+                Navigator.pop(dialogContext, true);
+              },
               child: Text(strings.text('applyFxComparison')),
             ),
           ],
@@ -229,10 +241,7 @@ class PlannerView extends StatelessWidget {
     }
   }
 
-  PositionExitAssumption? _exitFor(
-    PlannerState state,
-    String isin,
-  ) {
+  PositionExitAssumption? _exitFor(PlannerState state, String isin) {
     for (final exit in state.positionExits) {
       if (exit.isin == isin) return exit;
     }
@@ -246,13 +255,18 @@ class PlannerView extends StatelessWidget {
     PositionInput input,
     PositionExitAssumption? existing,
   ) async {
-    var date = existing?.date ??
-        DateTime.now().add(const Duration(days: 30)).toIso8601String().substring(0, 10);
+    var date =
+        existing?.date ??
+        DateTime.now()
+            .add(const Duration(days: 30))
+            .toIso8601String()
+            .substring(0, 10);
     var price = existing?.price.effectiveUnitCost?.toString() ?? '';
     var side = existing?.price.side ?? PriceSide.manual;
     var sourceUrl = existing?.price.meta.sourceUrl == 'local://manual-exit'
         ? ''
         : existing?.price.meta.sourceUrl ?? '';
+    final dateKey = GlobalKey<HubDateFieldState>();
 
     final submitted = await showDialog<bool>(
       context: context,
@@ -266,12 +280,16 @@ class PlannerView extends StatelessWidget {
               children: [
                 Text(strings.text('exitAssumptionsInfo')),
                 const SizedBox(height: 8),
-                TextFormField(
-                  initialValue: date,
-                  decoration: InputDecoration(
-                    labelText: strings.text('exitDate'),
-                  ),
-                  onChanged: (value) => date = value,
+                HubDateField(
+                  key: dateKey,
+                  controlKey: 'planner-exit-date',
+                  canonicalValue: date,
+                  label: strings.text('exitDate'),
+                  invalidDateText: strings.text('plannerCriteriaInvalidDate'),
+                  onCommit: (value) async {
+                    date = value;
+                    return true;
+                  },
                 ),
                 TextFormField(
                   initialValue: price,
@@ -321,7 +339,12 @@ class PlannerView extends StatelessWidget {
               child: Text(strings.text('close')),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
+              onPressed: () async {
+                final accepted =
+                    await dateKey.currentState?.commitPending() ?? false;
+                if (!accepted || !dialogContext.mounted) return;
+                Navigator.pop(dialogContext, true);
+              },
               child: Text(strings.text('applyExit')),
             ),
           ],
@@ -357,13 +380,12 @@ class PlannerView extends StatelessWidget {
             exit == null
                 ? strings.text('exitHoldToMaturity')
                 : '${strings.text('exitEarlySale')}: ${exit.date} · '
-                    '${exit.price.effectiveUnitCost} ${input.bond.currency} · '
-                    '${exit.price.side == PriceSide.bid ? strings.text('exitBidPrice') : strings.text('exitManualPrice')}',
+                      '${exit.price.effectiveUnitCost} ${input.bond.currency} · '
+                      '${exit.price.side == PriceSide.bid ? strings.text('exitBidPrice') : strings.text('exitManualPrice')}',
           ),
-          if (exit != null && exit.price.meta.sourceUrl != 'local://manual-exit')
-            Text(
-              '${strings.text('exitSource')}: ${exit.price.meta.sourceUrl}',
-            ),
+          if (exit != null &&
+              exit.price.meta.sourceUrl != 'local://manual-exit')
+            Text('${strings.text('exitSource')}: ${exit.price.meta.sourceUrl}'),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -408,9 +430,7 @@ class PlannerView extends StatelessWidget {
     final path = await action();
     if (context.mounted && path != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${strings.text('exportSavedTo')}: $path'),
-        ),
+        SnackBar(content: Text('${strings.text('exportSavedTo')}: $path')),
       );
     }
   }
@@ -429,11 +449,12 @@ class PlannerView extends StatelessWidget {
     final currency = c['currency'];
     final feesKnown = state.fees.status == FeeAssumptionStatus.known;
     final taxesKnown = state.taxes.status == TaxAssumptionStatus.known;
-    final simpleFx = state.fx.length == 1 &&
-        state.fx.single.fromCurrency == currency
+    final simpleFx =
+        state.fx.length == 1 && state.fx.single.fromCurrency == currency
         ? state.fx.single
         : null;
-    final simpleFeeRules = state.fees.rules.isEmpty ||
+    final simpleFeeRules =
+        state.fees.rules.isEmpty ||
         (state.fees.rules.length == 1 &&
             state.fees.rules.single.id == 'ui-purchase-fee' &&
             state.fees.rules.single.kind == FeeKind.flat &&
@@ -442,8 +463,8 @@ class PlannerView extends StatelessWidget {
     final aggregatePurchaseFee = state.fees.rules.isEmpty
         ? '0'
         : simpleFeeRules
-            ? state.fees.rules.single.value.toString()
-            : '';
+        ? state.fees.rules.single.value.toString()
+        : '';
     final maximum =
         summary?.months.fold<double>(
           0,
@@ -466,12 +487,12 @@ class PlannerView extends StatelessWidget {
                 onSelected: disabled
                     ? null
                     : (_) => _commitInvalidatingCriterion(
-                          context,
-                          cubit,
-                          strings,
-                          'currency',
-                          cur,
-                        ),
+                        context,
+                        cubit,
+                        strings,
+                        'currency',
+                        cur,
+                      ),
               ),
           ],
         ),
@@ -567,7 +588,9 @@ class PlannerView extends StatelessWidget {
                     SizedBox(
                       width: 260,
                       child: TextFormField(
-                        key: ValueKey('needName-${state.revision}-${strings.language.code}'),
+                        key: ValueKey(
+                          'needName-${state.revision}-${strings.language.code}',
+                        ),
                         initialValue: _generatedCopy(strings, c['needName']),
                         enabled: !disabled,
                         decoration: InputDecoration(
@@ -578,14 +601,19 @@ class PlannerView extends StatelessWidget {
                     ),
                     SizedBox(
                       width: 220,
-                      child: TextFormField(
+                      child: HubDateField(
                         key: ValueKey('needDate-${state.revision}'),
-                        initialValue: c['needDate'],
-                        enabled: !disabled,
-                        decoration: InputDecoration(
-                          labelText: strings.text('needDateField'),
+                        controlKey: 'planner-need-date',
+                        canonicalValue: c['needDate']!,
+                        label: strings.text('needDateField'),
+                        invalidDateText: strings.text(
+                          'plannerCriteriaInvalidDate',
                         ),
-                        onChanged: (v) => cubit.edit('needDate', v),
+                        enabled: !disabled,
+                        onCommit: (value) async {
+                          cubit.edit('needDate', value);
+                          return true;
+                        },
                       ),
                     ),
                     SizedBox(
@@ -614,7 +642,7 @@ class PlannerView extends StatelessWidget {
                   onChanged: disabled
                       ? null
                       : (value) =>
-                          cubit.edit('needRecurring', value.toString()),
+                            cubit.edit('needRecurring', value.toString()),
                 ),
                 if (c['needRecurring'] == 'true')
                   Wrap(
@@ -624,33 +652,27 @@ class PlannerView extends StatelessWidget {
                       SizedBox(
                         width: 220,
                         child: TextFormField(
-                          key: ValueKey(
-                            'needEveryMonths-${state.revision}',
-                          ),
+                          key: ValueKey('needEveryMonths-${state.revision}'),
                           initialValue: c['needEveryMonths'] ?? '1',
                           enabled: !disabled,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: strings.text('repeatEveryMonths'),
                           ),
-                          onChanged: (v) =>
-                              cubit.edit('needEveryMonths', v),
+                          onChanged: (v) => cubit.edit('needEveryMonths', v),
                         ),
                       ),
                       SizedBox(
                         width: 220,
                         child: TextFormField(
-                          key: ValueKey(
-                            'needOccurrences-${state.revision}',
-                          ),
+                          key: ValueKey('needOccurrences-${state.revision}'),
                           initialValue: c['needOccurrences'] ?? '6',
                           enabled: !disabled,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: strings.text('repeatOccurrences'),
                           ),
-                          onChanged: (v) =>
-                              cubit.edit('needOccurrences', v),
+                          onChanged: (v) => cubit.edit('needOccurrences', v),
                         ),
                       ),
                     ],
@@ -679,17 +701,36 @@ class PlannerView extends StatelessWidget {
                   }.entries)
                     SizedBox(
                       width: 220,
-                      child: TextFormField(
-                        key: ValueKey(
-                          '${field.key}-${state.revision}-${strings.language.code}',
-                        ),
-                        initialValue: field.key.startsWith('expenseName')
-                            ? _generatedCopy(strings, c[field.key])
-                            : c[field.key],
-                        enabled: !disabled,
-                        decoration: InputDecoration(labelText: field.value),
-                        onChanged: (v) => cubit.edit(field.key, v),
-                      ),
+                      child: field.key.startsWith('expenseDate')
+                          ? HubDateField(
+                              key: ValueKey(
+                                '${field.key}-${state.revision}-${strings.language.code}',
+                              ),
+                              controlKey: 'planner-${field.key}',
+                              canonicalValue: c[field.key] ?? c['start']!,
+                              label: field.value,
+                              invalidDateText: strings.text(
+                                'plannerCriteriaInvalidDate',
+                              ),
+                              enabled: !disabled,
+                              onCommit: (value) async {
+                                cubit.edit(field.key, value);
+                                return true;
+                              },
+                            )
+                          : TextFormField(
+                              key: ValueKey(
+                                '${field.key}-${state.revision}-${strings.language.code}',
+                              ),
+                              initialValue: field.key.startsWith('expenseName')
+                                  ? _generatedCopy(strings, c[field.key])
+                                  : c[field.key],
+                              enabled: !disabled,
+                              decoration: InputDecoration(
+                                labelText: field.value,
+                              ),
+                              onChanged: (v) => cubit.edit(field.key, v),
+                            ),
                     ),
                   IconButton(
                     tooltip: strings.text('deleteExpense'),
@@ -713,8 +754,7 @@ class PlannerView extends StatelessWidget {
           value: c['reserveFloorEnabled'] == 'true',
           onChanged: disabled
               ? null
-              : (value) =>
-                  cubit.edit('reserveFloorEnabled', value.toString()),
+              : (value) => cubit.edit('reserveFloorEnabled', value.toString()),
         ),
         if (c['reserveFloorEnabled'] == 'true')
           Card(
@@ -743,14 +783,19 @@ class PlannerView extends StatelessWidget {
                   ),
                   SizedBox(
                     width: 220,
-                    child: TextFormField(
+                    child: HubDateField(
                       key: ValueKey('reserveFloorDate-${state.revision}'),
-                      initialValue: c['reserveFloorDate'],
-                      enabled: !disabled,
-                      decoration: InputDecoration(
-                        labelText: strings.text('reserveFloorDate'),
+                      controlKey: 'planner-reserve-floor-date',
+                      canonicalValue: c['reserveFloorDate']!,
+                      label: strings.text('reserveFloorDate'),
+                      invalidDateText: strings.text(
+                        'plannerCriteriaInvalidDate',
                       ),
-                      onChanged: (v) => cubit.edit('reserveFloorDate', v),
+                      enabled: !disabled,
+                      onCommit: (value) async {
+                        cubit.edit('reserveFloorDate', value);
+                        return true;
+                      },
                     ),
                   ),
                   SizedBox(
@@ -815,10 +860,11 @@ class PlannerView extends StatelessWidget {
               key: ValueKey('aggregate-purchase-fee-${state.revision}'),
               initialValue: aggregatePurchaseFee,
               enabled: !disabled,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
-                labelText:
-                    '${strings.text('aggregatePurchaseFee')}, $currency',
+                labelText: '${strings.text('aggregatePurchaseFee')}, $currency',
               ),
               onChanged: cubit.setAggregatePurchaseFee,
             ),
@@ -886,8 +932,8 @@ class PlannerView extends StatelessWidget {
                 state.fx.isEmpty
                     ? strings.text('addFxComparison')
                     : simpleFx != null
-                        ? strings.text('changeFxComparison')
-                        : strings.text('replaceFxComparison'),
+                    ? strings.text('changeFxComparison')
+                    : strings.text('replaceFxComparison'),
               ),
             ),
             if (state.fx.isNotEmpty)
@@ -932,9 +978,11 @@ class PlannerView extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     Text(strings.text('priceSourcePriorityInfo')),
-                    for (var sourceIndex = 0;
-                        sourceIndex < state.priceSourcePriority.sourceIds.length;
-                        sourceIndex++)
+                    for (
+                      var sourceIndex = 0;
+                      sourceIndex < state.priceSourcePriority.sourceIds.length;
+                      sourceIndex++
+                    )
                       Row(
                         children: [
                           SizedBox(
@@ -945,7 +993,9 @@ class PlannerView extends StatelessWidget {
                             child: Text(
                               _sourceLabel(
                                 strings,
-                                state.priceSourcePriority.sourceIds[sourceIndex],
+                                state
+                                    .priceSourcePriority
+                                    .sourceIds[sourceIndex],
                               ),
                             ),
                           ),
@@ -954,19 +1004,28 @@ class PlannerView extends StatelessWidget {
                             onPressed: disabled || sourceIndex == 0
                                 ? null
                                 : () => cubit.movePriceSource(
-                                    state.priceSourcePriority.sourceIds[sourceIndex],
+                                    state
+                                        .priceSourcePriority
+                                        .sourceIds[sourceIndex],
                                     -1,
                                   ),
                             icon: const Icon(Icons.arrow_upward),
                           ),
                           IconButton(
                             tooltip: strings.text('moveSourceDown'),
-                            onPressed: disabled ||
+                            onPressed:
+                                disabled ||
                                     sourceIndex ==
-                                        state.priceSourcePriority.sourceIds.length - 1
+                                        state
+                                                .priceSourcePriority
+                                                .sourceIds
+                                                .length -
+                                            1
                                 ? null
                                 : () => cubit.movePriceSource(
-                                    state.priceSourcePriority.sourceIds[sourceIndex],
+                                    state
+                                        .priceSourcePriority
+                                        .sourceIds[sourceIndex],
                                     1,
                                   ),
                             icon: const Icon(Icons.arrow_downward),
@@ -1002,7 +1061,7 @@ class PlannerView extends StatelessWidget {
                       i.nominalEstimate
                           ? strings.text('nominalEstimate')
                           : '${strings.text('selectedPriceSource')}: '
-                              '${_sourceLabel(strings, i.selectedSourceId ?? 'manual-price')}',
+                                '${_sourceLabel(strings, i.selectedSourceId ?? 'manual-price')}',
                     ),
                     if (i.observations.any((o) => o.isExplicitPurchasePrice))
                       Padding(
@@ -1011,16 +1070,16 @@ class PlannerView extends StatelessWidget {
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            for (final observation
-                                in i.observations.where(
-                                  (o) => o.isExplicitPurchasePrice,
-                                ))
+                            for (final observation in i.observations.where(
+                              (o) => o.isExplicitPurchasePrice,
+                            ))
                               ChoiceChip(
                                 label: Text(
                                   '${_sourceLabel(strings, observation.meta.sourceId)} · '
                                   '${observation.effectiveUnitCost} $currency',
                                 ),
-                                selected: !i.nominalEstimate &&
+                                selected:
+                                    !i.nominalEstimate &&
                                     i.selectedSourceId ==
                                         observation.meta.sourceId,
                                 onSelected: disabled
@@ -1085,7 +1144,8 @@ class PlannerView extends StatelessWidget {
                             initialValue: i.price,
                             enabled: !disabled,
                             decoration: InputDecoration(
-                              labelText: '${strings.text('fullPrice')}, $currency',
+                              labelText:
+                                  '${strings.text('fullPrice')}, $currency',
                             ),
                             onChanged: (v) =>
                                 cubit.position(i.bond.isin, price: v),
@@ -1093,14 +1153,7 @@ class PlannerView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    _exitControls(
-                      context,
-                      cubit,
-                      state,
-                      strings,
-                      i,
-                      disabled,
-                    ),
+                    _exitControls(context, cubit, state, strings, i, disabled),
                   ],
                 ),
               ),
@@ -1108,14 +1161,18 @@ class PlannerView extends StatelessWidget {
           ),
         ],
         ExpansionTile(
-          title: Text('${strings.text('manualIssues')} · ${state.candidates.length}'),
+          title: Text(
+            '${strings.text('manualIssues')} · ${state.candidates.length}',
+          ),
           children: [
             ...state.candidates.map(
               (b) => CheckboxListTile(
                 value: state.inputs.containsKey(b.isin),
                 onChanged: disabled ? null : (v) => cubit.toggle(b, v == true),
                 title: Text(b.isin),
-                subtitle: Text('${b.maturity} · ${b.rate}% ${strings.text('nominalRate')}'),
+                subtitle: Text(
+                  '${b.maturity} · ${b.rate}% ${strings.text('nominalRate')}',
+                ),
               ),
             ),
           ],
@@ -1206,11 +1263,11 @@ class PlannerView extends StatelessWidget {
                 subtitle: Text(
                   row.expense.type == PlannerNeedType.reserveFloor
                       ? '${strings.text('beforeExpense')}: ${row.available.toStringAsFixed(2)} · '
-                          '${strings.text('reserveFloorRequired')}: ${row.expense.amount.toStringAsFixed(2)} · '
-                          '${strings.text('shortfall')}: ${row.shortfall.toStringAsFixed(2)} $currency'
+                            '${strings.text('reserveFloorRequired')}: ${row.expense.amount.toStringAsFixed(2)} · '
+                            '${strings.text('shortfall')}: ${row.shortfall.toStringAsFixed(2)} $currency'
                       : '${strings.text('beforeExpense')}: ${row.available.toStringAsFixed(2)} · '
-                          '${strings.text('afterExpense')}: ${row.remaining.toStringAsFixed(2)} · '
-                          '${strings.text('shortfall')}: ${row.shortfall.toStringAsFixed(2)} $currency',
+                            '${strings.text('afterExpense')}: ${row.remaining.toStringAsFixed(2)} · '
+                            '${strings.text('shortfall')}: ${row.shortfall.toStringAsFixed(2)} $currency',
                 ),
               ),
             ),
@@ -1273,22 +1330,14 @@ class PlannerView extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: disabled || summary == null || state.inputs.isEmpty
                   ? null
-                  : () => _export(
-                        context,
-                        cubit.exportCsv,
-                        strings,
-                      ),
+                  : () => _export(context, cubit.exportCsv, strings),
               icon: const Icon(Icons.table_view_outlined),
               label: Text(strings.text('exportCsv')),
             ),
             OutlinedButton.icon(
               onPressed: disabled || summary == null || state.inputs.isEmpty
                   ? null
-                  : () => _export(
-                        context,
-                        cubit.exportIcs,
-                        strings,
-                      ),
+                  : () => _export(context, cubit.exportIcs, strings),
               icon: const Icon(Icons.calendar_month_outlined),
               label: Text(strings.text('exportIcs')),
             ),
@@ -1326,91 +1375,13 @@ class _CommittedPlannerDateField extends StatefulWidget {
 
 class _CommittedPlannerDateFieldState
     extends State<_CommittedPlannerDateField> {
-  late final TextEditingController _controller;
-  late final FocusNode _focusNode;
-  String? _errorText;
-  bool _committing = false;
-
   @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.value);
-    _focusNode = FocusNode()..addListener(_onFocusChanged);
-  }
-
-  @override
-  void didUpdateWidget(covariant _CommittedPlannerDateField oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!_focusNode.hasFocus &&
-        widget.value != oldWidget.value &&
-        _controller.text != widget.value) {
-      _controller.text = widget.value;
-    }
-  }
-
-  void _onFocusChanged() {
-    if (!_focusNode.hasFocus) {
-      _commit();
-    }
-  }
-
-  bool _validIsoDate(String value) {
-    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) return false;
-    final parsed = DateTime.tryParse('${value}T00:00:00Z');
-    return parsed != null &&
-        parsed.toIso8601String().substring(0, 10) == value;
-  }
-
-  Future<void> _commit() async {
-    if (_committing || !widget.enabled) return;
-    final value = _controller.text.trim();
-    if (value == widget.value) {
-      if (_errorText != null && mounted) {
-        setState(() => _errorText = null);
-      }
-      return;
-    }
-    if (!_validIsoDate(value)) {
-      if (mounted) setState(() => _errorText = widget.invalidDateText);
-      return;
-    }
-
-    _committing = true;
-    final accepted = await widget.onCommit(value);
-    if (!mounted) return;
-    if (!accepted) {
-      _controller.text = widget.value;
-    }
-    setState(() {
-      _errorText = null;
-      _committing = false;
-    });
-  }
-
-  @override
-  void dispose() {
-    _focusNode
-      ..removeListener(_onFocusChanged)
-      ..dispose();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => TextFormField(
-        key: ValueKey('planner-${widget.criterionKey}-input'),
-        controller: _controller,
-        focusNode: _focusNode,
-        enabled: widget.enabled && !_committing,
-        keyboardType: TextInputType.datetime,
-        textInputAction: TextInputAction.done,
-        decoration: InputDecoration(
-          labelText: widget.label,
-          errorText: _errorText,
-        ),
-        onChanged: (_) {
-          if (_errorText != null) setState(() => _errorText = null);
-        },
-        onFieldSubmitted: (_) => _commit(),
-      );
+  Widget build(BuildContext context) => HubDateField(
+    controlKey: 'planner-${widget.criterionKey}',
+    canonicalValue: widget.value,
+    label: widget.label,
+    invalidDateText: widget.invalidDateText,
+    enabled: widget.enabled,
+    onCommit: widget.onCommit,
+  );
 }

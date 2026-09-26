@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/hub_repository.dart';
 import '../../l10n/hub_locale.dart';
 import '../../models.dart';
+import '../../ui/date_field.dart';
 import 'legacy_plaintext_migration.dart';
 import 'portfolio_cubit.dart';
 import 'private_portfolio.dart';
@@ -151,8 +152,7 @@ class PortfolioView extends StatelessWidget {
             ),
             _SummaryTile(
               label: strings.text('portfolioFacts'),
-              value:
-                  '${payload.cashEvents.length + payload.disposals.length}',
+              value: '${payload.cashEvents.length + payload.disposals.length}',
             ),
           ],
         ),
@@ -274,7 +274,9 @@ class PortfolioView extends StatelessWidget {
                                   ? null
                                   : () => _createPortableBackup(context),
                               icon: const Icon(Icons.save_alt_outlined),
-                              label: Text(strings.text('portfolioBackupCreate')),
+                              label: Text(
+                                strings.text('portfolioBackupCreate'),
+                              ),
                             ),
                           OutlinedButton.icon(
                             key: const ValueKey('portfolio-rotate-recovery'),
@@ -282,7 +284,9 @@ class PortfolioView extends StatelessWidget {
                                 ? null
                                 : () => _rotateRecovery(context),
                             icon: const Icon(Icons.password_outlined),
-                            label: Text(strings.text('portfolioRecoveryChange')),
+                            label: Text(
+                              strings.text('portfolioRecoveryChange'),
+                            ),
                           ),
                         ],
                       ),
@@ -654,12 +658,8 @@ class PortfolioView extends StatelessWidget {
     final now = DateTime.now();
     final isin = TextEditingController();
     final units = TextEditingController(text: '1');
-    final date = TextEditingController(
-      text:
-          '${now.day.toString().padLeft(2, '0')}.'
-          '${now.month.toString().padLeft(2, '0')}.'
-          '${now.year}',
-    );
+    var date = hubDateToIso(now);
+    final dateKey = GlobalKey<HubDateFieldState>();
     final amount = TextEditingController();
     final fee = TextEditingController(text: '0');
     final broker = TextEditingController();
@@ -694,18 +694,23 @@ class PortfolioView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  TextField(
-                    controller: date,
-                    decoration: InputDecoration(
-                      labelText: strings.text('portfolioPurchaseDate'),
-                      hintText: 'DD.MM.YYYY',
-                    ),
+                  HubDateField(
+                    key: dateKey,
+                    controlKey: 'portfolio-purchase-date',
+                    canonicalValue: date,
+                    label: strings.text('portfolioPurchaseDate'),
+                    invalidDateText: strings.text('portfolioInvalidInput'),
+                    onCommit: (value) async {
+                      date = value;
+                      return true;
+                    },
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: amount,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: InputDecoration(
                       labelText: strings.text('portfolioTradeAmount'),
                     ),
@@ -720,8 +725,9 @@ class PortfolioView extends StatelessWidget {
                   if (feeKnown)
                     TextField(
                       controller: fee,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: InputDecoration(
                         labelText: strings.text('portfolioFeeAmount'),
                       ),
@@ -756,11 +762,18 @@ class PortfolioView extends StatelessWidget {
             ),
             FilledButton(
               onPressed: () async {
+                final dateAccepted =
+                    await dateKey.currentState?.commitPending() ?? false;
+                if (!dateAccepted) {
+                  setState(() {
+                    localError = strings.text('portfolioInvalidInput');
+                  });
+                  return;
+                }
                 final parsedUnits = int.tryParse(units.text.trim());
-                final iso = _dateToIso(date.text.trim());
+                final iso = date;
                 if (parsedUnits == null ||
                     parsedUnits < 1 ||
-                    iso == null ||
                     amount.text.trim().isEmpty) {
                   setState(() {
                     localError = strings.text('portfolioInvalidInput');
@@ -773,8 +786,9 @@ class PortfolioView extends StatelessWidget {
                   acquiredOn: iso,
                   tradeAmount: amount.text.trim().replaceAll(',', '.'),
                   feeKnown: feeKnown,
-                  feeTotal:
-                      feeKnown ? fee.text.trim().replaceAll(',', '.') : null,
+                  feeTotal: feeKnown
+                      ? fee.text.trim().replaceAll(',', '.')
+                      : null,
                   brokerAccountLabel: broker.text,
                 );
                 if (!dialogContext.mounted) return;
@@ -795,7 +809,6 @@ class PortfolioView extends StatelessWidget {
         ),
       ),
     );
-
   }
 
   Future<void> _addSale(BuildContext context) async {
@@ -807,16 +820,17 @@ class PortfolioView extends StatelessWidget {
     final holdingsByIsin = {
       for (final holding in payload.holdings) holding.isin: holding,
     };
-    final sellableIsins = holdingsByIsin.keys
-        .where(
-          (isin) => !payload.cashEvents.any(
-            (event) =>
-                event.isin == isin &&
-                event.kind == PrivateCashEventKind.redemption,
-          ),
-        )
-        .toList()
-      ..sort();
+    final sellableIsins =
+        holdingsByIsin.keys
+            .where(
+              (isin) => !payload.cashEvents.any(
+                (event) =>
+                    event.isin == isin &&
+                    event.kind == PrivateCashEventKind.redemption,
+              ),
+            )
+            .toList()
+          ..sort();
     if (sellableIsins.isEmpty) return;
 
     var selectedIsin = sellableIsins.first;
@@ -826,7 +840,8 @@ class PortfolioView extends StatelessWidget {
           lot.id: TextEditingController(text: '0'),
     };
     final now = DateTime.now();
-    final date = TextEditingController(text: _todayDisplay(now));
+    var date = hubDateToIso(now);
+    final dateKey = GlobalKey<HubDateFieldState>();
     final proceeds = TextEditingController();
     final fee = TextEditingController(text: '0');
     final note = TextEditingController();
@@ -875,20 +890,25 @@ class PortfolioView extends StatelessWidget {
                       },
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      key: const ValueKey('portfolio-sale-date'),
-                      controller: date,
-                      decoration: InputDecoration(
-                        labelText: strings.text('portfolioSaleDate'),
-                        hintText: 'DD.MM.YYYY',
-                      ),
+                    HubDateField(
+                      key: dateKey,
+                      inputKey: const ValueKey('portfolio-sale-date'),
+                      controlKey: 'portfolio-sale-date',
+                      canonicalValue: date,
+                      label: strings.text('portfolioSaleDate'),
+                      invalidDateText: strings.text('portfolioInvalidInput'),
+                      onCommit: (value) async {
+                        date = value;
+                        return true;
+                      },
                     ),
                     const SizedBox(height: 10),
                     TextField(
                       key: const ValueKey('portfolio-sale-proceeds'),
                       controller: proceeds,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: InputDecoration(
                         labelText: strings.text('portfolioSaleProceeds'),
                       ),
@@ -924,8 +944,9 @@ class PortfolioView extends StatelessWidget {
                       TextField(
                         key: const ValueKey('portfolio-sale-fee'),
                         controller: fee,
-                        keyboardType:
-                            const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         decoration: InputDecoration(
                           labelText: strings.text('portfolioFeeAmount'),
                         ),
@@ -959,7 +980,15 @@ class PortfolioView extends StatelessWidget {
               FilledButton(
                 key: const ValueKey('portfolio-save-sale'),
                 onPressed: () async {
-                  final iso = _dateToIso(date.text.trim());
+                  final dateAccepted =
+                      await dateKey.currentState?.commitPending() ?? false;
+                  if (!dateAccepted) {
+                    setState(() {
+                      localError = strings.text('portfolioInvalidInput');
+                    });
+                    return;
+                  }
+                  final iso = date;
                   final allocations = <String, int>{};
                   var invalidAllocation = false;
                   for (final lot in lots) {
@@ -973,8 +1002,7 @@ class PortfolioView extends StatelessWidget {
                     }
                     if (value > 0) allocations[lot.id] = value;
                   }
-                  if (iso == null ||
-                      proceeds.text.trim().isEmpty ||
+                  if (proceeds.text.trim().isEmpty ||
                       invalidAllocation ||
                       allocations.isEmpty) {
                     setState(() {
@@ -987,8 +1015,7 @@ class PortfolioView extends StatelessWidget {
                   await cubit.addDisposal(
                     isin: selectedIsin,
                     disposedOn: iso,
-                    proceedsAmount:
-                        proceeds.text.trim().replaceAll(',', '.'),
+                    proceedsAmount: proceeds.text.trim().replaceAll(',', '.'),
                     feeKnown: feeKnown,
                     feeTotal: feeKnown
                         ? fee.text.trim().replaceAll(',', '.')
@@ -1015,7 +1042,6 @@ class PortfolioView extends StatelessWidget {
         },
       ),
     );
-
   }
 
   Future<void> _addCoupon(BuildContext context) async {
@@ -1027,7 +1053,8 @@ class PortfolioView extends StatelessWidget {
     final isins = payload.holdings.map((holding) => holding.isin).toList()
       ..sort();
     var selectedIsin = isins.first;
-    final date = TextEditingController(text: _todayDisplay(DateTime.now()));
+    var date = hubDateToIso(DateTime.now());
+    final dateKey = GlobalKey<HubDateFieldState>();
     final amount = TextEditingController();
     final note = TextEditingController();
     String? localError;
@@ -1049,10 +1076,8 @@ class PortfolioView extends StatelessWidget {
                     decoration: const InputDecoration(labelText: 'ISIN'),
                     items: isins
                         .map(
-                          (isin) => DropdownMenuItem(
-                            value: isin,
-                            child: Text(isin),
-                          ),
+                          (isin) =>
+                              DropdownMenuItem(value: isin, child: Text(isin)),
                         )
                         .toList(),
                     onChanged: (value) {
@@ -1065,20 +1090,25 @@ class PortfolioView extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 10),
-                  TextField(
-                    key: const ValueKey('portfolio-coupon-date'),
-                    controller: date,
-                    decoration: InputDecoration(
-                      labelText: strings.text('portfolioCouponDate'),
-                      hintText: 'DD.MM.YYYY',
-                    ),
+                  HubDateField(
+                    key: dateKey,
+                    inputKey: const ValueKey('portfolio-coupon-date'),
+                    controlKey: 'portfolio-coupon-date',
+                    canonicalValue: date,
+                    label: strings.text('portfolioCouponDate'),
+                    invalidDateText: strings.text('portfolioInvalidInput'),
+                    onCommit: (value) async {
+                      date = value;
+                      return true;
+                    },
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     key: const ValueKey('portfolio-coupon-amount'),
                     controller: amount,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: InputDecoration(
                       labelText: strings.text('portfolioCouponAmount'),
                     ),
@@ -1115,8 +1145,10 @@ class PortfolioView extends StatelessWidget {
             FilledButton(
               key: const ValueKey('portfolio-save-coupon'),
               onPressed: () async {
-                final iso = _dateToIso(date.text.trim());
-                if (iso == null || amount.text.trim().isEmpty) {
+                final dateAccepted =
+                    await dateKey.currentState?.commitPending() ?? false;
+                final iso = date;
+                if (!dateAccepted || amount.text.trim().isEmpty) {
                   setState(() {
                     localError = strings.text('portfolioInvalidInput');
                   });
@@ -1158,7 +1190,8 @@ class PortfolioView extends StatelessWidget {
       ..sort();
     var selectedIsin = isins.first;
     final now = DateTime.now();
-    final date = TextEditingController(text: _todayDisplay(now));
+    var date = hubDateToIso(now);
+    final dateKey = GlobalKey<HubDateFieldState>();
     final units = TextEditingController(text: '1');
     final amount = TextEditingController();
     final note = TextEditingController();
@@ -1201,13 +1234,17 @@ class PortfolioView extends StatelessWidget {
                       },
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      key: const ValueKey('portfolio-redemption-date'),
-                      controller: date,
-                      decoration: InputDecoration(
-                        labelText: strings.text('portfolioRedemptionDate'),
-                        hintText: 'DD.MM.YYYY',
-                      ),
+                    HubDateField(
+                      key: dateKey,
+                      inputKey: const ValueKey('portfolio-redemption-date'),
+                      controlKey: 'portfolio-redemption-date',
+                      canonicalValue: date,
+                      label: strings.text('portfolioRedemptionDate'),
+                      invalidDateText: strings.text('portfolioInvalidInput'),
+                      onCommit: (value) async {
+                        date = value;
+                        return true;
+                      },
                     ),
                     const SizedBox(height: 10),
                     TextField(
@@ -1223,8 +1260,9 @@ class PortfolioView extends StatelessWidget {
                     TextField(
                       key: const ValueKey('portfolio-redemption-amount'),
                       controller: amount,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: InputDecoration(
                         labelText: strings.text('portfolioRedemptionAmount'),
                       ),
@@ -1261,9 +1299,11 @@ class PortfolioView extends StatelessWidget {
               FilledButton(
                 key: const ValueKey('portfolio-save-redemption'),
                 onPressed: () async {
-                  final iso = _dateToIso(date.text.trim());
+                  final dateAccepted =
+                      await dateKey.currentState?.commitPending() ?? false;
+                  final iso = date;
                   final parsedUnits = int.tryParse(units.text.trim());
-                  if (iso == null ||
+                  if (!dateAccepted ||
                       parsedUnits == null ||
                       parsedUnits < 1 ||
                       parsedUnits > holding.units ||
@@ -1299,7 +1339,6 @@ class PortfolioView extends StatelessWidget {
         },
       ),
     );
-
   }
 
   Future<void> _migrateLegacy(BuildContext context) async {
@@ -1407,54 +1446,38 @@ int _remainingLotUnits(
   return lot.units - allocated;
 }
 
-String _todayDisplay(DateTime value) =>
-    '${value.day.toString().padLeft(2, '0')}.'
-    '${value.month.toString().padLeft(2, '0')}.'
-    '${value.year}';
-
-String? _dateToIso(String value) {
-  final match = RegExp(r'^(\d{2})\.(\d{2})\.(\d{4})$').firstMatch(value);
-  if (match == null) return null;
-  final result = '${match.group(3)}-${match.group(2)}-${match.group(1)}';
-  try {
-    isoDate(result);
-    return result;
-  } catch (_) {
-    return null;
-  }
-}
-
 String _portfolioErrorText(HubStrings strings, String code) => switch (code) {
-      'portfolio.recovery_secret_too_short' =>
-        strings.text('portfolioRecoveryShort'),
-      'portfolio.issue_not_in_catalog' =>
-        strings.text('portfolioIssueMissing'),
-      'vault.session_locked' => strings.text('portfolioLockedBody'),
-      'portfolio.disposal_after_redemption' =>
-        strings.text('portfolioSaleAfterRedemption'),
-      'portfolio.disposal_allocation_required' =>
-        strings.text('portfolioAllocationRequired'),
-      'portfolio.invalid_units' ||
-      'portfolio.invalid_date' ||
-      'portfolio.invalid_trade_amount' ||
-      'portfolio.invalid_fee_total' ||
-      'portfolio.invalid_isin' ||
-      'portfolio.invalid_disposal_units' ||
-      'portfolio.invalid_disposal_proceeds' ||
-      'portfolio.invalid_disposal_fee_total' ||
-      'portfolio.known_disposal_fee_missing_value' ||
-      'portfolio.disposal_allocation_units_mismatch' ||
-      'portfolio.disposal_lot_overallocated' ||
-      'portfolio.disposal_exceeds_units' ||
-      'portfolio.invalid_event_amount' ||
-      'portfolio.event_without_acquisition' ||
-      'portfolio.event_before_acquisition' ||
-      'portfolio.coupon_has_units' ||
-      'portfolio.redemption_units_required' ||
-      'portfolio.redemption_exceeds_units' =>
-        strings.text('portfolioInvalidInput'),
-      _ => strings.text('portfolioOperationFailed'),
-    };
+  'portfolio.recovery_secret_too_short' => strings.text(
+    'portfolioRecoveryShort',
+  ),
+  'portfolio.issue_not_in_catalog' => strings.text('portfolioIssueMissing'),
+  'vault.session_locked' => strings.text('portfolioLockedBody'),
+  'portfolio.disposal_after_redemption' => strings.text(
+    'portfolioSaleAfterRedemption',
+  ),
+  'portfolio.disposal_allocation_required' => strings.text(
+    'portfolioAllocationRequired',
+  ),
+  'portfolio.invalid_units' ||
+  'portfolio.invalid_date' ||
+  'portfolio.invalid_trade_amount' ||
+  'portfolio.invalid_fee_total' ||
+  'portfolio.invalid_isin' ||
+  'portfolio.invalid_disposal_units' ||
+  'portfolio.invalid_disposal_proceeds' ||
+  'portfolio.invalid_disposal_fee_total' ||
+  'portfolio.known_disposal_fee_missing_value' ||
+  'portfolio.disposal_allocation_units_mismatch' ||
+  'portfolio.disposal_lot_overallocated' ||
+  'portfolio.disposal_exceeds_units' ||
+  'portfolio.invalid_event_amount' ||
+  'portfolio.event_without_acquisition' ||
+  'portfolio.event_before_acquisition' ||
+  'portfolio.coupon_has_units' ||
+  'portfolio.redemption_units_required' ||
+  'portfolio.redemption_exceeds_units' => strings.text('portfolioInvalidInput'),
+  _ => strings.text('portfolioOperationFailed'),
+};
 
 class _PortfolioError extends StatelessWidget {
   final String code;
@@ -1497,9 +1520,9 @@ class _PortfolioShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children,
-      );
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: children,
+  );
 }
 
 class _PortfolioHero extends StatelessWidget {
@@ -1515,31 +1538,27 @@ class _PortfolioHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                icon,
-                size: 34,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: Theme.of(context).textTheme.headlineSmall),
-                    const SizedBox(height: 6),
-                    Text(body),
-                  ],
-                ),
-              ),
-            ],
+    child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 34, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(height: 6),
+                Text(body),
+              ],
+            ),
           ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
 }
 
 class _SummaryTile extends StatelessWidget {
@@ -1549,27 +1568,24 @@ class _SummaryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: 150,
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(label, style: Theme.of(context).textTheme.bodySmall),
-              ],
+    width: 150,
+    child: Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
             ),
-          ),
+            const SizedBox(height: 3),
+            Text(label, style: Theme.of(context).textTheme.bodySmall),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _FactualCashSummary extends StatelessWidget {
@@ -1609,8 +1625,7 @@ class _FactualCashSummary extends StatelessWidget {
                   ),
                   _CashRow(
                     label: strings.text('portfolioCashRedemptions'),
-                    value:
-                        '${summary.redemptionReceipts} ${summary.currency}',
+                    value: '${summary.redemptionReceipts} ${summary.currency}',
                   ),
                   _CashRow(
                     label: strings.text('portfolioCashKnownFees'),
@@ -1662,34 +1677,31 @@ class _CashRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: Text(label)),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                value,
-                textAlign: TextAlign.end,
-                style: emphasize
-                    ? const TextStyle(fontWeight: FontWeight.w700)
-                    : null,
-              ),
-            ),
-          ],
+    padding: const EdgeInsets.symmetric(vertical: 3),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: Text(label)),
+        const SizedBox(width: 12),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: emphasize
+                ? const TextStyle(fontWeight: FontWeight.w700)
+                : null,
+          ),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 class _HoldingCard extends StatelessWidget {
   final PrivateHolding holding;
   final PrivatePortfolioPayload payload;
 
-  const _HoldingCard({
-    required this.holding,
-    required this.payload,
-  });
+  const _HoldingCard({required this.holding, required this.payload});
 
   @override
   Widget build(BuildContext context) {
@@ -1712,10 +1724,7 @@ class _HoldingCard extends StatelessWidget {
           children: [
             Text(
               '× ${holding.units}',
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
             ),
             const SizedBox(width: 6),
             IconButton(
@@ -1757,10 +1766,7 @@ class _ClosedPositionCard extends StatelessWidget {
       child: ListTile(
         key: ValueKey('portfolio-closed-$isin'),
         leading: const Icon(Icons.task_alt_outlined),
-        title: Text(
-          isin,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
+        title: Text(isin, style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Text(
           [
             currency,
@@ -1809,9 +1815,7 @@ Future<void> _showPortfolioIsinDetails(
     context: context,
     builder: (dialogContext) => AlertDialog(
       key: ValueKey('portfolio-isin-dialog-$isin'),
-      title: Text(
-        '${strings.text('portfolioIsinDetails')} · $isin',
-      ),
+      title: Text('${strings.text('portfolioIsinDetails')} · $isin'),
       content: SizedBox(
         width: 620,
         child: SingleChildScrollView(
@@ -1860,10 +1864,9 @@ Future<void> _showPortfolioIsinDetails(
   );
 }
 
-String _displayIsoDate(String value) =>
-    value.length == 10
-        ? '${value.substring(8, 10)}.${value.substring(5, 7)}.${value.substring(0, 4)}'
-        : value;
+String _displayIsoDate(String value) => value.length == 10
+    ? '${value.substring(8, 10)}.${value.substring(5, 7)}.${value.substring(0, 4)}'
+    : value;
 
 class _HistoryEntry {
   final String date;
@@ -1893,49 +1896,50 @@ class _PortfolioHistory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = HubStrings(context.watch<LocaleCubit>().state.language);
-    final entries = <_HistoryEntry>[
-      for (final lot in payload.acquisitionLots)
-        if (isin == null || lot.isin == isin)
-          _HistoryEntry(
-          date: lot.acquiredOn,
-          isin: lot.isin,
-          kindKey: 'portfolioHistoryPurchase',
-          units: lot.units,
-          amount: lot.tradeAmount.toString(),
-          currency: lot.currency,
-          note: lot.brokerAccountLabel,
-        ),
-      for (final disposal in payload.disposals)
-        if (isin == null || disposal.isin == isin)
-          _HistoryEntry(
-          date: disposal.disposedOn,
-          isin: disposal.isin,
-          kindKey: 'portfolioHistorySale',
-          units: disposal.units,
-          amount: disposal.proceedsAmount.toString(),
-          currency: disposal.currency,
-          note: disposal.note,
-        ),
-      for (final event in payload.cashEvents)
-        if (isin == null || event.isin == isin)
-          _HistoryEntry(
-          date: event.date,
-          isin: event.isin,
-          kindKey: event.kind == PrivateCashEventKind.coupon
-              ? 'portfolioHistoryCoupon'
-              : 'portfolioHistoryRedemption',
-          units: event.units,
-          amount: event.amount.toString(),
-          currency: event.currency,
-          note: event.note,
-        ),
-    ]..sort((a, b) {
-        final byDate = b.date.compareTo(a.date);
-        if (byDate != 0) return byDate;
-        final byIsin = a.isin.compareTo(b.isin);
-        if (byIsin != 0) return byIsin;
-        return a.kindKey.compareTo(b.kindKey);
-      });
+    final entries =
+        <_HistoryEntry>[
+          for (final lot in payload.acquisitionLots)
+            if (isin == null || lot.isin == isin)
+              _HistoryEntry(
+                date: lot.acquiredOn,
+                isin: lot.isin,
+                kindKey: 'portfolioHistoryPurchase',
+                units: lot.units,
+                amount: lot.tradeAmount.toString(),
+                currency: lot.currency,
+                note: lot.brokerAccountLabel,
+              ),
+          for (final disposal in payload.disposals)
+            if (isin == null || disposal.isin == isin)
+              _HistoryEntry(
+                date: disposal.disposedOn,
+                isin: disposal.isin,
+                kindKey: 'portfolioHistorySale',
+                units: disposal.units,
+                amount: disposal.proceedsAmount.toString(),
+                currency: disposal.currency,
+                note: disposal.note,
+              ),
+          for (final event in payload.cashEvents)
+            if (isin == null || event.isin == isin)
+              _HistoryEntry(
+                date: event.date,
+                isin: event.isin,
+                kindKey: event.kind == PrivateCashEventKind.coupon
+                    ? 'portfolioHistoryCoupon'
+                    : 'portfolioHistoryRedemption',
+                units: event.units,
+                amount: event.amount.toString(),
+                currency: event.currency,
+                note: event.note,
+              ),
+        ]..sort((a, b) {
+          final byDate = b.date.compareTo(a.date);
+          if (byDate != 0) return byDate;
+          final byIsin = a.isin.compareTo(b.isin);
+          if (byIsin != 0) return byIsin;
+          return a.kindKey.compareTo(b.kindKey);
+        });
 
     if (entries.isEmpty) {
       return Card(
@@ -1952,14 +1956,12 @@ class _PortfolioHistory extends StatelessWidget {
           for (var index = 0; index < entries.length; index++) ...[
             if (index > 0) const Divider(height: 1),
             ListTile(
-              leading: Icon(
-                switch (entries[index].kindKey) {
-                  'portfolioHistoryPurchase' => Icons.add_shopping_cart_outlined,
-                  'portfolioHistorySale' => Icons.sell_outlined,
-                  'portfolioHistoryCoupon' => Icons.savings_outlined,
-                  _ => Icons.payments_outlined,
-                },
-              ),
+              leading: Icon(switch (entries[index].kindKey) {
+                'portfolioHistoryPurchase' => Icons.add_shopping_cart_outlined,
+                'portfolioHistorySale' => Icons.sell_outlined,
+                'portfolioHistoryCoupon' => Icons.savings_outlined,
+                _ => Icons.payments_outlined,
+              }),
               title: Text(
                 '${strings.text(entries[index].kindKey)} · ${entries[index].isin}',
               ),
@@ -1989,21 +1991,15 @@ class _MigrationSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     Widget row(String label, Object value, {IconData? icon}) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 18),
-                const SizedBox(width: 8),
-              ],
-              Expanded(child: Text(label)),
-              Text(
-                '$value',
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-        );
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
+          Expanded(child: Text(label)),
+          Text('$value', style: const TextStyle(fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
 
     return SizedBox(
       width: 480,
@@ -2045,19 +2041,19 @@ class _SecurityNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.security_outlined,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 10),
-              Expanded(child: Text(text)),
-            ],
+    child: Padding(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.security_outlined,
+            color: Theme.of(context).colorScheme.primary,
           ),
-        ),
-      );
+          const SizedBox(width: 10),
+          Expanded(child: Text(text)),
+        ],
+      ),
+    ),
+  );
 }

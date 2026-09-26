@@ -41,15 +41,14 @@ String? parseHubDateInput(BuildContext context, String input) {
 
 /// Removes the obsolete hard-coded `YYYY-MM-DD`-style suffix from legacy
 /// translated labels. The field itself now shows the active locale's format.
-String hubDateLabel(String value) => value.replaceFirst(
-      RegExp(r'\s[A-Z]{4}-[A-Z]{2}-[A-Z]{2}$'),
-      '',
-    );
+String hubDateLabel(String value) =>
+    value.replaceFirst(RegExp(r'\s[A-Z]{4}-[A-Z]{2}-[A-Z]{2}$'), '');
 
 typedef HubDateCommit = Future<bool> Function(String canonicalIsoDate);
 
 class HubDateField extends StatefulWidget {
   final String controlKey;
+  final Key? inputKey;
   final String canonicalValue;
   final String label;
   final String invalidDateText;
@@ -61,6 +60,7 @@ class HubDateField extends StatefulWidget {
   const HubDateField({
     super.key,
     required this.controlKey,
+    this.inputKey,
     required this.canonicalValue,
     required this.label,
     required this.invalidDateText,
@@ -205,7 +205,7 @@ class HubDateFieldState extends State<HubDateField> {
     final localizations = MaterialLocalizations.of(context);
     final sample = localizations.formatCompactDate(DateTime(2026, 9, 26));
     return TextFormField(
-      key: ValueKey('${widget.controlKey}-input'),
+      key: widget.inputKey ?? ValueKey('${widget.controlKey}-input'),
       controller: _controller,
       focusNode: _focusNode,
       enabled: widget.enabled && !_committing,
