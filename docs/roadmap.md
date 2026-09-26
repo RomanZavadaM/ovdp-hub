@@ -130,9 +130,9 @@
 - [x] Post-v0.9.3 usability/product audit — PR #116; findings зафіксовано в `docs/AUDIT_POST_0_9_3.md`.
 - [x] Portfolio recovery / backup UX — PR #117: recovery-secret confirmation, rotation, Windows portable encrypted backup/restore, UK/EN/FR/DE/ES/KO/JA; exact-head #417, merge `fc38177a…`, post-merge #418.
 - [x] Planner safe criteria/date editing — PR #119, exact-head #420, merge `ad3a995a…`, post-merge #421.
-- [ ] **NEXT:** Unified date-control UX / picker для Planner + Portfolio — locale-friendly display, picker + keyboard fallback, explicit validation, existing canonical persistence, без зміни persisted schema.
+- [x] Unified date-control UX / picker для Planner + Portfolio — PR #125: locale-friendly display, picker + keyboard/ISO fallback, explicit validation, canonical `YYYY-MM-DD` persistence, no schema change; final exact-head #452, Ready #453 with Windows/macOS packaged smoke, merge `c94fbce6…`, post-merge #454.
 - [x] Catalog localization literals + persisted collection variant copy cleanup — PR #120, final exact-head #428, merge `5638f56e…`, post-merge #429.
 - [x] Persist language/appearance preferences as non-sensitive app preferences, separate from workspace/private vault — PR #123, exact-head #439 (197/197 + Windows/macOS packaged smoke), merge `6e6326c6…`, post-merge #440.
-- [ ] macOS Portfolio runtime Keychain validation + enablement — окремий platform gate.
+- [ ] **NEXT:** macOS Portfolio runtime Keychain validation + enablement — real create/open/lock/reopen, backup/recovery lifecycle and packaged-app runtime validation before enabling macOS in `PortfolioGateway.supported`.
 - [ ] Android SAF / iOS security-scoped external-folder access — deferred до окремого mobile storage gate.
 - [ ] Production signing/notarization/store distribution — окремий distribution-readiness gate.
