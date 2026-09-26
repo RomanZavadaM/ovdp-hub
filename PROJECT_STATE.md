@@ -17,7 +17,7 @@
 - Основна гілка: **`main`**
 - Основна мова: українська
 - Додаткові UI-мови: EN / FR / DE / ES / KO / JA
-- Поточний інтегрований product baseline після release: **`6e6326c6c8ed00e86908a1eb533bd0cb80bdfaaf`**
+- Поточний інтегрований product baseline після release: **`c94fbce63bc53cc9f1a2b87a555f056c14e533f5`**
 
 ## Опубліковані assets v0.9.3
 
@@ -54,7 +54,10 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - deterministic CSV / ICS exports;
 - stable generated-copy localization;
 - invalid/intermediate manual date drafts не очищають composition;
-- зміни ключових критеріїв, що інвалідовують сформований план, вимагають explicit confirmation.
+- зміни ключових критеріїв, що інвалідовують сформований план, вимагають explicit confirmation;
+- `start / minDate / maxDate`, primary need, additional expenses, reserve floor, FX as-of і per-position exit dates використовують один reusable locale-friendly date control;
+- date control має calendar picker + keyboard/ISO fallback; invalid/intermediate draft не змінює canonical state;
+- persisted/domain date representation лишається `YYYY-MM-DD`, Planner schema і calculation math не змінені.
 
 ### UI
 - Classic;
@@ -63,7 +66,8 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - UK / EN / FR / DE / ES / KO / JA;
 - selected UI language та appearance зберігаються між запусками в app-support `ui-preferences.json`;
 - UI preferences не змішуються з workspace/private vault;
-- corrupt/unknown preference JSON fail-safe повертає Ukrainian + Workbench замість блокування запуску.
+- corrupt/unknown preference JSON fail-safe повертає Ukrainian + Workbench замість блокування запуску;
+- один reusable date-control UX використовується у Planner і Portfolio замість різних ручних форматів; visible calendar picker доступний також у phone-sized flow.
 
 ### Encrypted vault / «Мій портфель»
 - local encrypted vault;
@@ -86,7 +90,8 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - exact net cash result приховується, якщо релевантна fee unknown;
 - current market value відкритих позицій не додається до factual cash result;
 - explicit non-destructive legacy migration wizard;
-- migration verifies encrypted copy and never auto-deletes source JSON.
+- migration verifies encrypted copy and never auto-deletes source JSON;
+- purchase / sale / coupon / redemption dialogs використовують shared date control і передають у encrypted payload лише canonical ISO dates.
 
 ## Ключові інтеграції після v0.9.2
 
@@ -99,10 +104,12 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 - PR #119 → `ad3a995a3f5e405cdde7d17b00b54fa105b926e5`: safe committed Planner criteria/date editing; exact-head #420, post-merge #421.
 - PR #120 → `5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`: real Catalog localization wiring + locale-neutral collection variants; final exact-head #428, post-merge #429.
 - PR #123 → `6e6326c6c8ed00e86908a1eb533bd0cb80bdfaaf`: language/appearance persistence + fail-safe app preferences; exact-head #439 with **197/197 tests** and packaged Windows/macOS smoke, post-merge #440 with verify + START/source success.
+- PR #125 → `c94fbce63bc53cc9f1a2b87a555f056c14e533f5`: unified Planner/Portfolio date controls; final exact-head #452 success, Ready run #453 with verify + packaged Windows/macOS smoke success, post-merge #454 with verify + START/source success.
 
 ## Перевірка user-visible desktop змін
 
-- Ready PR із user-visible змінами тепер автоматично запускає Windows + macOS release build, versioned packaging і exact packaged executable smoke.
+- Ready PR із user-visible змінами автоматично запускає Windows + macOS release build, versioned packaging і exact packaged executable smoke.
+- PR #125 Ready run #453 підтвердив цей gate для unified date-control slice на Windows і macOS.
 - Manual `workflow_dispatch` packages лишається доступним для окремих checkpoint/release перевірок.
 - Android/iOS production/release packaging не перетворюється на обов’язковий gate кожного звичайного PR.
 
@@ -158,4 +165,4 @@ Windows/macOS release artifacts пройшли exact packaged ZIP smoke: ZIP р�
 
 ## Наступний великий крок
 
-**NEXT — unified reusable date-control UX / picker для Planner + Portfolio.** Ціль: locale-friendly display, picker + keyboard fallback, explicit validation, canonical existing persistence і **без зміни persisted schema**. Planner state-safety foundation уже інтегрований, тому цей slice має уніфікувати саме користувацький ввід/вибір дат, а не переписувати Planner domain. Після нього окремими gate лишаються macOS Portfolio runtime Keychain validation, mobile external-folder permissions і production signing/distribution.
+**NEXT — macOS Portfolio runtime Keychain validation + enablement.** Нижній secure-storage adapter уже має macOS configuration, але encrypted Portfolio навмисно лишається disabled, доки немає реальної runtime/provisioning перевірки. Наступний slice має виконати create/open/lock/reopen через Keychain, backup/recovery lifecycle і packaged-app runtime validation; лише після green можна додавати macOS до `PortfolioGateway.supported` та оновлювати platform capability docs. Android SAF / iOS security-scoped external-folder access і production signing/distribution лишаються окремими gates.
