@@ -50,6 +50,13 @@ abstract interface class PortfolioGateway {
   Future<void> dispose();
 }
 
+bool isEncryptedPortfolioPlatformSupported(String operatingSystem) => const {
+  'windows',
+  'android',
+  'ios',
+  'macos',
+}.contains(operatingSystem);
+
 class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   static const vaultId = 'primary-portfolio';
   static const portfolioId = 'primary';
@@ -60,7 +67,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
 
   @override
   bool get supported =>
-      Platform.isWindows || Platform.isAndroid || Platform.isIOS;
+      isEncryptedPortfolioPlatformSupported(Platform.operatingSystem);
 
   @override
   bool get portableBackupSupported => supported && Platform.isWindows;
