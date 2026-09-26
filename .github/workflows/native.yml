@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths: ['apps/native/**', '.github/workflows/native.yml', 'scripts/package-desktop.ps1', 'scripts/package-start.py', 'scripts/verify-desktop-release.ps1', 'LICENSE.md', 'COPYRIGHT.md', 'THIRD_PARTY_NOTICES.md', 'docs/LEGAL_AND_COPYRIGHT.md']
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       packages:
@@ -49,7 +50,9 @@ jobs:
           retention-days: 30
   desktop:
     needs: verify
-    if: github.event_name == 'workflow_dispatch' && contains(fromJSON('["windows","macos","all"]'), inputs.packages)
+    if: >-
+      (github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
+      (github.event_name == 'workflow_dispatch' && contains(fromJSON('["windows","macos","all"]'), inputs.packages))
     strategy:
       fail-fast: false
       matrix:

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -32,8 +33,9 @@ import 'release_contract.dart';
 import 'ui/components.dart';
 import 'ui/dashboard_design.dart';
 import 'ui/studio_design.dart';
+import 'ui_preferences.dart';
 
-void main(List<String> args) {
+Future<void> main(List<String> args) async {
   final contractFileFromEnvironment =
       Platform.environment['OVDP_RELEASE_CONTRACT_FILE'];
   if (contractFileFromEnvironment != null &&
@@ -59,16 +61,27 @@ void main(List<String> args) {
     exit(0);
   }
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const OvdpApp());
+  final uiPreferencesStore = await openPlatformUiPreferencesStore();
+  runApp(
+    OvdpApp(
+      initialUiPreferences: uiPreferencesStore.current,
+      uiPreferencesStore: uiPreferencesStore,
+    ),
+  );
 }
 
 class OvdpApp extends StatelessWidget {
   final HubRepository? repository;
   final PortfolioGateway? portfolioGateway;
+  final UiPreferencesSnapshot initialUiPreferences;
+  final UiPreferencesPersistence? uiPreferencesStore;
+
   const OvdpApp({
     super.key,
     this.repository,
     this.portfolioGateway,
+    this.initialUiPreferences = const UiPreferencesSnapshot(),
+    this.uiPreferencesStore,
   });
 
   @override
@@ -91,8 +104,32 @@ class OvdpApp extends StatelessWidget {
           lazy: false,
         ),
         BlocProvider(create: (_) => CalculatorCubit()),
-        BlocProvider(create: (_) => AppearanceCubit()),
-        BlocProvider(create: (_) => LocaleCubit()),
+        BlocProvider(
+          create: (_) => AppearanceCubit(
+            initialMode: initialUiPreferences.appearance,
+            onSelected: (mode) {
+              final store = uiPreferencesStore;
+              if (store != null) {
+                unawaited(
+                  store.selectAppearance(mode).catchError((_) {}),
+                );
+              }
+            },
+          ),
+        ),
+        BlocProvider(
+          create: (_) => LocaleCubit(
+            initialLanguage: initialUiPreferences.language,
+            onSelected: (language) {
+              final store = uiPreferencesStore;
+              if (store != null) {
+                unawaited(
+                  store.selectLanguage(language).catchError((_) {}),
+                );
+              }
+            },
+          ),
+        ),
         BlocProvider(
           create: (context) =>
               EconomicPulseCubit(context.read<HubRepository>())..load(),

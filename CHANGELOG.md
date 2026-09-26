@@ -14,6 +14,25 @@
 - macOS encrypted Portfolio лишається gated до реальної Keychain runtime/provisioning перевірки.
 - PR #117: exact-head run #417 — success; merge `fc38177a69f387153ff3984d3a917a7975a4a647`; post-merge run #418 — success.
 
+### Planner safe criteria/date editing
+- Ручний ввід `start/minDate/maxDate` більше не змінює Planner state на кожному символі.
+- Invalid/intermediate date draft не очищає generated composition або per-position exits.
+- Валідна зміна `currency/start/minDate/maxDate` при сформованому плані вимагає explicit confirmation: Cancel зберігає план, Apply робить controlled reset.
+- Persisted Planner schema та calculation math не змінено.
+- PR #119: exact-head run #420 — success; merge `ad3a995a3f5e405cdde7d17b00b54fa105b926e5`; post-merge run #421 — success.
+
+### Catalog localization / persisted copy cleanup
+- Прибрано hardcoded Ukrainian copy з Catalog offline/search/horizon/nominal/empty-state UI; використовуються existing `HubStrings`.
+- Collection variant draft більше не додає автоматичний Ukrainian suffix `— варіант` до persisted user-authored name.
+- Visible English regression перевіряє реальні Catalog controls.
+- PR #120: final exact-head run #428 — success; merge `5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`; post-merge run #429 — success.
+
+### UI preferences persistence
+- Обрана UI language та Classic / Workbench / Light Dashboard appearance зберігаються локально в app-support `ui-preferences.json`.
+- Preferences не записуються у workspace або encrypted portfolio.
+- Corrupt/unknown preference file fail-safe повертає Ukrainian + Workbench замість блокування запуску.
+- User guides синхронізовано UK/EN/FR/DE/ES/KO/JA.
+
 ### Post-v0.9.3 audit
 - Usability/product audit зафіксовано в `docs/AUDIT_POST_0_9_3.md`; PR #116 → `bb961f9d11d8c5a245e0fa0689fa74e7f092eb93`.
 - Наступний high-priority slice: non-destructive Planner criteria/date editing.

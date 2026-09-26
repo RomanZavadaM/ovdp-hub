@@ -26,9 +26,18 @@ class AppearanceState {
 }
 
 class AppearanceCubit extends Cubit<AppearanceState> {
-  AppearanceCubit() : super(const AppearanceState());
+  final ValueChanged<HubAppearance>? onSelected;
 
-  void select(HubAppearance mode) => emit(state.copyWith(mode: mode));
+  AppearanceCubit({
+    HubAppearance initialMode = HubAppearance.studio,
+    this.onSelected,
+  }) : super(AppearanceState(mode: initialMode));
+
+  void select(HubAppearance mode) {
+    if (state.mode == mode) return;
+    emit(state.copyWith(mode: mode));
+    onSelected?.call(mode);
+  }
 
   // Kept for compatibility with older callers: toggles between the two
   // original appearances. The new dashboard is selected explicitly.
