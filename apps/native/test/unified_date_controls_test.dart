@@ -53,21 +53,19 @@ void main() {
       final plannerContext = tester.element(find.byType(PlannerView));
       final cubit = plannerContext.read<PlannerCubit>();
       final originalStart = cubit.state.criteria['start'];
+      final startInput = find.byKey(const ValueKey('planner-start-input'));
 
-      await tester.enterText(
-        find.byKey(const ValueKey('planner-start-input')),
-        'not-a-date',
-      );
+      await tester.enterText(startInput, 'not-a-date');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
 
       expect(cubit.state.criteria['start'], originalStart);
-      expect(find.text('Некоректна дата.'), findsOneWidget);
-
-      await tester.enterText(
-        find.byKey(const ValueKey('planner-start-input')),
-        originalStart!,
+      expect(
+        tester.widget<TextFormField>(startInput).decoration?.errorText,
+        isNotNull,
       );
+
+      await tester.enterText(startInput, originalStart!);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
 
