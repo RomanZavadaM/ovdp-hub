@@ -206,7 +206,7 @@ import UniformTypeIdentifiers
         }
         defer { url.stopAccessingSecurityScopedResource() }
         let bookmark = try url.bookmarkData(
-          options: [.withSecurityScope],
+          options: .minimalBookmark,
           includingResourceValuesForKeys: [.isDirectoryKey, .nameKey],
           relativeTo: nil
         )
@@ -339,7 +339,7 @@ import UniformTypeIdentifiers
     do {
       url = try URL(
         resolvingBookmarkData: bookmark,
-        options: [.withSecurityScope, .withoutUI],
+        options: .withoutUI,
         relativeTo: nil,
         bookmarkDataIsStale: &stale
       )
@@ -355,7 +355,7 @@ import UniformTypeIdentifiers
     if stale {
       do {
         let refreshed = try url.bookmarkData(
-          options: [.withSecurityScope],
+          options: .minimalBookmark,
           includingResourceValuesForKeys: [.isDirectoryKey, .nameKey],
           relativeTo: nil
         )
