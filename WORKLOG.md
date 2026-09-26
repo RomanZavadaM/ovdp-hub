@@ -56,7 +56,7 @@ Append-only ledger: GitHub Issue **#18**
 - final exact-head run #428 — success;
 - merge: **`5638f56e43ba81fadb3420f53b0eda54d7eb5f7a`**;
 - post-merge run #429 — success, including START/source;
-- remaining Catalog user-facing literals now use existing `HubStrings` UK/EN/FR/DE/ES/KO/JA;
+- remaining Catalog user-facing literals now use existing `HubStrings` UK/EN/FR/DE/ES/KO/JA`;
 - visible English regression reaches the actual search/horizon controls;
 - collection variant no longer persists automatic Ukrainian suffix `— варіант`; user-authored name stays locale-neutral.
 
@@ -82,7 +82,7 @@ Append-only ledger: GitHub Issue **#18**
 
 ## Поточний slice
 
-Статус: **DOING**
+Статус: **DOING / VERIFY GREEN, PACKAGED GATES NEXT**
 
 Мета: **unified reusable date-control UX / picker для Planner + Portfolio**.
 
@@ -96,13 +96,16 @@ Append-only ledger: GitHub Issue **#18**
 - existing sale/coupon/redemption visible-control keys збережені;
 - додано real-control regression для Planner invalid draft + visible picker;
 - додано phone-sized Portfolio regression: navigation → open → add purchase → date picker, з overflow/exception check;
-- тимчасовий assert-based patch workflow та helper були self-deleting і не входять у product diff;
-- current implementation/test head before this WORKLOG update: `e07e8ea3fe2c41a0d280e9a42e2e3a0bcddccb18`;
-- exact-head verify run #447 запущено; результат ще не зафіксований.
+- run #447 виявив brittle text-only regression assert; canonical Planner date при цьому не змінювався;
+- run #449 виявив test-only analyze error через неіснуючий `TextFormField.decoration` getter;
+- regression виправлено через перевірку rendered `InputDecorator.errorText`, production code не змінювався;
+- exact-head implementation/test commit: `063d1d7dc90753a8118a40c7a812cb069f6f7eac`;
+- exact-head run **#450 — success**: `flutter analyze` + повний `flutter test` green;
+- цей WORKLOG update є docs-only зміною; після нього потрібен фінальний exact-head verify перед Ready.
 
 ## Поточна наступна дія
 
-**DOING — дочекатися exact-head analyze/tests для PR #125, виправити тільки фактичні regressions, після green перевести PR у Ready і пройти автоматичні Windows + macOS packaged smoke gates. Інтегрувати в `main` лише після повністю green exact-head.**
+**DOING — пройти фінальний exact-head verify на docs-synced head, перевести PR #125 у Ready, дочекатися автоматичних Windows + macOS packaged build/smoke gates і інтегрувати PR у `main` лише після повністю green exact-head.**
 
 Після цього окремо повернутися до macOS Portfolio runtime Keychain validation/enablement, mobile external-folder access і distribution signing gates.
 
