@@ -17,12 +17,14 @@
 ## Джерела істини
 
 - `PROJECT_RULES.md` — незмінні правила проєкту.
-- `PROJECT_STATE.md` — лише підтверджений інтегрований стан `main`.
+- `PROJECT_STATE.md` — лише підтверджений інтегрований стан продукту в `main`.
 - `WORKLOG.md` — активний slice / точний NEXT.
 - GitHub Issue #18 — append-only development ledger.
 - `apps/native/pubspec.yaml` — machine source version/build.
 - `docs/roadmap.md` — середньостроковий roadmap.
 - `CHANGELOG.md` і `docs/releases/` — історія релізів.
+
+> **Важливо:** SHA нижче для baseline означає останній коміт, що змінював product code. Після нього `main` може містити новіші docs-only state-sync коміти. Фактичний `main` head завжди перевіряти безпосередньо в GitHub за кроком 4; не намагатися зробити recovery-файл самопосилальним на власний merge SHA.
 
 ## Команда власника «злити у main»
 
@@ -44,7 +46,7 @@
 - Active product: `apps/native` Flutter/Dart
 - Published checkpoint: **v0.9.3 / 0.9.3+20**
 - Published release commit: `e2ec96322a1acb953589eeeb45e8ec50cd5d198a`
-- Current integrated `main`: **`e6e0a6ae3fb74b6fab8adf155eb6d3d338a11959`**
+- Current product-code baseline: **`e6e0a6ae3fb74b6fab8adf155eb6d3d338a11959`** (PR #132)
 - Platforms: Windows / macOS / Android / iOS
 - Languages: UK / EN / FR / DE / ES / KO / JA
 
@@ -54,6 +56,7 @@
 - Mobile external-storage foundation — PR #130 → `5934984a…` — DONE.
 - Post-merge state sync — PR #131 → `587d88d1…` — DONE.
 - Mobile external-storage real-device runtime probe harness — **PR #132 → `e6e0a6ae…` — DONE for implementation/CI scope**.
+- Post-merge recovery/state sync — **PR #133 — DONE**; це docs-only sync, не новий product baseline.
 
 ### PR #132 — підтверджений стан
 
