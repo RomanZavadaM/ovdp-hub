@@ -60,14 +60,12 @@ class MethodChannelMobileExternalStorage implements MobileExternalStorage {
   static const channelName = 'ua.ovdphub/mobile_external_storage';
   static const _channel = MethodChannel(channelName);
 
-  final bool? _supportedOverride;
+  final bool? supportedOverride;
 
-  const MethodChannelMobileExternalStorage({bool? supportedOverride})
-      : _supportedOverride = supportedOverride;
+  const MethodChannelMobileExternalStorage({this.supportedOverride});
 
   @override
-  bool get supported =>
-      _supportedOverride ?? Platform.isAndroid || Platform.isIOS;
+  bool get supported => supportedOverride ?? Platform.isAndroid || Platform.isIOS;
 
   @override
   Future<String?> exportEncryptedBackup({
