@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../l10n/hub_locale.dart';
 import '../../ui/components.dart';
 import '../collections/editor_cubit.dart';
+import 'mobile_storage_runtime_probe_panel.dart';
 import 'workspace_cubit.dart';
 
 class WorkspaceView extends StatelessWidget {
@@ -62,6 +63,7 @@ class WorkspaceView extends StatelessWidget {
           onPressed: busy ? null : context.read<WorkspaceCubit>().initialize,
           child: Text(strings.text('reopenCurrent')),
         ),
+        const MobileStorageRuntimeProbePanel(),
       ],
     );
   }
