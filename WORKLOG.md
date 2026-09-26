@@ -82,26 +82,30 @@ Append-only ledger: GitHub Issue **#18**
 
 ## Поточний slice
 
-Статус: **IDLE / SAVED**
+Статус: **DOING / VERIFY GREEN, PACKAGED GATES NEXT**
 
-Активного implementation PR немає. Поточний інтегрований product baseline:
-**`6e6326c6c8ed00e86908a1eb533bd0cb80bdfaaf`**.
+Мета: **unified reusable date-control UX / picker для Planner + Portfolio**.
 
-Поточна `docs/sync-after-ui-preferences` — лише state-sync документації після вже інтегрованого PR #123; не є окремим implementation source.
+- base main: `62bf948b1550cb723f12aa18e8ed7070df54f9ed`;
+- branch: `feat/unified-date-controls`;
+- active draft PR: **#125**;
+- reusable `HubDateField` має locale-friendly compact display, calendar picker, keyboard/ISO fallback і strict invalid-date handling;
+- canonical persistence залишається `YYYY-MM-DD`; persisted Planner/Portfolio schema не змінюються;
+- Planner `start/minDate/maxDate` зберігає explicit reset-confirmation contract; shared control також підключений до need/expense/reserve-floor/FX/position-exit dates;
+- Portfolio purchase/sale/coupon/redemption dialogs використовують той самий shared control, але передають у domain лише canonical ISO;
+- existing sale/coupon/redemption visible-control keys збережені;
+- додано real-control regression для Planner invalid draft + visible picker;
+- додано phone-sized Portfolio regression: navigation → open → add purchase → date picker, з overflow/exception check;
+- run #447 виявив brittle text-only regression assert; canonical Planner date при цьому не змінювався;
+- run #449 виявив test-only analyze error через неіснуючий `TextFormField.decoration` getter;
+- regression виправлено через перевірку rendered `InputDecorator.errorText`, production code не змінювався;
+- exact-head implementation/test commit: `063d1d7dc90753a8118a40c7a812cb069f6f7eac`;
+- exact-head run **#450 — success**: `flutter analyze` + повний `flutter test` green;
+- цей WORKLOG update є docs-only зміною; після нього потрібен фінальний exact-head verify перед Ready.
 
 ## Поточна наступна дія
 
-**NEXT — unified reusable date-control UX / picker для Planner + Portfolio.**
-
-Scope наступного implementation slice:
-- один reusable date control замість двох несумісних manual UX;
-- locale-friendly display;
-- calendar picker + keyboard fallback;
-- explicit invalid/intermediate validation;
-- canonical existing date persistence;
-- **без зміни persisted Planner/Portfolio schema**;
-- не ламати вже інтегровану Planner confirmation/state-safety поведінку;
-- real visible-control regressions для Planner і Portfolio, включно з phone-sized reachability.
+**DOING — пройти фінальний exact-head verify на docs-synced head, перевести PR #125 у Ready, дочекатися автоматичних Windows + macOS packaged build/smoke gates і інтегрувати PR у `main` лише після повністю green exact-head.**
 
 Після цього окремо повернутися до macOS Portfolio runtime Keychain validation/enablement, mobile external-folder access і distribution signing gates.
 
