@@ -25,7 +25,10 @@ class FlutterSecureStorageVaultDeviceKeyStore implements VaultDeviceKeyStore {
     accountName: 'ua.ovdphub.vault',
     accessibility: KeychainAccessibility.unlocked_this_device,
     synchronizable: false,
-    usesDataProtectionKeychain: true,
+    // OVDP Hub does not share vault keys with another app. Using the legacy
+    // macOS Keychain avoids the Keychain Sharing entitlement/provisioning
+    // requirement while preserving device-only, non-synchronizing storage.
+    usesDataProtectionKeychain: false,
     useSecureEnclave: false,
   );
 
