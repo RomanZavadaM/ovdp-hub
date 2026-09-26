@@ -14,9 +14,17 @@
 
 Desktop: робоча папка може бути на локальному/підключеному мережевому диску або у синхронізованій хмарним клієнтом папці. Mobile: внутрішня папка; постійний зовнішній доступ через SAF/bookmarks ще не реалізований.
 
+## Encrypted Portfolio за платформами
+
+- **Windows:** device key/revision state захищені app-owned DPAPI adapter; user-facing portable encrypted backup/restore доступний.
+- **macOS:** encrypted Portfolio використовує системний Keychain через `flutter_secure_storage`. Для поточного unsigned/non-provisioned test-build використовується звичайний Keychain без Keychain Sharing (`usesDataProtectionKeychain: false`). До enablement packaged macOS app реально пройшов Keychain/vault create → open → lock/reopen → backup/restore → recovery rotation → cleanup; після enablement цей runtime smoke лишається обов’язковим packaged gate.
+- **Android / iOS:** device-key adapter використовує platform secure storage; user-facing зовнішній backup/file flow лишається deferred до Android SAF / iOS security-scoped access.
+
+Portable external-file backup UI наразі **Windows-only**. Увімкнення encrypted Portfolio на macOS не означає автоматичне ввімкнення macOS file-picker backup/restore flow: це окремий user-facing storage contract.
+
 ## CI і prerelease
 
-`.github/workflows/native.yml` виконує звичайні checks та START-пакування. На checkpoint можна вручну попросити Windows/macOS/Android/iOS builds.
+`.github/workflows/native.yml` виконує звичайні checks та START-пакування. Ready PR із desktop/user-visible змінами автоматично запускає Windows/macOS release build, versioned package і smoke саме packaged executable. macOS smoke додатково перевіряє реальний Keychain/vault lifecycle, а не лише compile/start.
 
 `.github/workflows/release.yml` є формальним prerelease pipeline. Для поточної версії з `apps/native/pubspec.yaml` він:
 

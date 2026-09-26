@@ -24,7 +24,7 @@ Ein Szenario hat eine Basiswährung. Konfigurieren Sie Budget, Reserve, Horizont
 A/B/C vergleicht 2–3 kompatible gespeicherte Szenarien ohne automatischen Gewinner. CSV/ICS-Exporte werden lokal unter `exports/` gespeichert.
 
 ## Mein Portfolio
-Das Portfolio ist ein verschlüsselter lokaler Ablauf mit Create/Open/Lock.
+Das Portfolio ist ein verschlüsselter lokaler Ablauf mit Create/Open/Lock. Im aktuellen post-v0.9.3-main wird das verschlüsselte Portfolio unter Windows, macOS, Android und iOS unterstützt. Unter macOS werden Geräteschlüssel und Revisionsstatus im System-Keychain gespeichert; vor der Aktivierung hat die paketierte macOS-App einen realen Create/Open/Lock/Reopen-, Backup/Restore-, Recovery-Rotation- und Cleanup-Smoke bestanden.
 
 **Kauf:** ISIN/Datum/Einheiten/Betrag und Gebührenstatus faktisch erfassen.
 
@@ -42,9 +42,11 @@ Dies ist **keine** Marktwert- oder Performance-Berechnung, da der aktuelle Markt
 Der Assistent kopiert unterstützte Legacy-Nutzerdaten in den verschlüsselten Payload und verifiziert die Kopie. Die Migration ist nicht destruktiv; Quell-JSON wird nie automatisch gelöscht.
 
 ## Backup und Update
-Vor großen Updates Portfolio sperren, Workspace sichern, verschlüsseltes portables Backup prüfen und Recovery Material getrennt aufbewahren. Desktop-Updates in einen neuen Programmordner entpacken und Workspace behalten, bis die neue Version geprüft ist.
+Vor großen Updates Portfolio sperren, Workspace sichern, das verschlüsselte portable Backup dort prüfen, wo dieser Benutzerfluss unterstützt wird, und Recovery Material getrennt aufbewahren. Desktop-Updates in einen neuen Programmordner entpacken und Workspace behalten, bis die neue Version geprüft ist.
 
-Unter Windows kann **Mein Portfolio** eine portable verschlüsselte Sicherung erstellen und daraus ein leeres lokales Portfolio wiederherstellen. Das Wiederherstellungsgeheimnis wird bei der Erstellung zweimal eingegeben und kann später geändert werden. Android/iOS-Dateizugriff bleibt bis zum separaten SAF/security-scoped Schritt zurückgestellt.
+Unter Windows kann **Mein Portfolio** eine portable verschlüsselte Sicherung erstellen und daraus ein leeres lokales Portfolio wiederherstellen. Das Wiederherstellungsgeheimnis wird bei der Erstellung zweimal eingegeben und kann später geändert werden.
+
+Unter macOS ist das verschlüsselte Portfolio selbst aktiviert, der benutzerseitige portable externe Backup/Restore-Dateifluss wurde durch dieses Keychain-Gate jedoch nicht aktiviert; er bleibt ein separater Plattform-UX/Storage-Vertrag. Android/iOS-Dateizugriff bleibt bis zum separaten SAF/security-scoped Schritt zurückgestellt.
 
 ## Prüfung und typische Probleme
 `SHA256SUMS.txt` dient zur Download-Prüfung. SmartScreen/macOS-Warnungen sind beim unsignierten Test-Prerelease möglich. „Unknown fee“ ist ein bewusster Zustand. Das iOS-Paket ist unsigned und nicht direkt installierbar.

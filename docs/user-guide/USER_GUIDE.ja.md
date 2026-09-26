@@ -24,7 +24,7 @@ OVDP Hub はウクライナ国債 OVDP 向けの local-first アプリです。�
 A/B/C は互換性のある保存済みシナリオ 2–3 件を比較しますが、自動 winner は選びません。CSV/ICS はローカル `exports/` に保存されます。
 
 ## マイポートフォリオ
-ポートフォリオはローカル暗号化フローで create/open/lock をサポートします。
+ポートフォリオはローカル暗号化フローで create/open/lock をサポートします。現在の post-v0.9.3 main では、暗号化ポートフォリオは Windows / macOS / Android / iOS でサポートされています。macOS ではデバイスキーと revision state をシステム Keychain に保存し、有効化前にパッケージ済み macOS アプリで実際の create/open/lock/reopen、backup/restore、recovery secret rotation、最終 cleanup の smoke を通過しています。
 
 **購入:** 実際の ISIN/日付/数量/金額と手数料状態を記録します。
 
@@ -42,9 +42,11 @@ A/B/C は互換性のある保存済みシナリオ 2–3 件を比較します�
 migration wizard は対応するユーザー legacy データを暗号化 payload にコピーし、暗号化コピーを検証します。source JSON は自動削除しません。
 
 ## バックアップと更新
-大きな更新前にポートフォリオをロックし、workspace をバックアップし、encrypted portable backup を確認し、recovery material を別に保管してください。Desktop 更新は新しいプログラムフォルダーに展開し、新版を確認するまで workspace を保持してください。
+大きな更新前にポートフォリオをロックし、workspace をバックアップし、ユーザー向け portable backup フローがサポートされる環境では encrypted portable backup を確認し、recovery material を別に保管してください。Desktop 更新は新しいプログラムフォルダーに展開し、新版を確認するまで workspace を保持してください。
 
-Windows の **マイポートフォリオ**では、持ち運べる暗号化バックアップを作成し、それを使って空のローカルポートフォリオを復元できます。作成時には復旧シークレットを2回入力し、後から変更することもできます。Android/iOS の外部ファイルフローは別の SAF/security-scoped 段階まで延期されています。
+Windows の **マイポートフォリオ**では、持ち運べる暗号化バックアップを作成し、それを使って空のローカルポートフォリオを復元できます。作成時には復旧シークレットを2回入力し、後から変更することもできます。
+
+macOS では暗号化ポートフォリオ自体は有効になっていますが、今回の Keychain gate でポータブルな外部ファイル backup/restore のユーザーフローまで有効にしたわけではありません。これは別のプラットフォーム UX/storage 契約として残ります。Android/iOS の外部ファイルフローも別の SAF/security-scoped 段階まで延期されています。
 
 ## 検証とよくある問題
 GitHub Release の `SHA256SUMS.txt` でダウンロードを検証できます。unsigned test prerelease のため SmartScreen/macOS 警告が出る場合があります。「Unknown fee」は意図した状態です。iOS unsigned ZIP はそのままではインストールできません。

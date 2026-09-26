@@ -10,58 +10,82 @@ Checkpoint: **v0.9.3 / 0.9.3+20**
 
 Цей slice **не** є production signing/notarization і **не** розширює Android SAF / iOS security-scoped storage.
 
-## Поточний факт
+## Вихідний стан
 
-- `LocalEncryptedPortfolioGateway.supported` дозволяє Windows / Android / iOS і навмисно не дозволяє macOS.
-- `FlutterSecureStorageVaultDeviceKeyStore` уже допускає `TargetPlatform.macOS`.
-- macOS options зараз мають:
-  - `accountName: ua.ovdphub.vault`;
-  - `accessibility: unlocked_this_device`;
-  - `synchronizable: false`;
-  - `usesDataProtectionKeychain: true`;
-  - `useSecureEnclave: false`.
-- `macos/Runner/Release.entitlements` і `DebugProfile.entitlements` не містять `keychain-access-groups`.
-- Поточний packaged desktop smoke перевіряє запуск/version/build/appearance contract, але не торкається Keychain або vault.
+- `LocalEncryptedPortfolioGateway.supported` дозволяв Windows / Android / iOS і навмисно не дозволяв macOS.
+- `FlutterSecureStorageVaultDeviceKeyStore` уже допускав `TargetPlatform.macOS`.
+- macOS options мали `usesDataProtectionKeychain: true`, але `Release.entitlements` / `DebugProfile.entitlements` не мають `keychain-access-groups` і поточний test-build не має provisioning для Keychain Sharing.
+- Старий packaged desktop smoke перевіряв запуск/version/build/appearance contract, але не торкався Keychain або vault.
 
-## Upstream constraint
+## Прийнята конфігурація
 
 Проєкт pinned на `flutter_secure_storage: 11.2.0`.
 
-Документація пакета для macOS зазначає:
-- Data Protection Keychain / Keychain Sharing потребує відповідного entitlement і provisioning;
-- без App Group / sharing між застосунками можна використати `MacOsOptions(usesDataProtectionKeychain: false)`, що працює через звичайний macOS Keychain без Keychain Sharing provisioning.
+OVDP Hub не має вимоги ділитися Keychain item з іншим застосунком, тому macOS secure-storage переведено на звичайний системний Keychain:
 
-Reference: https://pub.dev/packages/flutter_secure_storage
+- `accountName: ua.ovdphub.vault`;
+- `accessibility: unlocked_this_device`;
+- `synchronizable: false`;
+- `usesDataProtectionKeychain: false`;
+- `useSecureEnclave: false`.
 
-OVDP Hub не має вимоги ділитися Keychain item з іншим застосунком, тому **candidate configuration** для цього gate — `usesDataProtectionKeychain: false` лише для macOS. Це не вважається прийнятим рішенням до runtime green.
+Це дозволяє не вводити Keychain Sharing/provisioning у звичайний unsigned test-build. Production Developer ID/notarization лишається окремим distribution gate.
 
-## Gate A — runtime proof до enablement
+## Gate A — runtime proof до enablement — PASSED
 
-До зміни `PortfolioGateway.supported` packaged macOS executable має пройти спеціальний runtime smoke, який реально викликає platform plugin і перевіряє:
+До зміни `PortfolioGateway.supported` packaged macOS executable отримав спеціальний smoke-mode, який реально викликає platform plugin і перевіряє:
 
 1. Keychain DEK write → read round-trip;
 2. highest accepted revision write → read;
 3. encrypted vault create/open;
 4. session unlock → lock → reopen;
-5. encrypted portable backup creation;
-6. local vault + device key cleanup;
-7. restore backup через recovery secret на fresh local state;
-8. recovery secret rotation;
-9. backup після rotation;
-10. old recovery secret fail-closed, new recovery secret restores;
-11. фінальний cleanup Keychain item + temp files.
+5. save + monotonic revision;
+6. encrypted portable backup creation;
+7. local vault + device key cleanup;
+8. restore backup через recovery secret на fresh local state;
+9. recovery secret rotation;
+10. backup після rotation;
+11. old recovery secret fail-closed;
+12. new recovery secret restores;
+13. фінальний cleanup Keychain item + temp files.
 
-Smoke повинен виконуватися **саме packaged macOS executable**, а не `flutter test` mock.
+Smoke виконується **саме packaged macOS executable**, а не `flutter test` mock.
 
-## Gate B — Portfolio enablement
+Evidence:
 
-Лише після Gate A green:
+- PR #127 pre-enablement head: **`4568de2d6a833e5a723ebf50c6f289a75f842cbf`**;
+- Ready native run **#462** / workflow run `36236068148` — verify + Windows/macOS packaged jobs success;
+- macOS merge-ref under test: `404de251a98c42bf5be1ea658bce489aeda315db`;
+- runtime log: `PASS: packaged macOS app completed real Keychain/vault create-open-lock-reopen-backup-restore-rotation-cleanup smoke.`;
+- artifact: `OVDP-Hub-0.9.3-b20-macos-462-1-404de25`;
+- artifact SHA-256: `26eba99618fd40758aaa7a2c91deb1f4653596d4fadc114bed220abd66201c78`;
+- artifact ID: `10904322484`.
 
-- додати `Platform.isMacOS` до `LocalEncryptedPortfolioGateway.supported`;
-- залишити portable external-file backup UI окремо від цього рішення, якщо його file-flow ще не валідовано як user-facing macOS contract;
-- додати regression/contract, що macOS capability матриця не повернеться у disabled випадково;
-- повторити exact-head analyze/tests + packaged macOS runtime smoke;
-- тільки після final green інтегрувати PR у `main`.
+Після цього Gate A дозволив перейти до enablement.
+
+## Gate B — Portfolio enablement — PASSED
+
+Після Gate A:
+
+- macOS додано до encrypted Portfolio capability;
+- capability винесено у deterministic contract `isEncryptedPortfolioPlatformSupported(...)`;
+- regression фіксує Windows/macOS/Android/iOS як supported, Linux/Fuchsia/web — unsupported;
+- portable external-file backup UI **не** розширено на macOS: він лишається Windows-only до окремого user-facing file-flow validation;
+- повторено analyze/tests + packaged Windows/macOS runtime gates вже після enablement.
+
+Evidence на product head:
+
+- enablement commit: **`3d32a05dd61327e219653e418a9ce448a58fc0e8`**;
+- platform-contract test head: **`c5a23e087b0bf168ee757cc0fc63849ebb802f4b`**;
+- native run **#464** / workflow run `36236470390` — verify success, Windows packaged smoke success, macOS packaged Keychain/vault smoke success;
+- PR merge-ref under test: `402b0e2ee02fe4134a13821d10377e0f9a737c64`;
+- macOS runtime log знову підтвердив: `PASS: packaged macOS app completed real Keychain/vault create-open-lock-reopen-backup-restore-rotation-cleanup smoke.`;
+- macOS artifact: `OVDP-Hub-0.9.3-b20-macos-464-1-402b0e2`;
+- macOS artifact SHA-256: `fd9714910cc6ac39f85b02e5da896fa47738982ff691dc47c4095867c9bb2be2`;
+- macOS artifact ID: `10905025021`;
+- Windows artifact: `OVDP-Hub-0.9.3-b20-windows-464-1-402b0e2`;
+- Windows artifact SHA-256: `106441b4ba07a057aa4a53eafb4be21ddcc4a46a123aff522ccc2ad8963586ff`;
+- Windows artifact ID: `10904392791`.
 
 ## Fail-closed правила
 
@@ -69,16 +93,19 @@ Smoke повинен виконуватися **саме packaged macOS executab
 - Не вважати compile або звичайний app launch доказом Keychain persistence.
 - Не використовувати mock secure storage як runtime evidence.
 - Не видаляти/перезаписувати чужі Keychain items: smoke використовує унікальний vault id і прибирає лише власні test keys.
-- При будь-якому runtime failure macOS Portfolio лишається disabled.
+- macOS external portable backup/restore file-picker flow не вважати автоматично валідованим через Keychain gate.
 
 ## Acceptance
 
-Slice DONE лише якщо одночасно виконано:
+Product acceptance для цього slice виконано:
 
-- Gate A packaged macOS runtime smoke — green;
-- final gateway capability містить macOS;
-- final exact-head Flutter analyze/tests — green;
-- final packaged macOS runtime smoke після enablement — green;
-- Windows packaged smoke не регресував;
-- docs/platform capability state синхронізований;
-- GitHub Issue #18 містить exact heads/runs і результат gate.
+- [x] Gate A packaged macOS runtime smoke — green;
+- [x] final gateway capability містить macOS;
+- [x] platform capability regression додано;
+- [x] post-enablement exact-head Flutter analyze/tests — green;
+- [x] post-enablement packaged macOS Keychain/vault runtime smoke — green;
+- [x] Windows packaged smoke не регресував;
+- [x] capability docs та user guides підготовлені до синхронізації;
+- [ ] PR #127 final docs-synced exact-head gates;
+- [ ] merge у `main` + post-merge verification;
+- [ ] post-merge canonical state (`START_HERE` / `PROJECT_STATE` / `WORKLOG` / roadmap / Issue #18) sync.

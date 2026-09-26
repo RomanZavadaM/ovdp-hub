@@ -49,7 +49,7 @@ Planner може створювати deterministic CSV та ICS у папці `
 
 ## 8. Мій портфель
 
-Портфель є окремим encrypted local flow.
+Портфель є окремим encrypted local flow. У поточному post-v0.9.3 main він підтримується на Windows, macOS, Android та iOS. На macOS device key і revision state зберігаються в системному Keychain; перед увімкненням packaged macOS app пройшов реальний create/open/lock/reopen, backup/restore, recovery-rotation і cleanup smoke.
 
 ### Створення / відкриття
 Створіть портфель або відкрийте наявний. Після завершення роботи використовуйте Lock. Застосунок також має session/inactivity/background locking.
@@ -82,10 +82,12 @@ Wizard переносить підтримувані legacy user-specific дан
 Перед великим оновленням:
 1. закрийте/заблокуйте портфель;
 2. зробіть backup робочої папки;
-3. створіть/перевірте encrypted portable backup портфеля;
+3. створіть/перевірте encrypted portable backup портфеля там, де цей user-facing flow підтримується;
 4. збережіть recovery material окремо від робочого комп’ютера;
 
-На Windows у розділі **«Мій портфель»** доступні створення переносної зашифрованої резервної копії та відновлення нею порожнього локального портфеля. Пароль відновлення під час створення вводиться двічі; його також можна змінити пізніше. Android/iOS зовнішній file flow поки не відкривається: SAF/security-scoped access лишається окремим етапом.
+На Windows у розділі **«Мій портфель»** доступні створення переносної зашифрованої резервної копії та відновлення нею порожнього локального портфеля. Пароль відновлення під час створення вводиться двічі; його також можна змінити пізніше.
+
+На macOS encrypted Portfolio вже доступний, але user-facing portable external backup/restore file flow у цьому gate не вмикався: він лишається окремим platform UX/storage contract. Android/iOS зовнішній file flow також поки не відкривається: SAF/security-scoped access лишається окремим етапом.
 5. після перенесення відкрийте портфель і перевірте кілька фактичних записів.
 
 Не зберігайте signing keys, KYC-документи чи інші секрети у legacy plaintext workspace.
