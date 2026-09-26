@@ -1,138 +1,98 @@
 # Roadmap OVDP Hub
 
-Оновлено: 26.09.2026. Цей roadmap стосується лише активного Flutter-продукту.
+Оновлено: **26.09.2026**. Цей roadmap стосується лише активного Flutter-продукту `apps/native`.
 
-## Продуктовий напрямок до 0.9.0
+## Продуктовий принцип
 
-Ціль — довести OVDP Hub від набору корисних модулів до цілісного сценарію **«перевірені ринкові факти → зрозуміла актуальність → явний вибір ціни/припущень → план → порівняння»**.
+Рухаємося вертикальними user-visible slices: **перевірені факти → явна актуальність → явні assumptions → план → порівняння → factual encrypted portfolio → безпечний platform storage/distribution**. Завершений і перевірений slice інтегрується у `main` до старту наступного.
 
-Порядок розвитку:
+Команда власника **«злити у main»** означає окремий full cross-platform test-release checkpoint із новою version/build, Windows/macOS/Android/iOS + START/source, checksums/legal, immutable tag і GitHub prerelease.
 
-1. **Довіра до ринкових даних — DONE**: detailed MinFin auction results parser інтегрований з provenance, fail-closed поведінкою та deterministic tests.
-2. **Зрозуміла актуальність — DONE**: freshness/status UX у картці ISIN уніфіковано для NBU / MinFin / seller observations.
-3. **Явний вибір ринкової ціни — DONE**: кілька `PriceObservation`, explicit user priority, add/select/reorder controls і nominal fallback інтегровані без прихованої підміни yield/nominal ціною.
-4. **Повна економіка сценарію — DONE**: purchase-fee, verified-tax, explicit-FX та per-position exit vertical інтегровані. Невідомі значення не вважати нулем.
-5. **Порівняння рішень — DONE**: neutral A/B/C comparison для 2–3 saved scenarios із strict baseline comparability, recurring-needs support, explanatory metrics і no-winner semantics — PR #58, final run #183.
-6. **0.9.0 — RELEASED**: readiness assessment не знайшов product blocker; PR #65 інтегровано, а full cross-platform release workflow #45 успішно опублікував v0.9.0.
+## Завершені продуктові етапи
 
-Принцип пріоритезації: спочатку завершувати вертикальний користувацький шлях, а не додавати нові ізольовані джерела чи екрани.
+### 0.9 «Ринок» — DONE / RELEASED
+- [x] NBU instrument/contractual payments.
+- [x] MinFin calendar + placement/switch results з provenance і fail-closed parsers.
+- [x] Seller observations без вигаданої market price.
+- [x] Source date / retrievedAt / freshness/status.
+- [x] Multiple `PriceObservation` + explicit user priority.
+- [x] Yield-only / nominal не стають market price автоматично.
+- [x] v0.9.0 released.
 
-## Опублікований checkpoint v0.9.0
+### Planner next generation — DONE
+- [x] Typed scenario/schema adapters.
+- [x] Explicit purchase fees / unknown state.
+- [x] Effective-dated tax assumptions.
+- [x] Explicit FX assumptions.
+- [x] Per-position early exit.
+- [x] One-off / recurring needs.
+- [x] Reserve floor.
+- [x] Neutral A/B/C comparison для 2–3 compatible scenarios без automatic winner.
+- [x] Deterministic CSV/ICS exports.
+- [x] Safe criteria/date editing with explicit reset confirmation.
+- [x] Unified locale-friendly Planner/Portfolio date-control UX; canonical persisted dates remain `YYYY-MM-DD`.
 
-**v0.9.0 / 0.9.0+17** опубліковано 24.09.2026. До checkpoint увійшли всі 0.9 «Ринок» verticals, strict neutral A/B/C comparison і generated Planner copy/preset-label localization. PR #65 merged як `21698ae34f9438f7c5ab49724e47dc13014b7daa`; release pipeline run #45 успішний для Windows/macOS/Android/iOS/START і final publish.
+### UI / localization — DONE for current scope
+- [x] Classic / Workbench / Light Dashboard.
+- [x] UK / EN / FR / DE / ES / KO / JA.
+- [x] Catalog and domain/error localization.
+- [x] Locale-neutral user-authored collection names.
+- [x] Language + appearance persistence in non-sensitive app preferences, separate from workspace/private vault.
 
-## Ритм інтеграції та тестових checkpoint
-
-- Кожен завершений і перевірений vertical slice **інтегруємо PR у `main`** перед початком наступного.
-- Проміжно після user-visible integration тестуємо актуальний `main` через START artifact.
-- Команда власника **«злити у `main`»** означає повний багатоплатформний test-release checkpoint: нова version/build, Windows/macOS/Android/iOS, START/source, checksums/legal, Git tag і GitHub prerelease.
-- Такий повний checkpoint плануємо регулярно — орієнтовно після кожних 2–3 user-visible integrated slices або раніше після ризикових змін parser/calculation/schema.
-- Опубліковані теги не переписуються; кожне повне «злиття у `main`» отримує нову версію/build.
-
-## 0.8.2 — стабілізація
-
-- [x] Формальний proprietary release 0.8.1.
-- [x] Захист `main`: PR + `verify` + squash + up-to-date.
-- [x] Прибрати завершені Web/Expo/Tauri/TypeScript прототипи з активного дерева.
-- [x] Переписати архітектуру й product docs під Flutter.
-- [x] Dart tool для оновлення початкового snapshot НБУ.
-- [x] Retention старих публічних каталогів у workspace.
-- [x] Єдина модель provenance/freshness для джерел.
-- [x] Threat model для encrypted vault і backup/recovery.
-- [x] Основа локалізації: UK за замовчуванням; EN/FR/DE/ES/KO/JA selectable.
-
-## 0.9.0 — Ринок
-
-- [x] Єдина картка ISIN з окремими NBU / MinFin / seller шарами.
-- [x] НБУ: інструмент і графік контрактних виплат.
-- [x] Мінфін: календар, оголошення та структуровані результати аукціонів.
-  - [x] Typed index оголошень/результатів з розрізненням placement/switch та fail-closed parser.
-  - [x] Typed index календарних документів Мінфіну: monthly / quarterly / switch PDF + publication date + provenance.
-  - [x] Структурований розклад майбутніх аукціонів із календарних PDF: окремі monthly / quarterly / switch parser-и, provenance, deterministic tests і fail-closed validation.
-  - [x] Детальний parser результатів аукціонів з офіційних DOCX: placement 21-row × N, switch 26-field, provenance + fail-closed + deterministic tests.
-- [x] Продавці: типізовані вторинні observations без вигаданої ціни.
-- [x] Базові sourceDate / retrievedAt / freshness / evidence URL; validUntil лишається source-specific.
-- [x] Передача лише явної/введеної ціни у планувальник; yield-only/nominal не стають market price автоматично.
-
-## UX після v0.9.0
-
-- [x] Додатковий дизайн **«Світла панель»** за наданими власником desktop reference screenshots — PR #67, final run #206.
-- [x] Classic та **«Робочий кабінет»** залишаються доступними; новий дизайн не замінює їх.
-- [x] Appearance selector і новий shell локалізовано UK/EN/FR/DE/ES/KO/JA.
-- [x] Desktop + phone regression coverage; функціональний стан Planner/Catalog не губиться при зміні оформлення.
-- [x] UI slice завершено; подальші Planner reserve-floor та CSV/ICS export slice також інтегровані.
-
-## Планувальник наступного покоління
-
-- [x] Типізований PlannerScenario / schema 3 з adapter schema 1/2.
-- [x] Домен комісій: разові/періодичні/невідомі з явним статусом.
-- [x] Домен effective-dated податкових сценаріїв.
-- [x] Кілька джерел цін і пріоритет користувача — PR #39, final run #123.
-- [x] Purchase fee assumptions: unknown / confirmed zero / aggregate fee → persistence / calculation / UI — PR #41, final run #135.
-- [x] Tax assumptions → official effective-date verification → calculation/UI — PR #45, final run #145.
-- [x] FX assumptions → explicit comparison calculation/UI — PR #48, final run #152.
-- [x] Exit assumptions → per-position multi-ISIN cashflow/profit/UI — PR #51, final run #161.
-- [x] Порівняння альтернативних сценаріїв A/B/C — PR #58, final run #183; 2–3 scenarios, strict comparability, no automatic winner, recurring needs supported.
-- [x] Домен продажу до погашення як окремого припущення з BID/ручною ціною.
-- [x] Домен FX з явним курсом, датою та джерелом.
-- [x] Типи потреб: разова + регулярна з typed persistence/cashflow/UI — PR #54, final run #168.
-- [x] Потреби типу reserve floor / мінімальний залишок — PR #69, final run #210, merge `37b8120d…`, post-merge run #211.
-- [x] CSV/ICS — deterministic local exports зі scenario/cashflow/needs — PR #73, exact-head run #231, merge `3e8e7fbc…`, post-merge run #232. PDF лишається deferred до стабілізації структури звіту.
-
-## Encrypted vault / фактичний портфель
-
-- [x] Threat model review/approval — PR #75.
-- [x] Audited crypto stack selected and reviewed: sodium/libsodium, Argon2id13, XChaCha20-Poly1305 — PR #77.
-- [x] Platform device-key adapters: hardened Android/iOS/macOS secure storage + app-owned Windows DPAPI; four-platform compile gate + Windows DPAPI smoke — PR #79. macOS runtime/provisioning remains a release gate before user-facing unlock.
-- [x] Local encrypted vault file lifecycle: recovery-wrapped DEK slot, authenticated slot binding, atomic known-good recovery, rollback detection — PR #81.
-- [x] Encrypted portable backup/restore primitives with recovery material — PR #81.
-- [x] Lock/unlock session state, inactivity/background auto-lock and stale async lifecycle guards — replacement PR #84; hardened run #285, final run #286, merge `51fb9286…`, post-merge run #287.
-- [x] Recovery enable/rotate/remove + local vault deletion lifecycle — PR #86; non-destructive rollback/crash handling, external-backup preservation and serialized session store operations.
-- [x] Private encrypted payload/domain foundation: acquisition lots, derived holdings, factual coupon/redemption events with stable IDs and deterministic validation — replacement PR #89, merge `a516310f…`, post-merge run #312.
-- [x] Factual sale/disposal records + deterministic acquisition-lot allocation / realized-cost foundation — replacement PR #92, exact-head run #317, merge `d8de5c9f…`, post-merge run #318.
-- [x] Non-destructive legacy plaintext migration core — private payload schema v3; strict/idempotent/conflict-aware mapping, full encrypted verification, zero synthesized portfolio facts and no delete API; PR #95, post-merge run #331.
-- [x] **v0.9.2:** user-facing encrypted portfolio entrypoint: create/open/lock, factual acquisition, derived holdings + persistent Economic Pulse.
-- [x] Release correctness gate: exact packaged Windows/macOS ZIP → extract → execute → verify version/build + Classic/Studio/Light Dashboard contract.
-- [x] Factual sale/redemption/history UI + explicit non-destructive legacy migration wizard — PR #101, exact-head run #390, merge `c255c937…`, post-merge run #391.
-- [x] User-facing factual coupon entry + per-ISIN portfolio detail/ledger — PR #104, exact-head run #395, merge `c8d26862…`, post-merge run #396.
-- [x] Factual portfolio cash/result summary + access to closed ISIN positions — PR #106, exact-head run #399, merge `310afcc2…`, post-merge run #400; unknown fees remain explicit and market value is not presented as fact.
-- [x] **v0.9.3+20 RELEASED:** full cross-platform prerelease after three post-v0.9.2 user-visible portfolio slices; PR #109 → `e2ec9632…`, main run #405 and publish run #106 — success.
-- [ ] Android SAF / iOS security-scoped access для зовнішніх папок — deferred до mobile external-workspace/vault slice.
-
-## Distribution readiness
-
-- [ ] Windows code signing.
-- [ ] macOS Developer ID + notarization.
-- [ ] Android production keystore.
-- [ ] iOS signing/distribution.
-- [ ] Інсталятори й автооновлення — окреме рішення.
-
-## Незмінні межі
-
-Без окремого рішення власника не додаються централізовані портфелі, KYC, приватний relay, вбудовані partner secrets або виконання угод.
-
-
-## Локалізація 0.9
-
-- [x] Shell / navigation / shared dialogs — UK/EN/FR/DE/ES/KO/JA.
-- [x] Каталог — UK/EN/FR/DE/ES/KO/JA.
-- [x] Калькулятор — UK/EN/FR/DE/ES/KO/JA.
-- [x] Продавці — UK/EN/FR/DE/ES/KO/JA.
-- [x] Сховище — UK/EN/FR/DE/ES/KO/JA.
-- [x] Добірки + редактор — UK/EN/FR/DE/ES/KO/JA.
-- [x] Планувальник — статичний UI UK/EN/FR/DE/ES/KO/JA.
-- [x] Domain/error повідомлення з Cubit/Repository/parser/domain validation переведені на typed коди й локалізоване відображення UK/EN/FR/DE/ES/KO/JA.
-- [x] Generated planner copy / preset labels: stable persisted generated-copy IDs + display-time `HubStrings` для UK/EN/FR/DE/ES/KO/JA; user-authored text literal — PR #61, run #189 (110/110), final run #190.
-
+### Encrypted vault / factual portfolio — DONE for current factual scope
+- [x] Threat model and audited crypto stack.
+- [x] Platform device-key adapters.
+- [x] Local encrypted vault lifecycle, recovery-wrapped DEK, atomic recovery, rollback detection.
+- [x] Session/inactivity/background locking.
+- [x] Recovery enable/rotate/remove + local deletion lifecycle.
+- [x] Private factual payload/domain.
+- [x] Acquisition lots / derived holdings.
+- [x] Explicit factual sale/disposal allocation.
+- [x] Coupon / redemption.
+- [x] Per-ISIN ledger + closed positions.
+- [x] Factual per-currency cash summary with unknown-fee semantics.
+- [x] Non-destructive legacy plaintext migration wizard.
+- [x] Recovery-secret confirmation/rotation UX.
+- [x] Windows user-facing portable encrypted backup/restore.
+- [x] v0.9.3+20 released after factual Portfolio slices.
 
 ## Після v0.9.3
 
-- [x] Post-v0.9.3 usability/product audit — PR #116; findings зафіксовано в `docs/AUDIT_POST_0_9_3.md`.
-- [x] Portfolio recovery / backup UX — PR #117: recovery-secret confirmation, rotation, Windows portable encrypted backup/restore, UK/EN/FR/DE/ES/KO/JA; exact-head #417, merge `fc38177a…`, post-merge #418.
-- [x] Planner safe criteria/date editing — PR #119, exact-head #420, merge `ad3a995a…`, post-merge #421.
-- [x] Unified date-control UX / picker для Planner + Portfolio — PR #125: locale-friendly display, picker + keyboard/ISO fallback, explicit validation, canonical `YYYY-MM-DD` persistence, no schema change; final exact-head #452, Ready #453 with Windows/macOS packaged smoke, merge `c94fbce6…`, post-merge #454.
-- [x] Catalog localization literals + persisted collection variant copy cleanup — PR #120, final exact-head #428, merge `5638f56e…`, post-merge #429.
-- [x] Persist language/appearance preferences as non-sensitive app preferences, separate from workspace/private vault — PR #123, exact-head #439 (197/197 + Windows/macOS packaged smoke), merge `6e6326c6…`, post-merge #440.
-- [ ] **NEXT:** macOS Portfolio runtime Keychain validation + enablement — real create/open/lock/reopen, backup/recovery lifecycle and packaged-app runtime validation before enabling macOS in `PortfolioGateway.supported`.
-- [ ] Android SAF / iOS security-scoped external-folder access — deferred до окремого mobile storage gate.
-- [ ] Production signing/notarization/store distribution — окремий distribution-readiness gate.
+- [x] Post-v0.9.3 usability/product audit — PR #116; findings in `docs/AUDIT_POST_0_9_3.md`.
+- [x] Portfolio recovery / backup UX — PR #117; exact-head #417, merge `fc38177a…`, post-merge #418.
+- [x] Planner safe criteria/date editing — PR #119; exact-head #420, merge `ad3a995a…`, post-merge #421.
+- [x] Catalog localization + persisted collection variant cleanup — PR #120; final exact-head #428, merge `5638f56e…`, post-merge #429.
+- [x] Persist language/appearance preferences — PR #123; exact-head #439, merge `6e6326c6…`, post-merge #440.
+- [x] Unified date-control UX / picker for Planner + Portfolio — PR #125; final exact-head #452, Ready #453 packaged desktop smoke, merge `c94fbce6…`, post-merge #454.
+- [x] **macOS Portfolio runtime Keychain validation + enablement — PR #127.** Proof-before-enable run #462; post-enable run #464; final docs-synced #465 with **204 tests** + Windows/macOS packaged smoke; merge **`4c1617b3…`**; post-merge #466 + START/source success.
+
+## Поточний NEXT
+
+- [ ] **NEXT — Android SAF + iOS security-scoped external-folder access.**
+  - Android: supported user-facing external workspace/backup file flow через SAF; no desktop path assumptions.
+  - iOS: supported external file/folder flow через security-scoped platform contract/bookmarks.
+  - Persistent access/permission loss must fail closed and surface explicitly.
+  - Add platform-specific runtime/regression evidence, not compile-only mocks.
+  - Do not change encrypted Portfolio schema or financial math in this slice.
+
+## Після mobile storage gate
+
+- [ ] Production signing / distribution readiness:
+  - Windows Authenticode code signing;
+  - macOS Developer ID + notarization;
+  - Android production keystore/store distribution;
+  - iOS signing/distribution.
+- [ ] Installers / auto-update — separate decision.
+- [ ] Further audit UX/domain slices based on confirmed product findings.
+
+## Platform capability snapshot
+
+- Encrypted app-local Portfolio: Windows / macOS / Android / iOS.
+- Windows device state: DPAPI.
+- macOS device state: system Keychain, real packaged lifecycle smoke enforced.
+- Android/iOS device state: platform secure storage.
+- Portable external-file backup/restore UI: **Windows-only** until mobile/macOS file-flow gates are explicitly completed.
+
+## Незмінні межі
+
+Без окремого рішення власника не додаються централізований private portfolio server, KYC, private relay, embedded partner secrets або виконання угод.
