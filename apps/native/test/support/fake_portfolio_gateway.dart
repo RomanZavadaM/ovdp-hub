@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:ovdp_hub/features/portfolio/legacy_plaintext_migration.dart';
 import 'package:ovdp_hub/features/portfolio/portfolio_gateway.dart';
 import 'package:ovdp_hub/features/portfolio/private_portfolio.dart';
+import 'package:ovdp_hub/security/vault_store.dart';
 
 class FakePortfolioGateway implements PortfolioGateway {
   @override
@@ -20,6 +21,11 @@ class FakePortfolioGateway implements PortfolioGateway {
   String recoverySecret = 'correct horse battery';
   bool recoverySecretRequired = false;
   int recoveryModeChanges = 0;
+  int deleteCalls = 0;
+
+  /// When set, the next unconfirmed restore reports an older backup.
+  bool nextRestoreIsOlder = false;
+  PrivatePortfolioPayload? backupPayload;
   String backupPath = 'local/OVDP-Hub-portfolio-backup.ovdp-vault.json';
 
   FakePortfolioGateway({
@@ -104,12 +110,22 @@ class FakePortfolioGateway implements PortfolioGateway {
   @override
   Future<PrivatePortfolioPayload?> restorePortableBackup({
     required String recoverySecret,
+    bool confirmRollback = false,
   }) async {
     if (!portableBackupSupported) {
       throw UnsupportedError('portfolio.portable_backup_unsupported');
     }
     restoreCalls++;
     lastRecoverySecret = recoverySecret;
+    if (nextRestoreIsOlder && !confirmRollback) {
+      throw const VaultRollbackException(
+        vaultId: 'primary-portfolio',
+        foundRevision: 2,
+        highestAcceptedRevision: 5,
+      );
+    }
+    nextRestoreIsOlder = false;
+    if (backupPayload != null) stored = backupPayload;
     stored ??= PrivatePortfolioPayload(portfolioId: 'primary');
     locked = false;
     _unlockChanges.add(true);
@@ -154,6 +170,15 @@ class FakePortfolioGateway implements PortfolioGateway {
       items: const [],
     );
     return PortfolioMigrationResult(report: report, payload: value);
+  }
+
+  @override
+  Future<void> deleteLocalPortfolio() async {
+    deleteCalls++;
+    stored = null;
+    recoverySecretRequired = false;
+    locked = true;
+    _unlockChanges.add(false);
   }
 
   @override

@@ -105,6 +105,40 @@ class PortfolioView extends StatelessWidget {
             const SizedBox(height: 12),
             _PortfolioError(code: state.errorCode!),
           ],
+          if (state.recoverySecretRequired ||
+              state.errorCode == 'vault.device_key_missing') ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (state.portableBackupSupported &&
+                    state.errorCode == 'vault.device_key_missing')
+                  OutlinedButton.icon(
+                    key: const ValueKey('portfolio-restore-backup-locked'),
+                    onPressed: state.busy
+                        ? null
+                        : () => _restorePortableBackup(context),
+                    icon: const Icon(Icons.settings_backup_restore_outlined),
+                    label: Text(strings.text('portfolioRestoreBackup')),
+                  ),
+                TextButton.icon(
+                  key: const ValueKey('portfolio-discard-locked'),
+                  onPressed: state.busy
+                      ? null
+                      : () => _deleteLocalPortfolio(context),
+                  icon: const Icon(Icons.delete_outline),
+                  label: Text(
+                    strings.text(
+                      state.recoverySecretRequired
+                          ? 'portfolioForgotSecret'
+                          : 'portfolioDeleteLocal',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       );
     }
@@ -296,6 +330,21 @@ class PortfolioView extends StatelessWidget {
                               strings.text('portfolioRecoveryChange'),
                             ),
                           ),
+                          if (state.portableBackupSupported)
+                            OutlinedButton.icon(
+                              key: const ValueKey(
+                                'portfolio-restore-backup-unlocked',
+                              ),
+                              onPressed: state.busy
+                                  ? null
+                                  : () => _restorePortableBackup(context),
+                              icon: const Icon(
+                                Icons.settings_backup_restore_outlined,
+                              ),
+                              label: Text(
+                                strings.text('portfolioRestoreBackup'),
+                              ),
+                            ),
                         ],
                       ),
                       if (!state.portableBackupSupported) ...[
@@ -326,6 +375,18 @@ class PortfolioView extends StatelessWidget {
                             ? null
                             : (enabled) =>
                                 _setRecoverySecretRequired(context, enabled),
+                      ),
+                      const SizedBox(height: 6),
+                      TextButton.icon(
+                        key: const ValueKey('portfolio-delete-local'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                        onPressed: state.busy
+                            ? null
+                            : () => _deleteLocalPortfolio(context),
+                        icon: const Icon(Icons.delete_outline),
+                        label: Text(strings.text('portfolioDeleteLocal')),
                       ),
                     ],
                   ),
@@ -559,6 +620,24 @@ class PortfolioView extends StatelessWidget {
                 if (restored == true) {
                   Navigator.pop(dialogContext);
                 } else if (restored == false) {
+                  if (cubit.state.errorCode == 'vault.rollback_detected') {
+                    final confirmed = await _confirmOlderRestore(
+                      dialogContext,
+                      strings,
+                    );
+                    if (!dialogContext.mounted) return;
+                    if (confirmed) {
+                      final again = await cubit.restorePortableBackup(
+                        secret.text,
+                        confirmRollback: true,
+                      );
+                      if (!dialogContext.mounted) return;
+                      if (again == true) {
+                        Navigator.pop(dialogContext);
+                        return;
+                      }
+                    }
+                  }
                   setState(() {
                     localError = _portfolioErrorText(
                       strings,
@@ -579,6 +658,93 @@ class PortfolioView extends StatelessWidget {
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
       SnackBar(content: Text(strings.text('portfolioRestoreDone'))),
+    );
+  }
+
+  Future<bool> _confirmOlderRestore(
+    BuildContext context,
+    HubStrings strings,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(strings.text('portfolioRestoreOlderTitle')),
+        content: SizedBox(
+          width: 460,
+          child: Text(strings.text('portfolioRestoreOlderExplain')),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(strings.text('portfolioCancel')),
+          ),
+          FilledButton(
+            key: const ValueKey('portfolio-restore-older-confirm'),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(strings.text('portfolioRestoreOlderConfirm')),
+          ),
+        ],
+      ),
+    );
+    return confirmed ?? false;
+  }
+
+  Future<void> _deleteLocalPortfolio(BuildContext context) async {
+    final strings = HubStrings(context.read<LocaleCubit>().state.language);
+    final cubit = context.read<PortfolioCubit>();
+    final messenger = ScaffoldMessenger.of(context);
+    var acknowledged = false;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(strings.text('portfolioDeleteTitle')),
+          content: SizedBox(
+            width: 460,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(strings.text('portfolioDeleteExplain')),
+                const SizedBox(height: 8),
+                CheckboxListTile(
+                  key: const ValueKey('portfolio-delete-ack'),
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: acknowledged,
+                  title: Text(strings.text('portfolioDeleteAcknowledge')),
+                  onChanged: (value) =>
+                      setState(() => acknowledged = value ?? false),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(strings.text('portfolioCancel')),
+            ),
+            FilledButton(
+              key: const ValueKey('portfolio-delete-confirm'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
+              ),
+              onPressed: acknowledged
+                  ? () => Navigator.pop(dialogContext, true)
+                  : null,
+              child: Text(strings.text('portfolioDeleteConfirm')),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (confirmed != true) return;
+    if (!await cubit.deleteLocalPortfolio()) return;
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(content: Text(strings.text('portfolioDeleted'))),
     );
   }
 
@@ -1592,6 +1758,10 @@ String _portfolioErrorText(HubStrings strings, String code) => switch (code) {
   ),
   'portfolio.issue_not_in_catalog' => strings.text('portfolioIssueMissing'),
   'vault.session_locked' => strings.text('portfolioLockedBody'),
+  'vault.device_key_conflict' ||
+  'vault.orphaned_local_vault' => strings.text('portfolioRestoreConflict'),
+  'vault.rollback_detected' => strings.text('portfolioRestoreOlderExplain'),
+  'vault.device_key_missing' => strings.text('portfolioDeviceKeyMissing'),
   'vault.recovery_authentication_failed' ||
   'vault.recovery_verification_failed' => strings.text(
     'portfolioRecoveryWrong',

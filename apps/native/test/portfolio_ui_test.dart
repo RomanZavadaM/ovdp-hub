@@ -625,4 +625,111 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
+
+  testWidgets('local portfolio deletion needs explicit acknowledgement', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final hub = FakeRepository(catalog);
+    final gateway = FakePortfolioGateway(
+      portableBackupSupported: true,
+      stored: PrivatePortfolioPayload(portfolioId: 'primary'),
+    );
+    await tester.pumpWidget(
+      OvdpApp(repository: hub, portfolioGateway: gateway),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byType(StudioSidebar),
+        matching: find.byIcon(Icons.account_balance_wallet_outlined),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('portfolio-open')));
+    await tester.pumpAndSettle();
+
+    final delete = find.byKey(const ValueKey('portfolio-delete-local'));
+    await tester.ensureVisible(delete);
+    await tester.tap(delete);
+    await tester.pumpAndSettle();
+
+    final confirm = find.byKey(const ValueKey('portfolio-delete-confirm'));
+    expect(tester.widget<FilledButton>(confirm).onPressed, isNull);
+    await tester.tap(find.byKey(const ValueKey('portfolio-delete-ack')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(confirm).onPressed, isNotNull);
+    await tester.tap(confirm);
+    await tester.pumpAndSettle();
+
+    expect(gateway.deleteCalls, 1);
+    expect(gateway.stored, isNull);
+    expect(find.byKey(const ValueKey('portfolio-create')), findsOneWidget);
+    expect(find.text('Локальний портфель видалено.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('older backup restore asks for confirmation and reuses the file', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final hub = FakeRepository(catalog);
+    final gateway = FakePortfolioGateway(
+      portableBackupSupported: true,
+      stored: PrivatePortfolioPayload(portfolioId: 'primary'),
+    )
+      ..nextRestoreIsOlder = true
+      ..backupPayload = PrivatePortfolioPayload(portfolioId: 'restored');
+    await tester.pumpWidget(
+      OvdpApp(repository: hub, portfolioGateway: gateway),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byType(StudioSidebar),
+        matching: find.byIcon(Icons.account_balance_wallet_outlined),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('portfolio-open')));
+    await tester.pumpAndSettle();
+
+    final restore = find.byKey(
+      const ValueKey('portfolio-restore-backup-unlocked'),
+    );
+    await tester.ensureVisible(restore);
+    await tester.tap(restore);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-restore-recovery-secret')),
+      gateway.recoverySecret,
+    );
+    await tester.tap(find.byKey(const ValueKey('portfolio-restore-run')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Відновити старішу копію?'), findsOneWidget);
+    await tester.tap(
+      find.byKey(const ValueKey('portfolio-restore-older-confirm')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(gateway.restoreCalls, 2);
+    expect(gateway.stored!.portfolioId, 'restored');
+    expect(find.text('Відновити старішу копію?'), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
 }
