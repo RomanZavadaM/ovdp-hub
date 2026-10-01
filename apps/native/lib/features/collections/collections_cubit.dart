@@ -48,7 +48,7 @@ class CollectionsCubit extends Cubit<CollectionsState> {
   /// together with workspace sets while the portfolio is unlocked.
   final PortfolioCubit? portfolio;
   late final StreamSubscription<WorkspaceSnapshot> _subscription;
-  StreamSubscription<PortfolioState>? _portfolioSubscription;
+  StreamSubscription<Object?>? _portfolioSubscription;
 
   CollectionsCubit(
     this.repository, {
