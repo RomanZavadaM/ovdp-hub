@@ -261,6 +261,21 @@ abstract interface class VaultCrypto {
     required VaultRecoverySlotV1 slot,
     required String recoverySecret,
   });
+
+  /// Same as [wrapDekForRecovery], but the memory-hard Argon2id derivation
+  /// runs on a background isolate so the UI stays responsive.
+  Future<VaultRecoverySlotV1> wrapDekForRecoveryAsync({
+    required String vaultId,
+    required SecureKey dek,
+    required String recoverySecret,
+    required VaultRecoveryKdfParameters parameters,
+  });
+
+  /// Same as [unwrapDekFromRecovery], with Argon2id on a background isolate.
+  Future<SecureKey> unwrapDekFromRecoveryAsync({
+    required VaultRecoverySlotV1 slot,
+    required String recoverySecret,
+  });
 }
 
 class SodiumVaultCrypto implements VaultCrypto {
@@ -382,12 +397,86 @@ class SodiumVaultCrypto implements VaultCrypto {
       throw const FormatException('vault.invalid_device_key');
     }
     final salt = generateRecoverySalt();
-    final nonce = sodium.randombytes.buf(_aead.nonceBytes);
     final kek = deriveRecoveryKey(
       recoverySecret: recoverySecret,
       salt: salt,
       parameters: parameters,
     );
+    return _wrapWithKek(
+      vaultId: vaultId,
+      dek: dek,
+      kek: kek,
+      salt: salt,
+      parameters: parameters,
+    );
+  }
+
+  @override
+  Future<VaultRecoverySlotV1> wrapDekForRecoveryAsync({
+    required String vaultId,
+    required SecureKey dek,
+    required String recoverySecret,
+    required VaultRecoveryKdfParameters parameters,
+  }) async {
+    validateVaultId(vaultId);
+    if (dek.length != _aead.keyBytes) {
+      throw const FormatException('vault.invalid_device_key');
+    }
+    final salt = generateRecoverySalt();
+    final kek = await _deriveRecoveryKeyIsolated(
+      recoverySecret: recoverySecret,
+      salt: salt,
+      parameters: parameters,
+    );
+    return _wrapWithKek(
+      vaultId: vaultId,
+      dek: dek,
+      kek: kek,
+      salt: salt,
+      parameters: parameters,
+    );
+  }
+
+  /// Runs Argon2id on a background isolate. The derived key comes back as a
+  /// [SecureKey]; the secret and salt are plain values copied to the isolate.
+  Future<SecureKey> _deriveRecoveryKeyIsolated({
+    required String recoverySecret,
+    required Uint8List salt,
+    required VaultRecoveryKdfParameters parameters,
+  }) {
+    if (recoverySecret.isEmpty ||
+        salt.length != _pwhash.saltBytes ||
+        !const [
+          VaultRecoveryKdfParameters.interactive,
+          VaultRecoveryKdfParameters.moderate,
+        ].contains(parameters)) {
+      throw const FormatException('vault.invalid_kdf');
+    }
+    final sodium = this.sodium;
+    final outLen = _aead.keyBytes;
+    final saltCopy = Uint8List.fromList(salt);
+    final opsLimit = parameters.opsLimit;
+    final memLimit = parameters.memLimit;
+    return sodium.runIsolated<SecureKey>(
+      (secureKeys, keyPairs) => sodium.crypto.pwhash.callStr(
+        outLen: outLen,
+        password: recoverySecret,
+        salt: saltCopy,
+        opsLimit: opsLimit,
+        memLimit: memLimit,
+        alg: CryptoPwhashAlgorithm.argon2id13,
+      ),
+    );
+  }
+
+  VaultRecoverySlotV1 _wrapWithKek({
+    required String vaultId,
+    required SecureKey dek,
+    required SecureKey kek,
+    required Uint8List salt,
+    required VaultRecoveryKdfParameters parameters,
+  }) {
+    final nonce = sodium.randombytes.buf(_aead.nonceBytes);
     try {
       final template = VaultRecoverySlotV1(
         vaultId: vaultId,
@@ -430,6 +519,30 @@ class SodiumVaultCrypto implements VaultCrypto {
       salt: slot.salt,
       parameters: slot.kdf,
     );
+    return _unwrapWithKek(slot: slot, kek: kek);
+  }
+
+  @override
+  Future<SecureKey> unwrapDekFromRecoveryAsync({
+    required VaultRecoverySlotV1 slot,
+    required String recoverySecret,
+  }) async {
+    if (slot.nonce.length != _aead.nonceBytes ||
+        slot.salt.length != _pwhash.saltBytes) {
+      throw const FormatException('vault.invalid_recovery_slot');
+    }
+    final kek = await _deriveRecoveryKeyIsolated(
+      recoverySecret: recoverySecret,
+      salt: slot.salt,
+      parameters: slot.kdf,
+    );
+    return _unwrapWithKek(slot: slot, kek: kek);
+  }
+
+  SecureKey _unwrapWithKek({
+    required VaultRecoverySlotV1 slot,
+    required SecureKey kek,
+  }) {
     Uint8List? rawDek;
     try {
       try {
