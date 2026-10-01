@@ -22,6 +22,7 @@ import 'features/planner/planner_cubit.dart';
 import 'features/planner/planner_view.dart';
 import 'features/portfolio/portfolio_cubit.dart';
 import 'features/portfolio/portfolio_gateway.dart';
+import 'features/portfolio/portfolio_lifecycle.dart';
 import 'features/portfolio/portfolio_view.dart';
 import 'features/sellers/seller_repository.dart';
 import 'features/sellers/sellers_cubit.dart';
@@ -194,16 +195,13 @@ class _StyledAppState extends State<StyledApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final portfolio = context.read<PortfolioCubit>();
-    switch (state) {
-      case AppLifecycleState.resumed:
-        portfolio.onForeground();
-        break;
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.hidden:
-      case AppLifecycleState.paused:
-      case AppLifecycleState.detached:
-        portfolio.onBackground();
-        break;
+    if (state == AppLifecycleState.resumed) {
+      portfolio.onForeground();
+    } else if (lifecycleStartsPortfolioBackgroundLock(
+      state,
+      defaultTargetPlatform,
+    )) {
+      portfolio.onBackground();
     }
   }
 

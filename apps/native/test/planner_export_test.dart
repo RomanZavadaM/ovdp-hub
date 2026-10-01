@@ -113,4 +113,25 @@ void main() {
     );
     expect(plannerExportDisplayName('Моя подія'), 'Моя подія');
   });
+
+  test('CSV cells neutralise spreadsheet formula triggers', () {
+    expect(plannerCsvCell('=HYPERLINK("https://x","y")'),
+        '"\'=HYPERLINK(""https://x"",""y"")"');
+    expect(plannerCsvCell('+380'), "'+380");
+    expect(plannerCsvCell('@SUM(A1)'), "'@SUM(A1)");
+    expect(plannerCsvCell('-cmd'), "'-cmd");
+    expect(plannerCsvCell('\tTab'), "'\tTab");
+    expect(plannerCsvCell('-1500.25'), '-1500.25');
+    expect(plannerCsvCell('-7'), '-7');
+    expect(plannerCsvCell('1500.25'), '1500.25');
+    expect(plannerCsvCell('Відпустка'), 'Відпустка');
+    expect(plannerCsvCell(null), '');
+    expect(plannerCsvCell(''), '');
+  });
+
+  test('ICS escaping never leaves a bare carriage return', () {
+    expect(plannerIcsEscape('a\rb'), r'a\nb');
+    expect(plannerIcsEscape('a\r\nb\nc'), r'a\nb\nc');
+    expect(plannerIcsEscape(r'x;y,z\'), r'x\;y\,z\\');
+  });
 }

@@ -4,9 +4,9 @@
 
 ## Статус
 
-**PARKED — проєкт завершений на поточному рівні. Активного NEXT немає.**
+**ACTIVE — розробку відновлено власником 01.10.2026. Поточний scope: v0.9.5 security/privacy hardening (див. `WORKLOG.md`).**
 
-Поточний опублікований checkpoint: **v0.9.4 / 0.9.4+21**.  
+Останній опублікований checkpoint: **v0.9.4 / 0.9.4+21**.  
 Release/product checkpoint commit: **`1185ad7f94339cd8865f3123570b9ad14a935114`**.  
 Release run **#113 — SUCCESS**.  
 Post-merge main verify run **#518 — SUCCESS**.
@@ -27,7 +27,7 @@ Post-merge main verify run **#518 — SUCCESS**.
 
 - `PROJECT_RULES.md` — постійні правила.
 - `PROJECT_STATE.md` — підтверджений стан продукту.
-- `WORKLOG.md` — parked/recovery checkpoint.
+- `WORKLOG.md` — активний slice, план v0.9.5 і точна наступна дія.
 - GitHub Issue #18 — append-only development ledger.
 - `apps/native/pubspec.yaml` — machine source version/build.
 - `docs/releases/RELEASE_NOTES_v0_9_4.md` — фінальний checkpoint цього етапу.
@@ -76,4 +76,4 @@ Final gates:
 
 > **Продовжуємо OVDP Hub. Відкрий у GitHub `START_HERE.md` і продовжуй строго за ним.**
 
-Після прочитання нового чату відповідь має бути: проєкт PARKED; нічого не розробляти, доки власник не задасть новий scope.
+Після прочитання новий чат продовжує активний slice з `WORKLOG.md` (гілка/PR + остання дія в Issue #18). Відкладені пункти не брати без окремого рішення власника.

@@ -37,14 +37,31 @@ String plannerExportDisplayName(String stored) {
   return stored;
 }
 
-String _csvCell(Object? value) {
-  final text = value?.toString() ?? '';
+final _csvSignedNumber = RegExp(r'^-\d+(\.\d+)?$');
+
+/// Spreadsheet applications execute cells that start with a formula trigger.
+/// User-authored text is neutralised with a leading apostrophe; plain signed
+/// numbers stay numeric.
+String _neutraliseCsvFormula(String text) {
+  if (text.isEmpty) return text;
+  final first = text[0];
+  final trigger = first == '=' ||
+      first == '+' ||
+      first == '@' ||
+      first == '\t' ||
+      first == '\r' ||
+      (first == '-' && !_csvSignedNumber.hasMatch(text));
+  return trigger ? "'$text" : text;
+}
+
+String plannerCsvCell(Object? value) {
+  final text = _neutraliseCsvFormula(value?.toString() ?? '');
   if (!text.contains(RegExp(r'[",\r\n]'))) return text;
   return '"${text.replaceAll('"', '""')}"';
 }
 
 String _csvRow(Iterable<Object?> values) =>
-    values.map(_csvCell).join(',');
+    values.map(plannerCsvCell).join(',');
 
 DateTime _addDays(String date, int days) =>
     isoDate(date).add(Duration(days: days));
@@ -365,9 +382,10 @@ String plannerExportStem(PlannerScenario scenario) {
   return 'ovdp-planner-$date-${_hex32(_fnv1a32(canonical))}';
 }
 
-String _icsEscape(String value) => value
+String plannerIcsEscape(String value) => value
     .replaceAll('\\', '\\\\')
     .replaceAll('\r\n', '\\n')
+    .replaceAll('\r', '\\n')
     .replaceAll('\n', '\\n')
     .replaceAll(';', '\\;')
     .replaceAll(',', '\\,');
@@ -412,8 +430,8 @@ String _icsEvent({
     'UID:$uid',
     'DTSTAMP:$dtstamp',
     'DTSTART;VALUE=DATE:${_icsDate(date)}',
-    'SUMMARY:${_icsEscape(summary)}',
-    'DESCRIPTION:${_icsEscape(description)}',
+    'SUMMARY:${plannerIcsEscape(summary)}',
+    'DESCRIPTION:${plannerIcsEscape(description)}',
     'END:VEVENT',
   ].map(_foldIcsLine).join('\r\n');
 }
@@ -480,7 +498,7 @@ String buildPlannerIcs({
     _foldIcsLine('CALSCALE:GREGORIAN'),
     _foldIcsLine('METHOD:PUBLISH'),
     _foldIcsLine(
-      'X-WR-CALNAME:${_icsEscape(plannerExportDisplayName(scenario.name))}',
+      'X-WR-CALNAME:${plannerIcsEscape(plannerExportDisplayName(scenario.name))}',
     ),
     ...events.map((e) => e.value),
     _foldIcsLine('END:VCALENDAR'),
