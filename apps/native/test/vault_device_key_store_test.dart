@@ -172,4 +172,33 @@ void main() {
       throwsStateError,
     );
   });
+
+  test('Windows forgetDek keeps the rollback counter and allows it to advance', () async {
+    final root = await Directory.systemTemp.createTemp('ovdp-dpapi-');
+    addTearDown(() => root.delete(recursive: true));
+    final store = WindowsVaultDeviceKeyStore(
+      directory: root,
+      protector: FakeDpapiProtector(),
+    );
+    final dek = Uint8List.fromList(List<int>.filled(32, 9));
+
+    await store.storeDek(vaultId: 'vault-pw', dek: dek);
+    await store.storeHighestAcceptedRevision(vaultId: 'vault-pw', revision: 4);
+    await store.forgetDek(vaultId: 'vault-pw');
+
+    expect(await store.loadDek(vaultId: 'vault-pw'), isNull);
+    expect(await store.loadHighestAcceptedRevision(vaultId: 'vault-pw'), 4);
+
+    await store.storeHighestAcceptedRevision(vaultId: 'vault-pw', revision: 6);
+    expect(await store.loadHighestAcceptedRevision(vaultId: 'vault-pw'), 6);
+    expect(await store.loadDek(vaultId: 'vault-pw'), isNull);
+    await expectLater(
+      store.storeHighestAcceptedRevision(vaultId: 'vault-pw', revision: 5),
+      throwsStateError,
+    );
+
+    await store.storeDek(vaultId: 'vault-pw', dek: dek);
+    expect(await store.loadDek(vaultId: 'vault-pw'), dek);
+    expect(await store.loadHighestAcceptedRevision(vaultId: 'vault-pw'), 6);
+  });
 }

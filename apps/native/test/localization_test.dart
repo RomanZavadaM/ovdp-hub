@@ -569,4 +569,34 @@ void main() {
     await locale.close();
   });
 
+
+  test('recovery-password-on-open copy is translated in every language', () {
+    const keys = [
+      'portfolioLockedRecoveryBody',
+      'portfolioOpenWithSecret',
+      'portfolioRequireSecretTitle',
+      'portfolioRequireSecretInfo',
+      'portfolioRequireSecretSwitch',
+      'portfolioRequireSecretEnableTitle',
+      'portfolioRequireSecretEnableExplain',
+      'portfolioRequireSecretEnabled',
+      'portfolioRequireSecretDisabled',
+      'portfolioRecoveryWrong',
+      'portfolioEnable',
+    ];
+    final ukrainian = HubStrings(AppLanguage.uk);
+    for (final language in AppLanguage.values) {
+      final strings = HubStrings(language);
+      for (final key in keys) {
+        expect(strings.text(key), isNot(key), reason: '${language.code} $key');
+        if (language != AppLanguage.uk) {
+          expect(
+            strings.text(key),
+            isNot(ukrainian.text(key)),
+            reason: '${language.code} must translate $key',
+          );
+        }
+      }
+    }
+  });
 }

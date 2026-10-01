@@ -149,6 +149,22 @@ abstract interface class VaultLifecycleStore implements VaultContentStore {
 
 enum _RecoveryChange { enable, rotate, remove }
 
+/// How a stored vault can be opened on this device.
+enum VaultAccessMode {
+  /// No vault file exists.
+  missing,
+
+  /// The device key store holds the DEK; opening needs no secret.
+  deviceKey,
+
+  /// No device DEK is stored; the vault opens only with its recovery secret.
+  recoverySecret,
+
+  /// A vault file exists but neither a device DEK nor a recovery slot can
+  /// open it.
+  unavailable,
+}
+
 typedef VaultCommitProbe = FutureOr<void> Function(File committedFile);
 typedef VaultDeleteProbe = FutureOr<void> Function(File stagedForDeletion);
 
@@ -158,6 +174,10 @@ class LocalVaultStore implements VaultLifecycleStore {
   final VaultDeviceKeyStore deviceKeyStore;
   final VaultCommitProbe? afterReplaceBeforeValidation;
   final VaultDeleteProbe? afterDeviceKeyDeleteBeforeFileDelete;
+
+  /// DEKs unwrapped with a recovery secret for the current unlocked session.
+  /// They exist only in memory and are disposed by [forgetUnlockedKey].
+  final Map<String, SecureKey> _unlockedKeys = {};
 
   LocalVaultStore({
     required this.directory,
@@ -184,6 +204,7 @@ class LocalVaultStore implements VaultLifecycleStore {
         VaultRecoveryKdfParameters.moderate,
   }) async {
     validateVaultId(vaultId);
+    forgetUnlockedKey(vaultId: vaultId);
     await directory.create(recursive: true);
     await _recoverInterruptedReplace(vaultId);
     if (await _deleting(vaultId).exists()) {
@@ -249,7 +270,7 @@ class LocalVaultStore implements VaultLifecycleStore {
 
   @override
   Future<VaultOpenResult> open({required String vaultId}) async {
-    final rawDek = await deviceKeyStore.loadDek(vaultId: vaultId);
+    final rawDek = await _loadRawDek(vaultId);
     if (rawDek == null) {
       throw StateError('vault.device_key_missing');
     }
@@ -279,7 +300,7 @@ class LocalVaultStore implements VaultLifecycleStore {
     required String vaultId,
     required Uint8List plainText,
   }) async {
-    final rawDek = await deviceKeyStore.loadDek(vaultId: vaultId);
+    final rawDek = await _loadRawDek(vaultId);
     if (rawDek == null) {
       throw StateError('vault.device_key_missing');
     }
@@ -362,7 +383,10 @@ class LocalVaultStore implements VaultLifecycleStore {
 
     final target = fileFor(vaultId);
     final deleting = _deleting(vaultId);
-    final rawDek = await deviceKeyStore.loadDek(vaultId: vaultId);
+    final deviceRaw = await deviceKeyStore.loadDek(vaultId: vaultId);
+    final hadDeviceKey = deviceRaw != null;
+    if (deviceRaw != null) deviceRaw.fillRange(0, deviceRaw.length, 0);
+    final rawDek = await _loadRawDek(vaultId);
 
     if (rawDek == null) {
       if (await target.exists()) {
@@ -390,11 +414,13 @@ class LocalVaultStore implements VaultLifecycleStore {
         await deviceKeyStore.deleteDek(vaultId: vaultId);
         await afterDeviceKeyDeleteBeforeFileDelete?.call(deleting);
         await deleting.delete();
+        forgetUnlockedKey(vaultId: vaultId);
       } catch (_) {
         await _restoreDeleteFailure(
           vaultId: vaultId,
           rawDek: rawDek,
           revision: current.revision,
+          restoreDeviceKey: hadDeviceKey,
         );
         rethrow;
       }
@@ -408,7 +434,7 @@ class LocalVaultStore implements VaultLifecycleStore {
     required String vaultId,
     required File destination,
   }) async {
-    final rawDek = await deviceKeyStore.loadDek(vaultId: vaultId);
+    final rawDek = await _loadRawDek(vaultId);
     if (rawDek == null) {
       throw StateError('vault.device_key_missing');
     }
@@ -467,6 +493,8 @@ class LocalVaultStore implements VaultLifecycleStore {
       await _assertNotRollback(candidate);
 
       final existingRaw = await deviceKeyStore.loadDek(vaultId: vaultId);
+      final unlockedKey = _unlockedKeys[vaultId];
+      var recoverySecretMode = false;
       if (existingRaw != null) {
         final existingDek = _secureKeyFromRaw(existingRaw);
         existingRaw.fillRange(0, existingRaw.length, 0);
@@ -477,10 +505,19 @@ class LocalVaultStore implements VaultLifecycleStore {
         } finally {
           existingDek.dispose();
         }
-      } else {
-        if (await fileFor(vaultId).exists()) {
+      } else if (unlockedKey != null) {
+        if (unlockedKey != recoveredDek) {
+          throw StateError('vault.device_key_conflict');
+        }
+        recoverySecretMode = true;
+      } else if (await fileFor(vaultId).exists()) {
+        // A locked vault in recovery-secret mode: accept the backup only when
+        // it belongs to the same vault key, and keep the device DEK absent.
+        if (!await _localVaultOpensWith(vaultId, recoveredDek)) {
           throw StateError('vault.orphaned_local_vault');
         }
+        recoverySecretMode = true;
+      } else {
         await _storeDeviceDek(vaultId, recoveredDek);
         storedNewDeviceKey = true;
       }
@@ -490,6 +527,9 @@ class LocalVaultStore implements VaultLifecycleStore {
         vaultId: vaultId,
         revision: candidate.revision,
       );
+      if (recoverySecretMode) {
+        _cacheUnlockedKey(vaultId, _copyKey(recoveredDek));
+      }
       return VaultOpenResult(
         vaultId: vaultId,
         revision: candidate.revision,
@@ -513,7 +553,7 @@ class LocalVaultStore implements VaultLifecycleStore {
     VaultRecoveryKdfParameters recoveryParameters =
         VaultRecoveryKdfParameters.moderate,
   }) async {
-    final rawDek = await deviceKeyStore.loadDek(vaultId: vaultId);
+    final rawDek = await _loadRawDek(vaultId);
     if (rawDek == null) {
       throw StateError('vault.device_key_missing');
     }
@@ -602,12 +642,23 @@ class LocalVaultStore implements VaultLifecycleStore {
     required String vaultId,
     required Uint8List rawDek,
     required int revision,
+    required bool restoreDeviceKey,
   }) async {
     final target = fileFor(vaultId);
     final deleting = _deleting(vaultId);
     try {
       final currentKey = await deviceKeyStore.loadDek(vaultId: vaultId);
-      if (currentKey == null) {
+      if (!restoreDeviceKey) {
+        // Recovery-secret mode never had a device DEK; only the rollback
+        // counter removed by deleteDek must come back.
+        if (currentKey != null) {
+          currentKey.fillRange(0, currentKey.length, 0);
+        }
+        await deviceKeyStore.storeHighestAcceptedRevision(
+          vaultId: vaultId,
+          revision: revision,
+        );
+      } else if (currentKey == null) {
         await deviceKeyStore.storeDek(
           vaultId: vaultId,
           dek: Uint8List.fromList(rawDek),
@@ -628,6 +679,167 @@ class LocalVaultStore implements VaultLifecycleStore {
       }
     } catch (_) {
       throw StateError('vault.delete_rollback_failed');
+    }
+  }
+
+  /// Reports how the vault can be opened on this device.
+  Future<VaultAccessMode> accessMode({required String vaultId}) async {
+    validateVaultId(vaultId);
+    await _recoverInterruptedDelete(vaultId);
+    await _recoverInterruptedReplace(vaultId);
+    if (!await fileFor(vaultId).exists()) return VaultAccessMode.missing;
+    final raw = await deviceKeyStore.loadDek(vaultId: vaultId);
+    if (raw != null) {
+      raw.fillRange(0, raw.length, 0);
+      return VaultAccessMode.deviceKey;
+    }
+    final file = await _readRecoveryCandidate(vaultId);
+    return file.recoverySlot == null
+        ? VaultAccessMode.unavailable
+        : VaultAccessMode.recoverySecret;
+  }
+
+  bool hasUnlockedKey({required String vaultId}) =>
+      _unlockedKeys.containsKey(vaultId);
+
+  /// Unwraps the DEK from the vault's recovery slot and keeps it in memory so
+  /// that [open] and [save] work until [forgetUnlockedKey] is called.
+  Future<void> unlockWithRecoverySecret({
+    required String vaultId,
+    required String recoverySecret,
+  }) async {
+    validateVaultId(vaultId);
+    await _recoverInterruptedDelete(vaultId);
+    await _recoverInterruptedReplace(vaultId);
+    if (!await fileFor(vaultId).exists()) {
+      throw StateError('vault.file_missing');
+    }
+    final candidate = await _readRecoveryCandidate(vaultId);
+    final slot = candidate.recoverySlot;
+    if (slot == null) {
+      throw StateError('vault.recovery_not_configured');
+    }
+    final dek = crypto.unwrapDekFromRecovery(
+      slot: slot,
+      recoverySecret: recoverySecret,
+    );
+    var cached = false;
+    try {
+      final current = await _readValidatedCurrent(vaultId, dek);
+      await _assertNotRollback(current);
+      _cacheUnlockedKey(vaultId, dek);
+      cached = true;
+    } finally {
+      if (!cached) dek.dispose();
+    }
+  }
+
+  /// Disposes an in-memory DEK obtained through the recovery secret.
+  void forgetUnlockedKey({required String vaultId}) {
+    _unlockedKeys.remove(vaultId)?.dispose();
+  }
+
+  /// Switches the vault to recovery-secret mode: after the secret is verified
+  /// against the recovery slot, the device DEK is removed. The DEK stays in
+  /// memory for the current session only.
+  Future<void> requireRecoverySecretOnOpen({
+    required String vaultId,
+    required String recoverySecret,
+  }) async {
+    final rawDek = await deviceKeyStore.loadDek(vaultId: vaultId);
+    if (rawDek == null) {
+      throw StateError('vault.recovery_secret_already_required');
+    }
+    final dek = _secureKeyFromRaw(rawDek);
+    rawDek.fillRange(0, rawDek.length, 0);
+    var cached = false;
+    try {
+      final current = await _readValidatedCurrent(vaultId, dek);
+      await _assertNotRollback(current);
+      await _cleanupArtifacts(vaultId);
+      final slot = current.recoverySlot;
+      if (slot == null) {
+        throw StateError('vault.recovery_not_configured');
+      }
+      final verified = crypto.unwrapDekFromRecovery(
+        slot: slot,
+        recoverySecret: recoverySecret,
+      );
+      try {
+        if (verified != dek) {
+          throw StateError('vault.recovery_verification_failed');
+        }
+      } finally {
+        verified.dispose();
+      }
+      await deviceKeyStore.forgetDek(vaultId: vaultId);
+      _cacheUnlockedKey(vaultId, dek);
+      cached = true;
+    } finally {
+      if (!cached) dek.dispose();
+    }
+  }
+
+  /// Stores the in-memory DEK on the device again, so opening no longer needs
+  /// the recovery secret. Requires a vault unlocked with its recovery secret.
+  Future<void> stopRequiringRecoverySecretOnOpen({
+    required String vaultId,
+  }) async {
+    final unlocked = _unlockedKeys[vaultId];
+    if (unlocked == null) {
+      throw StateError('vault.session_locked');
+    }
+    final existing = await deviceKeyStore.loadDek(vaultId: vaultId);
+    if (existing != null) {
+      existing.fillRange(0, existing.length, 0);
+      return;
+    }
+    final current = await _readValidatedCurrent(vaultId, unlocked);
+    await _assertNotRollback(current);
+    await _storeDeviceDek(vaultId, unlocked);
+  }
+
+  Future<Uint8List?> _loadRawDek(String vaultId) async {
+    final unlocked = _unlockedKeys[vaultId];
+    if (unlocked != null) return unlocked.extractBytes();
+    return deviceKeyStore.loadDek(vaultId: vaultId);
+  }
+
+  void _cacheUnlockedKey(String vaultId, SecureKey dek) {
+    final previous = _unlockedKeys[vaultId];
+    _unlockedKeys[vaultId] = dek;
+    if (previous != null && !identical(previous, dek)) previous.dispose();
+  }
+
+  SecureKey _copyKey(SecureKey key) {
+    final raw = key.extractBytes();
+    try {
+      return _secureKeyFromRaw(raw);
+    } finally {
+      raw.fillRange(0, raw.length, 0);
+    }
+  }
+
+  Future<VaultFileV1> _readRecoveryCandidate(String vaultId) async {
+    try {
+      final file = await _readVaultFile(fileFor(vaultId));
+      _validateFileIdentity(file, vaultId);
+      return file;
+    } on FormatException {
+      final backup = _backup(vaultId);
+      if (!await backup.exists()) rethrow;
+      final file = await _readVaultFile(backup);
+      _validateFileIdentity(file, vaultId);
+      return file;
+    }
+  }
+
+  Future<bool> _localVaultOpensWith(String vaultId, SecureKey dek) async {
+    try {
+      await _readValidatedCurrent(vaultId, dek);
+      return true;
+    } on FormatException {
+      return false;
     }
   }
 

@@ -14,6 +14,7 @@ class PortfolioState {
   final bool supported;
   final bool portableBackupSupported;
   final bool exists;
+  final bool recoverySecretRequired;
   final bool busy;
   final PrivatePortfolioPayload? payload;
   final LegacyPlaintextMigrationReport? migrationReport;
@@ -23,6 +24,7 @@ class PortfolioState {
     this.supported = true,
     this.portableBackupSupported = false,
     this.exists = false,
+    this.recoverySecretRequired = false,
     this.busy = false,
     this.payload,
     this.migrationReport,
@@ -35,6 +37,7 @@ class PortfolioState {
     bool? supported,
     bool? portableBackupSupported,
     bool? exists,
+    bool? recoverySecretRequired,
     bool? busy,
     PrivatePortfolioPayload? payload,
     bool clearPayload = false,
@@ -47,6 +50,8 @@ class PortfolioState {
     portableBackupSupported:
         portableBackupSupported ?? this.portableBackupSupported,
     exists: exists ?? this.exists,
+    recoverySecretRequired:
+        recoverySecretRequired ?? this.recoverySecretRequired,
     busy: busy ?? this.busy,
     payload: clearPayload ? null : payload ?? this.payload,
     migrationReport: clearMigrationReport
@@ -92,7 +97,16 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     }
     await _run(() async {
       final exists = await gateway.exists();
-      emit(state.copyWith(exists: exists, busy: false, clearError: true));
+      final recoverySecretRequired =
+          exists && await gateway.requiresRecoverySecret();
+      emit(
+        state.copyWith(
+          exists: exists,
+          recoverySecretRequired: recoverySecretRequired,
+          busy: false,
+          clearError: true,
+        ),
+      );
     });
   }
 
@@ -101,6 +115,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     emit(
       state.copyWith(
         exists: true,
+        recoverySecretRequired: false,
         payload: payload,
         busy: false,
         clearMigrationReport: true,
@@ -109,8 +124,8 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     );
   });
 
-  Future<void> open() => _run(() async {
-    final payload = await gateway.open();
+  Future<void> open({String? recoverySecret}) => _run(() async {
+    final payload = await gateway.open(recoverySecret: recoverySecret);
     emit(
       state.copyWith(
         exists: true,
@@ -121,6 +136,39 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       ),
     );
   });
+
+  /// Turns "recovery secret on open" on (verifying [recoverySecret]) or off.
+  Future<bool> setRecoverySecretRequired(
+    bool enabled, {
+    String? recoverySecret,
+  }) async {
+    if (state.busy || !gateway.supported || state.payload == null) {
+      return false;
+    }
+    emit(state.copyWith(busy: true, clearError: true));
+    try {
+      await gateway.setRecoverySecretRequired(
+        enabled: enabled,
+        recoverySecret: recoverySecret,
+      );
+      final requiresSecret = await gateway.requiresRecoverySecret();
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            recoverySecretRequired: requiresSecret,
+            busy: false,
+            clearError: true,
+          ),
+        );
+      }
+      return requiresSecret == enabled;
+    } catch (error) {
+      if (!isClosed) {
+        emit(state.copyWith(busy: false, errorCode: _safeErrorCode(error)));
+      }
+      return false;
+    }
+  }
 
   Future<void> lock() async {
     if (state.busy) return;
@@ -367,10 +415,12 @@ class PortfolioCubit extends Cubit<PortfolioState> {
         if (!isClosed) emit(state.copyWith(busy: false, clearError: true));
         return null;
       }
+      final requiresSecret = await gateway.requiresRecoverySecret();
       if (!isClosed) {
         emit(
           state.copyWith(
             exists: true,
+            recoverySecretRequired: requiresSecret,
             payload: payload,
             busy: false,
             clearMigrationReport: true,

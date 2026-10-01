@@ -12,6 +12,11 @@ abstract interface class VaultDeviceKeyStore {
 
   Future<void> deleteDek({required String vaultId});
 
+  /// Removes only the device-held DEK and keeps the highest accepted revision,
+  /// so a vault that is opened with its recovery secret keeps rollback
+  /// protection.
+  Future<void> forgetDek({required String vaultId});
+
   Future<int?> loadHighestAcceptedRevision({required String vaultId});
 
   Future<void> storeHighestAcceptedRevision({

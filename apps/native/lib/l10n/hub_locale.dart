@@ -496,6 +496,101 @@ class HubStrings {
     },
   };
 
+  /// Strings added for v0.9.5 portfolio protection.
+  static const Map<String, Map<String, String>> _vaultTranslations = {
+    'uk': {
+      'portfolioLockedRecoveryBody': 'Портфель захищено паролем відновлення. Введіть його, щоб відкрити приватні дані на цьому пристрої.',
+      'portfolioOpenWithSecret': 'Відкрити з паролем',
+      'portfolioRequireSecretTitle': 'Пароль при відкритті',
+      'portfolioRequireSecretInfo': 'Якщо увімкнено, ключ цього пристрою видаляється, і портфель відкривається лише після введення пароля відновлення. Без пароля доступ до даних неможливий.',
+      'portfolioRequireSecretSwitch': 'Вимагати пароль відновлення при відкритті',
+      'portfolioRequireSecretEnableTitle': 'Увімкнути пароль при відкритті',
+      'portfolioRequireSecretEnableExplain': 'Введіть поточний пароль відновлення. Після цього портфель відкриватиметься тільки з ним.',
+      'portfolioRequireSecretEnabled': 'Тепер портфель відкривається лише з паролем відновлення.',
+      'portfolioRequireSecretDisabled': 'Портфель знову відкривається ключем цього пристрою.',
+      'portfolioRecoveryWrong': 'Пароль відновлення не підходить.',
+      'portfolioEnable': 'Увімкнути',
+    },
+    'en': {
+      'portfolioLockedRecoveryBody': 'The portfolio is protected by the recovery password. Enter it to open private data on this device.',
+      'portfolioOpenWithSecret': 'Open with password',
+      'portfolioRequireSecretTitle': 'Password on open',
+      'portfolioRequireSecretInfo': 'When enabled, this device key is removed and the portfolio opens only after the recovery password is entered. Without the password the data cannot be accessed.',
+      'portfolioRequireSecretSwitch': 'Require the recovery password to open',
+      'portfolioRequireSecretEnableTitle': 'Enable password on open',
+      'portfolioRequireSecretEnableExplain': 'Enter the current recovery password. After this, the portfolio opens only with it.',
+      'portfolioRequireSecretEnabled': 'The portfolio now opens only with the recovery password.',
+      'portfolioRequireSecretDisabled': 'The portfolio opens with this device key again.',
+      'portfolioRecoveryWrong': 'The recovery password does not match.',
+      'portfolioEnable': 'Enable',
+    },
+    'fr': {
+      'portfolioLockedRecoveryBody': 'Le portefeuille est protégé par le mot de passe de récupération. Saisissez-le pour ouvrir les données privées sur cet appareil.',
+      'portfolioOpenWithSecret': 'Ouvrir avec le mot de passe',
+      'portfolioRequireSecretTitle': 'Mot de passe à l’ouverture',
+      'portfolioRequireSecretInfo': 'Si activé, la clé de cet appareil est supprimée et le portefeuille ne s’ouvre qu’après saisie du mot de passe de récupération. Sans ce mot de passe, les données sont inaccessibles.',
+      'portfolioRequireSecretSwitch': 'Exiger le mot de passe de récupération à l’ouverture',
+      'portfolioRequireSecretEnableTitle': 'Activer le mot de passe à l’ouverture',
+      'portfolioRequireSecretEnableExplain': 'Saisissez le mot de passe de récupération actuel. Ensuite, le portefeuille ne s’ouvrira qu’avec lui.',
+      'portfolioRequireSecretEnabled': 'Le portefeuille ne s’ouvre plus qu’avec le mot de passe de récupération.',
+      'portfolioRequireSecretDisabled': 'Le portefeuille s’ouvre de nouveau avec la clé de cet appareil.',
+      'portfolioRecoveryWrong': 'Le mot de passe de récupération ne correspond pas.',
+      'portfolioEnable': 'Activer',
+    },
+    'de': {
+      'portfolioLockedRecoveryBody': 'Das Portfolio ist durch das Wiederherstellungspasswort geschützt. Geben Sie es ein, um die privaten Daten auf diesem Gerät zu öffnen.',
+      'portfolioOpenWithSecret': 'Mit Passwort öffnen',
+      'portfolioRequireSecretTitle': 'Passwort beim Öffnen',
+      'portfolioRequireSecretInfo': 'Wenn aktiviert, wird der Schlüssel dieses Geräts entfernt und das Portfolio öffnet sich nur nach Eingabe des Wiederherstellungspassworts. Ohne Passwort sind die Daten nicht zugänglich.',
+      'portfolioRequireSecretSwitch': 'Wiederherstellungspasswort beim Öffnen verlangen',
+      'portfolioRequireSecretEnableTitle': 'Passwort beim Öffnen aktivieren',
+      'portfolioRequireSecretEnableExplain': 'Geben Sie das aktuelle Wiederherstellungspasswort ein. Danach öffnet sich das Portfolio nur noch damit.',
+      'portfolioRequireSecretEnabled': 'Das Portfolio öffnet sich jetzt nur mit dem Wiederherstellungspasswort.',
+      'portfolioRequireSecretDisabled': 'Das Portfolio öffnet sich wieder mit dem Schlüssel dieses Geräts.',
+      'portfolioRecoveryWrong': 'Das Wiederherstellungspasswort passt nicht.',
+      'portfolioEnable': 'Aktivieren',
+    },
+    'es': {
+      'portfolioLockedRecoveryBody': 'La cartera está protegida con la contraseña de recuperación. Introdúzcala para abrir los datos privados en este dispositivo.',
+      'portfolioOpenWithSecret': 'Abrir con contraseña',
+      'portfolioRequireSecretTitle': 'Contraseña al abrir',
+      'portfolioRequireSecretInfo': 'Si se activa, se elimina la clave de este dispositivo y la cartera solo se abre tras introducir la contraseña de recuperación. Sin la contraseña no se puede acceder a los datos.',
+      'portfolioRequireSecretSwitch': 'Exigir la contraseña de recuperación al abrir',
+      'portfolioRequireSecretEnableTitle': 'Activar contraseña al abrir',
+      'portfolioRequireSecretEnableExplain': 'Introduzca la contraseña de recuperación actual. Después, la cartera solo se abrirá con ella.',
+      'portfolioRequireSecretEnabled': 'Ahora la cartera solo se abre con la contraseña de recuperación.',
+      'portfolioRequireSecretDisabled': 'La cartera vuelve a abrirse con la clave de este dispositivo.',
+      'portfolioRecoveryWrong': 'La contraseña de recuperación no coincide.',
+      'portfolioEnable': 'Activar',
+    },
+    'ko': {
+      'portfolioLockedRecoveryBody': '포트폴리오가 복구 비밀번호로 보호되어 있습니다. 이 기기에서 개인 데이터를 열려면 비밀번호를 입력하세요.',
+      'portfolioOpenWithSecret': '비밀번호로 열기',
+      'portfolioRequireSecretTitle': '열 때 비밀번호',
+      'portfolioRequireSecretInfo': '사용하면 이 기기의 키가 삭제되고 복구 비밀번호를 입력한 후에만 포트폴리오가 열립니다. 비밀번호가 없으면 데이터에 접근할 수 없습니다.',
+      'portfolioRequireSecretSwitch': '열 때 복구 비밀번호 요구',
+      'portfolioRequireSecretEnableTitle': '열 때 비밀번호 사용',
+      'portfolioRequireSecretEnableExplain': '현재 복구 비밀번호를 입력하세요. 이후 포트폴리오는 이 비밀번호로만 열립니다.',
+      'portfolioRequireSecretEnabled': '이제 포트폴리오는 복구 비밀번호로만 열립니다.',
+      'portfolioRequireSecretDisabled': '포트폴리오가 다시 이 기기의 키로 열립니다.',
+      'portfolioRecoveryWrong': '복구 비밀번호가 일치하지 않습니다.',
+      'portfolioEnable': '사용',
+    },
+    'ja': {
+      'portfolioLockedRecoveryBody': 'ポートフォリオは復旧パスワードで保護されています。この端末で非公開データを開くには入力してください。',
+      'portfolioOpenWithSecret': 'パスワードで開く',
+      'portfolioRequireSecretTitle': '開くときのパスワード',
+      'portfolioRequireSecretInfo': '有効にすると、この端末の鍵が削除され、復旧パスワードを入力した後にのみポートフォリオが開きます。パスワードがないとデータにアクセスできません。',
+      'portfolioRequireSecretSwitch': '開くときに復旧パスワードを要求',
+      'portfolioRequireSecretEnableTitle': '開くときのパスワードを有効化',
+      'portfolioRequireSecretEnableExplain': '現在の復旧パスワードを入力してください。以後、ポートフォリオはこのパスワードでのみ開きます。',
+      'portfolioRequireSecretEnabled': 'ポートフォリオは復旧パスワードでのみ開くようになりました。',
+      'portfolioRequireSecretDisabled': 'ポートフォリオは再びこの端末の鍵で開きます。',
+      'portfolioRecoveryWrong': '復旧パスワードが一致しません。',
+      'portfolioEnable': '有効にする',
+    },
+  };
+
   static const Map<String, Map<String, String>> _plannerTranslations = {
     'uk': {
       'plannerTitle':'Планувальник цілей і доходу','plannerIntro':'Один сценарій — одна валюта. Суми різних валют не додаються. Це план на основі каталогу, а не список доступних до купівлі пропозицій.','plannerCriteriaResetTitle':'Змінити ключовий критерій?','plannerCriteriaResetBody':'Ця зміна скине вже сформований склад сценарію та налаштування дострокового продажу. Продовжити?','plannerCriteriaCancel':'Залишити поточний план','plannerCriteriaApply':'Змінити і скинути склад','plannerCriteriaInvalidDate':'Введіть коректну дату у форматі YYYY-MM-DD.','plannerCriteriaInvalidRange':'Діапазон дат некоректний: кінцева дата має бути після дати розрахунку, а початок погашення — не пізніше кінця.',
@@ -666,9 +761,11 @@ class HubStrings {
       _calculatorTranslations[language.code]?[key] ??
       _workflowTranslations[language.code]?[key] ??
       _plannerTranslations[language.code]?[key] ??
+      _vaultTranslations[language.code]?[key] ??
       _translations['uk']?[key] ??
       _calculatorTranslations['uk']?[key] ??
       _workflowTranslations['uk']?[key] ??
       _plannerTranslations['uk']?[key] ??
+      _vaultTranslations['uk']?[key] ??
       key;
 }

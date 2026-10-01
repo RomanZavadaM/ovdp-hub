@@ -1,6 +1,6 @@
 # WORKLOG — OVDP Hub
 
-Оновлено: **01.10.2026**
+Оновлено: **01.10.2026** (S1 інтегровано)
 
 ## STATUS
 
@@ -22,18 +22,18 @@
 
 | # | Slice | Статус |
 |---|-------|--------|
-| S1 | CSV/ICS export escaping; desktop focus-loss не блокує портфель | DOING — `fix/v095-export-lifecycle-hardening` |
-| S2 | Пароль відновлення при відкритті портфеля (A.1) | TODO |
-| S3 | Сценарії Planner у vault + очищення старих plaintext-файлів (A.2) | TODO |
-| S4 | Видалення локального vault з UI; вихід із `device_key_conflict`; restore старішої копії (A.3) | TODO |
+| S1 | CSV/ICS export escaping; desktop focus-loss не блокує портфель | DONE — PR #138 → `a339ecfc` |
+| S2 | Пароль відновлення при відкритті портфеля (A.1) | VERIFIED — PR #139 (`feat/v095-password-on-open`), merge після зелених checks на exact head |
+| S3 | Сценарії Planner у vault + перенесення/видалення plaintext-сценаріїв (A.2) | DOING — PR #140 (draft, stacked на S2) |
+| S4 | Видалення локального портфеля з UI; вихід із `device_key_conflict`; свідомий restore старішої копії (A.3) | DOING — `feat/v095-vault-management` (stacked на S3) |
 | S5 | Argon2 поза UI-ізолятом; Android SAF bridge (UI thread, persisted grants); толерантний парсер НБУ | TODO |
 
-## Поточний slice — S1
+## Поточний slice — S2
 
-- Гілка: `fix/v095-export-lifecycle-hardening`.
-- Мета: CSV-клітинки, що починаються з `=`, `+`, `@`, табуляції/CR або нечислового `-`, екрануються від виконання формул; ICS екранує одиночний `\r`; на desktop `AppLifecycleState.inactive` (втрата фокуса) не запускає background-lock.
-- Готово, коли: regression tests додані, `flutter analyze` + `flutter test` зелені у CI.
-- Наступна дія: відкрити PR, дочекатися CI.
+- Гілка/PR: `feat/v095-password-on-open`, PR #139.
+- Суть: опційний режим «пароль відновлення при відкритті»: DEK видаляється зі сховища пристрою (`forgetDek`, лічильник ревізій лишається), vault відкривається розгортанням recovery-слоту, DEK живе лише в пам'яті сесії.
+- Готово, коли: зелені checks на exact head після rebase на `a339ecfc`; merge.
+- Наступна дія: merge PR #139 → retarget PR #140 (S3) на `main`.
 
 ## Попередній checkpoint
 
