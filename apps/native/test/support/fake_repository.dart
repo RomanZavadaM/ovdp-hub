@@ -64,7 +64,23 @@ class FakeRepository implements HubRepository {
     current = WorkspaceSnapshot(
       current!.path,
       current!.catalog,
-      [collection, ...current!.sets],
+      [collection.withStorage(recordId: 'fake-set-$saves'), ...current!.sets],
+      localPath: current!.localPath,
+      external: current!.external,
+    );
+    controller.add(current!);
+  }
+
+  final List<String> deletedRecordIds = [];
+
+  @override
+  Future<void> deleteCollections(Iterable<String> recordIds) async {
+    final ids = recordIds.toSet();
+    deletedRecordIds.addAll(ids);
+    current = WorkspaceSnapshot(
+      current!.path,
+      current!.catalog,
+      current!.sets.where((set) => !ids.contains(set.recordId)),
       localPath: current!.localPath,
       external: current!.external,
     );

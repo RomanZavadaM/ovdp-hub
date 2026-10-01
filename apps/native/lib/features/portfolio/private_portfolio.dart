@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 
 import '../../models.dart';
 
-const int privatePortfolioSchemaVersion = 3;
+const int privatePortfolioSchemaVersion = 4;
+const int privatePortfolioLegacyCollectionsSchemaVersion = 3;
 const int privatePortfolioDisposalSchemaVersion = 2;
 const int privatePortfolioLegacySchemaVersion = 1;
 const int maxPrivatePortfolioBytes = 16 * 1024 * 1024;
@@ -12,6 +13,7 @@ const int maxPrivateAcquisitionLots = 10000;
 const int maxPrivateCashEvents = 50000;
 const int maxPrivateDisposals = 50000;
 const int maxPrivateLegacyCollections = 10000;
+const int maxPrivateScenarios = 2000;
 
 final RegExp _privateRecordId = RegExp(r'^[A-Za-z0-9._:-]{1,120}$');
 final RegExp _privateIsin = RegExp(r'^UA[A-Z0-9]{9}\d$');
@@ -592,6 +594,41 @@ class PrivateLegacyCollectionRecord {
   }
 }
 
+/// A Planner scenario saved privately inside the encrypted vault instead of
+/// the (possibly synced) workspace folder. It keeps the complete [SavedSet],
+/// including the public bond snapshot the scenario was calculated with.
+@immutable
+class PrivateScenarioRecord {
+  final String id;
+  final SavedSet set;
+
+  PrivateScenarioRecord({required this.id, required this.set}) {
+    _validateId(id, 'portfolio.invalid_scenario_id');
+    if (set.scenario == null) {
+      throw const FormatException('portfolio.scenario_required');
+    }
+  }
+
+  Map<String, dynamic> toJson() => {'id': id, 'set': set.toJson()};
+
+  factory PrivateScenarioRecord.fromJson(Map<String, dynamic> json) {
+    _onlyKeys(json, const {'id', 'set'}, 'portfolio.invalid_scenario_fields');
+    final rawSet = json['set'];
+    if (rawSet is! Map) {
+      throw const FormatException('portfolio.invalid_scenario');
+    }
+    final SavedSet set;
+    try {
+      set = SavedSet.parse(jsonEncode(rawSet));
+    } on FormatException {
+      throw const FormatException('portfolio.invalid_scenario');
+    } on TypeError {
+      throw const FormatException('portfolio.invalid_scenario');
+    }
+    return PrivateScenarioRecord(id: json['id'] as String? ?? '', set: set);
+  }
+}
+
 @immutable
 class PrivateHolding {
   final String isin;
@@ -650,6 +687,7 @@ class PrivatePortfolioPayload {
   final List<PrivateCashEvent> cashEvents;
   final List<PrivateDisposal> disposals;
   final List<PrivateLegacyCollectionRecord> legacyCollections;
+  final List<PrivateScenarioRecord> privateScenarios;
 
   PrivatePortfolioPayload({
     required this.portfolioId,
@@ -657,6 +695,7 @@ class PrivatePortfolioPayload {
     Iterable<PrivateCashEvent> cashEvents = const [],
     Iterable<PrivateDisposal> disposals = const [],
     Iterable<PrivateLegacyCollectionRecord> legacyCollections = const [],
+    Iterable<PrivateScenarioRecord> privateScenarios = const [],
   }) : acquisitionLots = List.unmodifiable(
          acquisitionLots.toList()
            ..sort((a, b) {
@@ -692,13 +731,23 @@ class PrivatePortfolioPayload {
        legacyCollections = List.unmodifiable(
          legacyCollections.toList()
            ..sort((a, b) => a.sourceId.compareTo(b.sourceId)),
+       ),
+       privateScenarios = List.unmodifiable(
+         privateScenarios.toList()..sort((a, b) => a.id.compareTo(b.id)),
        ) {
     _validateId(portfolioId, 'portfolio.invalid_portfolio_id');
     if (this.acquisitionLots.length > maxPrivateAcquisitionLots ||
         this.cashEvents.length > maxPrivateCashEvents ||
         this.disposals.length > maxPrivateDisposals ||
-        this.legacyCollections.length > maxPrivateLegacyCollections) {
+        this.legacyCollections.length > maxPrivateLegacyCollections ||
+        this.privateScenarios.length > maxPrivateScenarios) {
       throw const FormatException('portfolio.too_many_records');
+    }
+    final scenarioIds = <String>{};
+    for (final record in this.privateScenarios) {
+      if (!scenarioIds.add(record.id)) {
+        throw const FormatException('portfolio.duplicate_scenario_id');
+      }
     }
     _validateSemantics();
   }
@@ -1018,12 +1067,28 @@ class PrivatePortfolioPayload {
     'cashEvents': cashEvents.map((event) => event.toJson()).toList(),
     'disposals': disposals.map((disposal) => disposal.toJson()).toList(),
     'legacyCollections': legacyCollections.map((record) => record.toJson()).toList(),
+    'privateScenarios':
+        privateScenarios.map((record) => record.toJson()).toList(),
   };
+
+  /// Returns a copy with replaced private scenario records; every other
+  /// record is carried over unchanged.
+  PrivatePortfolioPayload withPrivateScenarios(
+    Iterable<PrivateScenarioRecord> scenarios,
+  ) => PrivatePortfolioPayload(
+    portfolioId: portfolioId,
+    acquisitionLots: acquisitionLots,
+    cashEvents: cashEvents,
+    disposals: disposals,
+    legacyCollections: legacyCollections,
+    privateScenarios: scenarios,
+  );
 
   factory PrivatePortfolioPayload.fromJson(Map<String, dynamic> json) {
     final schemaVersion = json['schemaVersion'];
     if (schemaVersion != privatePortfolioLegacySchemaVersion &&
         schemaVersion != privatePortfolioDisposalSchemaVersion &&
+        schemaVersion != privatePortfolioLegacyCollectionsSchemaVersion &&
         schemaVersion != privatePortfolioSchemaVersion) {
       throw const FormatException('portfolio.unsupported_schema');
     }
@@ -1043,7 +1108,8 @@ class PrivatePortfolioPayload {
         'cashEvents',
         'disposals',
       }, 'portfolio.invalid_payload_fields');
-    } else {
+    } else if (schemaVersion ==
+        privatePortfolioLegacyCollectionsSchemaVersion) {
       _onlyKeys(json, const {
         'schemaVersion',
         'portfolioId',
@@ -1052,6 +1118,16 @@ class PrivatePortfolioPayload {
         'disposals',
         'legacyCollections',
       }, 'portfolio.invalid_payload_fields');
+    } else {
+      _onlyKeys(json, const {
+        'schemaVersion',
+        'portfolioId',
+        'acquisitionLots',
+        'cashEvents',
+        'disposals',
+        'legacyCollections',
+        'privateScenarios',
+      }, 'portfolio.invalid_payload_fields');
     }
 
     final rawLots = json['acquisitionLots'];
@@ -1059,13 +1135,19 @@ class PrivatePortfolioPayload {
     final rawDisposals = schemaVersion == privatePortfolioLegacySchemaVersion
         ? const <Object?>[]
         : json['disposals'];
-    final rawLegacyCollections = schemaVersion == privatePortfolioSchemaVersion
+    final rawLegacyCollections =
+        schemaVersion == privatePortfolioLegacyCollectionsSchemaVersion ||
+            schemaVersion == privatePortfolioSchemaVersion
         ? json['legacyCollections']
+        : const <Object?>[];
+    final rawPrivateScenarios = schemaVersion == privatePortfolioSchemaVersion
+        ? json['privateScenarios']
         : const <Object?>[];
     if (rawLots is! List ||
         rawEvents is! List ||
         rawDisposals is! List ||
-        rawLegacyCollections is! List) {
+        rawLegacyCollections is! List ||
+        rawPrivateScenarios is! List) {
       throw const FormatException('portfolio.invalid_payload');
     }
 
@@ -1100,6 +1182,14 @@ class PrivatePortfolioPayload {
           throw const FormatException('portfolio.invalid_legacy_collection');
         }
         return PrivateLegacyCollectionRecord.fromJson(
+          Map<String, dynamic>.from(value),
+        );
+      }),
+      privateScenarios: rawPrivateScenarios.map((value) {
+        if (value is! Map) {
+          throw const FormatException('portfolio.invalid_scenario');
+        }
+        return PrivateScenarioRecord.fromJson(
           Map<String, dynamic>.from(value),
         );
       }),

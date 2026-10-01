@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/hub_repository.dart';
+import '../../models.dart';
+import '../../workspace.dart';
 import 'legacy_plaintext_migration.dart';
 import 'portfolio_gateway.dart';
 import 'private_portfolio.dart';
@@ -20,6 +22,10 @@ class PortfolioState {
   final LegacyPlaintextMigrationReport? migrationReport;
   final String? errorCode;
 
+  /// Number of plaintext workspace scenarios moved by the last
+  /// [PortfolioCubit.movePlaintextScenariosToVault] run.
+  final int? movedScenarioCount;
+
   const PortfolioState({
     this.supported = true,
     this.portableBackupSupported = false,
@@ -29,6 +35,7 @@ class PortfolioState {
     this.payload,
     this.migrationReport,
     this.errorCode,
+    this.movedScenarioCount,
   });
 
   bool get unlocked => payload != null;
@@ -45,6 +52,8 @@ class PortfolioState {
     bool clearMigrationReport = false,
     String? errorCode,
     bool clearError = false,
+    int? movedScenarioCount,
+    bool clearMovedScenarioCount = false,
   }) => PortfolioState(
     supported: supported ?? this.supported,
     portableBackupSupported:
@@ -58,6 +67,9 @@ class PortfolioState {
         ? null
         : migrationReport ?? this.migrationReport,
     errorCode: clearError ? null : errorCode ?? this.errorCode,
+    movedScenarioCount: clearMovedScenarioCount
+        ? null
+        : movedScenarioCount ?? this.movedScenarioCount,
   );
 }
 
@@ -170,6 +182,113 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     }
   }
 
+  /// Planner scenarios stored in the unlocked vault, marked as private.
+  List<SavedSet> get privateScenarioSets {
+    final payload = state.payload;
+    if (payload == null) return const [];
+    return [
+      for (final record in payload.privateScenarios)
+        record.set.withStorage(recordId: record.id, storedInVault: true),
+    ];
+  }
+
+  /// Saves a Planner scenario inside the encrypted vault. Throws when the
+  /// portfolio is missing, locked or busy, so the caller can explain why.
+  Future<void> savePrivateScenario(SavedSet set) async {
+    if (set.scenario == null) {
+      throw const FormatException('portfolio.scenario_required');
+    }
+    final current = state.payload;
+    if (!gateway.supported) {
+      throw UnsupportedError('planner.private_scenario_unsupported');
+    }
+    if (current == null) {
+      throw StateError(
+        state.exists
+            ? 'planner.private_scenario_locked'
+            : 'planner.private_scenario_no_portfolio',
+      );
+    }
+    if (state.busy) throw StateError('vault.session_busy');
+    emit(state.copyWith(busy: true, clearError: true));
+    try {
+      final record = PrivateScenarioRecord(
+        id: 'scenario-${Workspace.uniqueId()}',
+        set: set.withStorage(),
+      );
+      final next = current.withPrivateScenarios([
+        ...current.privateScenarios,
+        record,
+      ]);
+      await gateway.save(next);
+      if (!isClosed) {
+        emit(state.copyWith(payload: next, busy: false, clearError: true));
+      }
+    } catch (error) {
+      if (!isClosed) {
+        emit(state.copyWith(busy: false, errorCode: _safeErrorCode(error)));
+      }
+      rethrow;
+    }
+  }
+
+  /// Copies every plaintext workspace scenario into the vault, verifies the
+  /// encrypted copy by reopening the vault and only then deletes the plaintext
+  /// source files. Sets without scenarios (public bond lists) stay in place.
+  Future<void> movePlaintextScenariosToVault() => _run(() async {
+    final current = state.payload;
+    if (current == null) throw StateError('vault.session_locked');
+    final sources = (hubRepository.current?.sets ?? const <SavedSet>[])
+        .where(
+          (set) =>
+              set.scenario != null &&
+              !set.storedInVault &&
+              set.recordId != null,
+        )
+        .toList(growable: false);
+    if (sources.isEmpty) {
+      emit(state.copyWith(busy: false, movedScenarioCount: 0));
+      return;
+    }
+
+    final existingIds = current.privateScenarios.map((r) => r.id).toSet();
+    final added = <PrivateScenarioRecord>[
+      for (final set in sources)
+        if (!existingIds.contains('workspace-${set.recordId}'))
+          PrivateScenarioRecord(
+            id: 'workspace-${set.recordId}',
+            set: set.withStorage(),
+          ),
+    ];
+    final next = current.withPrivateScenarios([
+      ...current.privateScenarios,
+      ...added,
+    ]);
+    if (added.isNotEmpty) await gateway.save(next);
+
+    final verified = await gateway.open();
+    final verifiedIds = verified.privateScenarios.map((r) => r.id).toSet();
+    final movable = sources
+        .where((set) => verifiedIds.contains('workspace-${set.recordId}'))
+        .map((set) => set.recordId!)
+        .toList(growable: false);
+    if (movable.length != sources.length) {
+      throw StateError('portfolio.scenario_move_unverified');
+    }
+    await hubRepository.deleteCollections(movable);
+    emit(
+      state.copyWith(
+        payload: verified,
+        busy: false,
+        movedScenarioCount: movable.length,
+        clearError: true,
+      ),
+    );
+  });
+
+  void dismissMovedScenarioCount() =>
+      emit(state.copyWith(clearMovedScenarioCount: true));
+
   Future<void> lock() async {
     if (state.busy) return;
     await gateway.lock();
@@ -228,6 +347,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       cashEvents: current.cashEvents,
       disposals: current.disposals,
       legacyCollections: current.legacyCollections,
+      privateScenarios: current.privateScenarios,
     );
     await gateway.save(next);
     emit(state.copyWith(payload: next, busy: false, clearError: true));
@@ -290,6 +410,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       cashEvents: current.cashEvents,
       disposals: [...current.disposals, disposal],
       legacyCollections: current.legacyCollections,
+      privateScenarios: current.privateScenarios,
     );
     await gateway.save(next);
     emit(state.copyWith(payload: next, busy: false, clearError: true));
@@ -329,6 +450,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       cashEvents: [...current.cashEvents, event],
       disposals: current.disposals,
       legacyCollections: current.legacyCollections,
+      privateScenarios: current.privateScenarios,
     );
     await gateway.save(next);
     emit(state.copyWith(payload: next, busy: false, clearError: true));
@@ -370,6 +492,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       cashEvents: [...current.cashEvents, event],
       disposals: current.disposals,
       legacyCollections: current.legacyCollections,
+      privateScenarios: current.privateScenarios,
     );
     await gateway.save(next);
     emit(state.copyWith(payload: next, busy: false, clearError: true));

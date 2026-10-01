@@ -486,7 +486,7 @@ void main() {
     final reencoded = String.fromCharCodes(
       PrivatePortfolioPayloadCodec.encode(decoded),
     );
-    expect(reencoded, contains('"schemaVersion":3'));
+    expect(reencoded, contains('"schemaVersion":4'));
     expect(reencoded, contains('"disposals":[]'));
     expect(reencoded, contains('"legacyCollections":[]'));
   });
@@ -781,7 +781,7 @@ void main() {
     final reencoded = String.fromCharCodes(
       PrivatePortfolioPayloadCodec.encode(decoded),
     );
-    expect(reencoded, contains('"schemaVersion":3'));
+    expect(reencoded, contains('"schemaVersion":4'));
     expect(reencoded, contains('"legacyCollections":[]'));
   });
 

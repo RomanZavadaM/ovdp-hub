@@ -82,9 +82,24 @@ class Workspace {
   Future<List<SavedSet>> sets() async {
     final results = <SavedSet>[];
     for (final file in await records('sets')) {
-      results.add(SavedSet.parse(await readLimited(file)));
+      results.add(
+        SavedSet.parse(await readLimited(file)).withStorage(
+          recordId: p.basenameWithoutExtension(file.path),
+        ),
+      );
     }
     return results;
+  }
+
+  /// Deletes one saved-set record file. Only record ids produced by [sets]
+  /// are accepted, so no path outside `sets/` can be addressed.
+  Future<void> deleteSet(String recordId) async {
+    await checkAvailable();
+    if (!isValidSavedSetRecordId(recordId)) {
+      throw const FormatException('workspace.invalid_record_id');
+    }
+    final file = File(p.join(directory.path, 'sets', '$recordId.json'));
+    if (await file.exists()) await file.delete();
   }
 
   static Future<String> readLimited(File file) async {

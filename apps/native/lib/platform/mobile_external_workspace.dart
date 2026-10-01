@@ -126,10 +126,21 @@ class MobileExternalWorkspace {
       results.add(
         SavedSet.parse(
           await _readRequired('$rootDirectory/sets/$name'),
-        ),
+        ).withStorage(recordId: name.substring(0, name.length - 5)),
       );
     }
     return results;
+  }
+
+  Future<void> deleteSet(String recordId) async {
+    await checkAvailable();
+    if (!isValidSavedSetRecordId(recordId)) {
+      throw const FormatException('workspace.invalid_record_id');
+    }
+    await storage.deleteWorkspaceFile(
+      grantId: grant.id,
+      relativePath: '$rootDirectory/sets/$recordId.json',
+    );
   }
 
   Future<void> saveCatalog(Catalog catalog) async {

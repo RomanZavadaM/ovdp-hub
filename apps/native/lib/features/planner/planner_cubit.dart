@@ -221,6 +221,10 @@ class PlannerState {
 class PlannerCubit extends Cubit<PlannerState> {
   final HubRepository repository;
   final DateTime Function() clock;
+
+  /// Where scenarios with private amounts are saved. The app passes the
+  /// encrypted vault; without it scenarios go to the workspace repository.
+  final Future<void> Function(SavedSet scenario)? saveScenario;
   late final StreamSubscription<WorkspaceSnapshot> _subscription;
   static Map<String, String> defaults(DateTime now) {
     String date(DateTime d) => d.toIso8601String().substring(0, 10);
@@ -249,7 +253,11 @@ class PlannerCubit extends Cubit<PlannerState> {
     };
   }
 
-  PlannerCubit(this.repository, {DateTime Function()? clock})
+  PlannerCubit(
+    this.repository, {
+    DateTime Function()? clock,
+    this.saveScenario,
+  })
     : clock = clock ?? DateTime.now,
       super(PlannerState(criteria: defaults((clock ?? DateTime.now)()))) {
     _subscription = repository.changes.listen((_) => _recalculate(state));
@@ -1161,15 +1169,19 @@ class PlannerCubit extends Cubit<PlannerState> {
         fx: draft.fx,
         positionExits: draft.positionExits,
       );
-      await repository.saveCollection(
-        SavedSet(
-          draft.criteria['name']!.trim(),
-          PlannerGeneratedCopy.scenarioNote,
-          savedAt,
-          draft.inputs.values.map((i) => i.bond),
-          scenario: scenario.toJson(),
-        ),
+      final saved = SavedSet(
+        draft.criteria['name']!.trim(),
+        PlannerGeneratedCopy.scenarioNote,
+        savedAt,
+        draft.inputs.values.map((i) => i.bond),
+        scenario: scenario.toJson(),
       );
+      final saver = saveScenario;
+      if (saver != null) {
+        await saver(saved);
+      } else {
+        await repository.saveCollection(saved);
+      }
       if (!isClosed) emit(state.copyWith(busy: false, saved: true));
       return true;
     } catch (e) {

@@ -499,6 +499,13 @@ class HubStrings {
   /// Strings added for v0.9.5 portfolio protection.
   static const Map<String, Map<String, String>> _vaultTranslations = {
     'uk': {
+      'collectionStoredInVault': 'Приватно, у зашифрованому портфелі',
+      'collectionPlaintextScenario': 'Відкритий текст у робочій папці',
+      'collectionsPlaintextWarning': 'Сценаріїв із приватними сумами у робочій папці відкритим текстом: {n}. Перенесіть їх у зашифрований портфель; після перевірки відкриті файли буде видалено.',
+      'collectionsMoveScenarios': 'Перенести у захищений портфель',
+      'collectionsUnlockToMove': 'Відкрийте «Мій портфель», щоб перенести сценарії.',
+      'collectionsScenariosMoved': 'Перенесено сценаріїв: {n}. Відкриті файли видалено.',
+      'collectionsPrivateHidden': 'Приватні сценарії з портфеля показуються, коли портфель відкрито.',
       'portfolioLockedRecoveryBody': 'Портфель захищено паролем відновлення. Введіть його, щоб відкрити приватні дані на цьому пристрої.',
       'portfolioOpenWithSecret': 'Відкрити з паролем',
       'portfolioRequireSecretTitle': 'Пароль при відкритті',
@@ -512,6 +519,13 @@ class HubStrings {
       'portfolioEnable': 'Увімкнути',
     },
     'en': {
+      'collectionStoredInVault': 'Private, in the encrypted portfolio',
+      'collectionPlaintextScenario': 'Plaintext in the workspace folder',
+      'collectionsPlaintextWarning': 'Scenarios with private amounts stored as plaintext in the workspace folder: {n}. Move them into the encrypted portfolio; after verification the plaintext files are deleted.',
+      'collectionsMoveScenarios': 'Move to the protected portfolio',
+      'collectionsUnlockToMove': 'Open “My portfolio” to move scenarios.',
+      'collectionsScenariosMoved': 'Scenarios moved: {n}. Plaintext files deleted.',
+      'collectionsPrivateHidden': 'Private scenarios from the portfolio are shown while the portfolio is open.',
       'portfolioLockedRecoveryBody': 'The portfolio is protected by the recovery password. Enter it to open private data on this device.',
       'portfolioOpenWithSecret': 'Open with password',
       'portfolioRequireSecretTitle': 'Password on open',
@@ -525,6 +539,13 @@ class HubStrings {
       'portfolioEnable': 'Enable',
     },
     'fr': {
+      'collectionStoredInVault': 'Privé, dans le portefeuille chiffré',
+      'collectionPlaintextScenario': 'Texte clair dans le dossier de travail',
+      'collectionsPlaintextWarning': 'Scénarios avec montants privés en texte clair dans le dossier de travail : {n}. Déplacez-les dans le portefeuille chiffré ; après vérification, les fichiers en clair sont supprimés.',
+      'collectionsMoveScenarios': 'Déplacer vers le portefeuille protégé',
+      'collectionsUnlockToMove': 'Ouvrez « Mon portefeuille » pour déplacer les scénarios.',
+      'collectionsScenariosMoved': 'Scénarios déplacés : {n}. Fichiers en clair supprimés.',
+      'collectionsPrivateHidden': 'Les scénarios privés du portefeuille s’affichent lorsque le portefeuille est ouvert.',
       'portfolioLockedRecoveryBody': 'Le portefeuille est protégé par le mot de passe de récupération. Saisissez-le pour ouvrir les données privées sur cet appareil.',
       'portfolioOpenWithSecret': 'Ouvrir avec le mot de passe',
       'portfolioRequireSecretTitle': 'Mot de passe à l’ouverture',
@@ -538,6 +559,13 @@ class HubStrings {
       'portfolioEnable': 'Activer',
     },
     'de': {
+      'collectionStoredInVault': 'Privat, im verschlüsselten Portfolio',
+      'collectionPlaintextScenario': 'Klartext im Arbeitsordner',
+      'collectionsPlaintextWarning': 'Szenarien mit privaten Beträgen als Klartext im Arbeitsordner: {n}. Verschieben Sie sie in das verschlüsselte Portfolio; nach der Prüfung werden die Klartextdateien gelöscht.',
+      'collectionsMoveScenarios': 'In das geschützte Portfolio verschieben',
+      'collectionsUnlockToMove': 'Öffnen Sie „Mein Portfolio“, um Szenarien zu verschieben.',
+      'collectionsScenariosMoved': 'Verschobene Szenarien: {n}. Klartextdateien gelöscht.',
+      'collectionsPrivateHidden': 'Private Szenarien aus dem Portfolio werden angezeigt, solange das Portfolio geöffnet ist.',
       'portfolioLockedRecoveryBody': 'Das Portfolio ist durch das Wiederherstellungspasswort geschützt. Geben Sie es ein, um die privaten Daten auf diesem Gerät zu öffnen.',
       'portfolioOpenWithSecret': 'Mit Passwort öffnen',
       'portfolioRequireSecretTitle': 'Passwort beim Öffnen',
@@ -551,6 +579,13 @@ class HubStrings {
       'portfolioEnable': 'Aktivieren',
     },
     'es': {
+      'collectionStoredInVault': 'Privado, en la cartera cifrada',
+      'collectionPlaintextScenario': 'Texto sin cifrar en la carpeta de trabajo',
+      'collectionsPlaintextWarning': 'Escenarios con importes privados sin cifrar en la carpeta de trabajo: {n}. Muévalos a la cartera cifrada; tras la verificación se eliminan los archivos sin cifrar.',
+      'collectionsMoveScenarios': 'Mover a la cartera protegida',
+      'collectionsUnlockToMove': 'Abra «Mi cartera» para mover los escenarios.',
+      'collectionsScenariosMoved': 'Escenarios movidos: {n}. Archivos sin cifrar eliminados.',
+      'collectionsPrivateHidden': 'Los escenarios privados de la cartera se muestran mientras la cartera está abierta.',
       'portfolioLockedRecoveryBody': 'La cartera está protegida con la contraseña de recuperación. Introdúzcala para abrir los datos privados en este dispositivo.',
       'portfolioOpenWithSecret': 'Abrir con contraseña',
       'portfolioRequireSecretTitle': 'Contraseña al abrir',
@@ -564,6 +599,13 @@ class HubStrings {
       'portfolioEnable': 'Activar',
     },
     'ko': {
+      'collectionStoredInVault': '비공개, 암호화된 포트폴리오에 저장',
+      'collectionPlaintextScenario': '작업 폴더의 평문',
+      'collectionsPlaintextWarning': '작업 폴더에 평문으로 저장된 개인 금액 시나리오: {n}개. 암호화된 포트폴리오로 옮기세요. 검증 후 평문 파일은 삭제됩니다.',
+      'collectionsMoveScenarios': '보호된 포트폴리오로 이동',
+      'collectionsUnlockToMove': '시나리오를 옮기려면 “내 포트폴리오”를 여세요.',
+      'collectionsScenariosMoved': '이동한 시나리오: {n}개. 평문 파일을 삭제했습니다.',
+      'collectionsPrivateHidden': '포트폴리오의 비공개 시나리오는 포트폴리오가 열려 있을 때 표시됩니다.',
       'portfolioLockedRecoveryBody': '포트폴리오가 복구 비밀번호로 보호되어 있습니다. 이 기기에서 개인 데이터를 열려면 비밀번호를 입력하세요.',
       'portfolioOpenWithSecret': '비밀번호로 열기',
       'portfolioRequireSecretTitle': '열 때 비밀번호',
@@ -577,6 +619,13 @@ class HubStrings {
       'portfolioEnable': '사용',
     },
     'ja': {
+      'collectionStoredInVault': '非公開・暗号化ポートフォリオ内',
+      'collectionPlaintextScenario': '作業フォルダー内の平文',
+      'collectionsPlaintextWarning': '作業フォルダーに平文で保存された非公開金額のシナリオ: {n}件。暗号化ポートフォリオへ移動してください。検証後、平文ファイルは削除されます。',
+      'collectionsMoveScenarios': '保護されたポートフォリオへ移動',
+      'collectionsUnlockToMove': 'シナリオを移動するには「マイポートフォリオ」を開いてください。',
+      'collectionsScenariosMoved': '移動したシナリオ: {n}件。平文ファイルを削除しました。',
+      'collectionsPrivateHidden': 'ポートフォリオの非公開シナリオは、ポートフォリオを開いている間に表示されます。',
       'portfolioLockedRecoveryBody': 'ポートフォリオは復旧パスワードで保護されています。この端末で非公開データを開くには入力してください。',
       'portfolioOpenWithSecret': 'パスワードで開く',
       'portfolioRequireSecretTitle': '開くときのパスワード',
@@ -588,6 +637,45 @@ class HubStrings {
       'portfolioRequireSecretDisabled': 'ポートフォリオは再びこの端末の鍵で開きます。',
       'portfolioRecoveryWrong': '復旧パスワードが一致しません。',
       'portfolioEnable': '有効にする',
+    },
+  };
+
+  /// Error messages added for v0.9.5 private scenarios.
+  static const Map<String, Map<String, String>> _vaultErrorTranslations = {
+    'uk': {
+      'planner.private_scenario_locked': 'Сценарій зберігається в зашифрованому портфелі. Відкрийте «Мій портфель» і повторіть збереження.',
+      'planner.private_scenario_no_portfolio': 'Щоб зберігати сценарії з приватними сумами, спершу створіть захищений портфель у розділі «Мій портфель».',
+      'planner.private_scenario_unsupported': 'На цій платформі приватне збереження сценаріїв ще не підтримується.',
+    },
+    'en': {
+      'planner.private_scenario_locked': 'Scenarios are saved in the encrypted portfolio. Open “My portfolio” and save again.',
+      'planner.private_scenario_no_portfolio': 'To save scenarios with private amounts, first create a protected portfolio in “My portfolio”.',
+      'planner.private_scenario_unsupported': 'Private scenario saving is not supported on this platform yet.',
+    },
+    'fr': {
+      'planner.private_scenario_locked': 'Les scénarios sont enregistrés dans le portefeuille chiffré. Ouvrez « Mon portefeuille » et enregistrez à nouveau.',
+      'planner.private_scenario_no_portfolio': 'Pour enregistrer des scénarios avec des montants privés, créez d’abord un portefeuille protégé dans « Mon portefeuille ».',
+      'planner.private_scenario_unsupported': 'L’enregistrement privé des scénarios n’est pas encore pris en charge sur cette plateforme.',
+    },
+    'de': {
+      'planner.private_scenario_locked': 'Szenarien werden im verschlüsselten Portfolio gespeichert. Öffnen Sie „Mein Portfolio“ und speichern Sie erneut.',
+      'planner.private_scenario_no_portfolio': 'Um Szenarien mit privaten Beträgen zu speichern, erstellen Sie zuerst ein geschütztes Portfolio unter „Mein Portfolio“.',
+      'planner.private_scenario_unsupported': 'Privates Speichern von Szenarien wird auf dieser Plattform noch nicht unterstützt.',
+    },
+    'es': {
+      'planner.private_scenario_locked': 'Los escenarios se guardan en la cartera cifrada. Abra «Mi cartera» y vuelva a guardar.',
+      'planner.private_scenario_no_portfolio': 'Para guardar escenarios con importes privados, cree primero una cartera protegida en «Mi cartera».',
+      'planner.private_scenario_unsupported': 'El guardado privado de escenarios aún no es compatible con esta plataforma.',
+    },
+    'ko': {
+      'planner.private_scenario_locked': '시나리오는 암호화된 포트폴리오에 저장됩니다. “내 포트폴리오”를 열고 다시 저장하세요.',
+      'planner.private_scenario_no_portfolio': '개인 금액이 포함된 시나리오를 저장하려면 먼저 “내 포트폴리오”에서 보호된 포트폴리오를 만드세요.',
+      'planner.private_scenario_unsupported': '이 플랫폼에서는 아직 시나리오 비공개 저장을 지원하지 않습니다.',
+    },
+    'ja': {
+      'planner.private_scenario_locked': 'シナリオは暗号化ポートフォリオに保存されます。「マイポートフォリオ」を開いて再度保存してください。',
+      'planner.private_scenario_no_portfolio': '非公開金額を含むシナリオを保存するには、まず「マイポートフォリオ」で保護されたポートフォリオを作成してください。',
+      'planner.private_scenario_unsupported': 'このプラットフォームでは、シナリオの非公開保存はまだサポートされていません。',
     },
   };
 
@@ -743,9 +831,11 @@ class HubStrings {
 
   String error(AppError error) {
     final family = '${error.code.split('.').first}.generic';
-    var value = _errorTranslations[language.code]?[error.code] ??
+    var value = _vaultErrorTranslations[language.code]?[error.code] ??
+        _errorTranslations[language.code]?[error.code] ??
         _errorTranslations[language.code]?[family] ??
         _errorTranslations[language.code]?['common.unexpected'] ??
+        _vaultErrorTranslations['uk']?[error.code] ??
         _errorTranslations['uk']?[error.code] ??
         _errorTranslations['uk']?[family] ??
         _errorTranslations['uk']?['common.unexpected'] ??

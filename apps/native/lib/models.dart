@@ -140,20 +140,47 @@ class Catalog {
   }
 }
 
+final RegExp _savedSetRecordId = RegExp(r'^[A-Za-z0-9._:-]{1,120}$');
+
+bool isValidSavedSetRecordId(String value) =>
+    _savedSetRecordId.hasMatch(value) && !value.contains('..');
+
 class SavedSet {
   final String name, note, savedAt;
   final List<Bond> bonds;
   final Map<String, dynamic>? scenario;
+
+  /// Where the set was read from: a workspace record file name (without
+  /// `.json`) or a private vault record id. Not serialized.
+  final String? recordId;
+
+  /// True when the set lives inside the encrypted portfolio vault rather than
+  /// as plaintext in the workspace folder. Not serialized.
+  final bool storedInVault;
+
   SavedSet(
     this.name,
     this.note,
     this.savedAt,
     Iterable<Bond> bonds, {
     Map<String, dynamic>? scenario,
+    this.recordId,
+    this.storedInVault = false,
   }) : bonds = List.unmodifiable(bonds),
        scenario = scenario == null
            ? null
            : freezeJson(scenario) as Map<String, dynamic>;
+
+  SavedSet withStorage({String? recordId, bool storedInVault = false}) =>
+      SavedSet(
+        name,
+        note,
+        savedAt,
+        bonds,
+        scenario: scenario,
+        recordId: recordId,
+        storedInVault: storedInVault,
+      );
   Map<String, dynamic> toJson() => {
     'schemaVersion': scenario == null ? 1 : 2,
     'name': name,
