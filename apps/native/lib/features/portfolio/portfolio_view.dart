@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -5,8 +6,10 @@ import '../../data/hub_repository.dart';
 import '../../l10n/hub_locale.dart';
 import '../../models.dart';
 import '../../ui/date_field.dart';
+import '../catalog/catalog_cubit.dart';
 import 'legacy_plaintext_migration.dart';
 import 'portfolio_cubit.dart';
+import 'portfolio_schedule.dart';
 import 'private_portfolio.dart';
 
 class PortfolioView extends StatelessWidget {
@@ -210,6 +213,18 @@ class PortfolioView extends StatelessWidget {
           _FactualCashSummary(payload: payload),
           const SizedBox(height: 18),
         ],
+        if (context.watch<CatalogCubit>().state.catalog case final catalog?)
+          _PortfolioSchedule(
+            payload: payload,
+            catalog: catalog,
+            busy: state.busy,
+            onRecordCoupon: (item) => _addCoupon(
+              context,
+              initialIsin: item.isin,
+              initialDate: item.date,
+              initialAmount: item.amount.toStringAsFixed(2),
+            ),
+          ),
         Text(
           strings.text('portfolioHoldings'),
           style: Theme.of(context).textTheme.titleLarge,
@@ -1350,18 +1365,26 @@ class PortfolioView extends StatelessWidget {
     );
   }
 
-  Future<void> _addCoupon(BuildContext context) async {
+  Future<void> _addCoupon(
+    BuildContext context, {
+    String? initialIsin,
+    String? initialDate,
+    String? initialAmount,
+  }) async {
     final strings = HubStrings(context.read<LocaleCubit>().state.language);
     final cubit = context.read<PortfolioCubit>();
     final payload = cubit.state.payload;
-    if (payload == null || payload.holdings.isEmpty) return;
+    if (payload == null || payload.acquisitionLots.isEmpty) return;
 
-    final isins = payload.holdings.map((holding) => holding.isin).toList()
+    final isins = {
+      ...payload.holdings.map((holding) => holding.isin),
+      ?initialIsin,
+    }.toList()
       ..sort();
-    var selectedIsin = isins.first;
-    var date = hubDateToIso(DateTime.now());
+    var selectedIsin = initialIsin ?? isins.first;
+    var date = initialDate ?? hubDateToIso(DateTime.now());
     final dateKey = GlobalKey<HubDateFieldState>();
-    final amount = TextEditingController();
+    final amount = TextEditingController(text: initialAmount ?? '');
     final note = TextEditingController();
     String? localError;
 
@@ -1967,6 +1990,128 @@ class _SummaryTile extends StatelessWidget {
       ),
     ),
   );
+}
+
+class _PortfolioSchedule extends StatelessWidget {
+  final PrivatePortfolioPayload payload;
+  final Catalog catalog;
+  final bool busy;
+  final void Function(ExpectedPortfolioPayment item) onRecordCoupon;
+
+  const _PortfolioSchedule({
+    required this.payload,
+    required this.catalog,
+    required this.busy,
+    required this.onRecordCoupon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = HubStrings(context.watch<LocaleCubit>().state.language);
+    final now = DateTime.now();
+    final today = hubDateToIso(now);
+    final horizon = hubDateToIso(DateTime(now.year + 1, now.month, now.day));
+    final upcoming = expectedPortfolioPayments(
+      payload,
+      catalog,
+      from: today,
+      until: horizon,
+    );
+    final unrecorded = possiblyUnrecordedPayments(
+      payload,
+      catalog,
+      today: today,
+    );
+    if (upcoming.isEmpty && unrecorded.isEmpty) return const SizedBox.shrink();
+
+    final totals = <String, Decimal>{};
+    for (final item in upcoming) {
+      totals[item.currency] = (totals[item.currency] ?? Decimal.zero) +
+          item.amount;
+    }
+    String kindLabel(ExpectedPortfolioPayment item) => strings.text(
+      item.kind == PrivateCashEventKind.coupon
+          ? 'portfolioScheduleCoupon'
+          : 'portfolioScheduleRedemption',
+    );
+    String line(ExpectedPortfolioPayment item) =>
+        '${formatHubDate(context, item.date)} · ${item.isin} · '
+        '${kindLabel(item)} · ${item.amount.toStringAsFixed(2)} '
+        '${item.currency} (${item.units})';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (upcoming.isNotEmpty) ...[
+          Text(
+            strings.text('portfolioScheduleTitle'),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 6),
+          Text(strings.text('portfolioScheduleInfo')),
+          const SizedBox(height: 8),
+          Card(
+            key: const ValueKey('portfolio-expected'),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final item in upcoming.take(24))
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 3),
+                      child: Text(line(item)),
+                    ),
+                  if (upcoming.length > 24)
+                    Text('… +${upcoming.length - 24}'),
+                  const Divider(),
+                  for (final entry in totals.entries)
+                    _CashRow(
+                      label: strings.text('portfolioScheduleTotal'),
+                      value: '${entry.value.toStringAsFixed(2)} ${entry.key}',
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+        ],
+        if (unrecorded.isNotEmpty) ...[
+          Text(
+            strings.text('portfolioUnrecordedTitle'),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 6),
+          Text(strings.text('portfolioUnrecordedInfo')),
+          const SizedBox(height: 8),
+          Card(
+            key: const ValueKey('portfolio-unrecorded'),
+            child: Column(
+              children: [
+                for (final item in unrecorded.reversed.take(12))
+                  ListTile(
+                    dense: true,
+                    title: Text(line(item)),
+                    trailing: item.kind == PrivateCashEventKind.coupon
+                        ? TextButton(
+                            key: ValueKey(
+                              'portfolio-record-${item.isin}-${item.date}',
+                            ),
+                            onPressed: busy ? null : () => onRecordCoupon(item),
+                            child: Text(
+                              strings.text('portfolioUnrecordedRecord'),
+                            ),
+                          )
+                        : null,
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+        ],
+      ],
+    );
+  }
 }
 
 class _FactualCashSummary extends StatelessWidget {
