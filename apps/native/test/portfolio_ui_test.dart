@@ -529,4 +529,100 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
+
+  testWidgets('recovery password on open is enforced through visible controls', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final hub = FakeRepository(catalog);
+    final gateway = FakePortfolioGateway(
+      portableBackupSupported: true,
+      stored: PrivatePortfolioPayload(portfolioId: 'primary'),
+    )..recoverySecretRequired = true;
+    await tester.pumpWidget(
+      OvdpApp(repository: hub, portfolioGateway: gateway),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(StudioSidebar),
+        matching: find.byIcon(Icons.account_balance_wallet_outlined),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('захищено паролем відновлення'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('portfolio-open')), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-open-recovery-secret')),
+      'definitely the wrong secret',
+    );
+    await tester.tap(find.byKey(const ValueKey('portfolio-open-with-secret')));
+    await tester.pumpAndSettle();
+    expect(find.text('Пароль відновлення не підходить.'), findsOneWidget);
+    expect(gateway.unlocked, isFalse);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-open-recovery-secret')),
+      gateway.recoverySecret,
+    );
+    await tester.tap(find.byKey(const ValueKey('portfolio-open-with-secret')));
+    await tester.pumpAndSettle();
+    expect(gateway.unlocked, isTrue);
+    expect(find.text('Відновлення та резервна копія'), findsOneWidget);
+
+    final toggle = find.byKey(const ValueKey('portfolio-require-secret'));
+    await tester.ensureVisible(toggle);
+    expect(tester.widget<SwitchListTile>(toggle).value, isTrue);
+
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    expect(gateway.recoverySecretRequired, isFalse);
+    expect(
+      find.text('Портфель знову відкривається ключем цього пристрою.'),
+      findsOneWidget,
+    );
+    expect(tester.widget<SwitchListTile>(toggle).value, isFalse);
+
+    await tester.ensureVisible(toggle);
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-require-secret-input')),
+      'definitely the wrong secret',
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('portfolio-require-secret-confirm')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Пароль відновлення не підходить.'), findsWidgets);
+    expect(gateway.recoverySecretRequired, isFalse);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('portfolio-require-secret-input')),
+      gateway.recoverySecret,
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('portfolio-require-secret-confirm')),
+    );
+    await tester.pumpAndSettle();
+    expect(gateway.recoverySecretRequired, isTrue);
+    expect(
+      find.text('Тепер портфель відкривається лише з паролем відновлення.'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
 }

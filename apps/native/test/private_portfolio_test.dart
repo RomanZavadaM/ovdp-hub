@@ -38,6 +38,11 @@ class MemoryVaultDeviceKeyStore implements VaultDeviceKeyStore {
   }
 
   @override
+  Future<void> forgetDek({required String vaultId}) async {
+    keys.remove(vaultId);
+  }
+
+  @override
   Future<int?> loadHighestAcceptedRevision({required String vaultId}) async =>
       revisions[vaultId];
 

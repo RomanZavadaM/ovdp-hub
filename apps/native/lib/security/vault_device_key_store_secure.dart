@@ -103,6 +103,11 @@ class FlutterSecureStorageVaultDeviceKeyStore implements VaultDeviceKeyStore {
   }
 
   @override
+  Future<void> forgetDek({required String vaultId}) async {
+    await _write(vaultStorageKey(vaultId, 'dek'), null);
+  }
+
+  @override
   Future<int?> loadHighestAcceptedRevision({required String vaultId}) async {
     final value = await _read(vaultStorageKey(vaultId, 'revision'));
     if (value == null) return null;

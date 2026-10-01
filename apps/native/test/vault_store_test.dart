@@ -42,6 +42,11 @@ class MemoryVaultDeviceKeyStore implements VaultDeviceKeyStore {
   }
 
   @override
+  Future<void> forgetDek({required String vaultId}) async {
+    keys.remove(vaultId);
+  }
+
+  @override
   Future<int?> loadHighestAcceptedRevision({required String vaultId}) async =>
       revisions[vaultId];
 
@@ -795,4 +800,195 @@ void main() {
     expect(String.fromCharCodes(opened.plainText), 'private');
   });
 
+
+  group('recovery secret required on open', () {
+    const secret = 'portable recovery secret';
+
+    Future<(LocalVaultStore, MemoryVaultDeviceKeyStore)> createVault() async {
+      final device = MemoryVaultDeviceKeyStore();
+      final store = LocalVaultStore(
+        directory: Directory(p.join(root.path, 'pw')),
+        crypto: crypto,
+        deviceKeyStore: device,
+      );
+      await store.create(
+        vaultId: 'vault-pw',
+        plainText: bytes('first'),
+        recoverySecret: secret,
+        recoveryParameters: VaultRecoveryKdfParameters.interactive,
+      );
+      return (store, device);
+    }
+
+    test('wrong secret keeps the device key and device mode', () async {
+      final (store, device) = await createVault();
+
+      await expectLater(
+        store.requireRecoverySecretOnOpen(
+          vaultId: 'vault-pw',
+          recoverySecret: 'not the recovery secret',
+        ),
+        throwsA(
+          isA<FormatException>().having(
+            (e) => e.message,
+            'message',
+            'vault.recovery_authentication_failed',
+          ),
+        ),
+      );
+      expect(device.keys.containsKey('vault-pw'), isTrue);
+      expect(
+        await store.accessMode(vaultId: 'vault-pw'),
+        VaultAccessMode.deviceKey,
+      );
+      expect(store.hasUnlockedKey(vaultId: 'vault-pw'), isFalse);
+    });
+
+    test('enabling removes the device key but keeps the session usable', () async {
+      final (store, device) = await createVault();
+
+      await store.requireRecoverySecretOnOpen(
+        vaultId: 'vault-pw',
+        recoverySecret: secret,
+      );
+      expect(device.keys.containsKey('vault-pw'), isFalse);
+      expect(device.revisions['vault-pw'], 1);
+      expect(
+        await store.accessMode(vaultId: 'vault-pw'),
+        VaultAccessMode.recoverySecret,
+      );
+
+      final saved = await store.save(
+        vaultId: 'vault-pw',
+        plainText: bytes('second'),
+      );
+      expect(saved.revision, 2);
+      expect(device.revisions['vault-pw'], 2);
+      expect(device.keys.containsKey('vault-pw'), isFalse);
+
+      final raw = await store.fileFor('vault-pw').readAsString();
+      expect(raw.contains('second'), isFalse);
+
+      store.forgetUnlockedKey(vaultId: 'vault-pw');
+      await expectLater(
+        store.open(vaultId: 'vault-pw'),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test('locked vault opens only with the right recovery secret', () async {
+      final (store, _) = await createVault();
+      await store.requireRecoverySecretOnOpen(
+        vaultId: 'vault-pw',
+        recoverySecret: secret,
+      );
+      await store.save(vaultId: 'vault-pw', plainText: bytes('second'));
+      store.forgetUnlockedKey(vaultId: 'vault-pw');
+
+      await expectLater(
+        store.unlockWithRecoverySecret(
+          vaultId: 'vault-pw',
+          recoverySecret: 'wrong recovery secret',
+        ),
+        throwsFormatException,
+      );
+      expect(store.hasUnlockedKey(vaultId: 'vault-pw'), isFalse);
+
+      await store.unlockWithRecoverySecret(
+        vaultId: 'vault-pw',
+        recoverySecret: secret,
+      );
+      final opened = await store.open(vaultId: 'vault-pw');
+      expect(String.fromCharCodes(opened.plainText), 'second');
+      expect(opened.revision, 2);
+    });
+
+    test('rollback protection survives recovery-secret mode', () async {
+      final (store, _) = await createVault();
+      await store.requireRecoverySecretOnOpen(
+        vaultId: 'vault-pw',
+        recoverySecret: secret,
+      );
+      final older = await store.fileFor('vault-pw').readAsString();
+      await store.save(vaultId: 'vault-pw', plainText: bytes('second'));
+      store.forgetUnlockedKey(vaultId: 'vault-pw');
+
+      await store.fileFor('vault-pw').writeAsString(older, flush: true);
+      await expectLater(
+        store.unlockWithRecoverySecret(
+          vaultId: 'vault-pw',
+          recoverySecret: secret,
+        ),
+        throwsA(isA<VaultRollbackException>()),
+      );
+      expect(store.hasUnlockedKey(vaultId: 'vault-pw'), isFalse);
+    });
+
+    test('disabling stores the device key again', () async {
+      final (store, device) = await createVault();
+      await store.requireRecoverySecretOnOpen(
+        vaultId: 'vault-pw',
+        recoverySecret: secret,
+      );
+
+      await store.stopRequiringRecoverySecretOnOpen(vaultId: 'vault-pw');
+      expect(device.keys.containsKey('vault-pw'), isTrue);
+      store.forgetUnlockedKey(vaultId: 'vault-pw');
+      expect(
+        await store.accessMode(vaultId: 'vault-pw'),
+        VaultAccessMode.deviceKey,
+      );
+      final opened = await store.open(vaultId: 'vault-pw');
+      expect(String.fromCharCodes(opened.plainText), 'first');
+
+      await expectLater(
+        store.stopRequiringRecoverySecretOnOpen(vaultId: 'vault-pw'),
+        throwsStateError,
+      );
+    });
+
+    test('restoring a backup while locked keeps recovery-secret mode', () async {
+      final (store, device) = await createVault();
+      final backup = File(p.join(root.path, 'external', 'pw.ovdp-vault.json'));
+      await store.createEncryptedBackup(
+        vaultId: 'vault-pw',
+        destination: backup,
+      );
+      await store.requireRecoverySecretOnOpen(
+        vaultId: 'vault-pw',
+        recoverySecret: secret,
+      );
+      store.forgetUnlockedKey(vaultId: 'vault-pw');
+
+      final restored = await store.restoreEncryptedBackup(
+        vaultId: 'vault-pw',
+        source: backup,
+        recoverySecret: secret,
+      );
+      expect(String.fromCharCodes(restored.plainText), 'first');
+      expect(device.keys.containsKey('vault-pw'), isFalse);
+      expect(store.hasUnlockedKey(vaultId: 'vault-pw'), isTrue);
+      expect(
+        await store.accessMode(vaultId: 'vault-pw'),
+        VaultAccessMode.recoverySecret,
+      );
+    });
+
+    test('delete in recovery-secret mode removes the vault and key cache', () async {
+      final (store, device) = await createVault();
+      await store.requireRecoverySecretOnOpen(
+        vaultId: 'vault-pw',
+        recoverySecret: secret,
+      );
+
+      await store.deleteLocalVault(vaultId: 'vault-pw');
+      expect(await store.fileFor('vault-pw').exists(), isFalse);
+      expect(store.hasUnlockedKey(vaultId: 'vault-pw'), isFalse);
+      expect(device.keys.containsKey('vault-pw'), isFalse);
+      expect(
+        await store.accessMode(vaultId: 'vault-pw'),
+        VaultAccessMode.missing,
+      );
+    });
+  });
 }

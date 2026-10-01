@@ -33,8 +33,19 @@ abstract interface class PortfolioGateway {
   bool get unlocked;
   Stream<bool> get unlockChanges;
   Future<bool> exists();
+
+  /// Whether opening the existing portfolio requires the recovery secret.
+  Future<bool> requiresRecoverySecret();
   Future<PrivatePortfolioPayload> create({required String recoverySecret});
-  Future<PrivatePortfolioPayload> open();
+  Future<PrivatePortfolioPayload> open({String? recoverySecret});
+
+  /// Turns the "recovery secret on open" protection on (the secret is
+  /// verified and the device key is removed) or off (the device key is stored
+  /// again). The portfolio must be unlocked.
+  Future<void> setRecoverySecretRequired({
+    required bool enabled,
+    String? recoverySecret,
+  });
   Future<void> save(PrivatePortfolioPayload payload);
   Future<String?> createPortableBackup();
   Future<PrivatePortfolioPayload?> restorePortableBackup({
@@ -71,6 +82,10 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   LocalVaultStore? _store;
   VaultSessionController? _session;
   final _unlockChanges = StreamController<bool>.broadcast(sync: true);
+
+  /// Internal operations lock the session and reopen it themselves; during
+  /// them the in-memory recovery-mode key must survive the transient lock.
+  int _keyRetainingOperations = 0;
 
   LocalEncryptedPortfolioGateway({
     this._mobileExternalStorage = const MethodChannelMobileExternalStorage(),
@@ -126,8 +141,24 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   }
 
   void _publishLockState() {
+    final phase = _session?.state.phase;
+    if (_keyRetainingOperations == 0 &&
+        (phase == VaultSessionPhase.locked ||
+            phase == VaultSessionPhase.error)) {
+      _store?.forgetUnlockedKey(vaultId: vaultId);
+    }
     if (!_unlockChanges.isClosed) {
       _unlockChanges.add(unlocked);
+    }
+  }
+
+  Future<T> _retainingKey<T>(Future<T> Function() operation) async {
+    _keyRetainingOperations++;
+    try {
+      return await operation();
+    } finally {
+      _keyRetainingOperations--;
+      if (!unlocked) _store?.forgetUnlockedKey(vaultId: vaultId);
     }
   }
 
@@ -161,10 +192,47 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   }
 
   @override
-  Future<PrivatePortfolioPayload> open() async {
+  Future<bool> requiresRecoverySecret() async {
+    await _ensureReady();
+    return await _store!.accessMode(vaultId: vaultId) ==
+        VaultAccessMode.recoverySecret;
+  }
+
+  @override
+  Future<void> setRecoverySecretRequired({
+    required bool enabled,
+    String? recoverySecret,
+  }) async {
+    await _ensureReady();
+    if (!unlocked) {
+      throw StateError('vault.session_locked');
+    }
+    final store = _store!;
+    if (enabled) {
+      final secret = recoverySecret;
+      if (secret == null || secret.length < 12) {
+        throw const FormatException('portfolio.recovery_secret_too_short');
+      }
+      await store.requireRecoverySecretOnOpen(
+        vaultId: vaultId,
+        recoverySecret: secret,
+      );
+    } else {
+      await store.stopRequiringRecoverySecretOnOpen(vaultId: vaultId);
+    }
+  }
+
+  @override
+  Future<PrivatePortfolioPayload> open({String? recoverySecret}) async {
     await _ensureReady();
     final session = _session!;
-    await session.unlock(vaultId: vaultId);
+    if (recoverySecret != null) {
+      await _store!.unlockWithRecoverySecret(
+        vaultId: vaultId,
+        recoverySecret: recoverySecret,
+      );
+    }
+    await _retainingKey(() => session.unlock(vaultId: vaultId));
     if (!session.state.isUnlocked) {
       throw StateError(session.state.errorCode ?? 'portfolio.open_failed');
     }
@@ -286,16 +354,18 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     required String recoverySecret,
   }) async {
     final session = _session!;
-    if (session.state.isUnlocked) {
-      await session.lock();
-    }
-    final restored = await _store!.restoreEncryptedBackup(
-      vaultId: vaultId,
-      source: source,
-      recoverySecret: recoverySecret,
-    );
-    restored.plainText.fillRange(0, restored.plainText.length, 0);
-    return open();
+    return _retainingKey(() async {
+      if (session.state.isUnlocked) {
+        await session.lock();
+      }
+      final restored = await _store!.restoreEncryptedBackup(
+        vaultId: vaultId,
+        source: source,
+        recoverySecret: recoverySecret,
+      );
+      restored.plainText.fillRange(0, restored.plainText.length, 0);
+      return open();
+    });
   }
 
   Future<File> _portableBackupStagingFile(String operation) async {
@@ -316,12 +386,14 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     if (!session.state.isUnlocked) {
       throw StateError('vault.session_locked');
     }
-    await session.lock();
-    await _store!.rotateRecovery(
-      vaultId: vaultId,
-      recoverySecret: recoverySecret,
-    );
-    return open();
+    return _retainingKey(() async {
+      await session.lock();
+      await _store!.rotateRecovery(
+        vaultId: vaultId,
+        recoverySecret: recoverySecret,
+      );
+      return open();
+    });
   }
 
   @override
@@ -335,27 +407,30 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     }
 
     final workspace = await Workspace.open(Directory(workspacePath));
-    late final LegacyPlaintextMigrationReport report;
-    try {
-      report = await LegacyPlaintextMigrator(
-        workspace: workspace,
-        vaultStore: _store!,
-      ).migrate(vaultId: vaultId);
-    } finally {
-      // The migrator writes through the durable store. Always discard the
-      // session plaintext, even when verification fails after a write, so a
-      // stale unlocked session can never overwrite migrated vault contents.
-      await session.lock();
-    }
+    return _retainingKey(() async {
+      late final LegacyPlaintextMigrationReport report;
+      try {
+        report = await LegacyPlaintextMigrator(
+          workspace: workspace,
+          vaultStore: _store!,
+        ).migrate(vaultId: vaultId);
+      } finally {
+        // The migrator writes through the durable store. Always discard the
+        // session plaintext, even when verification fails after a write, so a
+        // stale unlocked session can never overwrite migrated vault contents.
+        await session.lock();
+      }
 
-    final payload = await open();
-    return PortfolioMigrationResult(report: report, payload: payload);
+      final payload = await open();
+      return PortfolioMigrationResult(report: report, payload: payload);
+    });
   }
 
   @override
   Future<void> lock() async {
     final session = _session;
     if (session != null) await session.lock();
+    _store?.forgetUnlockedKey(vaultId: vaultId);
   }
 
   @override
@@ -375,6 +450,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
       session.removeListener(_publishLockState);
       session.dispose();
     }
+    _store?.forgetUnlockedKey(vaultId: vaultId);
     _session = null;
     _store = null;
     await _unlockChanges.close();

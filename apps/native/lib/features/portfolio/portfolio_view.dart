@@ -78,17 +78,25 @@ class PortfolioView extends StatelessWidget {
         children: [
           _PortfolioHero(
             title: strings.text('portfolioTitle'),
-            body: strings.text('portfolioLockedBody'),
+            body: strings.text(
+              state.recoverySecretRequired
+                  ? 'portfolioLockedRecoveryBody'
+                  : 'portfolioLockedBody',
+            ),
             icon: Icons.lock_outline,
           ),
           const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: state.busy
-                ? null
-                : () => context.read<PortfolioCubit>().open(),
-            icon: const Icon(Icons.lock_open_outlined),
-            label: Text(strings.text('portfolioOpen')),
-          ),
+          if (state.recoverySecretRequired)
+            _RecoverySecretUnlock(busy: state.busy)
+          else
+            FilledButton.icon(
+              key: const ValueKey('portfolio-open'),
+              onPressed: state.busy
+                  ? null
+                  : () => context.read<PortfolioCubit>().open(),
+              icon: const Icon(Icons.lock_open_outlined),
+              label: Text(strings.text('portfolioOpen')),
+            ),
           if (state.busy) ...[
             const SizedBox(height: 12),
             const LinearProgressIndicator(),
@@ -297,6 +305,28 @@ class PortfolioView extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
+                      const SizedBox(height: 14),
+                      Text(
+                        strings.text('portfolioRequireSecretTitle'),
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        strings.text('portfolioRequireSecretInfo'),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      SwitchListTile(
+                        key: const ValueKey('portfolio-require-secret'),
+                        contentPadding: EdgeInsets.zero,
+                        value: state.recoverySecretRequired,
+                        title: Text(
+                          strings.text('portfolioRequireSecretSwitch'),
+                        ),
+                        onChanged: state.busy
+                            ? null
+                            : (enabled) =>
+                                _setRecoverySecretRequired(context, enabled),
+                      ),
                     ],
                   ),
                 ),
@@ -549,6 +579,116 @@ class PortfolioView extends StatelessWidget {
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
       SnackBar(content: Text(strings.text('portfolioRestoreDone'))),
+    );
+  }
+
+  Future<void> _setRecoverySecretRequired(
+    BuildContext context,
+    bool enabled,
+  ) async {
+    final strings = HubStrings(context.read<LocaleCubit>().state.language);
+    final cubit = context.read<PortfolioCubit>();
+    final messenger = ScaffoldMessenger.of(context);
+    var changed = false;
+
+    if (!enabled) {
+      changed = await cubit.setRecoverySecretRequired(false);
+    } else {
+      final secret = TextEditingController();
+      var hidden = true;
+      String? localError;
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: Text(strings.text('portfolioRequireSecretEnableTitle')),
+            content: SizedBox(
+              width: 460,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(strings.text('portfolioRequireSecretEnableExplain')),
+                  const SizedBox(height: 8),
+                  Text(
+                    strings.text('portfolioRequireSecretInfo'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    key: const ValueKey('portfolio-require-secret-input'),
+                    controller: secret,
+                    obscureText: hidden,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      labelText: strings.text('portfolioRecoverySecret'),
+                      errorText: localError,
+                      suffixIcon: IconButton(
+                        onPressed: () => setState(() => hidden = !hidden),
+                        icon: Icon(
+                          hidden
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(strings.text('portfolioCancel')),
+              ),
+              FilledButton(
+                key: const ValueKey('portfolio-require-secret-confirm'),
+                onPressed: () async {
+                  if (secret.text.length < 12) {
+                    setState(() {
+                      localError = strings.text('portfolioRecoveryShort');
+                    });
+                    return;
+                  }
+                  changed = await cubit.setRecoverySecretRequired(
+                    true,
+                    recoverySecret: secret.text,
+                  );
+                  if (!dialogContext.mounted) return;
+                  if (changed) {
+                    Navigator.pop(dialogContext);
+                  } else {
+                    setState(() {
+                      localError = _portfolioErrorText(
+                        strings,
+                        cubit.state.errorCode ?? 'portfolio.operation_failed',
+                      );
+                    });
+                  }
+                },
+                child: Text(strings.text('portfolioEnable')),
+              ),
+            ],
+          ),
+        ),
+      );
+      secret.clear();
+      if (!changed) cubit.dismissError();
+    }
+
+    if (!changed) return;
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          strings.text(
+            enabled
+                ? 'portfolioRequireSecretEnabled'
+                : 'portfolioRequireSecretDisabled',
+          ),
+        ),
+      ),
     );
   }
 
@@ -1452,6 +1592,10 @@ String _portfolioErrorText(HubStrings strings, String code) => switch (code) {
   ),
   'portfolio.issue_not_in_catalog' => strings.text('portfolioIssueMissing'),
   'vault.session_locked' => strings.text('portfolioLockedBody'),
+  'vault.recovery_authentication_failed' ||
+  'vault.recovery_verification_failed' => strings.text(
+    'portfolioRecoveryWrong',
+  ),
   'portfolio.disposal_after_redemption' => strings.text(
     'portfolioSaleAfterRedemption',
   ),
@@ -1478,6 +1622,73 @@ String _portfolioErrorText(HubStrings strings, String code) => switch (code) {
   'portfolio.redemption_exceeds_units' => strings.text('portfolioInvalidInput'),
   _ => strings.text('portfolioOperationFailed'),
 };
+
+class _RecoverySecretUnlock extends StatefulWidget {
+  final bool busy;
+  const _RecoverySecretUnlock({required this.busy});
+
+  @override
+  State<_RecoverySecretUnlock> createState() => _RecoverySecretUnlockState();
+}
+
+class _RecoverySecretUnlockState extends State<_RecoverySecretUnlock> {
+  final _secret = TextEditingController();
+  var _hidden = true;
+
+  @override
+  void dispose() {
+    _secret.clear();
+    _secret.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (widget.busy || _secret.text.isEmpty) return;
+    final secret = _secret.text;
+    _secret.clear();
+    await context.read<PortfolioCubit>().open(recoverySecret: secret);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = HubStrings(context.watch<LocaleCubit>().state.language);
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 460),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            key: const ValueKey('portfolio-open-recovery-secret'),
+            controller: _secret,
+            obscureText: _hidden,
+            enableSuggestions: false,
+            autocorrect: false,
+            enabled: !widget.busy,
+            onSubmitted: (_) => _submit(),
+            decoration: InputDecoration(
+              labelText: strings.text('portfolioRecoverySecret'),
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _hidden = !_hidden),
+                icon: Icon(
+                  _hidden
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          FilledButton.icon(
+            key: const ValueKey('portfolio-open-with-secret'),
+            onPressed: widget.busy ? null : _submit,
+            icon: const Icon(Icons.lock_open_outlined),
+            label: Text(strings.text('portfolioOpenWithSecret')),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _PortfolioError extends StatelessWidget {
   final String code;

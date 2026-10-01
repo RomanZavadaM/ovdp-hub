@@ -143,6 +143,20 @@ class WindowsVaultDeviceKeyStore implements VaultDeviceKeyStore {
   }
 
   @override
+  Future<void> forgetDek({required String vaultId}) async {
+    final current = await _readState(vaultId);
+    if (current == null || current.dek == null) return;
+    await _writeState(
+      vaultId,
+      _WindowsDeviceState(
+        vaultId: vaultId,
+        dek: null,
+        highestRevision: current.highestRevision,
+      ),
+    );
+  }
+
+  @override
   Future<int?> loadHighestAcceptedRevision({required String vaultId}) async =>
       (await _readState(vaultId))?.highestRevision;
 
@@ -152,19 +166,19 @@ class WindowsVaultDeviceKeyStore implements VaultDeviceKeyStore {
     required int revision,
   }) async {
     validateRevision(revision);
+    // A vault opened with its recovery secret has no device DEK, but its
+    // rollback counter must still advance.
     final current = await _readState(vaultId);
-    if (current?.dek == null) {
-      throw StateError('vault.device_key_missing');
-    }
-    if (revision < current!.highestRevision) {
+    final highest = current?.highestRevision ?? 0;
+    if (current != null && revision < highest) {
       throw StateError('vault.revision_regression');
     }
-    if (revision == current.highestRevision) return;
+    if (current != null && revision == highest) return;
     await _writeState(
       vaultId,
       _WindowsDeviceState(
         vaultId: vaultId,
-        dek: current.dek,
+        dek: current?.dek,
         highestRevision: revision,
       ),
     );

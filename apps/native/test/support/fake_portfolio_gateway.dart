@@ -17,6 +17,9 @@ class FakePortfolioGateway implements PortfolioGateway {
   int rotateRecoveryCalls = 0;
   String? lastMigrationWorkspacePath;
   String? lastRecoverySecret;
+  String recoverySecret = 'correct horse battery';
+  bool recoverySecretRequired = false;
+  int recoveryModeChanges = 0;
   String backupPath = 'local/OVDP-Hub-portfolio-backup.ovdp-vault.json';
 
   FakePortfolioGateway({
@@ -42,6 +45,8 @@ class FakePortfolioGateway implements PortfolioGateway {
       throw const FormatException('portfolio.recovery_secret_too_short');
     }
     if (stored != null) throw StateError('vault.already_exists');
+    this.recoverySecret = recoverySecret;
+    recoverySecretRequired = false;
     stored = PrivatePortfolioPayload(portfolioId: 'primary');
     locked = false;
     _unlockChanges.add(true);
@@ -49,9 +54,32 @@ class FakePortfolioGateway implements PortfolioGateway {
   }
 
   @override
-  Future<PrivatePortfolioPayload> open() async {
+  Future<bool> requiresRecoverySecret() async =>
+      stored != null && recoverySecretRequired;
+
+  @override
+  Future<void> setRecoverySecretRequired({
+    required bool enabled,
+    String? recoverySecret,
+  }) async {
+    if (locked) throw StateError('vault.session_locked');
+    if (enabled && recoverySecret != this.recoverySecret) {
+      throw const FormatException('vault.recovery_authentication_failed');
+    }
+    recoveryModeChanges++;
+    recoverySecretRequired = enabled;
+  }
+
+  @override
+  Future<PrivatePortfolioPayload> open({String? recoverySecret}) async {
     final value = stored;
     if (value == null) throw StateError('portfolio.open_failed');
+    if (recoverySecretRequired) {
+      if (recoverySecret == null) throw StateError('vault.device_key_missing');
+      if (recoverySecret != this.recoverySecret) {
+        throw const FormatException('vault.recovery_authentication_failed');
+      }
+    }
     locked = false;
     _unlockChanges.add(true);
     return value;
