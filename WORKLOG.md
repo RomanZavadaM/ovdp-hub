@@ -1,6 +1,6 @@
 # WORKLOG — OVDP Hub
 
-Оновлено: **02.10.2026** (v0.10.0 опубліковано)
+Оновлено: **02.10.2026** (v0.10.0 опубліковано; додано план аудиту)
 
 ## STATUS
 
@@ -29,6 +29,12 @@ Scope: security/privacy hardening за аудитом 01.10.2026 + перші п
 ## NEXT
 
 Активного slice немає. Наступний scope визначає власник; кандидати — B.3 симулятор реінвестування, B.4 імпорт виписок, B.5 аналітика аукціонів, B.6 річний звіт (`docs/roadmap.md`).
+
+## Планування аудиту 02.10.2026
+
+За дорученням власника F1–F10 додано до майбутньої роботи: [backlog](docs/maintenance/AUDIT_BACKLOG_2026_10_02.md), [Issue #147](https://github.com/RomanZavadaM/ovdp-hub/issues/147). P1: цілісність міграції/workspace, приватний Planner після lock, перевірка KDF race; P2: notes/export/inactivity, partial NBU, packaged докази, docs.
+
+Статус пунктів **PLANNED**, виправлення не почато. F4 — гіпотеза для контрольованого тесту, F9 — межа доказу. Документаційна гілка `docs/audit-planned-work-2026-10-02`, база `31c2004298f1b804439692e8bfb7562d3952c8ba`. Наступна продуктова дія — визначення scope власником. v0.10.0, B.3–B.6 та deferred physical-device/signing backlog без змін.
 
 ## Попередній checkpoint (історія)
 

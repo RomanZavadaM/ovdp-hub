@@ -27,11 +27,12 @@ Post-merge main verify run **#561 — SUCCESS**.
 
 - `PROJECT_RULES.md` — постійні правила.
 - `PROJECT_STATE.md` — підтверджений стан продукту.
-- `WORKLOG.md` — активний slice, план v0.9.5 і точна наступна дія.
+- `WORKLOG.md` — активний slice і точна наступна дія.
 - GitHub Issue #18 — append-only development ledger.
 - `apps/native/pubspec.yaml` — machine source version/build.
 - `docs/releases/RELEASE_NOTES_v0_10_0.md` — останній опублікований реліз.
-- `docs/roadmap.md` — завершений scope і deferred backlog.
+- `docs/roadmap.md` — завершений scope, планована робота за аудитом і deferred backlog.
+- `docs/maintenance/AUDIT_BACKLOG_2026_10_02.md` / Issue #147 — F1–F10, пріоритети та критерії; PLANNED, не активний NEXT.
 
 ## Що зафіксовано у v0.10.0
 
