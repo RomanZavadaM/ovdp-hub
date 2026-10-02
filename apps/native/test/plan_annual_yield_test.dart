@@ -35,7 +35,7 @@ void main() {
       {'date': '2027-01-01', 'kind': 'REDEMPTION', 'amount': '1000'},
     ]);
     final long = _bond('UA4000000025', '2029-01-01', [
-      {'date': '2029-01-01', 'kind': 'REDEMPTION', 'amount': '1300'},
+      {'date': '2029-01-01', 'kind': 'REDEMPTION', 'amount': '1200'},
     ]);
     final shortYield = planAnnualYield(
       [PlanPosition(short, 1, Decimal.parse('900'))],
@@ -45,7 +45,7 @@ void main() {
       [PlanPosition(long, 1, Decimal.parse('900'))],
       '2026-01-01',
     )!;
-    // The long bond earns more in total (400 vs 100) but less per year.
+    // The long bond earns more in total (300 vs 100) but less per year.
     expect(longYield, lessThan(shortYield));
 
     final withFee = planAnnualYield(
