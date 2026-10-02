@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/main.dart';
 import 'package:ovdp_hub/data/hub_repository.dart';
+import 'package:ovdp_hub/features/portfolio/private_portfolio.dart';
 import 'package:ovdp_hub/models.dart';
 import 'package:ovdp_hub/ui/studio_design.dart';
+import 'support/fake_portfolio_gateway.dart';
 import 'support/fake_repository.dart';
 import 'support/planner_comparison_fixtures.dart';
 
@@ -66,7 +68,17 @@ void main() {
       {'date': maturity, 'kind': 'REDEMPTION', 'amount': '1000'},
     ];
     final repository = FakeRepository(Catalog.parse(jsonEncode(json)));
-    await tester.pumpWidget(OvdpApp(repository: repository));
+    final gateway = FakePortfolioGateway(
+      stored: PrivatePortfolioPayload(portfolioId: 'primary'),
+    );
+    await tester.pumpWidget(
+      OvdpApp(repository: repository, portfolioGateway: gateway),
+    );
+    await tester.pumpAndSettle();
+    await tapNavigationIcon(tester, Icons.account_balance_wallet_outlined);
+    final openPortfolio = find.byKey(const ValueKey('portfolio-open'));
+    await tester.ensureVisible(openPortfolio);
+    await tester.tap(openPortfolio);
     await tester.pumpAndSettle();
     await tapNavigationIcon(tester, Icons.event_available_outlined);
     final generate = find.text('Розподілити за строками');
@@ -77,7 +89,10 @@ void main() {
     await tester.ensureVisible(save);
     await tester.tap(save);
     await tester.pumpAndSettle();
-    expect(repository.current!.sets.single.scenario, isNotNull);
+    // Private amounts never land as plaintext in the workspace folder.
+    expect(repository.current!.sets, isEmpty);
+    expect(repository.saves, 0);
+    expect(gateway.stored!.privateScenarios.single.set.scenario, isNotNull);
     await tester.tap(find.text('Мій план'));
     await tester.pumpAndSettle();
     final open = find.text('Відкрити план і календар коштів');

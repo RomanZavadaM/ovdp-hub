@@ -106,10 +106,6 @@ class OvdpApp extends StatelessWidget {
           lazy: false,
         ),
         BlocProvider(
-          create: (context) => CollectionsCubit(context.read<HubRepository>()),
-          lazy: false,
-        ),
-        BlocProvider(
           create: (context) =>
               CollectionEditorCubit(context.read<HubRepository>()),
           lazy: false,
@@ -156,7 +152,17 @@ class OvdpApp extends StatelessWidget {
           lazy: false,
         ),
         BlocProvider(
-          create: (context) => PlannerCubit(context.read<HubRepository>()),
+          create: (context) => CollectionsCubit(
+            context.read<HubRepository>(),
+            portfolio: context.read<PortfolioCubit>(),
+          ),
+          lazy: false,
+        ),
+        BlocProvider(
+          create: (context) => PlannerCubit(
+            context.read<HubRepository>(),
+            saveScenario: context.read<PortfolioCubit>().savePrivateScenario,
+          ),
           lazy: false,
         ),
         BlocProvider(

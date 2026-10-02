@@ -42,6 +42,9 @@ abstract interface class HubRepository {
   Future<void> refreshCatalog();
   Future<void> reloadCollections();
   Future<void> saveCollection(SavedSet collection);
+
+  /// Deletes saved-set records from the workspace by [SavedSet.recordId].
+  Future<void> deleteCollections(Iterable<String> recordIds);
   Future<String> saveTextExport(String fileName, String content);
   Future<EconomicPulseSnapshot> loadEconomicPulse();
   Future<void> dispose();
@@ -370,6 +373,32 @@ class FileHubRepository implements HubRepository {
       ),
     );
   });
+
+  @override
+  Future<void> deleteCollections(Iterable<String> recordIds) =>
+      _exclusive(() async {
+        final ids = recordIds.toSet();
+        for (final id in ids) {
+          final mobile = _mobileWorkspace;
+          if (mobile != null) {
+            await mobile.deleteSet(id);
+          } else {
+            final local = _workspace;
+            if (local == null) throw StateError('workspace.not_open');
+            await local.deleteSet(id);
+          }
+        }
+        final sets = await _readSets();
+        _publish(
+          WorkspaceSnapshot(
+            current!.path,
+            current!.catalog,
+            sets,
+            localPath: current!.localPath,
+            external: current!.external,
+          ),
+        );
+      });
 
   @override
   Future<String> saveTextExport(String fileName, String content) =>

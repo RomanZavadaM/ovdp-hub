@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/hub_repository.dart';
 import '../../models.dart';
 import '../planner/planner_comparison.dart';
+import '../portfolio/portfolio_cubit.dart';
 
 @immutable
 class CollectionsState {
@@ -42,25 +43,57 @@ class CollectionsState {
 class CollectionsCubit extends Cubit<CollectionsState> {
   final HubRepository repository;
   final DateTime Function() clock;
+
+  /// Source of private scenarios kept in the encrypted vault. They are listed
+  /// together with workspace sets while the portfolio is unlocked.
+  final PortfolioCubit? portfolio;
   late final StreamSubscription<WorkspaceSnapshot> _subscription;
+  StreamSubscription<Object?>? _portfolioSubscription;
 
   CollectionsCubit(
     this.repository, {
     DateTime Function()? clock,
+    this.portfolio,
   }) : clock = clock ?? DateTime.now,
-       super(CollectionsState(sets: repository.current?.sets ?? [])) {
-    _subscription = repository.changes.listen((snapshot) {
-      final available = snapshot.sets.map(_comparisonKey).toSet();
-      final selected = state.selectedComparisonKeys
-          .where(available.contains)
-          .toList(growable: false);
-      _emitComparison(
-        sets: snapshot.sets,
-        selectedKeys: selected,
-        clearError: true,
-      );
-    });
+       super(
+         CollectionsState(
+           sets: _merge(
+             portfolio?.privateScenarioSets ?? const [],
+             repository.current?.sets ?? const [],
+           ),
+         ),
+       ) {
+    _subscription = repository.changes.listen((_) => _refresh());
+    _portfolioSubscription = portfolio?.stream
+        .map((state) => state.payload)
+        .distinct()
+        .listen((_) => _refresh());
   }
+
+  static List<SavedSet> _merge(
+    Iterable<SavedSet> private,
+    Iterable<SavedSet> workspace,
+  ) => [
+    ...private.toList().reversed,
+    ...workspace,
+  ];
+
+  void _refresh() {
+    final sets = _merge(
+      portfolio?.privateScenarioSets ?? const [],
+      repository.current?.sets ?? const [],
+    );
+    final available = sets.map(_comparisonKey).toSet();
+    final selected = state.selectedComparisonKeys
+        .where(available.contains)
+        .toList(growable: false);
+    _emitComparison(sets: sets, selectedKeys: selected, clearError: true);
+  }
+
+  /// Workspace scenarios that are still stored as plaintext files.
+  int get plaintextScenarioCount => state.sets
+      .where((set) => set.scenario != null && !set.storedInVault)
+      .length;
 
   static String _comparisonKey(SavedSet set) => '${set.savedAt}|${set.name}';
 
@@ -167,6 +200,7 @@ class CollectionsCubit extends Cubit<CollectionsState> {
   @override
   Future<void> close() async {
     await _subscription.cancel();
+    await _portfolioSubscription?.cancel();
     return super.close();
   }
 }

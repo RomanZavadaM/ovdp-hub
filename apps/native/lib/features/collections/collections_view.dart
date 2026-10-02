@@ -8,6 +8,7 @@ import '../navigation/navigation_cubit.dart';
 import '../planner/planner_comparison.dart';
 import '../planner/planner_cubit.dart';
 import '../planner/planner_scenario.dart';
+import '../portfolio/portfolio_cubit.dart';
 import '../sellers/sellers_cubit.dart';
 import '../workspace/workspace_cubit.dart';
 import 'collections_cubit.dart';
@@ -224,6 +225,28 @@ class CollectionsView extends StatelessWidget {
     );
   }
 
+  Future<void> _moveScenariosToVault(
+    BuildContext context,
+    HubStrings strings,
+  ) async {
+    final portfolio = context.read<PortfolioCubit>();
+    final messenger = ScaffoldMessenger.of(context);
+    await portfolio.movePlaintextScenariosToVault();
+    final moved = portfolio.state.movedScenarioCount;
+    if (moved == null || portfolio.state.errorCode != null) return;
+    portfolio.dismissMovedScenarioCount();
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          strings
+              .text('collectionsScenariosMoved')
+              .replaceAll('{n}', '$moved'),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CollectionsCubit>().state;
@@ -231,8 +254,13 @@ class CollectionsView extends StatelessWidget {
     final cubit = context.read<CollectionsCubit>();
     final editor = context.watch<CollectionEditorCubit>();
     final workspace = context.watch<WorkspaceCubit>().state;
-    final busy = state.busy || editor.state.busy || workspace.busy;
+    final portfolio = context.watch<PortfolioCubit>().state;
+    final busy = state.busy ||
+        editor.state.busy ||
+        workspace.busy ||
+        portfolio.busy;
     final seller = context.watch<SellersCubit>().state.snapshot;
+    final plaintextScenarios = cubit.plaintextScenarioCount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,6 +272,45 @@ class CollectionsView extends StatelessWidget {
           onPressed: busy || workspace.path == null ? null : cubit.reload,
           child: Text(strings.text('reloadFolder')),
         ),
+        if (portfolio.exists && !portfolio.unlocked) ...[
+          const SizedBox(height: 8),
+          Text(
+            strings.text('collectionsPrivateHidden'),
+            key: const ValueKey('collections-private-hidden'),
+          ),
+        ],
+        if (plaintextScenarios > 0) ...[
+          const SizedBox(height: 12),
+          Card(
+            key: const ValueKey('collections-plaintext-warning'),
+            color: Theme.of(context).colorScheme.tertiaryContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    strings
+                        .text('collectionsPlaintextWarning')
+                        .replaceAll('{n}', '$plaintextScenarios'),
+                  ),
+                  const SizedBox(height: 10),
+                  if (portfolio.unlocked)
+                    FilledButton.icon(
+                      key: const ValueKey('collections-move-scenarios'),
+                      onPressed: busy
+                          ? null
+                          : () => _moveScenariosToVault(context, strings),
+                      icon: const Icon(Icons.enhanced_encryption_outlined),
+                      label: Text(strings.text('collectionsMoveScenarios')),
+                    )
+                  else
+                    Text(strings.text('collectionsUnlockToMove')),
+                ],
+              ),
+            ),
+          ),
+        ],
         if (state.sets.where((s) => s.scenario != null).length >= 2) ...[
           const SizedBox(height: 12),
           SectionHeading(strings.text('comparisonTitle')),
@@ -272,9 +339,24 @@ class CollectionsView extends StatelessWidget {
         ...state.sets.map(
           (s) => Card(
             child: ExpansionTile(
+              leading: s.scenario == null
+                  ? null
+                  : Icon(
+                      s.storedInVault
+                          ? Icons.lock_outline
+                          : Icons.lock_open_outlined,
+                    ),
               title: Text(_generatedCopy(strings, s.name)),
               subtitle: Text(
-                '${s.bonds.length} ${strings.text('issuesWord')} · ${s.savedAt}',
+                [
+                  '${s.bonds.length} ${strings.text('issuesWord')} · ${s.savedAt}',
+                  if (s.scenario != null)
+                    strings.text(
+                      s.storedInVault
+                          ? 'collectionStoredInVault'
+                          : 'collectionPlaintextScenario',
+                    ),
+                ].join('\n'),
               ),
               children: [
                 Padding(

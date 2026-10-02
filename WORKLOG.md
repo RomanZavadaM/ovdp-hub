@@ -1,6 +1,6 @@
 # WORKLOG — OVDP Hub
 
-Оновлено: **01.10.2026** (S1 інтегровано)
+Оновлено: **01.10.2026** (S1, S2 інтегровано)
 
 ## STATUS
 
@@ -23,17 +23,17 @@
 | # | Slice | Статус |
 |---|-------|--------|
 | S1 | CSV/ICS export escaping; desktop focus-loss не блокує портфель | DONE — PR #138 → `a339ecfc` |
-| S2 | Пароль відновлення при відкритті портфеля (A.1) | VERIFIED — PR #139 (`feat/v095-password-on-open`), merge після зелених checks на exact head |
-| S3 | Сценарії Planner у vault + перенесення/видалення plaintext-сценаріїв (A.2) | DOING — PR #140 (draft, stacked на S2) |
-| S4 | Видалення локального портфеля з UI; вихід із `device_key_conflict`; свідомий restore старішої копії (A.3) | DOING — `feat/v095-vault-management` (stacked на S3) |
-| S5 | Argon2 поза UI-ізолятом; Android SAF bridge (UI thread, persisted grants); толерантний парсер НБУ | TODO |
+| S2 | Пароль відновлення при відкритті портфеля (A.1) | DONE — PR #139 → `4ea48cf4` |
+| S3 | Сценарії Planner у vault + перенесення/видалення plaintext-сценаріїв (A.2) | VERIFIED — PR #140 (`feat/v095-private-scenarios`), merge після зелених checks на exact head |
+| S4 | Видалення локального портфеля з UI; вихід із `device_key_conflict`; свідомий restore старішої копії (A.3) | VERIFIED (verify) — PR #141 (draft, stacked на S3) |
+| S5 | Argon2 у фоновому ізоляті; толерантний парсер НБУ; Android SAF I/O поза UI-потоком | DOING — PR #142 (draft, stacked на S4) |
 
-## Поточний slice — S2
+## Поточний slice — S3
 
-- Гілка/PR: `feat/v095-password-on-open`, PR #139.
-- Суть: опційний режим «пароль відновлення при відкритті»: DEK видаляється зі сховища пристрою (`forgetDek`, лічильник ревізій лишається), vault відкривається розгортанням recovery-слоту, DEK живе лише в пам'яті сесії.
-- Готово, коли: зелені checks на exact head після rebase на `a339ecfc`; merge.
-- Наступна дія: merge PR #139 → retarget PR #140 (S3) на `main`.
+- Гілка/PR: `feat/v095-private-scenarios`, PR #140.
+- Суть: payload schema v4 `privateScenarios` (повний SavedSet зі знімком облігацій); Planner зберігає сценарії лише у vault (без портфеля/коли заблоковано — пояснення, не plaintext); «Добірки» показують сценарії з vault поки портфель відкрито, позначають vault/plaintext і переносять plaintext-сценарії у vault з видаленням файлів після перевірки.
+- Готово, коли: зелені checks на exact head після rebase на `4ea48cf4`; merge.
+- Наступна дія: merge PR #140 → rebase S4 (#141) на `main`, зняти draft.
 
 ## Попередній checkpoint
 
