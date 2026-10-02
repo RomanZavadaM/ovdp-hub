@@ -7,6 +7,7 @@ import 'package:ovdp_hub/features/calculator/accrued_interest.dart';
 import 'package:ovdp_hub/features/calculator/calculator_cubit.dart';
 import 'package:ovdp_hub/main.dart';
 import 'package:ovdp_hub/models.dart';
+import 'package:ovdp_hub/pricing.dart';
 import 'package:ovdp_hub/ui/studio_design.dart';
 
 import 'support/fake_repository.dart';
@@ -103,8 +104,8 @@ void main() {
     expect(result.cost, Decimal.parse('10298.50'));
     expect(result.receipts, Decimal.parse('11194.00'));
     expect(result.profit, Decimal.parse('895.50'));
-    expect(result.yield, greaterThan(0.11));
-    expect(result.yield, lessThan(0.13));
+    // ACT/365F solver reference: 12.2666% for this schedule.
+    expect(_yieldOf(result), closeTo(0.122666, 0.00001));
 
     cubit.edit(settlement: '2026-06-24');
     cubit.calculate();
@@ -177,3 +178,6 @@ List<Map<String, String>> _payments2035() => [
   {'date': '2035-06-20', 'kind': 'COUPON', 'amount': '59.70'},
   {'date': '2035-06-20', 'kind': 'REDEMPTION', 'amount': '1000'},
 ];
+
+/// `yield` is a keyword inside async test bodies, so read it synchronously.
+double _yieldOf(BondResult result) => result.yield;
