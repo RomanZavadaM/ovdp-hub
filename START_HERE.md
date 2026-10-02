@@ -4,12 +4,12 @@
 
 ## Статус
 
-**ACTIVE — розробку відновлено власником 01.10.2026. Поточний scope: v0.9.5 security/privacy hardening (див. `WORKLOG.md`).**
+**ACTIVE — останній тестовий реліз v0.10.0 / 0.10.0+22 опубліковано 02.10.2026. Новий scope визначає власник (див. `docs/roadmap.md`).**
 
-Останній опублікований checkpoint: **v0.9.4 / 0.9.4+21**.  
-Release/product checkpoint commit: **`1185ad7f94339cd8865f3123570b9ad14a935114`**.  
-Release run **#113 — SUCCESS**.  
-Post-merge main verify run **#518 — SUCCESS**.
+Останній опублікований checkpoint: **v0.10.0 / 0.10.0+22**.  
+Release/product checkpoint commit: **`933a7bd27e0f4babe47f44a32f8bf9214b4b18a4`**.  
+Release run **#116 — SUCCESS**.  
+Post-merge main verify run **#561 — SUCCESS**.
 
 Не відновлювати старі work/feature branches як джерело коду і не повторювати merged slices.
 
@@ -30,28 +30,19 @@ Post-merge main verify run **#518 — SUCCESS**.
 - `WORKLOG.md` — активний slice, план v0.9.5 і точна наступна дія.
 - GitHub Issue #18 — append-only development ledger.
 - `apps/native/pubspec.yaml` — machine source version/build.
-- `docs/releases/RELEASE_NOTES_v0_9_4.md` — фінальний checkpoint цього етапу.
+- `docs/releases/RELEASE_NOTES_v0_10_0.md` — останній опублікований реліз.
 - `docs/roadmap.md` — завершений scope і deferred backlog.
 
-## Що зафіксовано у v0.9.4
+## Що зафіксовано у v0.10.0
 
-Після v0.9.3 інтегровано:
-- Portfolio recovery/rotation та Windows portable encrypted backup/restore;
-- безпечне редагування Planner criteria/date;
-- localization cleanup і persistence language/appearance;
-- shared locale-friendly dates;
-- macOS Keychain runtime proof та encrypted Portfolio enablement;
-- Android SAF + iOS security-scoped external-storage foundation;
-- mobile external workspace / encrypted backup transport;
-- двоетапний mobile storage self-test через terminate/relaunch.
+Після відновлення розробки (01.10.2026, аудит коду) інтегровано PR #138–#142:
+- опційний пароль відновлення при відкритті портфеля;
+- сценарії Planner із приватними сумами лише в зашифрованому портфелі (payload schema v4) і перевірене перенесення старих plaintext-сценаріїв;
+- видалення локального портфеля, підтверджений restore старішої копії;
+- Argon2id у фоновому ізоляті, formula-safe CSV, толерантне оновлення каталогу НБУ, Android SAF I/O поза UI-потоком;
+- калькулятор облігації з каталогу (НКД, YTM), очікувані надходження портфеля, річна дохідність плану.
 
-Final gates:
-- **218/218 tests**;
-- Windows exact packaged ZIP smoke;
-- macOS exact packaged ZIP smoke + Keychain/vault lifecycle;
-- Android release APK compile/package;
-- iOS unsigned release compile/package;
-- START/source, SHA256SUMS і legal notices.
+Final gates release run #116: **264 tests**, Windows/macOS exact packaged ZIP smoke (з release-contract capabilities), Android release APK, iOS unsigned, START/source, SHA256SUMS і legal notices.
 
 ## Deferred — не є активним NEXT
 
@@ -64,7 +55,7 @@ Final gates:
 - installers / auto-update;
 - будь-які нові продуктові slices.
 
-Ці пункти **не блокують parked checkpoint v0.9.4** і не дозволяють називати невиконані physical-device сценарії `RUNTIME VALIDATED`.
+Ці пункти **не блокують тестові релізи** і не дозволяють називати невиконані physical-device сценарії `RUNTIME VALIDATED`.
 
 ## Команда власника «злити у main»
 

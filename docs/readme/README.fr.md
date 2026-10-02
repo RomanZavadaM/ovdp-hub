@@ -2,17 +2,26 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · **🇫🇷 Français** · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Checkpoint final du périmètre actuel : [OVDP Hub v0.9.4](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.9.4) — 0.9.4+21**
+> **Version de test actuelle: [OVDP Hub v0.10.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.0) — 0.10.0+22**
 >
-> **Statut du développement : PARKED / terminé au périmètre actuel. Aucun développement actif.**
+> **Statut : ACTIVE — développement repris le 01.10.2026 ; v0.10.0 publiée le 02.10.2026.**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.4/OVDP-Hub-0.9.4-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.4/OVDP-Hub-0.9.4-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.4/OVDP-Hub-0.9.4-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.4/OVDP-Hub-0.9.4-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.4/OVDP-Hub-0.9.4-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.9.4/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/SHA256SUMS.txt)
 
 ## Produit
 
 OVDP Hub est une application Flutter/Dart local-first pour les OVDP ukrainiennes : sources de marché, planification de scénarios, comparaison neutre et portefeuille personnel chiffré factuel.
 
-## Points forts v0.9.4
+## Nouveautés v0.10.0
+
+- **mot de passe de récupération à l’ouverture** du portefeuille (option) ;
+- scénarios du Planner avec montants privés **uniquement dans le portefeuille chiffré** ;
+- suppression du portefeuille local et restauration d’une sauvegarde plus ancienne avec confirmation ;
+- **calculateur d’obligation du catalogue** (intérêts courus indicatifs, rendement à l’échéance) ;
+- **encaissements attendus** sur 12 mois et paiements « peut-être non enregistrés » ;
+- **rendement annuel du plan**, Argon2id en arrière-plan, CSV protégé, catalogue NBU tolérant.
+
+## Périmètre du produit
 
 - couches NBU / MinFin / vendeurs avec provenance et freshness;
 - Planner avec frais, fiscalité, FX, besoins récurrents, reserve floor et sortie anticipée par position;
@@ -34,11 +43,11 @@ Windows : extraire tout le ZIP et lancer `ovdp_hub.exe`. macOS : extraire et ouv
 
 Guide complet : **[Guide utilisateur français](../user-guide/USER_GUIDE.fr.md)**.
 
-## Vérification et limites PARKED
+## Vérification et limites
 
-Le run de release #113 de v0.9.4 a réussi analyze, **218/218 tests**, smoke des ZIP Windows/macOS, packaging Android release, packaging iOS unsigned, START/source, checksums et notices légales.
+Le run de release #116 de v0.10.0 (commit `933a7bd`) a réussi analyze, **264 tests**, smoke des ZIP Windows/macOS avec la liste des capacités, packaging Android release, packaging iOS unsigned, START/source, checksums et notices légales.
 
-Différé et non actif : validation physique Android SAF, build iOS signé + validation sur iPhone, signing/notarization/distribution store de production, installateurs et auto-update. Ces cas physiques ne sont pas déclarés `RUNTIME VALIDATED`.
+Différé : validation physique Android SAF et iOS signé, signature de production, notarisation, distribution store, installateurs et auto-update. Intérêts courus et rendements indicatifs ; pas de conseil en investissement.
 
 ## Confidentialité et licence
 
