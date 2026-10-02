@@ -1,20 +1,19 @@
 # PROJECT_STATE — OVDP Hub
 
-Оновлено: **26.09.2026**
+Оновлено: **02.10.2026**
 
 ## Поточний стан
 
-- Статус розвитку: **PARKED / завершений на поточному рівні**.
-- Активного NEXT: **немає**.
-- Версія: **v0.9.4 / 0.9.4+21**.
-- Статус релізу: **test / prerelease parked checkpoint**.
-- Release/product checkpoint commit: **`1185ad7f94339cd8865f3123570b9ad14a935114`**.
-- GitHub prerelease: **v0.9.4**, published 26.09.2026.
-- Release run **#113 — SUCCESS**.
-- Main verification run **#518 — SUCCESS**.
+- Статус розвитку: **ACTIVE** — розробку відновлено власником 01.10.2026.
+- Версія: **v0.10.0 / 0.10.0+22**.
+- Статус релізу: **test / prerelease**.
+- Release/product commit: **`933a7bd27e0f4babe47f44a32f8bf9214b4b18a4`** (release PR #142).
+- GitHub prerelease: **v0.10.0**, published 02.10.2026.
+- Release run **#116 — SUCCESS**; main verification **#561 — SUCCESS**.
 - Активний продукт: Flutter/Dart, `apps/native`.
-- Платформи checkpoint: Windows / macOS / Android / iOS unsigned.
+- Платформи: Windows / macOS / Android / iOS unsigned.
 - UI-мови: UK / EN / FR / DE / ES / KO / JA.
+- Активного NEXT немає до нового рішення власника про scope (кандидати — продуктові напрямки B.3–B.6 у `docs/roadmap.md`).
 
 Детальна історія зберігається в `CHANGELOG.md`, `docs/releases/`, merged PR і GitHub Issue #18. Цей файл навмисно не дублює повний журнал розробки.
 
@@ -55,25 +54,29 @@
 - integrated two-phase terminate/relaunch self-test panel;
 - implementation/regression/compile gates закриті.
 
-## Verification v0.9.4
+### Нове у v0.10.0
+- опційний пароль відновлення при відкритті портфеля (DEK лише в пам'яті сесії, лічильник ревізій зберігається);
+- сценарії Planner із приватними сумами лише у vault (payload schema v4), перевірене перенесення plaintext-сценаріїв;
+- видалення локального портфеля, підтверджений restore старішої копії, повідомлення про конфлікти;
+- калькулятор облігації з каталогу (НКД, YTM), очікувані надходження портфеля на 12 місяців, річна дохідність плану;
+- Argon2id у фоновому ізоляті, formula-safe CSV, толерантне оновлення каталогу НБУ, Android SAF I/O поза UI-потоком.
 
-Release run **#113**:
+## Verification v0.10.0
+
+Release run **#116**:
 - `flutter analyze` PASS;
-- **218/218 tests PASS**;
-- Windows exact release ZIP build/package/smoke PASS;
-- macOS exact release ZIP build/package/smoke PASS;
+- **264 tests PASS**;
+- Windows / macOS exact release ZIP build/package/smoke PASS (version/build + release-contract capabilities + private portfolio schema v4);
 - Android release APK package PASS;
 - iOS unsigned release package PASS;
-- START/source PASS;
-- SHA256SUMS + legal notices PASS;
-- publish PASS.
+- START/source, SHA256SUMS + legal notices, publish PASS.
 
 Release assets / SHA-256:
-- Windows `OVDP-Hub-0.9.4-Windows-x64.zip` — `0203b4954af348f00615d9703b2ffaab789a0dc469da046d5b40522fb3a099fb`;
-- macOS `OVDP-Hub-0.9.4-macOS.zip` — `755f91d58e9fa0380f8afce3208c80f758980c2e76420cb65440ffe03db712a2`;
-- Android `OVDP-Hub-0.9.4-Android-test.zip` — `08c27afc8eeef7bcd7ecb72cbc748b6c5b94cb2cdfd2674501cd0612b3404440`;
-- iOS `OVDP-Hub-0.9.4-iOS-unsigned.zip` — `d71f90b8ab7017a893f52a24a4c5cf74efc7ba47fe744b37389f58b0a867c919`;
-- START `OVDP-Hub-0.9.4-START.zip` — `aed97f11bd77bc0d9ab6f7781053d4470f64f5745e18412e24d2e3bc36d6def2`.
+- Windows `OVDP-Hub-0.10.0-Windows-x64.zip` — `7b8b981ad6f05050992c9ba4b5940870ca499e65513228cf5dbe0694ed64ad8d`;
+- macOS `OVDP-Hub-0.10.0-macOS.zip` — `1ad8ecfde0b4a7230cb629496ef8821e7420cd98821e5ededb6640f95ac1bae2`;
+- Android `OVDP-Hub-0.10.0-Android-test.zip` — `d47659e58c63cf49352b4947ae449aae217abe00d0a9e48bbceafa5276bc0281`;
+- iOS `OVDP-Hub-0.10.0-iOS-unsigned.zip` — `78eb17e38270695cd3f3421149c4a5cd7a2b82abe246f135c4e776e3e3570caa`;
+- START `OVDP-Hub-0.10.0-START.zip` — `ae7cb6b7d8b698faf0360678f26679ad16f8aad1cc3ebb17d99a931e32eedba4`;
 
 ## Межа доказу / deferred
 
@@ -85,8 +88,8 @@ Release assets / SHA-256:
 - Android/iOS production store signing/distribution;
 - installers / auto-update.
 
-CI/compile evidence не прирівнюється до physical-device `RUNTIME VALIDATED`. Це чесно зафіксована межа v0.9.4, але вона не блокує PARKED-статус.
+CI/compile evidence не прирівнюється до physical-device `RUNTIME VALIDATED`. Це чесно зафіксована межа тестових релізів.
 
-## Відновлення розробки
+## Продовження розробки
 
-Нову роботу не починати автоматично. Якщо власник вирішить повернутися до OVDP Hub, спочатку прочитати `START_HERE.md`, перевірити actual `main`/latest release/Issue #18, а потім створити новий scope. Merged PR #116–#135 не використовувати як окремі джерела коду і не повторювати завершені slices.
+Новий чат починати з `START_HERE.md` → `PROJECT_RULES.md` → цей файл → `WORKLOG.md` → фактичний GitHub (`main`, open PR, latest release) → Issue #18. Merged PR #138–#142 не повторювати.

@@ -1,5 +1,14 @@
 # OVDP Hub v0.9.3 — Guide utilisateur
 
+## Nouveautés de v0.10.0
+
+- **Mot de passe à l’ouverture du portefeuille** (Mon portefeuille → Récupération et sauvegarde). La clé de l’appareil est supprimée ; sans le mot de passe de récupération, les données ne peuvent pas être ouvertes.
+- **Les scénarios du Planner sont enregistrés dans le portefeuille chiffré**, qui doit être créé et ouvert. Les anciens scénarios en clair peuvent être déplacés ; les fichiers en clair ne sont supprimés qu’après vérification. Ils ne se synchronisent plus via un dossier partagé.
+- **Suppression du portefeuille local** et **restauration d’une sauvegarde plus ancienne**, chacune avec confirmation explicite.
+- **Calculateur d’obligation du catalogue** : intérêts courus indicatifs, coûts, encaissements et rendement à l’échéance.
+- **Encaissements attendus** sur 12 mois et paiements passés « peut-être non enregistrés ».
+- **Rendement annuel du plan** dans le résultat du Planner.
+
 ## Objet
 OVDP Hub est une application local-first pour les obligations d’État ukrainiennes OVDP : sources de marché, scénarios, comparaison et portefeuille personnel chiffré factuel. L’application n’exécute aucune transaction.
 

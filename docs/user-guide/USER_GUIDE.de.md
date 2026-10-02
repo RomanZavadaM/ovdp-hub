@@ -1,5 +1,14 @@
 # OVDP Hub v0.9.3 — Benutzerhandbuch
 
+## Neu in v0.10.0
+
+- **Passwort beim Öffnen des Portfolios** (Mein Portfolio → Wiederherstellung und Sicherung). Der Geräteschlüssel wird entfernt; ohne Wiederherstellungspasswort lassen sich die Daten nicht öffnen.
+- **Planner-Szenarien werden im verschlüsselten Portfolio gespeichert**, das erstellt und geöffnet sein muss. Alte Klartext-Szenarien lassen sich verschieben; Klartextdateien werden erst nach Prüfung gelöscht. Keine Synchronisierung mehr über einen gemeinsamen Ordner.
+- **Löschen des lokalen Portfolios** und **Wiederherstellen einer älteren Sicherung**, jeweils mit ausdrücklicher Bestätigung.
+- **Anleiherechner für den Katalog**: Stückzinsen als Richtwert, Kosten, Eingänge und Rendite bis Fälligkeit.
+- **Erwartete Eingänge** für 12 Monate und vergangene Zahlungen „möglicherweise nicht erfasst“.
+- **Jahresrendite des Plans** im Planner-Ergebnis.
+
 ## Zweck
 OVDP Hub ist eine Local-first-Anwendung für ukrainische Staatsanleihen (OVDP): Marktdatenquellen, Szenarioplanung, Vergleich und ein faktisches verschlüsseltes persönliches Portfolio. Die App führt keine Trades aus.
 
