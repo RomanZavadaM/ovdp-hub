@@ -1,5 +1,14 @@
 # OVDP Hub v0.9.3 — Guía de usuario
 
+## Novedades de v0.10.0
+
+- **Contraseña al abrir la cartera** (Mi cartera → Recuperación y copia). Se elimina la clave del dispositivo; sin la contraseña de recuperación los datos no se pueden abrir.
+- **Los escenarios del Planner se guardan en la cartera cifrada**, que debe estar creada y abierta. Los escenarios antiguos sin cifrar se pueden mover; los archivos sin cifrar se eliminan solo tras la verificación. Ya no se sincronizan mediante una carpeta compartida.
+- **Eliminación de la cartera local** y **restauración de una copia más antigua**, cada una con confirmación explícita.
+- **Calculadora de bonos del catálogo**: intereses devengados orientativos, costes, ingresos y rendimiento al vencimiento.
+- **Ingresos esperados** a 12 meses y pagos pasados «posiblemente no registrados».
+- **Rendimiento anual del plan** en el resultado del Planner.
+
 ## Finalidad
 OVDP Hub es una aplicación local-first para bonos estatales ucranianos OVDP: fuentes de mercado, planificación de escenarios, comparación y cartera personal cifrada con datos factuales. La aplicación no ejecuta operaciones.
 

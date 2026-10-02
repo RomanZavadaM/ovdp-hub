@@ -1,5 +1,14 @@
 # OVDP Hub v0.9.3 — User Guide
 
+## New in v0.10.0
+
+- **Password on portfolio open.** My portfolio → Recovery and backup → "Require the recovery password to open". Once enabled the device key is removed and the portfolio opens only with the recovery password. If the password is forgotten the data cannot be opened; only "Delete local portfolio" and restoring a backup remain.
+- **Planner scenarios are stored in the encrypted portfolio.** Saving a scenario with amounts needs a created and open portfolio. Collections mark such scenarios with a lock; old plaintext scenarios can be moved with "Move to the protected portfolio" — plaintext files are deleted only after the encrypted copy is verified. Scenarios no longer sync between devices through a shared folder.
+- **Deleting the local portfolio** needs explicit confirmation; external backups are not changed. An **older backup** can be restored after a separate confirmation; newer records are replaced.
+- **Catalog bond calculator.** Calculator → choose an issue, settlement date, clean price and fee to see indicative accrued interest, costs, receipts and yield to maturity. Check accrued interest with the seller.
+- **Expected receipts.** The open portfolio shows coupons and redemptions for 12 months from the NBU schedule and past payments without a record ("Possibly not recorded") with a "Record" button.
+- **Plan annual yield** in the Planner result helps compare plans with different horizons.
+
 ## Purpose
 OVDP Hub is a local-first application for Ukrainian government bonds (OVDP): market-source review, scenario planning, comparison, and a factual encrypted personal portfolio. It does not execute trades.
 
