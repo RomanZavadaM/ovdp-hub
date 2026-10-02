@@ -88,56 +88,96 @@ class Catalog {
     }
     return Catalog._(json, bonds);
   }
-  factory Catalog.fromNbu(String content) {
-    final rows = jsonDecode(content) as List;
-    if (rows.isEmpty || rows.length > 10000) {
+  /// Builds a catalog from the NBU depository feed.
+  ///
+  /// Non-government instruments (OZDP, OMP) are excluded. A row that cannot be
+  /// validated (unknown instrument or payment type, malformed amount or date)
+  /// is listed in `rejected` instead of failing the whole refresh. If more
+  /// than half of the government rows are rejected the feed format has most
+  /// likely changed, and the refresh fails instead of silently shrinking the
+  /// catalog.
+  factory Catalog.fromNbu(String content, {DateTime? retrievedAt}) {
+    final decoded = jsonDecode(content);
+    if (decoded is! List || decoded.isEmpty || decoded.length > 10000) {
       throw const FormatException('nbu.invalid_response');
     }
     final assets = <Map<String, dynamic>>[];
-    for (final r in rows) {
-      if (r['cptype'] == 'OZDP' || r['cptype'] == 'OMP') continue;
-      if (r['cptype'] != 'DCP' || r['emit_okpo'] != '00013480') {
-        throw const FormatException(
-          'nbu.unknown_instrument',
-        );
+    final rejected = <Map<String, String>>[];
+    var excluded = 0;
+    for (final raw in decoded) {
+      if (raw is! Map) {
+        rejected.add({'isin': '', 'reason': 'nbu.invalid_row'});
+        continue;
       }
-      assets.add({
-        'isin': r['cpcode'],
-        'currency': r['val_code'],
-        'nominal': decimalText(r['nominal']),
-        'nominalRate': r['auk_proc'] == null
-            ? null
-            : decimalText(r['auk_proc']),
-        'issueDate': r['razm_date'],
-        'maturityDate': r['pgs_date'],
-        'description': r['cpdescr'] ?? '',
-        'couponPeriodDays': r['pay_period'],
-        'payments': (r['payments'] as List)
-            .map(
-              (p) => {
-                'date': p['pay_date'],
-                'amount': decimalText(p['pay_val']),
-                'kind': {
-                  '1': 'COUPON',
-                  '2': 'REDEMPTION',
-                  '3': 'EARLY_REDEMPTION',
-                }[p['pay_type'].toString()],
-              },
-            )
-            .toList(),
-      });
+      final r = Map<String, dynamic>.from(raw);
+      if (r['cptype'] == 'OZDP' || r['cptype'] == 'OMP') {
+        excluded++;
+        continue;
+      }
+      final isin = r['cpcode']?.toString() ?? '';
+      if (r['cptype'] != 'DCP' || r['emit_okpo'] != '00013480') {
+        rejected.add({'isin': isin, 'reason': 'nbu.unknown_instrument'});
+        continue;
+      }
+      try {
+        final asset = <String, dynamic>{
+          'isin': r['cpcode'],
+          'currency': r['val_code'],
+          'nominal': decimalText(r['nominal']),
+          'nominalRate': r['auk_proc'] == null
+              ? null
+              : decimalText(r['auk_proc']),
+          'issueDate': r['razm_date'],
+          'maturityDate': r['pgs_date'],
+          'description': r['cpdescr'] ?? '',
+          'couponPeriodDays': r['pay_period'],
+          'payments': (r['payments'] as List)
+              .map(
+                (p) => {
+                  'date': p['pay_date'],
+                  'amount': decimalText(p['pay_val']),
+                  'kind': {
+                    '1': 'COUPON',
+                    '2': 'REDEMPTION',
+                    '3': 'EARLY_REDEMPTION',
+                  }[p['pay_type'].toString()],
+                },
+              )
+              .toList(),
+        };
+        Bond(asset);
+        assets.add(asset);
+      } on FormatException catch (error) {
+        rejected.add({'isin': isin, 'reason': error.message});
+      } on TypeError {
+        rejected.add({'isin': isin, 'reason': 'nbu.invalid_row'});
+      }
+    }
+    final candidates = assets.length + rejected.length;
+    if (assets.isEmpty || rejected.length * 2 > candidates) {
+      throw const FormatException('nbu.too_many_rejected');
     }
     return Catalog.parse(
       jsonEncode({
         'schemaVersion': 1,
         'source': 'https://bank.gov.ua/depo_securities?json',
         'sourcePage': 'https://bank.gov.ua/ua/markets/ovdp',
-        'retrievedAt': DateTime.now().toUtc().toIso8601String(),
+        'retrievedAt':
+            (retrievedAt ?? DateTime.now()).toUtc().toIso8601String(),
         'sourceAsOf': null,
         'assets': assets,
+        'excludedCount': excluded,
+        'rejected': rejected,
       }),
     );
   }
+
+  /// Rows of the source feed that were skipped because they failed
+  /// validation, with the reason code.
+  List<Map<String, dynamic>> get rejectedRows => [
+    for (final row in json['rejected'] as List? ?? const [])
+      Map<String, dynamic>.from(row as Map),
+  ];
 }
 
 final RegExp _savedSetRecordId = RegExp(r'^[A-Za-z0-9._:-]{1,120}$');

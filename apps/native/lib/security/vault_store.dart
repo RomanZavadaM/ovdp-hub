@@ -223,7 +223,7 @@ class LocalVaultStore implements VaultLifecycleStore {
     try {
       VaultRecoverySlotV1? recoverySlot;
       if (recoverySecret != null) {
-        recoverySlot = crypto.wrapDekForRecovery(
+        recoverySlot = await crypto.wrapDekForRecoveryAsync(
           vaultId: vaultId,
           dek: dek,
           recoverySecret: recoverySecret,
@@ -487,7 +487,7 @@ class LocalVaultStore implements VaultLifecycleStore {
       throw StateError('vault.recovery_not_configured');
     }
 
-    final recoveredDek = crypto.unwrapDekFromRecovery(
+    final recoveredDek = await crypto.unwrapDekFromRecoveryAsync(
       slot: slot,
       recoverySecret: recoverySecret,
     );
@@ -618,13 +618,13 @@ class LocalVaultStore implements VaultLifecycleStore {
         if (secret == null) {
           throw StateError('vault.recovery_secret_required');
         }
-        nextSlot = crypto.wrapDekForRecovery(
+        nextSlot = await crypto.wrapDekForRecoveryAsync(
           vaultId: vaultId,
           dek: dek,
           recoverySecret: secret,
           parameters: recoveryParameters,
         );
-        final verified = crypto.unwrapDekFromRecovery(
+        final verified = await crypto.unwrapDekFromRecoveryAsync(
           slot: nextSlot,
           recoverySecret: secret,
         );
@@ -772,7 +772,7 @@ class LocalVaultStore implements VaultLifecycleStore {
     if (slot == null) {
       throw StateError('vault.recovery_not_configured');
     }
-    final dek = crypto.unwrapDekFromRecovery(
+    final dek = await crypto.unwrapDekFromRecoveryAsync(
       slot: slot,
       recoverySecret: recoverySecret,
     );
@@ -814,7 +814,7 @@ class LocalVaultStore implements VaultLifecycleStore {
       if (slot == null) {
         throw StateError('vault.recovery_not_configured');
       }
-      final verified = crypto.unwrapDekFromRecovery(
+      final verified = await crypto.unwrapDekFromRecoveryAsync(
         slot: slot,
         recoverySecret: recoverySecret,
       );

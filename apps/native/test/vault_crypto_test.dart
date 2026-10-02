@@ -133,4 +133,43 @@ void main() {
       throwsFormatException,
     );
   });
+
+  test('background-isolate recovery wrap and unwrap match the sync path', () async {
+    final dek = crypto.generateDek();
+    addTearDown(dek.dispose);
+
+    final slot = await crypto.wrapDekForRecoveryAsync(
+      vaultId: 'async-vault',
+      dek: dek,
+      recoverySecret: 'a long recovery secret',
+      parameters: VaultRecoveryKdfParameters.interactive,
+    );
+    final syncUnwrapped = crypto.unwrapDekFromRecovery(
+      slot: slot,
+      recoverySecret: 'a long recovery secret',
+    );
+    addTearDown(syncUnwrapped.dispose);
+    expect(syncUnwrapped, dek);
+
+    final syncSlot = crypto.wrapDekForRecovery(
+      vaultId: 'async-vault',
+      dek: dek,
+      recoverySecret: 'a long recovery secret',
+      parameters: VaultRecoveryKdfParameters.interactive,
+    );
+    final asyncUnwrapped = await crypto.unwrapDekFromRecoveryAsync(
+      slot: syncSlot,
+      recoverySecret: 'a long recovery secret',
+    );
+    addTearDown(asyncUnwrapped.dispose);
+    expect(asyncUnwrapped, dek);
+
+    await expectLater(
+      crypto.unwrapDekFromRecoveryAsync(
+        slot: slot,
+        recoverySecret: 'wrong recovery secret',
+      ),
+      throwsFormatException,
+    );
+  });
 }

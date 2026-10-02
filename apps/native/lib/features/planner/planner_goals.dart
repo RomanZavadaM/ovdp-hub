@@ -192,6 +192,54 @@ List<ExpenseBalance> expenseCalendar(
   return List.unmodifiable(result);
 }
 
+/// Indicative annual yield (ACT/365F, no reinvestment) of the whole plan:
+/// all positions are bought on [start] for their cost plus [extraCost]
+/// (for example a known purchase fee); coupons, redemptions and planned sales
+/// are the inflows. Returns `null` when the plan has no future inflows or the
+/// rate is out of the solver range.
+double? planAnnualYield(
+  List<PlanPosition> positions,
+  String start, {
+  Map<String, PlanExitOverride> exits = const {},
+  Decimal? extraCost,
+}) {
+  if (positions.isEmpty) return null;
+  final startDate = isoDate(start);
+  final cost =
+      positions.fold(Decimal.zero, (s, p) => s + p.cost) +
+      (extraCost ?? Decimal.zero);
+  final flows = <(double, double)>[];
+  for (final p in positions) {
+    final exit = exits[p.bond.isin];
+    final saleDate = exit == null ? null : isoDate(exit.date);
+    for (final payment in p.bond.payments) {
+      if (!['COUPON', 'REDEMPTION'].contains(payment['kind'])) continue;
+      final date = isoDate(payment['date'] as String);
+      if (!date.isAfter(startDate) ||
+          date.isAfter(isoDate(p.bond.maturity)) ||
+          (saleDate != null && !date.isBefore(saleDate))) {
+        continue;
+      }
+      final amount =
+          (money(payment['amount'].toString()) * Decimal.fromInt(p.quantity))
+              .round(scale: 2);
+      flows.add((date.difference(startDate).inDays / 365, amount.toDouble()));
+    }
+    if (exit != null && saleDate != null && saleDate.isAfter(startDate)) {
+      final amount =
+          (exit.unitPrice * Decimal.fromInt(p.quantity)).round(scale: 2);
+      flows.add(
+        (saleDate.difference(startDate).inDays / 365, amount.toDouble()),
+      );
+    }
+  }
+  try {
+    return solveAnnualYield(cost, flows);
+  } on FormatException {
+    return null;
+  }
+}
+
 Decimal totalProfit(
   List<PlanPosition> positions,
   String start, {

@@ -106,6 +106,29 @@ try {
     }
   }
 
+  if ([string]$contract.privatePortfolioSchemaVersion -ne '4') {
+    throw "Unexpected private portfolio schema version: $($contract.privatePortfolioSchemaVersion)"
+  }
+  $expectedCapabilities = @(
+    'export.formulaSafeCsv',
+    'portfolio.recoverySecretOnOpen',
+    'portfolio.privatePlannerScenarios',
+    'portfolio.localDeleteAndOlderRestore',
+    'portfolio.expectedReceipts',
+    'calculator.catalogBondAccruedYield',
+    'planner.annualYield',
+    'catalog.tolerantNbuFeed'
+  )
+  $actualCapabilities = @($contract.capabilities)
+  if ($actualCapabilities.Count -ne $expectedCapabilities.Count) {
+    throw "Capability contract count mismatch: expected $($expectedCapabilities.Count), got $($actualCapabilities.Count)"
+  }
+  for ($i = 0; $i -lt $expectedCapabilities.Count; $i++) {
+    if ([string]$actualCapabilities[$i] -ne $expectedCapabilities[$i]) {
+      throw "Capability contract mismatch at index $($i): expected $($expectedCapabilities[$i]), got $($actualCapabilities[$i])"
+    }
+  }
+
   if ([string]$contract.appearanceLabelsUk.classic -ne 'Класичний дизайн') {
     throw 'Classic appearance label is missing from packaged executable contract'
   }

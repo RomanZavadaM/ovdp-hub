@@ -110,7 +110,10 @@ class OvdpApp extends StatelessWidget {
               CollectionEditorCubit(context.read<HubRepository>()),
           lazy: false,
         ),
-        BlocProvider(create: (_) => CalculatorCubit()),
+        BlocProvider(
+          create: (context) =>
+              CalculatorCubit(repository: context.read<HubRepository>()),
+        ),
         BlocProvider(
           create: (_) => AppearanceCubit(
             initialMode: initialUiPreferences.appearance,

@@ -155,15 +155,18 @@ class MainActivity : FlutterActivity() {
                     val bytes = pendingBackupBytes
                         ?: throw StorageError("portfolio.backup_export_failed", "Missing pending backup bytes")
                     pendingBackupBytes = null
-                    contentResolver.openOutputStream(uri, "wt")?.use { output ->
-                        output.write(bytes)
-                        output.flush()
-                    } ?: throw FileNotFoundException("Unable to open selected backup destination")
-                    result.success(displayName(uri) ?: "OVDP Hub backup")
+                    // Providers such as cloud drives can block on I/O; never do it on the UI thread.
+                    runStorage(result) {
+                        contentResolver.openOutputStream(uri, "wt")?.use { output ->
+                            output.write(bytes)
+                            output.flush()
+                        } ?: throw FileNotFoundException("Unable to open selected backup destination")
+                        displayName(uri) ?: "OVDP Hub backup"
+                    }
                 }
                 REQUEST_IMPORT_BACKUP -> {
-                    val bytes = readUriLimited(uri, pendingImportLimit)
-                    result.success(bytes)
+                    val limit = pendingImportLimit
+                    runStorage(result) { readUriLimited(uri, limit) }
                 }
                 REQUEST_WORKSPACE_FOLDER -> {
                     val takeFlags = data.flags and
@@ -175,9 +178,15 @@ class MainActivity : FlutterActivity() {
                         "workspace.external_permission_lost",
                         "Provider did not persist read/write access",
                     )
-                    val id = UUID.randomUUID().toString()
+                    // Re-selecting a folder reuses its grant instead of piling up entries.
+                    val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+                    val selectedUri = permission.uri.toString()
+                    val id = prefs.all.entries.firstOrNull { (key, value) ->
+                        key.startsWith("folder.") && key.endsWith(".uri") && value == selectedUri
+                    }?.key?.removePrefix("folder.")?.removeSuffix(".uri")
+                        ?: UUID.randomUUID().toString()
                     val label = treeDisplayName(permission.uri) ?: "External workspace"
-                    getSharedPreferences(PREFS, MODE_PRIVATE).edit()
+                    prefs.edit()
                         .putString("folder.$id.uri", permission.uri.toString())
                         .putString("folder.$id.label", label)
                         .apply()
