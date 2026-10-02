@@ -37,7 +37,7 @@
 ## F5 — P2: Узгодити приватність нотаток звичайних collections
 
 - Статус: **PLANNED**.
-- [Код/документ на базі аудиту](https://github.com/RomanZavadaM/ovdp-hub/blob/31c2004298f1b804439692e8bfb7562d3952c8ba/apps/native/lib/features/editor/editor_cubit.dart).
+- [Код/документ на базі аудиту](https://github.com/RomanZavadaM/ovdp-hub/blob/31c2004298f1b804439692e8bfb7562d3952c8ba/apps/native/lib/features/collections/editor_cubit.dart).
 - Знахідка: Назва і note звичайної collection зберігаються plaintext; security design відносить user notes до приватних даних.
 - Критерії завершення: Визначити public/private межу: приватні нотатки у vault, для plaintext — зрозуміле повідомлення й відповідна документація. Перевірити фактичні файли workspace.
 
@@ -51,14 +51,14 @@
 ## F7 — P2: Враховувати взаємодію у приватному UI для inactivity timer
 
 - Статус: **PLANNED**.
-- [Код/документ на базі аудиту](https://github.com/RomanZavadaM/ovdp-hub/blob/31c2004298f1b804439692e8bfb7562d3952c8ba/apps/native/lib/features/portfolio/vault_session.dart).
+- [Код/документ на базі аудиту](https://github.com/RomanZavadaM/ovdp-hub/blob/31c2004298f1b804439692e8bfb7562d3952c8ba/apps/native/lib/security/vault_session.dart).
 - Знахідка: Поточний recordActivity враховує storage/foreground, але звичайне читання, введення та прокрутку не підключено.
 - Критерії завершення: Throttled activity без збирання вмісту вводу. Активна робота не виглядає idle; справжня бездіяльність блокує vault. Узгодити поведінку draft із F3.
 
 ## F8 — P2: Показувати часткове оновлення каталогу НБУ
 
 - Статус: **PLANNED**.
-- [Код/документ на базі аудиту](https://github.com/RomanZavadaM/ovdp-hub/blob/31c2004298f1b804439692e8bfb7562d3952c8ba/apps/native/lib/data/models.dart).
+- [Код/документ на базі аудиту](https://github.com/RomanZavadaM/ovdp-hub/blob/31c2004298f1b804439692e8bfb7562d3952c8ba/apps/native/lib/models.dart).
 - Знахідка: Толерантний parser може відкинути до 50% рядків; rejectedRows не показано користувачу.
 - Критерії завершення: Показати valid/rejected counts, partial status і діагностику. Повна невдача зберігає попередній snapshot; перевірити змішані valid/invalid дані.
 
