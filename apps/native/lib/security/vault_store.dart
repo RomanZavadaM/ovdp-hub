@@ -464,10 +464,17 @@ class LocalVaultStore implements VaultLifecycleStore {
     }
   }
 
+  /// Restores an encrypted portable backup.
+  ///
+  /// A backup older than the highest revision accepted on this device is a
+  /// rollback and is refused unless [allowRollback] is set after the user
+  /// explicitly confirmed it. The older content is then re-sealed as the next
+  /// revision, so the rollback counter stays monotonic.
   Future<VaultOpenResult> restoreEncryptedBackup({
     required String vaultId,
     required File source,
     required String recoverySecret,
+    bool allowRollback = false,
   }) async {
     validateVaultId(vaultId);
     if (_isAppOwnedVaultPath(vaultId, source)) {
@@ -490,7 +497,32 @@ class LocalVaultStore implements VaultLifecycleStore {
         envelope: candidate.payload,
         dek: recoveredDek,
       );
-      await _assertNotRollback(candidate);
+      var toCommit = candidate;
+      final highest = await deviceKeyStore.loadHighestAcceptedRevision(
+        vaultId: vaultId,
+      );
+      if (highest != null && candidate.revision < highest) {
+        if (!allowRollback) {
+          throw VaultRollbackException(
+            vaultId: vaultId,
+            foundRevision: candidate.revision,
+            highestAcceptedRevision: highest,
+          );
+        }
+        final nextRevision = highest + 1;
+        toCommit = VaultFileV1(
+          vaultId: vaultId,
+          revision: nextRevision,
+          payload: crypto.encrypt(
+            vaultId: vaultId,
+            revision: nextRevision,
+            plainText: plainText,
+            dek: recoveredDek,
+            recoverySlotBinding: _recoveryBinding(candidate.recoverySlot),
+          ),
+          recoverySlot: candidate.recoverySlot,
+        );
+      }
 
       final existingRaw = await deviceKeyStore.loadDek(vaultId: vaultId);
       final unlockedKey = _unlockedKeys[vaultId];
@@ -522,17 +554,17 @@ class LocalVaultStore implements VaultLifecycleStore {
         storedNewDeviceKey = true;
       }
 
-      await _commitVaultFile(candidate, recoveredDek);
+      await _commitVaultFile(toCommit, recoveredDek);
       await deviceKeyStore.storeHighestAcceptedRevision(
         vaultId: vaultId,
-        revision: candidate.revision,
+        revision: toCommit.revision,
       );
       if (recoverySecretMode) {
         _cacheUnlockedKey(vaultId, _copyKey(recoveredDek));
       }
       return VaultOpenResult(
         vaultId: vaultId,
-        revision: candidate.revision,
+        revision: toCommit.revision,
         plainText: plainText,
         recoveryEnabled: true,
       );
@@ -680,6 +712,27 @@ class LocalVaultStore implements VaultLifecycleStore {
     } catch (_) {
       throw StateError('vault.delete_rollback_failed');
     }
+  }
+
+  /// Discards the local vault without needing its key: the encrypted file,
+  /// the device DEK and the rollback counter are removed. This is the way out
+  /// when the vault cannot be opened any more (forgotten recovery secret) or
+  /// must make room for restoring a different backup. External encrypted
+  /// backups are never touched.
+  Future<void> discardLocalVault({required String vaultId}) async {
+    validateVaultId(vaultId);
+    forgetUnlockedKey(vaultId: vaultId);
+    await directory.create(recursive: true);
+    await _recoverInterruptedReplace(vaultId);
+    final target = fileFor(vaultId);
+    final deleting = _deleting(vaultId);
+    if (await target.exists()) {
+      if (await deleting.exists()) await deleting.delete();
+      await target.rename(deleting.path);
+    }
+    await deviceKeyStore.deleteDek(vaultId: vaultId);
+    if (await deleting.exists()) await deleting.delete();
+    await _cleanupArtifacts(vaultId);
   }
 
   /// Reports how the vault can be opened on this device.

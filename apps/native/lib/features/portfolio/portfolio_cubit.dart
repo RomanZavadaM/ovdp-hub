@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/hub_repository.dart';
 import '../../models.dart';
 import '../../workspace.dart';
+import '../../security/vault_store.dart';
 import 'legacy_plaintext_migration.dart';
 import 'portfolio_gateway.dart';
 import 'private_portfolio.dart';
@@ -523,7 +524,34 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     }
   }
 
-  Future<bool?> restorePortableBackup(String recoverySecret) async {
+  /// Removes the local portfolio from this device after explicit user
+  /// confirmation in the UI.
+  Future<bool> deleteLocalPortfolio() async {
+    if (state.busy || !gateway.supported) return false;
+    emit(state.copyWith(busy: true, clearError: true));
+    try {
+      await gateway.deleteLocalPortfolio();
+      if (!isClosed) {
+        emit(
+          PortfolioState(
+            supported: state.supported,
+            portableBackupSupported: state.portableBackupSupported,
+          ),
+        );
+      }
+      return true;
+    } catch (error) {
+      if (!isClosed) {
+        emit(state.copyWith(busy: false, errorCode: _safeErrorCode(error)));
+      }
+      return false;
+    }
+  }
+
+  Future<bool?> restorePortableBackup(
+    String recoverySecret, {
+    bool confirmRollback = false,
+  }) async {
     if (state.busy ||
         !gateway.supported ||
         !gateway.portableBackupSupported) {
@@ -533,6 +561,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     try {
       final payload = await gateway.restorePortableBackup(
         recoverySecret: recoverySecret,
+        confirmRollback: confirmRollback,
       );
       if (payload == null) {
         if (!isClosed) emit(state.copyWith(busy: false, clearError: true));
@@ -554,10 +583,11 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       return true;
     } catch (error) {
       if (!isClosed) {
+        final stillUnlocked = gateway.unlocked;
         emit(
           state.copyWith(
             busy: false,
-            clearPayload: true,
+            clearPayload: !stillUnlocked,
             errorCode: _safeErrorCode(error),
           ),
         );
@@ -640,6 +670,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
   }
 
   String _safeErrorCode(Object error) {
+    if (error is VaultRollbackException) return 'vault.rollback_detected';
     if (error is FormatException) return error.message.toString();
     if (error is StateError) return error.message.toString();
     if (error is UnsupportedError) return error.message.toString();

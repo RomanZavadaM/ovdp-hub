@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:path/path.dart' as p;
@@ -48,9 +49,17 @@ abstract interface class PortfolioGateway {
   });
   Future<void> save(PrivatePortfolioPayload payload);
   Future<String?> createPortableBackup();
+  /// Restores an encrypted portable backup. When the chosen backup is older
+  /// than data already opened on this device, a [VaultRollbackException] is
+  /// thrown; calling again with [confirmRollback] restores that same file.
   Future<PrivatePortfolioPayload?> restorePortableBackup({
     required String recoverySecret,
+    bool confirmRollback = false,
   });
+
+  /// Removes the local portfolio (encrypted file and device key) from this
+  /// device. External encrypted backups are not touched.
+  Future<void> deleteLocalPortfolio();
   Future<PrivatePortfolioPayload> rotateRecovery({
     required String recoverySecret,
   });
@@ -312,19 +321,67 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   @override
   Future<PrivatePortfolioPayload?> restorePortableBackup({
     required String recoverySecret,
+    bool confirmRollback = false,
   }) async {
     if (!portableBackupSupported) {
       throw UnsupportedError('portfolio.portable_backup_unsupported');
     }
     await _ensureReady();
 
+    final Uint8List bytes;
+    if (confirmRollback) {
+      final pending = _pendingRollbackRestore;
+      if (pending == null) {
+        throw StateError('portfolio.restore_selection_expired');
+      }
+      bytes = pending;
+    } else {
+      _clearPendingRollbackRestore();
+      final picked = await _pickPortableBackupBytes();
+      if (picked == null) return null;
+      bytes = picked;
+    }
+
+    final staging = await _portableBackupStagingFile('import');
+    try {
+      await staging.writeAsBytes(bytes, flush: true);
+      final restored = await _restorePortableBackupFile(
+        staging,
+        recoverySecret: recoverySecret,
+        allowRollback: confirmRollback,
+      );
+      _clearPendingRollbackRestore();
+      return restored;
+    } on VaultRollbackException {
+      // Keep the already selected file for one explicit confirmation, so the
+      // user does not have to pick it again.
+      if (!confirmRollback) {
+        _pendingRollbackRestore = Uint8List.fromList(bytes);
+      }
+      rethrow;
+    } finally {
+      if (await staging.exists()) await staging.delete();
+    }
+  }
+
+  Uint8List? _pendingRollbackRestore;
+
+  void _clearPendingRollbackRestore() {
+    final pending = _pendingRollbackRestore;
+    if (pending != null) pending.fillRange(0, pending.length, 0);
+    _pendingRollbackRestore = null;
+  }
+
+  Future<Uint8List?> _pickPortableBackupBytes() async {
     if (Platform.isWindows) {
       final selected = await openFile();
       if (selected == null) return null;
-      return _restorePortableBackupFile(
-        File(selected.path),
-        recoverySecret: recoverySecret,
-      );
+      final file = File(selected.path);
+      final length = await file.length();
+      if (length <= 0 || length > _maxPortableBackupBytes) {
+        throw const FormatException('vault.file_too_large');
+      }
+      return file.readAsBytes();
     }
 
     if (!_mobileExternalStorage.supported) {
@@ -337,35 +394,50 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     if (bytes.isEmpty || bytes.length > _maxPortableBackupBytes) {
       throw const FormatException('vault.file_too_large');
     }
-    final staging = await _portableBackupStagingFile('import');
-    try {
-      await staging.writeAsBytes(bytes, flush: true);
-      return await _restorePortableBackupFile(
-        staging,
-        recoverySecret: recoverySecret,
-      );
-    } finally {
-      if (await staging.exists()) await staging.delete();
-    }
+    return bytes;
   }
 
   Future<PrivatePortfolioPayload> _restorePortableBackupFile(
     File source, {
     required String recoverySecret,
+    required bool allowRollback,
   }) async {
     final session = _session!;
     return _retainingKey(() async {
-      if (session.state.isUnlocked) {
+      final wasUnlocked = session.state.isUnlocked;
+      if (wasUnlocked) {
         await session.lock();
       }
-      final restored = await _store!.restoreEncryptedBackup(
-        vaultId: vaultId,
-        source: source,
-        recoverySecret: recoverySecret,
-      );
-      restored.plainText.fillRange(0, restored.plainText.length, 0);
+      try {
+        final restored = await _store!.restoreEncryptedBackup(
+          vaultId: vaultId,
+          source: source,
+          recoverySecret: recoverySecret,
+          allowRollback: allowRollback,
+        );
+        restored.plainText.fillRange(0, restored.plainText.length, 0);
+      } catch (_) {
+        // A refused restore must not leave a previously open portfolio locked.
+        if (wasUnlocked) {
+          try {
+            await open();
+          } catch (_) {
+            // The original restore error is more useful than a reopen error.
+          }
+        }
+        rethrow;
+      }
       return open();
     });
+  }
+
+  @override
+  Future<void> deleteLocalPortfolio() async {
+    await _ensureReady();
+    _clearPendingRollbackRestore();
+    final session = _session!;
+    if (session.state.isUnlocked) await session.lock();
+    await _store!.discardLocalVault(vaultId: vaultId);
   }
 
   Future<File> _portableBackupStagingFile(String operation) async {
@@ -445,6 +517,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
 
   @override
   Future<void> dispose() async {
+    _clearPendingRollbackRestore();
     final session = _session;
     if (session != null) {
       session.removeListener(_publishLockState);

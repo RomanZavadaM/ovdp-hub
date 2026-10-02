@@ -991,4 +991,88 @@ void main() {
       );
     });
   });
+
+  group('local vault management', () {
+    const secret = 'portable recovery secret';
+
+    Future<(LocalVaultStore, MemoryVaultDeviceKeyStore)> createVault() async {
+      final device = MemoryVaultDeviceKeyStore();
+      final store = LocalVaultStore(
+        directory: Directory(p.join(root.path, 'mgmt')),
+        crypto: crypto,
+        deviceKeyStore: device,
+      );
+      await store.create(
+        vaultId: 'vault-mgmt',
+        plainText: bytes('first'),
+        recoverySecret: secret,
+        recoveryParameters: VaultRecoveryKdfParameters.interactive,
+      );
+      return (store, device);
+    }
+
+    test('older backup restores only after explicit rollback consent', () async {
+      final (store, device) = await createVault();
+      final backup = File(p.join(root.path, 'external', 'old.ovdp-vault.json'));
+      await store.createEncryptedBackup(
+        vaultId: 'vault-mgmt',
+        destination: backup,
+      );
+      await store.save(vaultId: 'vault-mgmt', plainText: bytes('second'));
+      await store.save(vaultId: 'vault-mgmt', plainText: bytes('third'));
+      expect(device.revisions['vault-mgmt'], 3);
+
+      await expectLater(
+        store.restoreEncryptedBackup(
+          vaultId: 'vault-mgmt',
+          source: backup,
+          recoverySecret: secret,
+        ),
+        throwsA(isA<VaultRollbackException>()),
+      );
+      final unchanged = await store.open(vaultId: 'vault-mgmt');
+      expect(String.fromCharCodes(unchanged.plainText), 'third');
+
+      final restored = await store.restoreEncryptedBackup(
+        vaultId: 'vault-mgmt',
+        source: backup,
+        recoverySecret: secret,
+        allowRollback: true,
+      );
+      expect(String.fromCharCodes(restored.plainText), 'first');
+      expect(restored.revision, 4);
+      expect(device.revisions['vault-mgmt'], 4);
+
+      final reopened = await store.open(vaultId: 'vault-mgmt');
+      expect(String.fromCharCodes(reopened.plainText), 'first');
+      expect(reopened.revision, 4);
+      expect(await backup.exists(), isTrue);
+    });
+
+    test('a locked vault can be discarded without its key', () async {
+      final (store, device) = await createVault();
+      await store.requireRecoverySecretOnOpen(
+        vaultId: 'vault-mgmt',
+        recoverySecret: secret,
+      );
+      store.forgetUnlockedKey(vaultId: 'vault-mgmt');
+      expect(device.keys.containsKey('vault-mgmt'), isFalse);
+
+      await store.discardLocalVault(vaultId: 'vault-mgmt');
+      expect(await store.fileFor('vault-mgmt').exists(), isFalse);
+      expect(device.revisions.containsKey('vault-mgmt'), isFalse);
+      expect(
+        await store.accessMode(vaultId: 'vault-mgmt'),
+        VaultAccessMode.missing,
+      );
+
+      final created = await store.create(
+        vaultId: 'vault-mgmt',
+        plainText: bytes('fresh'),
+        recoverySecret: secret,
+        recoveryParameters: VaultRecoveryKdfParameters.interactive,
+      );
+      expect(created.revision, 1);
+    });
+  });
 }
