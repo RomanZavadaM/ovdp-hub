@@ -136,6 +136,10 @@ class PlannerState {
   final PlanSummary? summary;
   final List<ExpenseBalance> expenseBalances;
   final String profit;
+
+  /// Indicative ACT/365F annual yield of the plan before taxes (purchase fee
+  /// included when known); `null` when it cannot be determined.
+  final double? annualYield;
   final AppError? error;
   final bool busy, locked, saved, changed;
   final int revision;
@@ -154,6 +158,7 @@ class PlannerState {
     this.summary,
     Iterable<ExpenseBalance> expenseBalances = const [],
     this.profit = '0',
+    this.annualYield,
     this.error,
     this.busy = false,
     this.locked = false,
@@ -185,6 +190,8 @@ class PlannerState {
     PlanSummary? summary,
     Iterable<ExpenseBalance>? expenseBalances,
     String? profit,
+    double? annualYield,
+    bool clearAnnualYield = false,
     AppError? error,
     bool clearSummary = false,
     bool clearError = false,
@@ -209,6 +216,9 @@ class PlannerState {
         ? []
         : expenseBalances ?? this.expenseBalances,
     profit: clearSummary ? '0' : profit ?? this.profit,
+    annualYield: clearSummary || clearAnnualYield
+        ? null
+        : annualYield ?? this.annualYield,
     error: clearError ? null : error ?? this.error,
     busy: busy ?? this.busy,
     locked: locked ?? this.locked,
@@ -480,6 +490,12 @@ class PlannerCubit extends Cubit<PlannerState> {
       if (reserveForValidation < reserve) {
         throw const FormatException('planner.reserve_spent');
       }
+      final annualYield = planAnnualYield(
+        positions,
+        c['start']!,
+        exits: exitOverrides,
+        extraCost: feeImpact.purchaseFee,
+      );
       final calendarBudget = feeImpact.purchaseFee == null
           ? budget
           : budget - feeImpact.purchaseFee!;
@@ -500,6 +516,8 @@ class PlannerCubit extends Cubit<PlannerState> {
             exits: exitOverrides,
           ),
           profit: feeImpact.grossProfit.toStringAsFixed(2),
+          annualYield: annualYield,
+          clearAnnualYield: annualYield == null,
           clearError: true,
         ),
       );

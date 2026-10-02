@@ -56,7 +56,17 @@ BondResult calculateBond({
   if (receipts <= Decimal.zero) {
     throw const FormatException('pricing.positive_payment_required');
   }
-  double npv(double rate) => future.fold(
+  return BondResult(cost, receipts, receipts - cost, solveAnnualYield(cost, future));
+}
+
+/// Bounded bisection for the ACT/365F rate that discounts [flows]
+/// (years from settlement, amount) to [cost]. Floating point is confined to
+/// this indicative solver; monetary inputs stay decimal.
+double solveAnnualYield(Decimal cost, List<(double, double)> flows) {
+  if (cost <= Decimal.zero || flows.isEmpty) {
+    throw const FormatException('pricing.yield_out_of_range');
+  }
+  double npv(double rate) => flows.fold(
     -cost.toDouble(),
     (sum, f) => sum + f.$2 / math.pow(1 + rate, f.$1),
   );
@@ -75,5 +85,5 @@ BondResult calculateBond({
       high = middle;
     }
   }
-  return BondResult(cost, receipts, receipts - cost, (low + high) / 2);
+  return (low + high) / 2;
 }

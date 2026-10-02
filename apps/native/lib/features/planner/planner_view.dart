@@ -1206,6 +1206,12 @@ class PlannerView extends StatelessWidget {
             ),
             Text(strings.text('unknownFeesResultInfo')),
           ],
+          if (state.annualYield != null)
+            Text(
+              '${strings.text('plannerAnnualYield')}: '
+              '${(state.annualYield! * 100).toStringAsFixed(2)}%',
+              key: const ValueKey('planner-annual-yield'),
+            ),
           if (feeImpact?.hasDeferredRules == true)
             Text(strings.text('advancedFeeRulesPreserved')),
           if (taxImpact?.known == true)
