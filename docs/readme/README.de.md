@@ -2,24 +2,23 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · [🇫🇷 Français](README.fr.md) · **🇩🇪 Deutsch** · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Aktuelles Test-Release: [OVDP Hub v0.10.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.0) — 0.10.0+22**
+> **Aktuelles Test-Release: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Status: ACTIVE — Entwicklung am 01.10.2026 wieder aufgenommen; v0.10.0 am 02.10.2026 veröffentlicht.**
+> **Status: ACTIVE — Entwicklung am 01.10.2026 wieder aufgenommen; v0.10.1 am 02.10.2026 veröffentlicht.**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
 ## Produkt
 
 OVDP Hub ist eine Local-first-Flutter/Dart-Anwendung für ukrainische Staatsanleihen: Marktquellen, Szenarioplanung, neutraler Vergleich und ein faktisches verschlüsseltes persönliches Portfolio.
 
-## Neu in v0.10.0
+## Neu in v0.10.1
 
-- optionales **Wiederherstellungspasswort beim Öffnen** des Portfolios;
-- Planner-Szenarien mit privaten Beträgen **nur im verschlüsselten Portfolio**;
-- Löschen des lokalen Portfolios und Wiederherstellen älterer Sicherungen mit Bestätigung;
-- **Anleiherechner für den Katalog** (Stückzinsen als Richtwert, Rendite bis Fälligkeit);
-- **erwartete Portfolio-Eingänge** für 12 Monate und Hinweise „möglicherweise nicht erfasst“;
-- **Jahresrendite des Plans**, Argon2id im Hintergrund, formelsicherer CSV-Export, toleranter NBU-Katalog.
+- sicherere Migration privater Planner-Szenarien: Klartext wird erst nach erneuter Prüfung der verschlüsselten Kopie und der aktuellen Quelle gelöscht;
+- Sperren leert den privaten Planner und beendet Dialoge, Datumsauswahl und veraltete asynchrone Ergebnisse;
+- Lock/Background/Dispose brechen unvollständige Recovery-, Create-, Restore- und Migration-Vorgänge ab und entfernen verspätete Schlüssel;
+- privater CSV/ICS-Export verlangt eine ausdrückliche Klartext-Zustimmung und zeigt das genaue Ziel;
+- Kryptografie, KDF-Parameter und Payload-Schema bleiben unverändert; Schema v4.
 
 ## Produktumfang
 
@@ -45,7 +44,7 @@ Vollständiges Handbuch: **[Deutsches Benutzerhandbuch](../user-guide/USER_GUIDE
 
 ## Verifikation und Grenzen
 
-Release-Run #116 von v0.10.0 (Commit `933a7bd`) bestand Analyze, **264 Tests**, Windows/macOS Exact-ZIP-Smoke inklusive Capability-Liste, Android Release Packaging, unsigned iOS Packaging, START/source, Checksums und Legal Notices.
+Release-Run #116 von v0.10.1 (Commit `933a7bd`) bestand Analyze, **264 Tests**, Windows/macOS Exact-ZIP-Smoke inklusive Capability-Liste, Android Release Packaging, unsigned iOS Packaging, START/source, Checksums und Legal Notices.
 
 Zurückgestellt: physische Android-SAF- und signierte iOS-Validierung, Produktionssignierung, Notarisierung, Store-Vertrieb, Installer und Auto-Update. Stückzinsen und Renditen sind Richtwerte, keine Anlageberatung.
 
