@@ -74,6 +74,6 @@ Esta versión de corrección refuerza privacidad y ciclo de vida sin cambiar cri
 
 ## Verification and boundaries
 
-The completed feature head passed Flutter analyze, 314 tests, Windows/macOS exact packaged ZIP smoke, Android release packaging, and unsigned iOS packaging. The release workflow must reproduce the full checkpoint and publish START/source, SHA256SUMS, and legal notices.
+PR #155 exact head `92c7dc1` passed Flutter analyze, 314 tests, Windows/macOS exact packaged ZIP smoke, Android release packaging, and unsigned iOS packaging; it was merged to main as `b2051ed`. The release workflow must reproduce the full checkpoint and publish START/source, SHA256SUMS, and legal notices.
 
 Physical-device mobile validation, production signing/notarization, store distribution, installers, and auto-update remain deferred. OVDP Hub does not execute trades and is not investment advice.
