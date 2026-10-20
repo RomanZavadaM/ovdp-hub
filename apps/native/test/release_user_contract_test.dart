@@ -33,7 +33,7 @@ void main() {
       ['classic', 'studio', 'dashboard'],
     );
     expect(contract['defaultAppearance'], 'studio');
-    expect(contract['privatePortfolioSchemaVersion'], 4);
+    expect(contract['privatePortfolioSchemaVersion'], 5);
     expect(contract['capabilities'], [
       'export.formulaSafeCsv',
       'portfolio.recoverySecretOnOpen',
