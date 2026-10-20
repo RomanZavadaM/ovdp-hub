@@ -28,9 +28,9 @@ Scope: завершення аудиту F1–F10, далі продуктові
 
 ## NEXT
 
-F5 — приватні назви й нотатки collections. Branch `fix/private-collections-20261020`, база main `4440dd4175aa250d22f65c07866cb236b5c9d644`. Підготовлено лише дизайн і цей docs checkpoint; код F5 ще не змінено, PR F5 немає.
+F5 ACTIVE — приватні назви й нотатки collections. Branch `fix/private-collections-20261020`, база main `4440dd4175aa250d22f65c07866cb236b5c9d644`. Реалізовано перший фундамент: окремий `PrivateCollectionRecord`, payload schema v5, читання v1–v4, strict validation/limits/duplicate-id checks і перенесення `privateCollections` через наявні portfolio/migration writes. Додано окремі round-trip/compatibility regression tests. CI ще не перевірено; F5 не VERIFIED і не DONE.
 
-План: [F5_PRIVATE_COLLECTIONS_PLAN.md](docs/F5_PRIVATE_COLLECTIONS_PLAN.md). Точна наступна дія: додати окремий PrivateCollectionRecord/payload v5 та compatibility/round-trip tests v1–v4; потім editor/save/lock, collections reopen та explicit verified legacy move. Приватні annotations не переводити у plaintext через UI-попередження. До завершення всіх етапів F5 не DONE.
+План: [F5_PRIVATE_COLLECTIONS_PLAN.md](docs/F5_PRIVATE_COLLECTIONS_PLAN.md). Точна наступна дія: exact-head analyze/tests для schema block; після виправлення знахідок — підключити editor/save/lock, collections reopen та explicit verified legacy move. Приватні annotations не переводити у plaintext через UI-попередження.
 
 Завершено 20.10.2026:
 - F4 primary #151 → main 81639128557afc77777040b5d363b0d7d3701f7e, run 39416807438 SUCCESS (293 tests + усі platform gates).
