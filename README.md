@@ -4,7 +4,7 @@
 
 > **Поточний тестовий реліз: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Статус розвитку: ACTIVE — розробку відновлено 01.10.2026; реліз v0.10.1 опубліковано 02.10.2026.**
+> **Статус розвитку: ACTIVE — release checkpoint v0.10.1 готується 20.10.2026.**
 >
 > **Завантаження:** [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -75,7 +75,7 @@ OVDP Hub не виконує операції купівлі/продажу і �
 
 ## Перевірка v0.10.1
 
-Release candidate v0.10.1 пройшов:
+Release workflow v0.10.1 має підтвердити:
 - `flutter analyze`;
 - **314 tests passed**;
 - Windows/macOS release build + exact packaged ZIP smoke зі звіркою версії й переліку можливостей (release contract `capabilities`);
@@ -100,7 +100,7 @@ Release candidate v0.10.1 пройшов:
 ## Керівництво і документація
 
 - [Українське керівництво](docs/user-guide/USER_GUIDE.uk.md)
-- [Release notes v0.10.1](docs/releases/RELEASE_NOTES_v0_10_0.md)
+- [Release notes v0.10.1](docs/releases/RELEASE_NOTES_v0_10_1.md)
 - [Changelog](CHANGELOG.md)
 - [Roadmap](docs/roadmap.md)
 - [START_HERE](START_HERE.md)
