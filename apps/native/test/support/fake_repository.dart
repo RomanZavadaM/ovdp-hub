@@ -74,8 +74,26 @@ class FakeRepository implements HubRepository {
   final List<String> deletedRecordIds = [];
 
   @override
-  Future<void> deleteCollections(Iterable<String> recordIds) async {
+  Future<void> deleteCollections(
+    Iterable<String> recordIds, {
+    WorkspaceSnapshot? expectedWorkspace,
+    Iterable<SavedSet>? expectedSets,
+  }) async {
     final ids = recordIds.toSet();
+    if (expectedWorkspace != null && !identical(current, expectedWorkspace)) {
+      throw StateError('portfolio.scenario_move_unverified');
+    }
+    if (expectedSets != null) {
+      for (final expected in expectedSets) {
+        final matches = current!.sets
+            .where((set) => set.recordId == expected.recordId)
+            .toList();
+        if (matches.length != 1 ||
+            !savedSetContentEquals(matches.single, expected)) {
+          throw StateError('portfolio.scenario_move_unverified');
+        }
+      }
+    }
     deletedRecordIds.addAll(ids);
     current = WorkspaceSnapshot(
       current!.path,

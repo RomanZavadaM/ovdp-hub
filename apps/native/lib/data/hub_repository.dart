@@ -44,7 +44,11 @@ abstract interface class HubRepository {
   Future<void> saveCollection(SavedSet collection);
 
   /// Deletes saved-set records from the workspace by [SavedSet.recordId].
-  Future<void> deleteCollections(Iterable<String> recordIds);
+  Future<void> deleteCollections(
+    Iterable<String> recordIds, {
+    WorkspaceSnapshot? expectedWorkspace,
+    Iterable<SavedSet>? expectedSets,
+  });
   Future<String> saveTextExport(String fileName, String content);
   Future<EconomicPulseSnapshot> loadEconomicPulse();
   Future<void> dispose();
@@ -375,9 +379,36 @@ class FileHubRepository implements HubRepository {
   });
 
   @override
-  Future<void> deleteCollections(Iterable<String> recordIds) =>
-      _exclusive(() async {
-        final ids = recordIds.toSet();
+  Future<void> deleteCollections(
+    Iterable<String> recordIds, {
+    WorkspaceSnapshot? expectedWorkspace,
+    Iterable<SavedSet>? expectedSets,
+  }) {
+    // Freeze arguments before joining the queue. Workspace selection and the
+    // entire verify/delete sequence share this queue, including every await.
+    final ids = recordIds.toSet();
+    final expected = expectedSets?.toList(growable: false);
+    return _exclusive(() async {
+        if (expectedWorkspace != null &&
+            !identical(current, expectedWorkspace)) {
+          throw StateError('portfolio.scenario_move_unverified');
+        }
+        if (expected != null) {
+          final actual = await _readSets();
+          if (expected.length != ids.length ||
+              expected.any((set) => !ids.contains(set.recordId))) {
+            throw StateError('portfolio.scenario_move_unverified');
+          }
+          for (final source in expected) {
+            final matches = actual
+                .where((set) => set.recordId == source.recordId)
+                .toList(growable: false);
+            if (matches.length != 1 ||
+                !savedSetContentEquals(matches.single, source)) {
+              throw StateError('portfolio.scenario_move_unverified');
+            }
+          }
+        }
         for (final id in ids) {
           final mobile = _mobileWorkspace;
           if (mobile != null) {
@@ -399,6 +430,7 @@ class FileHubRepository implements HubRepository {
           ),
         );
       });
+  }
 
   @override
   Future<String> saveTextExport(String fileName, String content) =>
