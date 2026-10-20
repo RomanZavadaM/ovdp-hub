@@ -2,24 +2,23 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · **🇫🇷 Français** · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Version de test actuelle: [OVDP Hub v0.10.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.0) — 0.10.0+22**
+> **Version de test actuelle: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Statut : ACTIVE — développement repris le 01.10.2026 ; v0.10.0 publiée le 02.10.2026.**
+> **Statut : ACTIVE — développement repris le 01.10.2026 ; v0.10.1 publiée le 02.10.2026.**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
 ## Produit
 
 OVDP Hub est une application Flutter/Dart local-first pour les OVDP ukrainiennes : sources de marché, planification de scénarios, comparaison neutre et portefeuille personnel chiffré factuel.
 
-## Nouveautés v0.10.0
+## Nouveautés v0.10.1
 
-- **mot de passe de récupération à l’ouverture** du portefeuille (option) ;
-- scénarios du Planner avec montants privés **uniquement dans le portefeuille chiffré** ;
-- suppression du portefeuille local et restauration d’une sauvegarde plus ancienne avec confirmation ;
-- **calculateur d’obligation du catalogue** (intérêts courus indicatifs, rendement à l’échéance) ;
-- **encaissements attendus** sur 12 mois et paiements « peut-être non enregistrés » ;
-- **rendement annuel du plan**, Argon2id en arrière-plan, CSV protégé, catalogue NBU tolérant.
+- migration Planner privée plus sûre : le plaintext n’est supprimé qu’après une nouvelle vérification de la copie chiffrée et de la source actuelle ;
+- le verrouillage efface le Planner privé et annule les dialogues, sélecteurs de date et résultats asynchrones obsolètes ;
+- lock/background/dispose annulent les opérations recovery/create/restore/migration inachevées et suppriment les clés tardives ;
+- l’export CSV/ICS privé exige un consentement explicite au plaintext et affiche la destination exacte ;
+- cryptographie, paramètres KDF et schéma payload inchangés ; le schéma reste v4.
 
 ## Périmètre du produit
 
@@ -45,7 +44,7 @@ Guide complet : **[Guide utilisateur français](../user-guide/USER_GUIDE.fr.md)*
 
 ## Vérification et limites
 
-Le run de release #116 de v0.10.0 (commit `933a7bd`) a réussi analyze, **264 tests**, smoke des ZIP Windows/macOS avec la liste des capacités, packaging Android release, packaging iOS unsigned, START/source, checksums et notices légales.
+Le run de release #116 de v0.10.1 (commit `933a7bd`) a réussi analyze, **314 tests**, smoke des ZIP Windows/macOS avec la liste des capacités, packaging Android release, packaging iOS unsigned, START/source, checksums et notices légales.
 
 Différé : validation physique Android SAF et iOS signé, signature de production, notarisation, distribution store, installateurs et auto-update. Intérêts courus et rendements indicatifs ; pas de conseil en investissement.
 
