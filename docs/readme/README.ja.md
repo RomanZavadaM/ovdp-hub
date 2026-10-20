@@ -44,7 +44,7 @@ Windows: ZIP 全体を展開して `ovdp_hub.exe` を実行します。macOS: `o
 
 ## 検証と境界
 
-v0.10.1 release run #116（commit `933a7bd`）は analyze、**314 tests**、capability 一覧を含む Windows/macOS exact packaged ZIP smoke、Android release packaging、unsigned iOS packaging、START/source、checksums、legal notices を通過しました。
+PR #155 の exact head は analyze、**314 tests**、Windows/macOS exact ZIP smoke、Android release、unsigned iOS packaging を通過しました。v0.10.1 release workflow はこれらを再実行し、START/source、checksums、legal notices を公開する必要があります。
 
 延期: Android 実機 SAF 検証、signed iOS 実機検証、production signing/notarization/store 配布、インストーラー、自動更新。経過利息と利回りは目安であり、投資助言ではありません。
 
