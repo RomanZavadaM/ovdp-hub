@@ -1,5 +1,9 @@
 # OVDP Hub v0.9.3 — Benutzerhandbuch
 
+## Neu in v0.10.1
+
+Sicherere private Migration, Leeren des privaten Planners beim Sperren, Abbruch unvollständiger Vault-Vorgänge und ausdrückliche Zustimmung vor CSV/ICS-Klartextexport. Kryptografie und Schema bleiben unverändert (v4).
+
 ## Neu in v0.10.0
 
 - **Passwort beim Öffnen des Portfolios** (Mein Portfolio → Wiederherstellung und Sicherung). Der Geräteschlüssel wird entfernt; ohne Wiederherstellungspasswort lassen sich die Daten nicht öffnen.
