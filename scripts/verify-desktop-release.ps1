@@ -106,7 +106,7 @@ try {
     }
   }
 
-  if ([string]$contract.privatePortfolioSchemaVersion -ne '4') {
+  if ([string]$contract.privatePortfolioSchemaVersion -ne '5') {
     throw "Unexpected private portfolio schema version: $($contract.privatePortfolioSchemaVersion)"
   }
   $expectedCapabilities = @(
