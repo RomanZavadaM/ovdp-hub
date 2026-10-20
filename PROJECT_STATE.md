@@ -13,7 +13,7 @@
 - Активний продукт: Flutter/Dart, `apps/native`.
 - Платформи: Windows / macOS / Android / iOS unsigned.
 - UI-мови: UK / EN / FR / DE / ES / KO / JA.
-- Активний NEXT: F4 lifecycle follow-up, PR #153 — додаткові create/dispose races відтворено; fix на перевірці. F6 DONE: PR #152, main `73df0e71a90a0738cf307820dde155b338c97866`, run 39418461683 SUCCESS (305 tests + усі platform gates). F4 primary #151: 293 tests + усі platform gates, post-merge verify/START SUCCESS.
+- Активний NEXT: F5 — приватні annotations collections, docs-only branch `fix/private-collections-20261020`; код ще не змінено. F4 follow-up #153 DONE: main `4440dd4175aa250d22f65c07866cb236b5c9d644`, run 39421143980 SUCCESS (314 tests + усі platform gates). F6 #152 DONE (305 tests + усі platform gates).
 
 Детальна історія зберігається в `CHANGELOG.md`, `docs/releases/`, merged PR і GitHub Issue #18. Цей файл навмисно не дублює повний журнал розробки.
 

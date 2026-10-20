@@ -22,6 +22,8 @@
 
 Окремі branch/PR, змістовні regression tests, Flutter analyze/test. Для готового коду — платформні та packaged desktop gates за PROJECT_RULES. До цього — draft PR, щоб не запускати всі важкі збірки на кожній проміжній зміні. Інтеграція лише після зелених checks; новий реліз — окремий checkpoint за правилами проєкту.
 
-## Активна робота
+## Прогрес і наступний етап
 
-F1/F2, branch `fix/private-scenario-migration-20261020`. Конфлікт ID/вмісту або зміна workspace зберігає plaintext; видалення дозволено тільки для перевірених записів у вихідному workspace. Деталі — WORKLOG.md та Issue #18.
+F1/F2 #149, F3 #150, F4 #151/#153, F6 #152 DONE. Поточний main `4440dd4175aa250d22f65c07866cb236b5c9d644`: 314 tests і всі platform gates PASS; published release не змінено.
+
+NEXT F5 — [приватні collections](F5_PRIVATE_COLLECTIONS_PLAN.md), branch `fix/private-collections-20261020`. Підготовлено дизайн; код F5 ще не реалізовано. Почати з codec compatibility/round-trip tests, далі editor/save/lock і explicit verified legacy move. F7–F10 та продуктові етапи лишаються в плані.

@@ -4,7 +4,7 @@
 
 ## Статус
 
-**ACTIVE — F4 lifecycle follow-up #153, branch `fix/lifecycle-key-cleanup-20261020`: create/restore/migration cancellation та dispose cleanup. F1/F2/F3/F4 primary/F6 інтегровані; main `73df0e71a90a0738cf307820dde155b338c97866`. Published v0.10.0 / 0.10.0+22. Exact state — WORKLOG + Issue #18.**
+**ACTIVE — NEXT F5, branch `fix/private-collections-20261020`: дизайн підготовлено, код ще не змінено. F1–F4/F6 DONE, main `4440dd4175aa250d22f65c07866cb236b5c9d644`. Published v0.10.0 / 0.10.0+22. Exact state — WORKLOG + Issue #18.**
 
 План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`. Незавершену роботу читати у WORKLOG активної гілки та Issue #18. Незлитий docs PR #148 — план аудиту; не вважати його інтегрованим у main.
 

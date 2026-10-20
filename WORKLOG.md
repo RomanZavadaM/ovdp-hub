@@ -1,6 +1,6 @@
 # WORKLOG — OVDP Hub
 
-Оновлено: **20.10.2026** (F1/F2/F3 інтегровано, NEXT F4)
+Оновлено: **20.10.2026** (F1–F4/F6 DONE; NEXT F5)
 
 ## STATUS
 
@@ -8,7 +8,7 @@
 
 Scope: завершення аудиту F1–F10, далі продуктові інтеграції продавців за планом 20.10.2026.
 
-Базовий `main` для NEXT F4: `463207cda15eb47310eba6e178d30b27251eed28`.
+Базовий `main` для NEXT F5: `4440dd4175aa250d22f65c07866cb236b5c9d644`.
 
 ## Рішення власника (01.10.2026)
 
@@ -28,17 +28,20 @@ Scope: завершення аудиту F1–F10, далі продуктові
 
 ## NEXT
 
-F4 FOLLOW-UP ACTIVE — branch `fix/lifecycle-key-cleanup-20261020`, draft PR #153, base main `73df0e71a90a0738cf307820dde155b338c97866` після F6.
+F5 — приватні назви й нотатки collections. Branch `fix/private-collections-20261020`, база main `4440dd4175aa250d22f65c07866cb236b5c9d644`. Підготовлено лише дизайн і цей docs checkpoint; код F5 ще не змінено, PR F5 немає.
 
-Контрольований regression-only run 39419555995 (a5f5cf5): analyze PASS, 294 tests PASS + 2 FAIL. Create після lock повернув PrivatePortfolioPayload; dispose під час protection-mode change залишив hasUnlockedKey == true в початковому store. Це додаткові крайові випадки після #151, не спростування primary recovery-open fix.
+План: [F5_PRIVATE_COLLECTIONS_PLAN.md](docs/F5_PRIVATE_COLLECTIONS_PLAN.md). Точна наступна дія: додати окремий PrivateCollectionRecord/payload v5 та compatibility/round-trip tests v1–v4; потім editor/save/lock, collections reopen та explicit verified legacy move. Приватні annotations не переводити у plaintext через UI-попередження. До завершення всіх етапів F5 не DONE.
 
-Fix: key-retaining cleanup тримає original store reference до завершення; create/restore/migration охоплені generation guard від початку всієї gateway operation (включно з picker/workspace waits). Додано 9 tests до main після F6: create lock/dispose + normal create; protection-change dispose/session lock; restore picker manual/session lock, recovery-dispose + normal restore. Internal transient locks відокремлені від timer locks; останні скасовують також key-retaining lifecycle work. Restore tests використовують synthetic mobile transport + real encrypted vault на CI host, не physical-device runtime. Криптографію, KDF, payload format і release version не змінено. Наступна дія: exact-head analyze/tests → platform gates → merge; до цього follow-up не DONE. Точний head/run — Issue #18.
+Завершено 20.10.2026:
+- F4 primary #151 → main 81639128557afc77777040b5d363b0d7d3701f7e, run 39416807438 SUCCESS (293 tests + усі platform gates).
+- F6 #152 → main 73df0e71a90a0738cf307820dde155b338c97866, run 39418461683 SUCCESS (305 tests, 12 нових UI tests + усі platform gates). Private CSV/ICS мають plaintext consent/destination; cancel/lock/draft/workspace change не запускають export.
+- F4 follow-up #153 → main `4440dd4175aa250d22f65c07866cb236b5c9d644`, tested head c5edd792aae9e6830c680391d5b72f4dd4bf9fd1, run 39421143980 SUCCESS: analyze, 314 tests (9 нових), Windows/macOS exact ZIP smoke, Android release APK, iOS unsigned. Original store cleanup після dispose; generation від початку create/restore/migration; окремі internal transient locks, які не маскують timer/user/background cancellation. Normal create/restore PASS.
+- Контрольовані red regressions: recovery-open run 39415913784 (284 pass + 1 fail), lifecycle run 39419555995 (294 pass + 2 fail). Це real-store/domain тести, не physical-device runtime.
+- Post-merge F4/F6 verify+START runs 39417929019 / 39419709164 SUCCESS. Post-merge final main run 39422596744 ще перевіряється; фінальний статус — Issue #18.
 
-F6 DONE — PR #152 → main `73df0e71a90a0738cf307820dde155b338c97866`; run 39418461683 SUCCESS (305 tests, 12 нових UI tests, Windows/macOS exact ZIP smoke, Android release, iOS unsigned). Private CSV/ICS мають explicit plaintext consent і destination; cancel/lock/draft/workspace changes не запускають export. Post-merge verify/START — див. GitHub/Issue #18.
+Published release лишається v0.10.0 / 0.10.0+22; новий реліз не публікувався. F7–F10 та продуктові етапи — за DEVELOPMENT_PLAN; physical-device/signing/store backlog не активовано.
 
-F4 primary DONE — PR #151 → main 81639128557afc77777040b5d363b0d7d3701f7e, run 39416807438 SUCCESS (293 tests + усі platform gates); post-merge main run 39417929019 SUCCESS (verify + START).
-
-Після follow-up: F5, окремий docs-only branch `fix/private-collections-20261020`, plan `docs/F5_PRIVATE_COLLECTIONS_PLAN.md` (код F5 ще не реалізовано). F5 branch переприв’язати до actual main і почати з schema compatibility/round-trip tests, потім editor/save/lock та explicit verified move. Інші P2 лишаються backlog.
+Локальний checkout востаннє підтверджено clean на c5edd792. Після зміни середовища локальний exec заблокований помилкою Windows sandbox path URI file:///workspace; GitHub checkpoint є актуальним. Перед наступною локальною реалізацією синхронізувати цю гілку, не перезаписуючи можливі локальні зміни.
 
 ## Нещодавно завершено — F1/F2/F3 DONE
 

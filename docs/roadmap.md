@@ -6,7 +6,7 @@
 
 **ACTIVE — останній тестовий реліз v0.10.0 / 0.10.0+22 (02.10.2026).** Наступний scope визначає власник.
 
-Власник доручив продовжити розробку 20.10.2026. F1/F2 завершено PR #149 (main `00a09b7`). F3 завершено PR #150 (main `463207c`, 284 tests + всі платформні gates PASS). Активний етап — F4: спочатку відтворити recovery/KDF race проти lock. Далі: порівняння пропозицій продавців за ISIN, підтверджений локальний імпорт портфеля, переходи до майданчиків та стани джерел. Повний [план](DEVELOPMENT_PLAN_2026_10_20.md). Tracker аудиту — [#147](https://github.com/RomanZavadaM/ovdp-hub/issues/147); docs PR #148 окремо. Автокупівлю не включено.
+Власник доручив продовжити розробку 20.10.2026. F1/F2 #149, F3 #150, F4 #151/#153 і F6 #152 інтегровані. Main `4440dd4175aa250d22f65c07866cb236b5c9d644`; 314 tests + Windows/macOS exact ZIP smoke + Android/iOS gates PASS. NEXT F5: приватні annotations collections, окремий [план](F5_PRIVATE_COLLECTIONS_PLAN.md), код ще не змінено. Далі — [план розвитку](DEVELOPMENT_PLAN_2026_10_20.md) і tracker [#147](https://github.com/RomanZavadaM/ovdp-hub/issues/147). Автокупівлю не включено.
 
 ## Завершений scope
 
