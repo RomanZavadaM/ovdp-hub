@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:file_selector/file_selector.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -106,9 +106,9 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   LocalEncryptedPortfolioGateway.forTesting({
     required LocalVaultStore store,
     required VaultSessionController session,
-  }) : _mobileExternalStorage = const MethodChannelMobileExternalStorage(),
-       _store = store,
-       _session = session {
+  }) : _mobileExternalStorage = const MethodChannelMobileExternalStorage() {
+    _store = store;
+    _session = session;
     session.addListener(_publishLockState);
   }
 
