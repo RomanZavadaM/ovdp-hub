@@ -178,6 +178,7 @@ class LocalVaultStore implements VaultLifecycleStore {
   /// DEKs unwrapped with a recovery secret for the current unlocked session.
   /// They exist only in memory and are disposed by [forgetUnlockedKey].
   final Map<String, SecureKey> _unlockedKeys = {};
+  final Map<String, int> _keyGenerations = {};
 
   LocalVaultStore({
     required this.directory,
@@ -762,6 +763,7 @@ class LocalVaultStore implements VaultLifecycleStore {
     required String recoverySecret,
   }) async {
     validateVaultId(vaultId);
+    final generation = _keyGenerations[vaultId] ?? 0;
     await _recoverInterruptedDelete(vaultId);
     await _recoverInterruptedReplace(vaultId);
     if (!await fileFor(vaultId).exists()) {
@@ -780,6 +782,9 @@ class LocalVaultStore implements VaultLifecycleStore {
     try {
       final current = await _readValidatedCurrent(vaultId, dek);
       await _assertNotRollback(current);
+      if (generation != (_keyGenerations[vaultId] ?? 0)) {
+        throw StateError('vault.session_locked');
+      }
       _cacheUnlockedKey(vaultId, dek);
       cached = true;
     } finally {
@@ -789,6 +794,7 @@ class LocalVaultStore implements VaultLifecycleStore {
 
   /// Disposes an in-memory DEK obtained through the recovery secret.
   void forgetUnlockedKey({required String vaultId}) {
+    _keyGenerations[vaultId] = (_keyGenerations[vaultId] ?? 0) + 1;
     _unlockedKeys.remove(vaultId)?.dispose();
   }
 

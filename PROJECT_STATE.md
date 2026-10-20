@@ -13,7 +13,7 @@
 - Активний продукт: Flutter/Dart, `apps/native`.
 - Платформи: Windows / macOS / Android / iOS unsigned.
 - UI-мови: UK / EN / FR / DE / ES / KO / JA.
-- Активний NEXT: F4 — спочатку відтворювальна перевірка recovery/KDF проти lock; PR ще немає. План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`.
+- Активний NEXT: F4, PR #151 — контрольовано відтворено recovery/lock race; cancellation fix на перевірці, ще не інтегровано. План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`.
 
 Детальна історія зберігається в `CHANGELOG.md`, `docs/releases/`, merged PR і GitHub Issue #18. Цей файл навмисно не дублює повний журнал розробки.
 

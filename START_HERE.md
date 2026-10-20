@@ -4,7 +4,7 @@
 
 ## Статус
 
-**ACTIVE — F1/F2/F3 інтегровано у main `463207cda15eb47310eba6e178d30b27251eed28` (PR #149/#150). NEXT F4: відтворювальна перевірка recovery/KDF проти lock, branch `fix/recovery-lock-generation-20261020`, PR ще немає. Останній опублікований реліз v0.10.0 / 0.10.0+22 від 02.10.2026.**
+**ACTIVE — F1/F2/F3 DONE; F4 PR #151: race відтворено, cancellation fix на перевірці. Branch `fix/recovery-lock-generation-20261020`. Main `463207cda15eb47310eba6e178d30b27251eed28`; published v0.10.0 / 0.10.0+22.**
 
 План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`. Незавершену роботу читати у WORKLOG активної гілки та Issue #18. Незлитий docs PR #148 — план аудиту; не вважати його інтегрованим у main.
 

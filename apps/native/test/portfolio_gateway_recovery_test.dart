@@ -15,12 +15,34 @@ import 'vault_store_test.dart' show MemoryVaultDeviceKeyStore;
 class PausedRecoveryCrypto extends SodiumVaultCrypto {
   Completer<void>? entered;
   Completer<void>? resume;
+  bool pauseWrapping = false;
 
   PausedRecoveryCrypto(super.sodium);
 
   void pause() {
     entered = Completer<void>();
     resume = Completer<void>();
+  }
+
+  @override
+  Future<VaultRecoverySlotV1> wrapDekForRecoveryAsync({
+    required String vaultId,
+    required SecureKey dek,
+    required String recoverySecret,
+    required VaultRecoveryKdfParameters parameters,
+  }) async {
+    final slot = await super.wrapDekForRecoveryAsync(
+      vaultId: vaultId,
+      dek: dek,
+      recoverySecret: recoverySecret,
+      parameters: parameters,
+    );
+    if (pauseWrapping && resume != null) {
+      entered!.complete();
+      await resume!.future;
+      resume = null;
+    }
+    return slot;
   }
 
   @override
@@ -114,6 +136,107 @@ void main() {
     expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
     // Explicitly retrying with the secret must still work.
     await gateway.open(recoverySecret: secret);
+    expect(gateway.unlocked, isTrue);
+  });
+
+  for (final action in ['background', 'dispose', 'session lock']) {
+    test('$action cancels an in-flight recovery opening', () async {
+      // An already open session can hit its normal automatic lock callback
+      // while a fresh recovery operation is awaiting its KDF result.
+      if (action == 'session lock') {
+        await gateway.open(recoverySecret: secret);
+      }
+      crypto.pause();
+      final rejected = expectLater(
+        gateway.open(recoverySecret: secret),
+        throwsStateError,
+      );
+      await crypto.entered!.future;
+      switch (action) {
+        case 'background':
+          gateway.onBackground();
+          await gateway.onForeground();
+        case 'dispose':
+          await gateway.dispose();
+        case 'session lock':
+          await session.lock();
+      }
+      crypto.resume!.complete();
+      await rejected;
+      expect(gateway.unlocked, isFalse);
+      expect(session.state.isUnlocked, isFalse);
+      expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
+      await expectLater(gateway.open(), throwsStateError);
+    });
+  }
+
+  test('overlapping opens cannot consume or replace a pending recovery key', () async {
+    crypto.pause();
+    final opening = gateway.open(recoverySecret: secret);
+    await crypto.entered!.future;
+    await expectLater(gateway.open(), throwsStateError);
+    await expectLater(
+      gateway.open(recoverySecret: secret),
+      throwsStateError,
+    );
+    crypto.resume!.complete();
+    await opening;
+    expect(gateway.unlocked, isTrue);
+    expect(store.hasUnlockedKey(vaultId: vaultId), isTrue);
+    await gateway.lock();
+    expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
+  });
+
+  test('forgetting a key cancels a pending store recovery before caching', () async {
+    crypto.pause();
+    final rejected = expectLater(
+      store.unlockWithRecoverySecret(vaultId: vaultId, recoverySecret: secret),
+      throwsStateError,
+    );
+    await crypto.entered!.future;
+    store.forgetUnlockedKey(vaultId: vaultId);
+    crypto.resume!.complete();
+    await rejected;
+    expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
+    await expectLater(store.open(vaultId: vaultId), throwsStateError);
+  });
+
+  test('ordinary recovery and locking preserve the recovery-only access mode', () async {
+    expect(await gateway.requiresRecoverySecret(), isTrue);
+    await expectLater(
+      gateway.open(recoverySecret: 'wrong synthetic secret'),
+      throwsA(anything),
+    );
+    expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
+    final payload = await gateway.open(recoverySecret: secret);
+    expect(payload.portfolioId, LocalEncryptedPortfolioGateway.portfolioId);
+    await gateway.save(payload);
+    expect(gateway.unlocked, isTrue);
+    await gateway.lock();
+    expect(await gateway.requiresRecoverySecret(), isTrue);
+    await expectLater(gateway.open(), throwsStateError);
+    await gateway.open(recoverySecret: secret);
+    expect(gateway.unlocked, isTrue);
+  });
+
+  test('lock during recovery rotation prevents the internal reopen', () async {
+    const newSecret = 'new synthetic recovery secret';
+    await gateway.open(recoverySecret: secret);
+    crypto.pauseWrapping = true;
+    crypto.pause();
+    final rejected = expectLater(
+      gateway.rotateRecovery(recoverySecret: newSecret),
+      throwsStateError,
+    );
+    await crypto.entered!.future;
+    await gateway.lock();
+    crypto.resume!.complete();
+    await rejected;
+    expect(gateway.unlocked, isFalse);
+    expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
+    await expectLater(gateway.open(), throwsStateError);
+    // A durable rotation may finish, but must never undo the later lock.
+    await gateway.open(recoverySecret: newSecret);
     expect(gateway.unlocked, isTrue);
   });
 }

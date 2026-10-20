@@ -28,9 +28,13 @@ Scope: завершення аудиту F1–F10, далі продуктові
 
 ## NEXT
 
-Активна наступна дія: **F4 — контрольована перевірка recovery/KDF проти lock**. Гілка `fix/recovery-lock-generation-20261020`, база main `463207cda15eb47310eba6e178d30b27251eed28`. PR ще немає; код F4 не змінено.
+F4 ACTIVE — branch `fix/recovery-lock-generation-20261020`, PR #151, base main `463207cda15eb47310eba6e178d30b27251eed28`.
 
-Спочатку додати відтворювальний test: почати gateway.open із recovery secret, призупинити KDF, виконати gateway.lock, завершити KDF. Перевірити session locked, відсутній кешований DEK (`hasUnlockedKey`), наступне відкриття без secret відмовляється. Наявні generation tests самого VaultSessionController не замінюють перевірку всього gateway. Лише після доказу — виправлення generation/cancellation/cleanup. Це гіпотеза аудиту; не називати її підтвердженим обходом блокування до тесту. Не змінювати криптографічні примітиви або параметри KDF.
+Контрольоване відтворення підтверджено: run 39415913784, head 9706e189610c52caf8f5fb4f913c418f1dd444f7, analyze PASS, 284 tests PASS + 1 expected regression FAIL. Paused real recovery result → gateway.lock → completion повернув PrivatePortfolioPayload замість відмови. Це доказ контрольованого domain-сценарію, не native UI тест.
+
+Реалізовано cancellation на gateway open та generation для store recovery cache; stale DEK disposed, overlapping opens відхиляються, background/dispose скасовують pending open, key-retaining rotation/restore не можуть виконати stale internal reopen. Вісім нових real-store tests охоплюють manual/session lock, background, dispose, overlapping opens, store cleanup, normal recovery/save/retry та rotation. Криптографію та параметри KDF не змінено. Уже почата durable rotation може завершити запис нового secret, але не повинна відкрити session після lock.
+
+Наступна дія: exact-head analyze/tests, усі platform gates, потім інтеграція. DONE лише після merge. Останній SHA/run — Issue #18. Після F4 — F5/F6: межі plaintext notes/exports.
 
 ## Нещодавно завершено — F1/F2/F3 DONE
 
@@ -38,7 +42,7 @@ Scope: завершення аудиту F1–F10, далі продуктові
 - F3: PR #150 → main `463207cda15eb47310eba6e178d30b27251eed28`, run 39413819496 SUCCESS: analyze, **284 tests** (ще 10 нових), Windows/macOS exact ZIP packaged smoke, Android release та iOS unsigned. Private Planner очищується на session lock, transient dialogs/date picker закриваються, stale completions не повертають UI; нові/public drafts зберігаються.
 - F3 перший CI мав 1 UI failure через неправильний finder кнопки lock; виправлено на реальний tooltip, усі подальші перевірки зелені.
 - Уже розпочатий до lock export не видаляється ретроспективно. F6 про plaintext export лишається окремим пунктом.
-- Post-merge main F3 verify/START: перевірити фактичний GitHub; фінальний запис — Issue #18.
+- Post-merge main F3 verify/START: run 39414901881 SUCCESS (verify + START/source).
 - Публічний реліз **v0.10.0 / 0.10.0+22** не переписували й новий реліз не публікували. Реальні physical-device mobile сценарії залишаються deferred.
 
 План: [DEVELOPMENT_PLAN_2026_10_20.md](docs/DEVELOPMENT_PLAN_2026_10_20.md), tracker #147. Висновки порівняння Shell і межі 61 module tests збережені в Issue #18; native UI Shell не запускали. Docs PR #148 окремо; його старі PLANNED-статуси не є поточними.
