@@ -32,10 +32,10 @@ Post-merge main verify run **#561 — SUCCESS**.
 - `WORKLOG.md` — активний slice і точна наступна дія.
 - GitHub Issue #18 — append-only development ledger.
 - `apps/native/pubspec.yaml` — machine source version/build.
-- `docs/releases/RELEASE_NOTES_v0_10_0.md` — останній опублікований реліз.
+- `docs/releases/RELEASE_NOTES_v0_10_1.md` — release checkpoint v0.10.1.
 - `docs/roadmap.md` — завершений scope і deferred backlog.
 
-## Що зафіксовано у v0.10.0
+## База v0.10.0 та зміни checkpoint v0.10.1
 
 Після відновлення розробки (01.10.2026, аудит коду) інтегровано PR #138–#142:
 - опційний пароль відновлення при відкритті портфеля;
