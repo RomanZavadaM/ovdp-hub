@@ -365,6 +365,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       disposals: current.disposals,
       legacyCollections: current.legacyCollections,
       privateScenarios: current.privateScenarios,
+      privateCollections: current.privateCollections,
     );
     await gateway.save(next);
     emit(state.copyWith(payload: next, busy: false, clearError: true));
@@ -428,6 +429,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       disposals: [...current.disposals, disposal],
       legacyCollections: current.legacyCollections,
       privateScenarios: current.privateScenarios,
+      privateCollections: current.privateCollections,
     );
     await gateway.save(next);
     emit(state.copyWith(payload: next, busy: false, clearError: true));
@@ -468,6 +470,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       disposals: current.disposals,
       legacyCollections: current.legacyCollections,
       privateScenarios: current.privateScenarios,
+      privateCollections: current.privateCollections,
     );
     await gateway.save(next);
     emit(state.copyWith(payload: next, busy: false, clearError: true));
@@ -510,6 +513,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       disposals: current.disposals,
       legacyCollections: current.legacyCollections,
       privateScenarios: current.privateScenarios,
+      privateCollections: current.privateCollections,
     );
     await gateway.save(next);
     emit(state.copyWith(payload: next, busy: false, clearError: true));
