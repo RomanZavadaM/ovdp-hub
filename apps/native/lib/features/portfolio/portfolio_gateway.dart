@@ -100,6 +100,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   /// them the in-memory recovery-mode key must survive the transient lock.
   int _keyRetainingOperations = 0;
   int? _keyRetainingGeneration;
+  int _internalSessionLocks = 0;
 
   LocalEncryptedPortfolioGateway({
     this._mobileExternalStorage = const MethodChannelMobileExternalStorage(),
@@ -170,7 +171,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
 
   void _publishLockState() {
     final phase = _session?.state.phase;
-    if (_keyRetainingOperations == 0 &&
+    if (_internalSessionLocks == 0 &&
         (phase == VaultSessionPhase.locked ||
             phase == VaultSessionPhase.error)) {
       _lockGeneration++;
@@ -199,6 +200,17 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
         // finish. Its original store must still lose any late cached key.
         (store ?? _store)?.forgetUnlockedKey(vaultId: vaultId);
       }
+    }
+  }
+
+  Future<void> _lockSessionRetainingKey(VaultSessionController session) async {
+    // Only intentional transient locks preserve the lifecycle token.
+    // Timer/user/background locks still cancel key-retaining work.
+    _internalSessionLocks++;
+    try {
+      await session.lock();
+    } finally {
+      _internalSessionLocks--;
     }
   }
 
@@ -463,7 +475,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     return _retainingKey(() async {
       final wasUnlocked = session.state.isUnlocked;
       if (wasUnlocked) {
-        await session.lock();
+        await _lockSessionRetainingKey(session);
       }
       try {
         final restored = await _store!.restoreEncryptedBackup(
@@ -516,7 +528,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
       throw StateError('vault.session_locked');
     }
     return _retainingKey(() async {
-      await session.lock();
+      await _lockSessionRetainingKey(session);
       await _store!.rotateRecovery(
         vaultId: vaultId,
         recoverySecret: recoverySecret,
@@ -547,7 +559,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
         // The migrator writes through the durable store. Always discard the
         // session plaintext, even when verification fails after a write, so a
         // stale unlocked session can never overwrite migrated vault contents.
-        await session.lock();
+        await _lockSessionRetainingKey(session);
       }
 
       final payload = await open();
@@ -565,8 +577,8 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
 
   @override
   void onBackground() {
-    // Recovery runs before the session enters `unlocking`, so its normal
-    // background timer cannot see this work. Cancel pending opens immediately.
+    // Lifecycle work can run while the session is already locked, outside its
+    // normal background timer. Cancel pending work immediately.
     if (_openInFlight || _keyRetainingOperations > 0) unawaited(lock());
     _session?.onBackground();
   }

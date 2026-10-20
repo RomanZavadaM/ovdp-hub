@@ -264,32 +264,34 @@ void main() {
     expect(gateway.unlocked, isTrue);
   });
 
-  for (final action in ['lock', 'dispose']) {
-    test('$action during creation prevents its internal reopen', () async {
-      await store.discardLocalVault(vaultId: vaultId);
-      crypto.pauseWrapping = true;
-      crypto.pause();
-      final rejected = expectLater(
-        gateway.create(recoverySecret: secret),
-        throwsStateError,
-      );
-      await crypto.entered!.future;
-      if (action == 'dispose') {
-        await gateway.dispose();
-      } else {
-        await gateway.lock();
-      }
-      crypto.resume!.complete();
-      await rejected;
-      expect(gateway.unlocked, isFalse);
-      expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
-      // Creation may finish durably, but it must respect the later lock.
-      expect(await store.fileFor(vaultId).exists(), isTrue);
-      if (action == 'lock') {
-        await gateway.open();
-        expect(gateway.unlocked, isTrue);
-      }
-    });
+  for (final action in ['lock', 'dispose', 'session lock']) {
+    if (action != 'session lock') {
+      test('$action during creation prevents its internal reopen', () async {
+        await store.discardLocalVault(vaultId: vaultId);
+        crypto.pauseWrapping = true;
+        crypto.pause();
+        final rejected = expectLater(
+          gateway.create(recoverySecret: secret),
+          throwsStateError,
+        );
+        await crypto.entered!.future;
+        if (action == 'dispose') {
+          await gateway.dispose();
+        } else {
+          await gateway.lock();
+        }
+        crypto.resume!.complete();
+        await rejected;
+        expect(gateway.unlocked, isFalse);
+        expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
+        // Creation may finish durably, but it must respect the later lock.
+        expect(await store.fileFor(vaultId).exists(), isTrue);
+        if (action == 'lock') {
+          await gateway.open();
+          expect(gateway.unlocked, isTrue);
+        }
+      });
+    }
 
     test('$action during protection change disposes its late recovery key', () async {
       await gateway.open(recoverySecret: secret);
@@ -303,6 +305,8 @@ void main() {
       await crypto.entered!.future;
       if (action == 'dispose') {
         await gateway.dispose();
+      } else if (action == 'session lock') {
+        await session.lock();
       } else {
         await gateway.lock();
       }
@@ -320,17 +324,29 @@ void main() {
     });
   }
 
-  for (final phase in ['picker', 'recovery']) {
-    test('restore cancelled during $phase cannot reopen or retain a key', () async {
+  test('ordinary creation still opens the newly created portfolio', () async {
+    await store.discardLocalVault(vaultId: vaultId);
+    final created = await gateway.create(recoverySecret: secret);
+    expect(created.portfolioId, LocalEncryptedPortfolioGateway.portfolioId);
+    expect(gateway.unlocked, isTrue);
+    await gateway.lock();
+    await gateway.open();
+    expect(gateway.unlocked, isTrue);
+  });
+
+  for (final phase in ['picker', 'picker timer', 'recovery', 'complete']) {
+    test(phase == 'complete'
+        ? 'ordinary restore reopens the recovery-only portfolio'
+        : 'restore cancelled during $phase cannot reopen or retain a key', () async {
       final backup = await store.fileFor(vaultId).readAsBytes();
       final picked = Completer<Uint8List?>();
       final pickerEntered = Completer<void>();
       final storage = PickerStorage(() {
         pickerEntered.complete();
-        return phase == 'picker' ? picked.future : Future.value(backup);
+        return phase.startsWith('picker') ? picked.future : Future.value(backup);
       });
-      // Replace only the unused gateway listener; the isolated session/store
-      // are still the same real encrypted test vault.
+      // Use a fresh gateway/session with the same real encrypted test vault
+      // and a synthetic picker, without accessing a device or user files.
       await gateway.dispose();
       session = VaultSessionController(
         store: store,
@@ -348,18 +364,26 @@ void main() {
       if (phase == 'recovery') crypto.pause();
       final rejected = expectLater(
         gateway.restorePortableBackup(recoverySecret: secret),
-        throwsStateError,
+        phase == 'complete' ? completion(isNotNull) : throwsStateError,
       );
       await pickerEntered.future;
-      if (phase == 'picker') {
-        await gateway.lock();
+      if (phase.startsWith('picker')) {
+        if (phase == 'picker timer') {
+          await session.lock();
+        } else {
+          await gateway.lock();
+        }
         picked.complete(backup);
-      } else {
+      } else if (phase == 'recovery') {
         await crypto.entered!.future;
         await gateway.dispose();
         crypto.resume!.complete();
       }
       await rejected;
+      if (phase == 'complete') {
+        expect(gateway.unlocked, isTrue);
+        await gateway.lock();
+      }
       expect(gateway.unlocked, isFalse);
       expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
       await expectLater(gateway.open(), throwsStateError);
