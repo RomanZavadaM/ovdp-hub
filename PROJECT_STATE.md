@@ -13,7 +13,7 @@
 - Активний продукт: Flutter/Dart, `apps/native`.
 - Платформи: Windows / macOS / Android / iOS unsigned.
 - UI-мови: UK / EN / FR / DE / ES / KO / JA.
-- Активний NEXT: F4, PR #151 — контрольовано відтворено recovery/lock race; cancellation fix на перевірці, ще не інтегровано. План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`.
+- Активний NEXT: F6, PR #152 — plaintext confirmation перед export приватного Planner; на перевірці. F4 DONE: PR #151, main `81639128557afc77777040b5d363b0d7d3701f7e`, run 39416807438 SUCCESS (293 tests + усі platform gates).
 
 Детальна історія зберігається в `CHANGELOG.md`, `docs/releases/`, merged PR і GitHub Issue #18. Цей файл навмисно не дублює повний журнал розробки.
 

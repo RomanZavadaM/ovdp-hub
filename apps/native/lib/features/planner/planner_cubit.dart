@@ -1198,6 +1198,8 @@ class PlannerCubit extends Cubit<PlannerState> {
 
   Future<String?> exportCsv() => _export('csv');
 
+  String? get exportWorkspacePath => repository.current?.path;
+
   Future<String?> exportIcs() => _export('ics');
 
   Future<bool> save() async {

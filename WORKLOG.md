@@ -28,13 +28,13 @@ Scope: завершення аудиту F1–F10, далі продуктові
 
 ## NEXT
 
-F4 ACTIVE — branch `fix/recovery-lock-generation-20261020`, PR #151, base main `463207cda15eb47310eba6e178d30b27251eed28`.
+F6 ACTIVE — branch `fix/private-export-consent-20261020`, draft PR #152. Base main після F4: `81639128557afc77777040b5d363b0d7d3701f7e`.
 
-Контрольоване відтворення підтверджено: run 39415913784, head 9706e189610c52caf8f5fb4f913c418f1dd444f7, analyze PASS, 284 tests PASS + 1 expected regression FAIL. Paused real recovery result → gateway.lock → completion повернув PrivatePortfolioPayload замість відмови. Це доказ контрольованого domain-сценарію, не native UI тест.
+Private Planner CSV/ICS: explicit plaintext confirmation з призначенням exports у поточному workspace, текст UK/EN/FR/DE/ES/KO/JA. Cancel/lock/stale draft/workspace → export не запускається; public/new draft export без додаткового діалогу. Додано 12 UI regressions (обидва формати; один narrow viewport). Наступна дія: exact-head analyze/tests → усунути findings → platform gates → merge. До green gates/merge F6 не DONE. Точний head/run — Issue #18.
 
-Реалізовано cancellation на gateway open та generation для store recovery cache; stale DEK disposed, overlapping opens відхиляються, background/dispose скасовують pending open, key-retaining rotation/restore не можуть виконати stale internal reopen. Дев’ять нових real-store tests охоплюють manual/session lock, background, dispose, overlapping opens, store cleanup, normal recovery/save/retry та rotation/protection change. Криптографію та параметри KDF не змінено. Уже почата durable rotation може завершити запис нового secret, але не повинна відкрити session після lock.
+F4 DONE — PR #151 → main `81639128557afc77777040b5d363b0d7d3701f7e`; exact tested head `2a8606c759957d47b40d3b88d9282d95cf60447e`. Run 39416807438 SUCCESS: analyze, 293 tests (9 нових), Windows/macOS release package + exact ZIP smoke, Android release APK, iOS unsigned. Controlled reproducer run 39415913784: 284 pass + 1 FAIL на старому коді, бо open повернув приватний payload після lock. Pending recovery тепер скасовується на manual/session lock, background/dispose; stale cached DEK disposed; rotation/protection change не відновлюють session після lock. Криптографію та KDF parameters не змінено. Post-merge verify/START — перевірити GitHub і останній запис Issue #18.
 
-Наступна дія: exact-head analyze/tests, усі platform gates, потім інтеграція. DONE лише після merge. Останній SHA/run — Issue #18. Після F4 — F5/F6: межі plaintext notes/exports.
+F5 лишається PLANNED: звичайна collection має plaintext модель; не вважати її приватною через одне UI-попередження. Після F6 — узгоджена private/public collection модель та реальні файли workspace.
 
 ## Нещодавно завершено — F1/F2/F3 DONE
 

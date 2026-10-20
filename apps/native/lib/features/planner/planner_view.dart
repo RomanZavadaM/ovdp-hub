@@ -434,7 +434,47 @@ class PlannerView extends StatelessWidget {
     BuildContext context,
     Future<String?> Function() action,
     HubStrings strings,
+    String format,
   ) async {
+    final cubit = context.read<PlannerCubit>();
+    final draft = cubit.state;
+    final destination = cubit.exportWorkspacePath;
+    if (draft.privateDraft) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          key: const ValueKey('private-export-confirmation'),
+          scrollable: true,
+          title: Text(strings.text('privateExportTitle')),
+          content: Text(
+            strings.text('privateExportBody')
+                .replaceAll('{format}', format)
+                .replaceAll('{path}', destination ?? strings.text('workspaceClosed')),
+          ),
+          actions: [
+            TextButton(
+              key: const ValueKey('private-export-cancel'),
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(strings.text('portfolioCancel')),
+            ),
+            FilledButton(
+              key: const ValueKey('private-export-confirm'),
+              onPressed: destination == null
+                  ? null
+                  : () => Navigator.pop(dialogContext, true),
+              child: Text(strings.text('privateExportConfirm')),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true ||
+          !context.mounted ||
+          cubit.isClosed ||
+          !identical(cubit.state, draft) ||
+          cubit.exportWorkspacePath != destination) {
+        return;
+      }
+    }
     final path = await action();
     if (context.mounted && path != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1344,14 +1384,14 @@ class PlannerView extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: disabled || summary == null || state.inputs.isEmpty
                   ? null
-                  : () => _export(context, cubit.exportCsv, strings),
+                  : () => _export(context, cubit.exportCsv, strings, 'CSV'),
               icon: const Icon(Icons.table_view_outlined),
               label: Text(strings.text('exportCsv')),
             ),
             OutlinedButton.icon(
               onPressed: disabled || summary == null || state.inputs.isEmpty
                   ? null
-                  : () => _export(context, cubit.exportIcs, strings),
+                  : () => _export(context, cubit.exportIcs, strings, 'ICS'),
               icon: const Icon(Icons.calendar_month_outlined),
               label: Text(strings.text('exportIcs')),
             ),

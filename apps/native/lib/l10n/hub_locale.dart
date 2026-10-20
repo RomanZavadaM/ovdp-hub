@@ -1098,7 +1098,46 @@ class HubStrings {
     return value;
   }
 
+  static const _privateExportTranslations = {
+    'uk': {
+      'privateExportTitle': 'Експорт приватного сценарію',
+      'privateExportBody': 'Файл {format} міститиме дані приватного сценарію відкритим текстом, без захисту шифрованого сховища.\n\nПризначення: папка exports у робочому просторі:\n{path}\n\nЯкщо ця папка синхронізується, файл може зберігатися у провайдера. Створити файл?',
+      'privateExportConfirm': 'Створити незашифрований файл',
+    },
+    'en': {
+      'privateExportTitle': 'Export private scenario',
+      'privateExportBody': 'The {format} file will contain private scenario data in plaintext, without encrypted vault protection.\n\nDestination: the exports folder in this workspace:\n{path}\n\nIf this folder is synced, the file may be stored by its provider. Create the file?',
+      'privateExportConfirm': 'Create unencrypted file',
+    },
+    'fr': {
+      'privateExportTitle': 'Exporter le scénario privé',
+      'privateExportBody': 'Le fichier {format} contiendra les données du scénario privé en clair, sans la protection du coffre chiffré.\n\nDestination : le dossier exports de cet espace de travail :\n{path}\n\nSi ce dossier est synchronisé, le fichier peut être stocké par son fournisseur. Créer le fichier ?',
+      'privateExportConfirm': 'Créer le fichier non chiffré',
+    },
+    'de': {
+      'privateExportTitle': 'Privates Szenario exportieren',
+      'privateExportBody': 'Die {format}-Datei enthält private Szenariodaten im Klartext, ohne den Schutz des verschlüsselten Tresors.\n\nZiel: der Ordner exports in diesem Arbeitsbereich:\n{path}\n\nBei einer Synchronisierung dieses Ordners kann der Anbieter die Datei speichern. Datei erstellen?',
+      'privateExportConfirm': 'Unverschlüsselte Datei erstellen',
+    },
+    'es': {
+      'privateExportTitle': 'Exportar escenario privado',
+      'privateExportBody': 'El archivo {format} contendrá datos del escenario privado en texto sin cifrar, sin la protección de la bóveda cifrada.\n\nDestino: la carpeta exports de este espacio de trabajo:\n{path}\n\nSi esta carpeta se sincroniza, su proveedor puede almacenar el archivo. ¿Crear el archivo?',
+      'privateExportConfirm': 'Crear archivo sin cifrar',
+    },
+    'ko': {
+      'privateExportTitle': '비공개 시나리오 내보내기',
+      'privateExportBody': '{format} 파일에는 비공개 시나리오 데이터가 암호화된 보관함의 보호 없이 평문으로 저장됩니다.\n\n저장 위치: 다음 작업 공간의 exports 폴더:\n{path}\n\n이 폴더가 동기화되면 서비스 제공업체에 파일이 저장될 수 있습니다. 파일을 만들까요?',
+      'privateExportConfirm': '암호화되지 않은 파일 만들기',
+    },
+    'ja': {
+      'privateExportTitle': '非公開シナリオのエクスポート',
+      'privateExportBody': '{format} ファイルには、暗号化保管庫で保護されていない非公開シナリオのデータが平文で保存されます。\n\n保存先: 次のワークスペースの exports フォルダー:\n{path}\n\nこのフォルダーが同期される場合、サービス提供者にファイルが保存されることがあります。ファイルを作成しますか？',
+      'privateExportConfirm': '暗号化されていないファイルを作成',
+    },
+  };
+
   String text(String key) =>
+      _privateExportTranslations[language.code]?[key] ??
       _translations[language.code]?[key] ??
       _calculatorTranslations[language.code]?[key] ??
       _workflowTranslations[language.code]?[key] ??
