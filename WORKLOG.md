@@ -28,9 +28,17 @@ Scope: security/privacy hardening за аудитом 01.10.2026 + перші п
 
 ## NEXT
 
-Активний slice: F1/F2 — безпечне перенесення приватних сценаріїв. База `31c2004298f1b804439692e8bfb7562d3952c8ba`; гілка `fix/private-scenario-migration-20261020`. Draft PR [#149](https://github.com/RomanZavadaM/ovdp-hub/pull/149). Критерії: перевірка повного вмісту vault-копії, збереження оригіналу при конфлікті, відмова від видалення після зміни workspace/джерела, regression tests, green CI. Реалізовано перевірку повного канонічного вмісту до/після save, guarded deletion у repository queue і показ помилки на екрані добірок. Додано 5 domain regression cases, 3 real-filesystem repository tests і 2 UI tests із натисканням реальної кнопки перенесення. Локального Flutter немає. Наступна дія: перевірити analyze/tests для актуального head; після success — платформні packaged gates перед інтеграцією.
+Активний slice: **F3 — очищення приватного Planner після lock**. Гілка `fix/private-planner-lock-20261020`, база main `00a09b7bc5146cd2355082c01b34b67dcdc18918` після squash PR #149. Draft PR #150.
 
-План розвитку: [DEVELOPMENT_PLAN_2026_10_20.md](docs/DEVELOPMENT_PLAN_2026_10_20.md). Аудит — Issue #147; документаційний PR #148 лишається відкритим окремо. Реалізація не вважається DONE до merge.
+Критерії: завантажений vault-сценарій позначений приватним; manual/inactivity/background gateway lock очищує draft і обчислення незалежно від busy; діалоги/datepicker та повідомлення з приватними даними закриваються; stale async completions не відновлюють draft; export після lock не створюється. Нові/public drafts не очищуються. Додати domain/race та visible-control UI regression tests.
+
+Реалізовано private provenance, синхронне очищення через gateway lock, privacy revision для transient UI та stale completions. Додано 7 domain/race і 3 visible-control UI tests. Перший CI: analyze PASS, 282 tests PASS, 1 UI failure через неправильний finder кнопки lock; виправлено на її реальний tooltip. Додано перевірку невдалого save нового public draft у вже locked vault. Наступна дія: analyze/tests для актуального head на базі main; після success — платформні gates перед інтеграцією. Не змінювати криптографію чи правила TTL сесії. Файл, який користувач уже почав експортувати до lock, не видаляється заднім числом; F6 про plaintext export залишається окремим пунктом.
+
+## Нещодавно завершено — F1/F2 DONE
+
+PR #149 → main `00a09b7bc5146cd2355082c01b34b67dcdc18918`. Run 39411185021 SUCCESS: analyze, **274 tests PASS** (10 нових), Windows/macOS exact ZIP packaged smoke, Android та iOS unsigned PASS. Версія опублікованого релізу лишається v0.10.0+22.
+
+План: [DEVELOPMENT_PLAN_2026_10_20.md](docs/DEVELOPMENT_PLAN_2026_10_20.md), tracker аудиту #147. Docs PR #148 окремо. Реліз v0.10.0+22 не змінено.
 
 ## Попередній checkpoint (історія)
 

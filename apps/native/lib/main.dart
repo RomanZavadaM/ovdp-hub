@@ -165,6 +165,7 @@ class OvdpApp extends StatelessWidget {
           create: (context) => PlannerCubit(
             context.read<HubRepository>(),
             saveScenario: context.read<PortfolioCubit>().savePrivateScenario,
+              portfolio: context.read<PortfolioCubit>(),
           ),
           lazy: false,
         ),
@@ -190,6 +191,8 @@ class StyledApp extends StatefulWidget {
 }
 
 class _StyledAppState extends State<StyledApp> with WidgetsBindingObserver {
+  final _navigatorKey = GlobalKey<NavigatorState>();
+  final _messengerKey = GlobalKey<ScaffoldMessengerState>();
   @override
   void initState() {
     super.initState();
@@ -219,7 +222,19 @@ class _StyledAppState extends State<StyledApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final language = context.watch<LocaleCubit>().state.language;
     final appearance = context.watch<AppearanceCubit>().state;
-    return MaterialApp(
+    return BlocListener<PlannerCubit, PlannerState>(
+      listenWhen: (previous, current) =>
+          previous.privacyRevision != current.privacyRevision,
+      listener: (context, state) {
+        // All feature pages live on the home route. Remove transient routes,
+        // including nested date pickers, that may still render private input.
+        _navigatorKey.currentState?.popUntil((route) => route.isFirst);
+        _messengerKey.currentState?.clearSnackBars();
+        _messengerKey.currentState?.removeCurrentSnackBar();
+      },
+      child: MaterialApp(
+      navigatorKey: _navigatorKey,
+      scaffoldMessengerKey: _messengerKey,
       title: 'OVDP Hub',
       debugShowCheckedModeBanner: false,
       theme: appearance.dashboard
@@ -233,6 +248,7 @@ class _StyledAppState extends State<StyledApp> with WidgetsBindingObserver {
         GlobalCupertinoLocalizations.delegate,
       ],
       home: const Home(),
+      ),
     );
   }
 }

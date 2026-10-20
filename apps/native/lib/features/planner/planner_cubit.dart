@@ -7,6 +7,7 @@ import '../../data/hub_repository.dart';
 import '../../data/source_observation.dart';
 import '../../models.dart';
 import '../../pricing.dart';
+import '../portfolio/portfolio_cubit.dart';
 import 'planner_engine.dart';
 import 'planner_export.dart';
 import 'planner_fees.dart';
@@ -143,6 +144,10 @@ class PlannerState {
   final AppError? error;
   final bool busy, locked, saved, changed;
   final int revision;
+  final bool privateDraft;
+  /// Increments only when private data is purged; invalidates transient UI
+  /// and asynchronous completions from the previous private session.
+  final int privacyRevision;
   PlannerState({
     required Map<String, String> criteria,
     Map<String, PositionInput> inputs = const {},
@@ -165,6 +170,8 @@ class PlannerState {
     this.saved = false,
     this.changed = false,
     this.revision = 0,
+    this.privateDraft = false,
+    this.privacyRevision = 0,
   }) : expenseBalances = List.unmodifiable(expenseBalances),
        criteria = Map.unmodifiable(criteria),
        inputs = Map.unmodifiable(inputs),
@@ -199,6 +206,8 @@ class PlannerState {
     bool? locked,
     bool? saved,
     int? revision,
+    bool? privateDraft,
+    int? privacyRevision,
   }) => PlannerState(
     criteria: criteria ?? this.criteria,
     inputs: inputs ?? this.inputs,
@@ -225,6 +234,8 @@ class PlannerState {
     saved: saved ?? this.saved,
     changed: saved == false ? true : changed,
     revision: revision ?? this.revision,
+    privateDraft: privateDraft ?? this.privateDraft,
+    privacyRevision: privacyRevision ?? this.privacyRevision,
   );
 }
 
@@ -235,7 +246,9 @@ class PlannerCubit extends Cubit<PlannerState> {
   /// Where scenarios with private amounts are saved. The app passes the
   /// encrypted vault; without it scenarios go to the workspace repository.
   final Future<void> Function(SavedSet scenario)? saveScenario;
+  final PortfolioCubit? portfolio;
   late final StreamSubscription<WorkspaceSnapshot> _subscription;
+  StreamSubscription<bool>? _privateSessionSubscription;
   static Map<String, String> defaults(DateTime now) {
     String date(DateTime d) => d.toIso8601String().substring(0, 10);
     return {
@@ -267,12 +280,30 @@ class PlannerCubit extends Cubit<PlannerState> {
     this.repository, {
     DateTime Function()? clock,
     this.saveScenario,
+    this.portfolio,
   })
     : clock = clock ?? DateTime.now,
       super(PlannerState(criteria: defaults((clock ?? DateTime.now)()))) {
     _subscription = repository.changes.listen((_) => _recalculate(state));
+    _privateSessionSubscription = portfolio?.gateway.unlockChanges.listen((open) {
+      if (!open) _purgePrivateDraft();
+    });
     _recalculate(state);
   }
+
+  void _purgePrivateDraft() {
+    if (isClosed || !state.privateDraft) return;
+    // Privacy cleanup must run even while a save/export is awaiting I/O.
+    emit(PlannerState(
+      criteria: defaults(clock()),
+      locked: state.locked,
+      revision: state.revision + 1,
+      privacyRevision: state.privacyRevision + 1,
+    ));
+  }
+
+  bool _completionIsCurrent(PlannerState draft) =>
+      !isClosed && draft.privacyRevision == state.privacyRevision;
 
   PositionInput _legacyInput(
     Bond bond,
@@ -1063,12 +1094,19 @@ class PlannerCubit extends Cubit<PlannerState> {
         criteria: defaults(clock()),
         locked: state.locked,
         revision: state.revision + 1,
+        privacyRevision: state.privacyRevision,
       ),
     );
   }
 
   void load(SavedSet saved) {
     if (state.busy || state.locked) return;
+    if (saved.storedInVault &&
+        (portfolio == null || !portfolio!.gateway.unlocked ||
+            !portfolio!.state.unlocked)) {
+      emit(state.copyWith(error: const AppError('planner.private_scenario_locked')));
+      return;
+    }
     try {
       final scenario = PlannerScenario.fromSavedSet(saved, now: clock());
       final criteria = {
@@ -1091,6 +1129,7 @@ class PlannerCubit extends Cubit<PlannerState> {
           positionExits: scenario.effectivePositionExits,
           saved: true,
           revision: state.revision + 1,
+          privateDraft: saved.storedInVault,
         ),
       );
     } catch (e) {
@@ -1146,10 +1185,11 @@ class PlannerCubit extends Cubit<PlannerState> {
       };
       final fileName = '${plannerExportStem(scenario)}.$extension';
       final path = await repository.saveTextExport(fileName, content);
-      if (!isClosed) emit(state.copyWith(busy: false, clearError: true));
+      if (!_completionIsCurrent(draft)) return null;
+      emit(state.copyWith(busy: false, clearError: true));
       return path;
     } catch (e) {
-      if (!isClosed) {
+      if (_completionIsCurrent(draft)) {
         emit(state.copyWith(busy: false, error: AppError.from(e)));
       }
       return null;
@@ -1172,7 +1212,12 @@ class PlannerCubit extends Cubit<PlannerState> {
       return false;
     }
     final draft = state;
-    emit(state.copyWith(busy: true, clearError: true));
+    emit(state.copyWith(
+      busy: true,
+      clearError: true,
+      privateDraft: draft.privateDraft ||
+          portfolio?.gateway.unlocked == true && saveScenario != null,
+    ));
     try {
       final savedAt = clock().toUtc().toIso8601String();
       final scenario = PlannerScenario.fromCurrentUiDrafts(
@@ -1200,10 +1245,13 @@ class PlannerCubit extends Cubit<PlannerState> {
       } else {
         await repository.saveCollection(saved);
       }
-      if (!isClosed) emit(state.copyWith(busy: false, saved: true));
+      if (!_completionIsCurrent(draft)) return false;
+      emit(state.copyWith(busy: false, saved: true));
       return true;
     } catch (e) {
-      if (!isClosed) emit(state.copyWith(busy: false, error: AppError.from(e)));
+      if (_completionIsCurrent(draft)) {
+        emit(state.copyWith(busy: false, error: AppError.from(e)));
+      }
       return false;
     }
   }
@@ -1211,6 +1259,7 @@ class PlannerCubit extends Cubit<PlannerState> {
   @override
   Future<void> close() async {
     await _subscription.cancel();
+    await _privateSessionSubscription?.cancel();
     return super.close();
   }
 }

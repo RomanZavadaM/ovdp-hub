@@ -44,6 +44,7 @@ class PlannerView extends StatelessWidget {
     String key,
     String value,
   ) async {
+    final privacyRevision = cubit.state.privacyRevision;
     final error = cubit.invalidatingCriterionError(key, value);
     if (error != null) {
       final message = error == 'planner.criteria_invalid_date'
@@ -78,6 +79,7 @@ class PlannerView extends StatelessWidget {
       if (confirmed != true || !context.mounted) return false;
     }
 
+    if (cubit.state.privacyRevision != privacyRevision) return false;
     return cubit.commitInvalidatingCriterion(key, value);
   }
 
@@ -87,6 +89,7 @@ class PlannerView extends StatelessWidget {
     PositionInput input,
     HubStrings strings,
   ) async {
+    final privacyRevision = cubit.state.privacyRevision;
     var source = '';
     var price = '';
     final submitted = await showDialog<bool>(
@@ -125,7 +128,8 @@ class PlannerView extends StatelessWidget {
         ],
       ),
     );
-    if (submitted == true && context.mounted) {
+    if (submitted == true && context.mounted &&
+        cubit.state.privacyRevision == privacyRevision) {
       cubit.addManualPriceSource(input.bond.isin, source, price);
     }
   }
@@ -137,6 +141,7 @@ class PlannerView extends StatelessWidget {
     String baseCurrency,
     List<FxAssumption> current,
   ) async {
+    final privacyRevision = cubit.state.privacyRevision;
     final targets = [
       'UAH',
       'USD',
@@ -231,7 +236,8 @@ class PlannerView extends StatelessWidget {
         ),
       ),
     );
-    if (submitted == true && context.mounted) {
+    if (submitted == true && context.mounted &&
+        cubit.state.privacyRevision == privacyRevision) {
       cubit.setFxComparison(
         targetCurrency: target,
         rate: rate,
@@ -255,6 +261,7 @@ class PlannerView extends StatelessWidget {
     PositionInput input,
     PositionExitAssumption? existing,
   ) async {
+    final privacyRevision = cubit.state.privacyRevision;
     var date =
         existing?.date ??
         DateTime.now()
@@ -351,7 +358,8 @@ class PlannerView extends StatelessWidget {
         ),
       ),
     );
-    if (submitted == true && context.mounted) {
+    if (submitted == true && context.mounted &&
+        cubit.state.privacyRevision == privacyRevision) {
       cubit.setPositionExit(
         isin: input.bond.isin,
         date: date,
