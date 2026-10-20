@@ -28,7 +28,7 @@ Scope: security/privacy hardening за аудитом 01.10.2026 + перші п
 
 ## NEXT
 
-Активний slice: F1/F2 — безпечне перенесення приватних сценаріїв. База `31c2004298f1b804439692e8bfb7562d3952c8ba`; гілка `fix/private-scenario-migration-20261020`. PR ще не відкрито. Критерії: перевірка повного вмісту vault-копії, збереження оригіналу при конфлікті, відмова від видалення після зміни workspace/джерела, regression tests, green CI. Наступна дія: реалізувати перевірене видалення в черзі repository та перевірки в PortfolioCubit.
+Активний slice: F1/F2 — безпечне перенесення приватних сценаріїв. База `31c2004298f1b804439692e8bfb7562d3952c8ba`; гілка `fix/private-scenario-migration-20261020`. Draft PR [#149](https://github.com/RomanZavadaM/ovdp-hub/pull/149). Критерії: перевірка повного вмісту vault-копії, збереження оригіналу при конфлікті, відмова від видалення після зміни workspace/джерела, regression tests, green CI. Реалізовано перевірку повного канонічного вмісту до/після save, guarded deletion у repository queue і показ помилки на екрані добірок. Додано 5 domain regression cases, 3 real-filesystem repository tests і 2 UI tests із натисканням реальної кнопки перенесення. Локального Flutter немає. Наступна дія: перевірити analyze/tests для актуального head; після success — платформні packaged gates перед інтеграцією.
 
 План розвитку: [DEVELOPMENT_PLAN_2026_10_20.md](docs/DEVELOPMENT_PLAN_2026_10_20.md). Аудит — Issue #147; документаційний PR #148 лишається відкритим окремо. Реалізація не вважається DONE до merge.
 

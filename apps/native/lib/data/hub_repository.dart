@@ -56,6 +56,7 @@ abstract interface class HubRepository {
 
 class FileHubRepository implements HubRepository {
   final http.Client _client;
+  final Future<Directory> Function() _supportDirectory;
   final MobileExternalStorage _mobileExternalStorage;
   final _changes = StreamController<WorkspaceSnapshot>.broadcast(sync: true);
   Future<void> _tail = Future.value();
@@ -67,7 +68,9 @@ class FileHubRepository implements HubRepository {
   FileHubRepository({
     http.Client? client,
     MobileExternalStorage? storage,
-  }) : _client = client ?? http.Client(),
+    Future<Directory> Function()? supportDirectory,
+  }) : _supportDirectory = supportDirectory ?? getApplicationSupportDirectory,
+       _client = client ?? http.Client(),
        _mobileExternalStorage =
            storage ?? const MethodChannelMobileExternalStorage();
 
@@ -97,7 +100,7 @@ class FileHubRepository implements HubRepository {
 
   Future<File> _settings() async => File(
     p.join(
-      (await getApplicationSupportDirectory()).path,
+      (await _supportDirectory()).path,
       'workspace-path.json',
     ),
   );
@@ -250,7 +253,7 @@ class FileHubRepository implements HubRepository {
       throw const FormatException('workspace.settings_invalid');
     }
     final defaultPath = p.join(
-      (await getApplicationSupportDirectory()).path,
+      (await _supportDirectory()).path,
       'OVDP Hub',
     );
     await _activateLocal(
