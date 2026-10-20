@@ -37,7 +37,7 @@ F5 — приватні назви й нотатки collections. Branch `fix/pr
 - F6 #152 → main 73df0e71a90a0738cf307820dde155b338c97866, run 39418461683 SUCCESS (305 tests, 12 нових UI tests + усі platform gates). Private CSV/ICS мають plaintext consent/destination; cancel/lock/draft/workspace change не запускають export.
 - F4 follow-up #153 → main `4440dd4175aa250d22f65c07866cb236b5c9d644`, tested head c5edd792aae9e6830c680391d5b72f4dd4bf9fd1, run 39421143980 SUCCESS: analyze, 314 tests (9 нових), Windows/macOS exact ZIP smoke, Android release APK, iOS unsigned. Original store cleanup після dispose; generation від початку create/restore/migration; окремі internal transient locks, які не маскують timer/user/background cancellation. Normal create/restore PASS.
 - Контрольовані red regressions: recovery-open run 39415913784 (284 pass + 1 fail), lifecycle run 39419555995 (294 pass + 2 fail). Це real-store/domain тести, не physical-device runtime.
-- Post-merge F4/F6 verify+START runs 39417929019 / 39419709164 SUCCESS. Post-merge final main run 39422596744 ще перевіряється; фінальний статус — Issue #18.
+- Post-merge F4/F6 verify+START runs 39417929019 / 39419709164 SUCCESS. Post-merge final main run 39422596744 SUCCESS: verify (314 tests) + START/source.
 
 Published release лишається v0.10.0 / 0.10.0+22; новий реліз не публікувався. F7–F10 та продуктові етапи — за DEVELOPMENT_PLAN; physical-device/signing/store backlog не активовано.
 
