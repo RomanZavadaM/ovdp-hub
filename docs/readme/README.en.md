@@ -4,7 +4,7 @@
 
 > **Current test release: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Development status: ACTIVE — development resumed on 01.10.2026; v0.10.1 published on 02.10.2026.**
+> **Development status: ACTIVE — v0.10.1 release checkpoint is being prepared on 20.10.2026.**
 >
 > [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -45,7 +45,7 @@ Full guide: **[English User Guide](../user-guide/USER_GUIDE.en.md)**.
 
 ## Verification and boundaries
 
-v0.10.1 release candidate passed Flutter analyze, **314 tests**, exact packaged Windows/macOS smoke including the release-contract capability list, Android release APK packaging, unsigned iOS packaging, START/source, checksums and legal notices.
+The completed feature head passed Flutter analyze, **314 tests**, exact packaged Windows/macOS smoke, Android release packaging, and unsigned iOS packaging. The v0.10.1 release workflow must reproduce these gates and publish START/source, checksums, and legal notices.
 
 Deferred: Android physical SAF persistence/revoke testing, signed iOS/device runtime validation, production signing/notarization/store distribution, installers and auto-update. These physical-device cases are not claimed as `RUNTIME VALIDATED`. Accrued interest and yields are indicative, not quotes or investment advice.
 
