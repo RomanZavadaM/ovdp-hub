@@ -239,7 +239,8 @@ class PortfolioCubit extends Cubit<PortfolioState> {
   Future<void> movePlaintextScenariosToVault() => _run(() async {
     final current = state.payload;
     if (current == null) throw StateError('vault.session_locked');
-    final sources = (hubRepository.current?.sets ?? const <SavedSet>[])
+    final sourceWorkspace = hubRepository.current;
+    final sources = (sourceWorkspace?.sets ?? const <SavedSet>[])
         .where(
           (set) =>
               set.scenario != null &&
@@ -253,6 +254,15 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     }
 
     final existingIds = current.privateScenarios.map((r) => r.id).toSet();
+    for (final source in sources) {
+      final matches = current.privateScenarios
+          .where((record) => record.id == 'workspace-${source.recordId}')
+          .toList(growable: false);
+      if (matches.isNotEmpty &&
+          !savedSetContentEquals(matches.single.set, source)) {
+        throw StateError('portfolio.scenario_move_unverified');
+      }
+    }
     final added = <PrivateScenarioRecord>[
       for (final set in sources)
         if (!existingIds.contains('workspace-${set.recordId}'))
@@ -268,15 +278,21 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     if (added.isNotEmpty) await gateway.save(next);
 
     final verified = await gateway.open();
-    final verifiedIds = verified.privateScenarios.map((r) => r.id).toSet();
-    final movable = sources
-        .where((set) => verifiedIds.contains('workspace-${set.recordId}'))
-        .map((set) => set.recordId!)
-        .toList(growable: false);
-    if (movable.length != sources.length) {
-      throw StateError('portfolio.scenario_move_unverified');
+    for (final source in sources) {
+      final matches = verified.privateScenarios
+          .where((record) => record.id == 'workspace-${source.recordId}')
+          .toList(growable: false);
+      if (matches.length != 1 ||
+          !savedSetContentEquals(matches.single.set, source)) {
+        throw StateError('portfolio.scenario_move_unverified');
+      }
     }
-    await hubRepository.deleteCollections(movable);
+    final movable = sources.map((set) => set.recordId!).toList(growable: false);
+    await hubRepository.deleteCollections(
+      movable,
+      expectedWorkspace: sourceWorkspace,
+      expectedSets: sources,
+    );
     emit(
       state.copyWith(
         payload: verified,

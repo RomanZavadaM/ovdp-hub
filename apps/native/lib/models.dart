@@ -254,3 +254,20 @@ class SavedSet {
     );
   }
 }
+
+
+/// Compares persisted content, ignoring storage annotations and JSON map order.
+/// Lists remain ordered: reordering positions or cash flows is a content change.
+bool savedSetContentEquals(SavedSet a, SavedSet b) {
+  Object? canonical(Object? value) {
+    if (value is Map) {
+      final keys = value.keys.cast<String>().toList()..sort();
+      return {for (final key in keys) key: canonical(value[key])};
+    }
+    if (value is List) return value.map(canonical).toList();
+    return value;
+  }
+
+  return jsonEncode(canonical(a.toJson())) ==
+      jsonEncode(canonical(b.toJson()));
+}

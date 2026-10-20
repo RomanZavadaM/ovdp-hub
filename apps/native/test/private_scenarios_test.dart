@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ovdp_hub/data/hub_repository.dart';
 import 'package:ovdp_hub/features/collections/collections_cubit.dart';
 import 'package:ovdp_hub/features/portfolio/portfolio_cubit.dart';
 import 'package:ovdp_hub/features/portfolio/private_portfolio.dart';
@@ -12,6 +14,26 @@ import 'package:path/path.dart' as p;
 
 import 'support/fake_portfolio_gateway.dart';
 import 'support/fake_repository.dart';
+
+class InterceptingScenarioGateway extends FakePortfolioGateway {
+  Future<void> Function()? afterSave;
+  PrivatePortfolioPayload Function(PrivatePortfolioPayload)? afterOpen;
+
+  InterceptingScenarioGateway()
+      : super(stored: PrivatePortfolioPayload(portfolioId: 'primary'));
+
+  @override
+  Future<void> save(PrivatePortfolioPayload payload) async {
+    await super.save(payload);
+    await afterSave?.call();
+  }
+
+  @override
+  Future<PrivatePortfolioPayload> open({String? recoverySecret}) async {
+    final payload = await super.open(recoverySecret: recoverySecret);
+    return afterOpen?.call(payload) ?? payload;
+  }
+}
 
 void main() {
   late Catalog catalog;
@@ -191,6 +213,128 @@ void main() {
 
       await cubit.close();
       await hub.dispose();
+    });
+
+
+    test('same id with different content preserves plaintext and vault', () async {
+      final hub = FakeRepository(catalog);
+      await hub.saveCollection(scenarioSet('Original'));
+      final source = hub.current!.sets.single;
+      final gateway = FakePortfolioGateway(
+        stored: PrivatePortfolioPayload(
+          portfolioId: 'primary',
+          privateScenarios: [
+            PrivateScenarioRecord(
+              id: 'workspace-${source.recordId}',
+              set: scenarioSet('Different'),
+            ),
+          ],
+        ),
+      );
+      final cubit = PortfolioCubit(hub, gateway);
+      await cubit.open();
+      await cubit.movePlaintextScenariosToVault();
+
+      expect(cubit.state.errorCode, 'portfolio.scenario_move_unverified');
+      expect(hub.deletedRecordIds, isEmpty);
+      expect(hub.current!.sets.single.name, 'Original');
+      expect(gateway.stored!.privateScenarios.single.set.name, 'Different');
+      await cubit.close();
+      await hub.dispose();
+    });
+
+    test('matching id in reopened vault does not prove matching content', () async {
+      final hub = FakeRepository(catalog);
+      await hub.saveCollection(scenarioSet('Original'));
+      final gateway = InterceptingScenarioGateway();
+      final cubit = PortfolioCubit(hub, gateway);
+      await cubit.open();
+      gateway.afterOpen = (payload) => payload.withPrivateScenarios([
+        PrivateScenarioRecord(
+          id: payload.privateScenarios.single.id,
+          set: scenarioSet('Wrong encrypted copy'),
+        ),
+      ]);
+
+      await cubit.movePlaintextScenariosToVault();
+      expect(cubit.state.errorCode, 'portfolio.scenario_move_unverified');
+      expect(hub.deletedRecordIds, isEmpty);
+      expect(hub.current!.sets.single.name, 'Original');
+      await cubit.close();
+      await hub.dispose();
+    });
+
+    test('workspace switch during vault save never deletes in destination', () async {
+      final hub = FakeRepository(catalog);
+      await hub.saveCollection(scenarioSet('A'));
+      final source = hub.current!.sets.single;
+      final gateway = InterceptingScenarioGateway();
+      final cubit = PortfolioCubit(hub, gateway);
+      await cubit.open();
+      final saving = Completer<void>();
+      final resume = Completer<void>();
+      gateway.afterSave = () async {
+        saving.complete();
+        await resume.future;
+      };
+      final moving = cubit.movePlaintextScenariosToVault();
+      await saving.future;
+      hub.current = WorkspaceSnapshot(
+        'B',
+        catalog,
+        [scenarioSet('B').withStorage(recordId: source.recordId)],
+        localPath: 'B',
+      );
+      resume.complete();
+      await moving;
+
+      expect(cubit.state.errorCode, 'portfolio.scenario_move_unverified');
+      expect(cubit.state.movedScenarioCount, isNull);
+      expect(hub.deletedRecordIds, isEmpty);
+      expect(hub.current!.sets.single.name, 'B');
+      expect(gateway.stored!.privateScenarios.single.set.name, 'A');
+      await cubit.close();
+      await hub.dispose();
+    });
+
+    test('retry accepts an identical verified copy without adding a duplicate', () async {
+      final hub = FakeRepository(catalog);
+      await hub.saveCollection(scenarioSet('Original'));
+      final source = hub.current!.sets.single;
+      final gateway = FakePortfolioGateway(
+        stored: PrivatePortfolioPayload(
+          portfolioId: 'primary',
+          privateScenarios: [
+            PrivateScenarioRecord(
+              id: 'workspace-${source.recordId}',
+              set: source.withStorage(),
+            ),
+          ],
+        ),
+      );
+      final cubit = PortfolioCubit(hub, gateway);
+      await cubit.open();
+      await cubit.movePlaintextScenariosToVault();
+      expect(cubit.state.errorCode, isNull);
+      expect(cubit.state.movedScenarioCount, 1);
+      expect(gateway.stored!.privateScenarios, hasLength(1));
+      expect(hub.current!.sets, isEmpty);
+      await cubit.close();
+      await hub.dispose();
+    });
+
+    test('content equality ignores map order but detects private amount changes', () {
+      final original = scenarioSet('Plan');
+      final reordered = SavedSet(
+        original.name, original.note, original.savedAt, original.bonds,
+        scenario: {'budget': '250000', 'schemaVersion': 99},
+      );
+      final changed = SavedSet(
+        original.name, original.note, original.savedAt, original.bonds,
+        scenario: {'budget': '1', 'schemaVersion': 99},
+      );
+      expect(savedSetContentEquals(original, reordered), isTrue);
+      expect(savedSetContentEquals(original, changed), isFalse);
     });
 
     test('moving is refused while the portfolio is locked', () async {

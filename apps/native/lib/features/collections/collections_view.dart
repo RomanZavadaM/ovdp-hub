@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../errors.dart';
 import '../../l10n/hub_locale.dart';
 import '../../models.dart';
 import '../../ui/components.dart';
@@ -267,6 +268,12 @@ class CollectionsView extends StatelessWidget {
       children: [
         SectionHeading(strings.text('collectionsTitle')),
         ErrorNotice(state.error, cubit.dismissError),
+        if (portfolio.errorCode != null)
+          ErrorNotice(
+            AppError(portfolio.errorCode!),
+            context.read<PortfolioCubit>().dismissError,
+            key: const ValueKey('collections-move-error'),
+          ),
         Text(strings.text('collectionImmutableInfo')),
         OutlinedButton(
           onPressed: busy || workspace.path == null ? null : cubit.reload,
