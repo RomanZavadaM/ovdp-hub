@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:file_selector/file_selector.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -91,14 +92,29 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   LocalVaultStore? _store;
   VaultSessionController? _session;
   final _unlockChanges = StreamController<bool>.broadcast(sync: true);
+  int _lockGeneration = 0;
+  bool _openInFlight = false;
+  bool _disposed = false;
 
   /// Internal operations lock the session and reopen it themselves; during
   /// them the in-memory recovery-mode key must survive the transient lock.
   int _keyRetainingOperations = 0;
+  int? _keyRetainingGeneration;
 
   LocalEncryptedPortfolioGateway({
     this._mobileExternalStorage = const MethodChannelMobileExternalStorage(),
   });
+
+  /// Uses an isolated store/session without platform device storage.
+  @visibleForTesting
+  LocalEncryptedPortfolioGateway.forTesting({
+    required LocalVaultStore store,
+    required VaultSessionController session,
+  }) : _mobileExternalStorage = const MethodChannelMobileExternalStorage() {
+    _store = store;
+    _session = session;
+    session.addListener(_publishLockState);
+  }
 
   @override
   bool get supported =>
@@ -116,15 +132,17 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   Stream<bool> get unlockChanges => _unlockChanges.stream;
 
   Future<void> _ensureReady() async {
+    if (_disposed) throw StateError('vault.session_locked');
+    if (_store != null && _session != null) return;
     if (!supported) {
       throw UnsupportedError('portfolio.platform_not_ready');
     }
-    if (_store != null && _session != null) return;
 
     final root = Directory(
       p.join((await getApplicationSupportDirectory()).path, 'OVDP Hub'),
     );
     final crypto = await SodiumVaultCrypto.create();
+    if (_disposed) throw StateError('vault.session_locked');
     final VaultDeviceKeyStore keyStore = Platform.isWindows
         ? WindowsVaultDeviceKeyStore(
             directory: Directory(p.join(root.path, 'private-device-state')),
@@ -154,6 +172,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     if (_keyRetainingOperations == 0 &&
         (phase == VaultSessionPhase.locked ||
             phase == VaultSessionPhase.error)) {
+      _lockGeneration++;
       _store?.forgetUnlockedKey(vaultId: vaultId);
     }
     if (!_unlockChanges.isClosed) {
@@ -162,12 +181,20 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   }
 
   Future<T> _retainingKey<T>(Future<T> Function() operation) async {
+    final generation = _lockGeneration;
+    _requireCurrentOpening(generation);
+    if (_keyRetainingOperations == 0) _keyRetainingGeneration = generation;
     _keyRetainingOperations++;
     try {
-      return await operation();
+      final result = await operation();
+      _requireCurrentOpening(generation);
+      return result;
     } finally {
       _keyRetainingOperations--;
-      if (!unlocked) _store?.forgetUnlockedKey(vaultId: vaultId);
+      if (_keyRetainingOperations == 0) _keyRetainingGeneration = null;
+      if (!unlocked || _disposed || generation != _lockGeneration) {
+        _store?.forgetUnlockedKey(vaultId: vaultId);
+      }
     }
   }
 
@@ -217,39 +244,65 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
       throw StateError('vault.session_locked');
     }
     final store = _store!;
-    if (enabled) {
-      final secret = recoverySecret;
-      if (secret == null || secret.length < 12) {
-        throw const FormatException('portfolio.recovery_secret_too_short');
+    await _retainingKey(() async {
+      if (enabled) {
+        final secret = recoverySecret;
+        if (secret == null || secret.length < 12) {
+          throw const FormatException('portfolio.recovery_secret_too_short');
+        }
+        await store.requireRecoverySecretOnOpen(
+          vaultId: vaultId,
+          recoverySecret: secret,
+        );
+      } else {
+        await store.stopRequiringRecoverySecretOnOpen(vaultId: vaultId);
       }
-      await store.requireRecoverySecretOnOpen(
-        vaultId: vaultId,
-        recoverySecret: secret,
-      );
-    } else {
-      await store.stopRequiringRecoverySecretOnOpen(vaultId: vaultId);
-    }
+    });
   }
 
   @override
   Future<PrivatePortfolioPayload> open({String? recoverySecret}) async {
-    await _ensureReady();
-    final session = _session!;
-    if (recoverySecret != null) {
-      await _store!.unlockWithRecoverySecret(
-        vaultId: vaultId,
-        recoverySecret: recoverySecret,
-      );
-    }
-    await _retainingKey(() => session.unlock(vaultId: vaultId));
-    if (!session.state.isUnlocked) {
-      throw StateError(session.state.errorCode ?? 'portfolio.open_failed');
-    }
-    final bytes = session.readPlainTextCopy();
+    if (_openInFlight) throw StateError('vault.session_busy');
+    _openInFlight = true;
+    final generation = _lockGeneration;
+    LocalVaultStore? store;
     try {
-      return PrivatePortfolioPayloadCodec.decode(bytes);
+      await _ensureReady();
+      _requireCurrentOpening(generation);
+      store = _store!;
+      final session = _session!;
+      if (recoverySecret != null) {
+        await store.unlockWithRecoverySecret(
+          vaultId: vaultId,
+          recoverySecret: recoverySecret,
+        );
+        _requireCurrentOpening(generation);
+      }
+      await _retainingKey(() => session.unlock(vaultId: vaultId));
+      _requireCurrentOpening(generation);
+      if (!session.state.isUnlocked) {
+        throw StateError(session.state.errorCode ?? 'portfolio.open_failed');
+      }
+      final bytes = session.readPlainTextCopy();
+      try {
+        return PrivatePortfolioPayloadCodec.decode(bytes);
+      } finally {
+        bytes.fillRange(0, bytes.length, 0);
+      }
     } finally {
-      bytes.fillRange(0, bytes.length, 0);
+      if (_disposed || generation != _lockGeneration || !unlocked) {
+        store?.forgetUnlockedKey(vaultId: vaultId);
+      }
+      _openInFlight = false;
+    }
+  }
+
+  void _requireCurrentOpening(int generation) {
+    if (_disposed ||
+        generation != _lockGeneration ||
+        (_keyRetainingOperations > 0 &&
+            _keyRetainingGeneration != _lockGeneration)) {
+      throw StateError('vault.session_locked');
     }
   }
 
@@ -500,6 +553,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
 
   @override
   Future<void> lock() async {
+    _lockGeneration++;
     final session = _session;
     if (session != null) await session.lock();
     _store?.forgetUnlockedKey(vaultId: vaultId);
@@ -507,6 +561,9 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
 
   @override
   void onBackground() {
+    // Recovery runs before the session enters `unlocking`, so its normal
+    // background timer cannot see this work. Cancel pending opens immediately.
+    if (_openInFlight || _keyRetainingOperations > 0) unawaited(lock());
     _session?.onBackground();
   }
 
@@ -517,6 +574,9 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
 
   @override
   Future<void> dispose() async {
+    if (_disposed) return;
+    _disposed = true;
+    _lockGeneration++;
     _clearPendingRollbackRestore();
     final session = _session;
     if (session != null) {

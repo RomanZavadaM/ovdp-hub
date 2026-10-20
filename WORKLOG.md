@@ -1,14 +1,14 @@
 # WORKLOG — OVDP Hub
 
-Оновлено: **20.10.2026** (відновлено розробку; F1/F2)
+Оновлено: **20.10.2026** (F1/F2/F3 інтегровано, NEXT F4)
 
 ## STATUS
 
 **ACTIVE — власник відновив розробку 01.10.2026.**
 
-Scope: security/privacy hardening за аудитом 01.10.2026 + перші продуктові напрямки B → release checkpoint **v0.10.0**.
+Scope: завершення аудиту F1–F10, далі продуктові інтеграції продавців за планом 20.10.2026.
 
-Базовий `main`: `60174b37eb22d4e3018f8412924906737045c33e` (v0.9.4 parked checkpoint + closure record).
+Базовий `main` для NEXT F4: `463207cda15eb47310eba6e178d30b27251eed28`.
 
 ## Рішення власника (01.10.2026)
 
@@ -28,17 +28,24 @@ Scope: security/privacy hardening за аудитом 01.10.2026 + перші п
 
 ## NEXT
 
-Активний slice: **F3 — очищення приватного Planner після lock**. Гілка `fix/private-planner-lock-20261020`, база main `00a09b7bc5146cd2355082c01b34b67dcdc18918` після squash PR #149. Draft PR #150.
+F4 ACTIVE — branch `fix/recovery-lock-generation-20261020`, PR #151, base main `463207cda15eb47310eba6e178d30b27251eed28`.
 
-Критерії: завантажений vault-сценарій позначений приватним; manual/inactivity/background gateway lock очищує draft і обчислення незалежно від busy; діалоги/datepicker та повідомлення з приватними даними закриваються; stale async completions не відновлюють draft; export після lock не створюється. Нові/public drafts не очищуються. Додати domain/race та visible-control UI regression tests.
+Контрольоване відтворення підтверджено: run 39415913784, head 9706e189610c52caf8f5fb4f913c418f1dd444f7, analyze PASS, 284 tests PASS + 1 expected regression FAIL. Paused real recovery result → gateway.lock → completion повернув PrivatePortfolioPayload замість відмови. Це доказ контрольованого domain-сценарію, не native UI тест.
 
-Реалізовано private provenance, синхронне очищення через gateway lock, privacy revision для transient UI та stale completions. Додано 7 domain/race і 3 visible-control UI tests. Перший CI: analyze PASS, 282 tests PASS, 1 UI failure через неправильний finder кнопки lock; виправлено на її реальний tooltip. Додано перевірку невдалого save нового public draft у вже locked vault. Наступна дія: analyze/tests для актуального head на базі main; після success — платформні gates перед інтеграцією. Не змінювати криптографію чи правила TTL сесії. Файл, який користувач уже почав експортувати до lock, не видаляється заднім числом; F6 про plaintext export залишається окремим пунктом.
+Реалізовано cancellation на gateway open та generation для store recovery cache; stale DEK disposed, overlapping opens відхиляються, background/dispose скасовують pending open, key-retaining rotation/restore не можуть виконати stale internal reopen. Дев’ять нових real-store tests охоплюють manual/session lock, background, dispose, overlapping opens, store cleanup, normal recovery/save/retry та rotation/protection change. Криптографію та параметри KDF не змінено. Уже почата durable rotation може завершити запис нового secret, але не повинна відкрити session після lock.
 
-## Нещодавно завершено — F1/F2 DONE
+Наступна дія: exact-head analyze/tests, усі platform gates, потім інтеграція. DONE лише після merge. Останній SHA/run — Issue #18. Після F4 — F5/F6: межі plaintext notes/exports.
 
-PR #149 → main `00a09b7bc5146cd2355082c01b34b67dcdc18918`. Run 39411185021 SUCCESS: analyze, **274 tests PASS** (10 нових), Windows/macOS exact ZIP packaged smoke, Android та iOS unsigned PASS. Версія опублікованого релізу лишається v0.10.0+22.
+## Нещодавно завершено — F1/F2/F3 DONE
 
-План: [DEVELOPMENT_PLAN_2026_10_20.md](docs/DEVELOPMENT_PLAN_2026_10_20.md), tracker аудиту #147. Docs PR #148 окремо. Реліз v0.10.0+22 не змінено.
+- F1/F2: PR #149 → main `00a09b7bc5146cd2355082c01b34b67dcdc18918`, run 39411185021 SUCCESS: analyze, 274 tests (10 нових), Windows/macOS exact ZIP packaged smoke, Android release та iOS unsigned. Post-merge main run 39413010557 SUCCESS (verify + START).
+- F3: PR #150 → main `463207cda15eb47310eba6e178d30b27251eed28`, run 39413819496 SUCCESS: analyze, **284 tests** (ще 10 нових), Windows/macOS exact ZIP packaged smoke, Android release та iOS unsigned. Private Planner очищується на session lock, transient dialogs/date picker закриваються, stale completions не повертають UI; нові/public drafts зберігаються.
+- F3 перший CI мав 1 UI failure через неправильний finder кнопки lock; виправлено на реальний tooltip, усі подальші перевірки зелені.
+- Уже розпочатий до lock export не видаляється ретроспективно. F6 про plaintext export лишається окремим пунктом.
+- Post-merge main F3 verify/START: run 39414901881 SUCCESS (verify + START/source).
+- Публічний реліз **v0.10.0 / 0.10.0+22** не переписували й новий реліз не публікували. Реальні physical-device mobile сценарії залишаються deferred.
+
+План: [DEVELOPMENT_PLAN_2026_10_20.md](docs/DEVELOPMENT_PLAN_2026_10_20.md), tracker #147. Висновки порівняння Shell і межі 61 module tests збережені в Issue #18; native UI Shell не запускали. Docs PR #148 окремо; його старі PLANNED-статуси не є поточними.
 
 ## Попередній checkpoint (історія)
 
