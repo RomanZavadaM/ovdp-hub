@@ -5,7 +5,7 @@
 ## Поточний стан
 
 - Статус розвитку: **ACTIVE** — розробку відновлено власником 01.10.2026.
-- Версія: **v0.10.0 / 0.10.0+22**.
+- Версія release checkpoint: **v0.10.1 / 0.10.1+23**.
 - Статус релізу: **test / prerelease**.
 - Release/product commit: **`933a7bd27e0f4babe47f44a32f8bf9214b4b18a4`** (release PR #142).
 - GitHub prerelease: **v0.10.0**, published 02.10.2026.
@@ -13,11 +13,11 @@
 - Активний продукт: Flutter/Dart, `apps/native`.
 - Платформи: Windows / macOS / Android / iOS unsigned.
 - UI-мови: UK / EN / FR / DE / ES / KO / JA.
-- Активний NEXT: F4 lifecycle follow-up, PR #153 — додаткові create/dispose races відтворено; fix на перевірці. F6 DONE: PR #152, main `73df0e71a90a0738cf307820dde155b338c97866`, run 39418461683 SUCCESS (305 tests + усі platform gates). F4 primary #151: 293 tests + усі platform gates, post-merge verify/START SUCCESS.
+- Активний NEXT після релізу: F5 private collections, draft PR #154; не входить у v0.10.1.
 
 Детальна історія зберігається в `CHANGELOG.md`, `docs/releases/`, merged PR і GitHub Issue #18. Цей файл навмисно не дублює повний журнал розробки.
 
-## Інтегровані зміни після релізу (20.10.2026)
+## Інтегровано у release checkpoint v0.10.1 (20.10.2026)
 
 F1/F2 DONE — PR #149, main `00a09b7bc5146cd2355082c01b34b67dcdc18918`. Перенесення приватних сценаріїв перевіряє канонічний вміст зашифрованої копії та актуального джерела, відмовляється від видалення після зміни workspace. Помилки показані на екрані добірок. Run 39411185021 SUCCESS: analyze, 274 tests, Windows/macOS packaged ZIP smoke, Android release та iOS unsigned.
 
