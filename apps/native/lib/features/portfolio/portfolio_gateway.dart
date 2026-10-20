@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -100,6 +101,17 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     this._mobileExternalStorage = const MethodChannelMobileExternalStorage(),
   });
 
+  /// Uses an isolated store/session without platform device storage.
+  @visibleForTesting
+  LocalEncryptedPortfolioGateway.forTesting({
+    required LocalVaultStore store,
+    required VaultSessionController session,
+  }) : _mobileExternalStorage = const MethodChannelMobileExternalStorage(),
+       _store = store,
+       _session = session {
+    session.addListener(_publishLockState);
+  }
+
   @override
   bool get supported =>
       isEncryptedPortfolioPlatformSupported(Platform.operatingSystem);
@@ -116,10 +128,10 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   Stream<bool> get unlockChanges => _unlockChanges.stream;
 
   Future<void> _ensureReady() async {
+    if (_store != null && _session != null) return;
     if (!supported) {
       throw UnsupportedError('portfolio.platform_not_ready');
     }
-    if (_store != null && _session != null) return;
 
     final root = Directory(
       p.join((await getApplicationSupportDirectory()).path, 'OVDP Hub'),
