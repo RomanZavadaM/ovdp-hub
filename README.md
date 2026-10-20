@@ -2,11 +2,11 @@
 
 **🇺🇦 Українська** · [🇬🇧 English](docs/readme/README.en.md) · [🇫🇷 Français](docs/readme/README.fr.md) · [🇩🇪 Deutsch](docs/readme/README.de.md) · [🇪🇸 Español](docs/readme/README.es.md) · [🇰🇷 한국어](docs/readme/README.ko.md) · [🇯🇵 日本語](docs/readme/README.ja.md)
 
-> **Поточний тестовий реліз: [OVDP Hub v0.10.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.0) — 0.10.0+22**
+> **Поточний тестовий реліз: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Статус розвитку: ACTIVE — розробку відновлено 01.10.2026; реліз v0.10.0 опубліковано 02.10.2026.**
+> **Статус розвитку: ACTIVE — розробку відновлено 01.10.2026; реліз v0.10.1 опубліковано 02.10.2026.**
 >
-> **Завантаження:** [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/SHA256SUMS.txt)
+> **Завантаження:** [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
 ## Про продукт
 
@@ -14,15 +14,13 @@
 
 Підтримувані test/checkpoint платформи: **Windows, macOS, Android та iOS unsigned**. Активний продукт знаходиться в `apps/native`.
 
-## Нове у v0.10.0
+## Нове у v0.10.1
 
-- опційний **пароль відновлення при відкритті портфеля** (ключ пристрою видаляється);
-- сценарії Planner із приватними сумами — **лише в зашифрованому портфелі**, перевірене перенесення старих відкритих сценаріїв;
-- видалення локального портфеля з підтвердженням, підтверджене відновлення старішої резервної копії;
-- **калькулятор облігації з каталогу**: орієнтовний НКД за графіком НБУ, дохідність до погашення;
-- **очікувані надходження портфеля** на 12 місяців і підказки «можливо, не записано»;
-- **річна дохідність плану** в Planner;
-- Argon2id у фоновому потоці, CSV без виконання формул, толерантне оновлення каталогу НБУ.
+- безпечніше перенесення приватних Planner-сценаріїв: plaintext видаляється лише після повторної перевірки зашифрованої копії та актуального джерела;
+- lock очищує приватний Planner і скасовує dialogs/date picker та застарілі async completions;
+- lock/background/dispose скасовують незавершені recovery/create/restore/migration operations і прибирають пізні ключі;
+- приватний CSV/ICS export потребує явної згоди на plaintext і показує точну папку призначення;
+- криптографія, KDF і payload schema не змінені; schema лишається v4.
 
 ## Що входить у продукт
 
@@ -56,13 +54,13 @@ OVDP Hub не виконує операції купівлі/продажу і �
 ## Встановлення
 
 ### Windows
-1. Завантажте `OVDP-Hub-0.10.0-Windows-x64.zip`.
+1. Завантажте `OVDP-Hub-0.10.1-Windows-x64.zip`.
 2. Розпакуйте весь ZIP.
 3. Запустіть `ovdp_hub.exe` з розпакованої папки.
 4. Checkpoint не має production code signing, тому Windows може показати SmartScreen.
 
 ### macOS
-1. Завантажте й розпакуйте `OVDP-Hub-0.10.0-macOS.zip`.
+1. Завантажте й розпакуйте `OVDP-Hub-0.10.1-macOS.zip`.
 2. Відкрийте `ovdp_hub.app`.
 3. Checkpoint не notarized; macOS може вимагати підтвердження запуску через **System Settings → Privacy & Security → Open Anyway**.
 
@@ -75,17 +73,17 @@ OVDP Hub не виконує операції купівлі/продажу і �
 ### START/source
 Потрібен Flutter **3.47.5** та build tools відповідної ОС. Windows: `START.bat`; macOS: `START.command`.
 
-## Перевірка v0.10.0
+## Перевірка v0.10.1
 
-Release run **#116** (commit `933a7bd`) пройшов:
+Release candidate v0.10.1 пройшов:
 - `flutter analyze`;
-- **264 tests passed**;
+- **314 tests passed**;
 - Windows/macOS release build + exact packaged ZIP smoke зі звіркою версії й переліку можливостей (release contract `capabilities`);
 - Android release test APK package;
 - unsigned iOS release package;
 - START/source;
 - `SHA256SUMS.txt` та legal notices;
-- publish GitHub prerelease/tag `v0.10.0`.
+- publish GitHub prerelease/tag `v0.10.1`.
 
 ## Межі тестового релізу
 
@@ -102,7 +100,7 @@ Release run **#116** (commit `933a7bd`) пройшов:
 ## Керівництво і документація
 
 - [Українське керівництво](docs/user-guide/USER_GUIDE.uk.md)
-- [Release notes v0.10.0](docs/releases/RELEASE_NOTES_v0_10_0.md)
+- [Release notes v0.10.1](docs/releases/RELEASE_NOTES_v0_10_0.md)
 - [Changelog](CHANGELOG.md)
 - [Roadmap](docs/roadmap.md)
 - [START_HERE](START_HERE.md)
