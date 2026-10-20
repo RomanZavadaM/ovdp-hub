@@ -13,7 +13,7 @@
 - Активний продукт: Flutter/Dart, `apps/native`.
 - Платформи: Windows / macOS / Android / iOS unsigned.
 - UI-мови: UK / EN / FR / DE / ES / KO / JA.
-- Активний NEXT: F3 — прибирати приватний Planner після session lock, PR #150 (ще не інтегровано). План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`.
+- Активний NEXT: F4 — спочатку відтворювальна перевірка recovery/KDF проти lock; PR ще немає. План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`.
 
 Детальна історія зберігається в `CHANGELOG.md`, `docs/releases/`, merged PR і GitHub Issue #18. Цей файл навмисно не дублює повний журнал розробки.
 
@@ -21,7 +21,7 @@
 
 F1/F2 DONE — PR #149, main `00a09b7bc5146cd2355082c01b34b67dcdc18918`. Перенесення приватних сценаріїв перевіряє канонічний вміст зашифрованої копії та актуального джерела, відмовляється від видалення після зміни workspace. Помилки показані на екрані добірок. Run 39411185021 SUCCESS: analyze, 274 tests, Windows/macOS packaged ZIP smoke, Android release та iOS unsigned.
 
-Це інтегрований код після v0.10.0, а не новий опублікований реліз. Одночасні записи зовнішніх процесів не покриваються міжпроцесною транзакцією. F3 ще у PR #150; F4–F10 та продуктові етапи — за планом.
+Це інтегрований код після v0.10.0, а не новий опублікований реліз. Одночасні записи зовнішніх процесів не покриваються міжпроцесною транзакцією. F3 DONE — PR #150 → main `463207cda15eb47310eba6e178d30b27251eed28`. Run 39413819496 SUCCESS: analyze, 284 tests, Windows/macOS exact ZIP packaged smoke, Android release та iOS unsigned. Private Planner очищується на lock разом із transient UI; нові/public drafts зберігаються. Старі async completions не відновлюють приватний draft. F4–F10 та продуктові етапи — за планом.
 
 ## Що працює на цьому checkpoint
 

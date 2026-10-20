@@ -4,7 +4,7 @@
 
 ## Статус
 
-**ACTIVE — 20.10.2026 власник доручив продовжити розробку. Активний slice F3, PR #150, гілка `fix/private-planner-lock-20261020`. F1/F2 інтегровано PR #149 у main `00a09b7bc5146cd2355082c01b34b67dcdc18918` після всіх платформних gates. Останній опублікований реліз v0.10.0 / 0.10.0+22 від 02.10.2026.**
+**ACTIVE — F1/F2/F3 інтегровано у main `463207cda15eb47310eba6e178d30b27251eed28` (PR #149/#150). NEXT F4: відтворювальна перевірка recovery/KDF проти lock, branch `fix/recovery-lock-generation-20261020`, PR ще немає. Останній опублікований реліз v0.10.0 / 0.10.0+22 від 02.10.2026.**
 
 План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`. Незавершену роботу читати у WORKLOG активної гілки та Issue #18. Незлитий docs PR #148 — план аудиту; не вважати його інтегрованим у main.
 
@@ -29,7 +29,7 @@ Post-merge main verify run **#561 — SUCCESS**.
 
 - `PROJECT_RULES.md` — постійні правила.
 - `PROJECT_STATE.md` — підтверджений стан продукту.
-- `WORKLOG.md` — активний slice, план v0.9.5 і точна наступна дія.
+- `WORKLOG.md` — активний slice і точна наступна дія.
 - GitHub Issue #18 — append-only development ledger.
 - `apps/native/pubspec.yaml` — machine source version/build.
 - `docs/releases/RELEASE_NOTES_v0_10_0.md` — останній опублікований реліз.
