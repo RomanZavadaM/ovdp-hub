@@ -187,6 +187,7 @@ class LegacyPlaintextMigrator {
           ...pendingBySourceId.values,
         ],
         privateScenarios: before.privateScenarios,
+        privateCollections: before.privateCollections,
       );
       final expectedBytes = PrivatePortfolioPayloadCodec.encode(expected);
 
