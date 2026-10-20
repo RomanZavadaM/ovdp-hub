@@ -32,7 +32,7 @@ F4 ACTIVE — branch `fix/recovery-lock-generation-20261020`, PR #151, base main
 
 Контрольоване відтворення підтверджено: run 39415913784, head 9706e189610c52caf8f5fb4f913c418f1dd444f7, analyze PASS, 284 tests PASS + 1 expected regression FAIL. Paused real recovery result → gateway.lock → completion повернув PrivatePortfolioPayload замість відмови. Це доказ контрольованого domain-сценарію, не native UI тест.
 
-Реалізовано cancellation на gateway open та generation для store recovery cache; stale DEK disposed, overlapping opens відхиляються, background/dispose скасовують pending open, key-retaining rotation/restore не можуть виконати stale internal reopen. Вісім нових real-store tests охоплюють manual/session lock, background, dispose, overlapping opens, store cleanup, normal recovery/save/retry та rotation. Криптографію та параметри KDF не змінено. Уже почата durable rotation може завершити запис нового secret, але не повинна відкрити session після lock.
+Реалізовано cancellation на gateway open та generation для store recovery cache; stale DEK disposed, overlapping opens відхиляються, background/dispose скасовують pending open, key-retaining rotation/restore не можуть виконати stale internal reopen. Дев’ять нових real-store tests охоплюють manual/session lock, background, dispose, overlapping opens, store cleanup, normal recovery/save/retry та rotation/protection change. Криптографію та параметри KDF не змінено. Уже почата durable rotation може завершити запис нового secret, але не повинна відкрити session після lock.
 
 Наступна дія: exact-head analyze/tests, усі platform gates, потім інтеграція. DONE лише після merge. Останній SHA/run — Issue #18. Після F4 — F5/F6: межі plaintext notes/exports.
 

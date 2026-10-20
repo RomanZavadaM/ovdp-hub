@@ -244,18 +244,20 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
       throw StateError('vault.session_locked');
     }
     final store = _store!;
-    if (enabled) {
-      final secret = recoverySecret;
-      if (secret == null || secret.length < 12) {
-        throw const FormatException('portfolio.recovery_secret_too_short');
+    await _retainingKey(() async {
+      if (enabled) {
+        final secret = recoverySecret;
+        if (secret == null || secret.length < 12) {
+          throw const FormatException('portfolio.recovery_secret_too_short');
+        }
+        await store.requireRecoverySecretOnOpen(
+          vaultId: vaultId,
+          recoverySecret: secret,
+        );
+      } else {
+        await store.stopRequiringRecoverySecretOnOpen(vaultId: vaultId);
       }
-      await store.requireRecoverySecretOnOpen(
-        vaultId: vaultId,
-        recoverySecret: secret,
-      );
-    } else {
-      await store.stopRequiringRecoverySecretOnOpen(vaultId: vaultId);
-    }
+    });
   }
 
   @override
@@ -561,7 +563,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   void onBackground() {
     // Recovery runs before the session enters `unlocking`, so its normal
     // background timer cannot see this work. Cancel pending opens immediately.
-    if (_openInFlight) unawaited(lock());
+    if (_openInFlight || _keyRetainingOperations > 0) unawaited(lock());
     _session?.onBackground();
   }
 

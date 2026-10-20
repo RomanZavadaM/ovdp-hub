@@ -239,4 +239,24 @@ void main() {
     await gateway.open(recoverySecret: newSecret);
     expect(gateway.unlocked, isTrue);
   });
+
+  test('lock during protection change disposes its late recovery key', () async {
+    await gateway.open(recoverySecret: secret);
+    await gateway.setRecoverySecretRequired(enabled: false);
+    expect(await gateway.requiresRecoverySecret(), isFalse);
+    crypto.pause();
+    final rejected = expectLater(
+      gateway.setRecoverySecretRequired(enabled: true, recoverySecret: secret),
+      throwsStateError,
+    );
+    await crypto.entered!.future;
+    await gateway.lock();
+    crypto.resume!.complete();
+    await rejected;
+    expect(gateway.unlocked, isFalse);
+    expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
+    await expectLater(gateway.open(), throwsStateError);
+    await gateway.open(recoverySecret: secret);
+    expect(gateway.unlocked, isTrue);
+  });
 }
