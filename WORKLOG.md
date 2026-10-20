@@ -28,13 +28,17 @@ Scope: завершення аудиту F1–F10, далі продуктові
 
 ## NEXT
 
-F6 ACTIVE — branch `fix/private-export-consent-20261020`, draft PR #152. Base main після F4: `81639128557afc77777040b5d363b0d7d3701f7e`.
+F4 FOLLOW-UP ACTIVE — branch `fix/lifecycle-key-cleanup-20261020`, draft PR #153, base main `73df0e71a90a0738cf307820dde155b338c97866` після F6.
 
-Private Planner CSV/ICS: explicit plaintext confirmation з призначенням exports у поточному workspace, текст UK/EN/FR/DE/ES/KO/JA. Cancel/lock/stale draft/workspace → export не запускається; public/new draft export без додаткового діалогу. Додано 12 UI regressions (обидва формати; один narrow viewport). Наступна дія: exact-head analyze/tests → усунути findings → platform gates → merge. До green gates/merge F6 не DONE. Точний head/run — Issue #18.
+Контрольований regression-only run 39419555995 (a5f5cf5): analyze PASS, 294 tests PASS + 2 FAIL. Create після lock повернув PrivatePortfolioPayload; dispose під час protection-mode change залишив hasUnlockedKey == true в початковому store. Це додаткові крайові випадки після #151, не спростування primary recovery-open fix.
 
-F4 DONE — PR #151 → main `81639128557afc77777040b5d363b0d7d3701f7e`; exact tested head `2a8606c759957d47b40d3b88d9282d95cf60447e`. Run 39416807438 SUCCESS: analyze, 293 tests (9 нових), Windows/macOS release package + exact ZIP smoke, Android release APK, iOS unsigned. Controlled reproducer run 39415913784: 284 pass + 1 FAIL на старому коді, бо open повернув приватний payload після lock. Pending recovery тепер скасовується на manual/session lock, background/dispose; stale cached DEK disposed; rotation/protection change не відновлюють session після lock. Криптографію та KDF parameters не змінено. Post-merge verify/START — перевірити GitHub і останній запис Issue #18.
+Fix: key-retaining cleanup тримає original store reference до завершення; create/restore/migration охоплені generation guard від початку всієї gateway operation (включно з picker/workspace waits). Додано 5 tests до main після F6: create lock/dispose, protection-change dispose, restore picker-lock/recovery-dispose. Restore tests використовують synthetic mobile transport + real encrypted vault на CI host, не physical-device runtime. Криптографію, KDF, payload format і release version не змінено. Наступна дія: exact-head analyze/tests → platform gates → merge; до цього follow-up не DONE. Точний head/run — Issue #18.
 
-F5 лишається PLANNED: звичайна collection має plaintext модель; не вважати її приватною через одне UI-попередження. Після F6 — узгоджена private/public collection модель та реальні файли workspace.
+F6 DONE — PR #152 → main `73df0e71a90a0738cf307820dde155b338c97866`; run 39418461683 SUCCESS (305 tests, 12 нових UI tests, Windows/macOS exact ZIP smoke, Android release, iOS unsigned). Private CSV/ICS мають explicit plaintext consent і destination; cancel/lock/draft/workspace changes не запускають export. Post-merge verify/START — див. GitHub/Issue #18.
+
+F4 primary DONE — PR #151 → main 81639128557afc77777040b5d363b0d7d3701f7e, run 39416807438 SUCCESS (293 tests + усі platform gates); post-merge main run 39417929019 SUCCESS (verify + START).
+
+Після follow-up: F5, окремий docs-only branch `fix/private-collections-20261020`, plan `docs/F5_PRIVATE_COLLECTIONS_PLAN.md` (код F5 ще не реалізовано). F5 branch переприв’язати до actual main і почати з schema compatibility/round-trip tests, потім editor/save/lock та explicit verified move. Інші P2 лишаються backlog.
 
 ## Нещодавно завершено — F1/F2/F3 DONE
 

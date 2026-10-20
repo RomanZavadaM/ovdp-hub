@@ -1,15 +1,37 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/features/portfolio/portfolio_gateway.dart';
 import 'package:ovdp_hub/features/portfolio/private_portfolio.dart';
 import 'package:ovdp_hub/security/vault_crypto.dart';
 import 'package:ovdp_hub/security/vault_session.dart';
 import 'package:ovdp_hub/security/vault_store.dart';
+import 'package:ovdp_hub/platform/mobile_external_storage.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import 'vault_store_test.dart' show MemoryVaultDeviceKeyStore;
+
+class PickerStorage extends MethodChannelMobileExternalStorage {
+  final Future<Uint8List?> Function() pick;
+  PickerStorage(this.pick) : super(supportedOverride: true);
+
+  @override
+  Future<Uint8List?> importEncryptedBackup({required int maxBytes}) => pick();
+}
+
+class BackupTestGateway extends LocalEncryptedPortfolioGateway {
+  BackupTestGateway({
+    required super.store,
+    required super.session,
+    required super.storage,
+  }) : super.forTesting();
+
+  @override
+  bool get portableBackupSupported => true;
+}
 
 /// Pause a real recovery result before the store can cache its DEK.
 class PausedRecoveryCrypto extends SodiumVaultCrypto {
@@ -65,6 +87,7 @@ class PausedRecoveryCrypto extends SodiumVaultCrypto {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   const secret = 'synthetic recovery secret';
   const vaultId = LocalEncryptedPortfolioGateway.vaultId;
   late Directory root;
@@ -116,6 +139,7 @@ void main() {
 
   tearDown(() async {
     await gateway.dispose();
+    store.forgetUnlockedKey(vaultId: vaultId);
     await root.delete(recursive: true);
   });
 
@@ -240,23 +264,105 @@ void main() {
     expect(gateway.unlocked, isTrue);
   });
 
-  test('lock during protection change disposes its late recovery key', () async {
-    await gateway.open(recoverySecret: secret);
-    await gateway.setRecoverySecretRequired(enabled: false);
-    expect(await gateway.requiresRecoverySecret(), isFalse);
-    crypto.pause();
-    final rejected = expectLater(
-      gateway.setRecoverySecretRequired(enabled: true, recoverySecret: secret),
-      throwsStateError,
-    );
-    await crypto.entered!.future;
-    await gateway.lock();
-    crypto.resume!.complete();
-    await rejected;
-    expect(gateway.unlocked, isFalse);
-    expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
-    await expectLater(gateway.open(), throwsStateError);
-    await gateway.open(recoverySecret: secret);
-    expect(gateway.unlocked, isTrue);
-  });
+  for (final action in ['lock', 'dispose']) {
+    test('$action during creation prevents its internal reopen', () async {
+      await store.discardLocalVault(vaultId: vaultId);
+      crypto.pauseWrapping = true;
+      crypto.pause();
+      final rejected = expectLater(
+        gateway.create(recoverySecret: secret),
+        throwsStateError,
+      );
+      await crypto.entered!.future;
+      if (action == 'dispose') {
+        await gateway.dispose();
+      } else {
+        await gateway.lock();
+      }
+      crypto.resume!.complete();
+      await rejected;
+      expect(gateway.unlocked, isFalse);
+      expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
+      // Creation may finish durably, but it must respect the later lock.
+      expect(await store.fileFor(vaultId).exists(), isTrue);
+      if (action == 'lock') {
+        await gateway.open();
+        expect(gateway.unlocked, isTrue);
+      }
+    });
+
+    test('$action during protection change disposes its late recovery key', () async {
+      await gateway.open(recoverySecret: secret);
+      await gateway.setRecoverySecretRequired(enabled: false);
+      expect(await gateway.requiresRecoverySecret(), isFalse);
+      crypto.pause();
+      final rejected = expectLater(
+        gateway.setRecoverySecretRequired(enabled: true, recoverySecret: secret),
+        throwsStateError,
+      );
+      await crypto.entered!.future;
+      if (action == 'dispose') {
+        await gateway.dispose();
+      } else {
+        await gateway.lock();
+      }
+      crypto.resume!.complete();
+      await rejected;
+      expect(gateway.unlocked, isFalse);
+      expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
+      await expectLater(gateway.open(), throwsStateError);
+      if (action == 'dispose') {
+        await expectLater(gateway.open(recoverySecret: secret), throwsStateError);
+      } else {
+        await gateway.open(recoverySecret: secret);
+        expect(gateway.unlocked, isTrue);
+      }
+    });
+  }
+
+  for (final phase in ['picker', 'recovery']) {
+    test('restore cancelled during $phase cannot reopen or retain a key', () async {
+      final backup = await store.fileFor(vaultId).readAsBytes();
+      final picked = Completer<Uint8List?>();
+      final pickerEntered = Completer<void>();
+      final storage = PickerStorage(() {
+        pickerEntered.complete();
+        return phase == 'picker' ? picked.future : Future.value(backup);
+      });
+      // Replace only the unused gateway listener; the isolated session/store
+      // are still the same real encrypted test vault.
+      await gateway.dispose();
+      session = VaultSessionController(
+        store: store,
+        policy: VaultSessionPolicy(
+          inactivityTimeout: const Duration(minutes: 15),
+          backgroundGrace: const Duration(seconds: 15),
+        ),
+      );
+      gateway = BackupTestGateway(store: store, session: session, storage: storage);
+      const channel = MethodChannel('plugins.flutter.io/path_provider');
+      final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(channel, (_) async => root.path);
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      await gateway.open(recoverySecret: secret);
+      if (phase == 'recovery') crypto.pause();
+      final rejected = expectLater(
+        gateway.restorePortableBackup(recoverySecret: secret),
+        throwsStateError,
+      );
+      await pickerEntered.future;
+      if (phase == 'picker') {
+        await gateway.lock();
+        picked.complete(backup);
+      } else {
+        await crypto.entered!.future;
+        await gateway.dispose();
+        crypto.resume!.complete();
+      }
+      await rejected;
+      expect(gateway.unlocked, isFalse);
+      expect(store.hasUnlockedKey(vaultId: vaultId), isFalse);
+      await expectLater(gateway.open(), throwsStateError);
+    }, skip: Platform.isWindows);
+  }
 }

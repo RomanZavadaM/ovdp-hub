@@ -110,7 +110,8 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   LocalEncryptedPortfolioGateway.forTesting({
     required LocalVaultStore store,
     required VaultSessionController session,
-  }) : _mobileExternalStorage = const MethodChannelMobileExternalStorage() {
+    MobileExternalStorage? storage,
+  }) : _mobileExternalStorage = storage ?? const MethodChannelMobileExternalStorage() {
     _store = store;
     _session = session;
     session.addListener(_publishLockState);
@@ -182,6 +183,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
 
   Future<T> _retainingKey<T>(Future<T> Function() operation) async {
     final generation = _lockGeneration;
+    final store = _store;
     _requireCurrentOpening(generation);
     if (_keyRetainingOperations == 0) _keyRetainingGeneration = generation;
     _keyRetainingOperations++;
@@ -193,7 +195,9 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
       _keyRetainingOperations--;
       if (_keyRetainingOperations == 0) _keyRetainingGeneration = null;
       if (!unlocked || _disposed || generation != _lockGeneration) {
-        _store?.forgetUnlockedKey(vaultId: vaultId);
+        // dispose() clears _store before an awaited lifecycle operation can
+        // finish. Its original store must still lose any late cached key.
+        (store ?? _store)?.forgetUnlockedKey(vaultId: vaultId);
       }
     }
   }
@@ -207,7 +211,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   @override
   Future<PrivatePortfolioPayload> create({
     required String recoverySecret,
-  }) async {
+  }) => _retainingKey(() async {
     await _ensureReady();
     if (recoverySecret.length < 12) {
       throw const FormatException('portfolio.recovery_secret_too_short');
@@ -225,7 +229,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
       bytes.fillRange(0, bytes.length, 0);
     }
     return open();
-  }
+  });
 
   @override
   Future<bool> requiresRecoverySecret() async {
@@ -375,7 +379,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   Future<PrivatePortfolioPayload?> restorePortableBackup({
     required String recoverySecret,
     bool confirmRollback = false,
-  }) async {
+  }) => _retainingKey(() async {
     if (!portableBackupSupported) {
       throw UnsupportedError('portfolio.portable_backup_unsupported');
     }
@@ -415,7 +419,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
     } finally {
       if (await staging.exists()) await staging.delete();
     }
-  }
+  });
 
   Uint8List? _pendingRollbackRestore;
 
@@ -524,7 +528,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
   @override
   Future<PortfolioMigrationResult> migrateLegacy({
     required String workspacePath,
-  }) async {
+  }) => _retainingKey(() async {
     await _ensureReady();
     final session = _session!;
     if (!session.state.isUnlocked) {
@@ -549,7 +553,7 @@ class LocalEncryptedPortfolioGateway implements PortfolioGateway {
       final payload = await open();
       return PortfolioMigrationResult(report: report, payload: payload);
     });
-  }
+  });
 
   @override
   Future<void> lock() async {
