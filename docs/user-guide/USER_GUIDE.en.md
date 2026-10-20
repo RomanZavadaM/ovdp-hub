@@ -1,5 +1,9 @@
 # OVDP Hub v0.9.3 — User Guide
 
+## What’s new in v0.10.1
+
+Safer private-scenario migration, private Planner clearing on lock, cancellation of unfinished vault operations, and explicit consent before plaintext CSV/ICS export. Cryptography and schema are unchanged (v4).
+
 ## New in v0.10.0
 
 - **Password on portfolio open.** My portfolio → Recovery and backup → "Require the recovery password to open". Once enabled the device key is removed and the portfolio opens only with the recovery password. If the password is forgotten the data cannot be opened; only "Delete local portfolio" and restoring a backup remain.
