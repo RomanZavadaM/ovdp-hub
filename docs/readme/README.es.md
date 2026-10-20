@@ -2,24 +2,23 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · [🇫🇷 Français](README.fr.md) · [🇩🇪 Deutsch](README.de.md) · **🇪🇸 Español** · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Versión de prueba actual: [OVDP Hub v0.10.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.0) — 0.10.0+22**
+> **Versión de prueba actual: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Estado: ACTIVE — desarrollo reanudado el 01.10.2026; v0.10.0 publicada el 02.10.2026.**
+> **Estado: ACTIVE — el checkpoint v0.10.1 se prepara el 20.10.2026.**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
 ## Producto
 
 OVDP Hub es una aplicación Flutter/Dart local-first para bonos estatales ucranianos OVDP: fuentes de mercado, planificación de escenarios, comparación neutral y cartera personal cifrada basada en hechos reales.
 
-## Novedades v0.10.0
+## Novedades v0.10.1
 
-- **contraseña de recuperación al abrir** la cartera (opcional);
-- escenarios del Planner con importes privados **solo en la cartera cifrada**;
-- eliminación de la cartera local y restauración de copias más antiguas con confirmación;
-- **calculadora de bonos del catálogo** (intereses devengados orientativos, rendimiento al vencimiento);
-- **ingresos esperados** a 12 meses y pagos «posiblemente no registrados»;
-- **rendimiento anual del plan**, Argon2id en segundo plano, CSV seguro, catálogo NBU tolerante.
+- migración más segura de escenarios privados del Planner: el texto plano solo se elimina tras volver a verificar la copia cifrada y la fuente actual;
+- el bloqueo limpia el Planner privado y cancela diálogos, selectores de fecha y resultados asíncronos obsoletos;
+- lock/background/dispose cancelan recovery/create/restore/migration incompletos y eliminan claves tardías;
+- la exportación CSV/ICS privada exige consentimiento explícito para texto plano y muestra el destino exacto;
+- criptografía, parámetros KDF y esquema payload sin cambios; se mantiene schema v4.
 
 ## Alcance del producto
 
@@ -45,7 +44,7 @@ Guía completa: **[Guía de usuario en español](../user-guide/USER_GUIDE.es.md)
 
 ## Verificación y límites
 
-El release run #116 de v0.10.0 (commit `933a7bd`) superó analyze, **264 tests**, smoke exacto de ZIP Windows/macOS con la lista de capacidades, packaging Android release, packaging iOS unsigned, START/source, checksums y avisos legales.
+El release run #116 de v0.10.1 (commit `933a7bd`) superó analyze, **314 tests**, smoke exacto de ZIP Windows/macOS con la lista de capacidades, packaging Android release, packaging iOS unsigned, START/source, checksums y avisos legales.
 
 Aplazado: validación física de Android SAF e iOS firmado, firma de producción, notarización, distribución en tiendas, instaladores y auto-update. Intereses devengados y rendimientos orientativos; no es asesoramiento de inversión.
 

@@ -2,24 +2,23 @@
 
 [🇺🇦 Українська](../../README.md) · **🇬🇧 English** · [🇫🇷 Français](README.fr.md) · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · [🇯🇵 日本語](README.ja.md)
 
-> **Current test release: [OVDP Hub v0.10.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.0) — 0.10.0+22**
+> **Current test release: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Development status: ACTIVE — development resumed on 01.10.2026; v0.10.0 published on 02.10.2026.**
+> **Development status: ACTIVE — v0.10.1 release checkpoint is being prepared on 20.10.2026.**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
 ## What it is
 
 OVDP Hub is a local-first Flutter/Dart app for Ukrainian government bonds: market-source review, scenario planning, neutral comparison, and a factual encrypted personal portfolio.
 
-## v0.10.0 highlights
+## v0.10.1 highlights
 
-- optional **recovery password on portfolio open** (the device key is removed);
-- Planner scenarios with private amounts stored **only in the encrypted portfolio**, with verified migration of old plaintext scenarios;
-- confirmed local portfolio deletion and confirmed restore of an older backup;
-- **catalog bond calculator** with indicative accrued interest and yield to maturity;
-- **expected portfolio receipts** for 12 months and "possibly not recorded" hints;
-- **plan annual yield** in Planner; Argon2id off the UI thread; formula-safe CSV; tolerant NBU catalog refresh.
+- safer private Planner migration: plaintext is deleted only after rechecking the encrypted copy and current source;
+- locking clears the private Planner and cancels dialogs, date pickers, and stale async completions;
+- lock/background/dispose cancel unfinished recovery, create, restore, and migration work and remove late keys;
+- private CSV/ICS export requires explicit plaintext consent and shows the exact destination;
+- cryptography, KDF parameters, and payload schema are unchanged; schema remains v4.
 
 ## Product scope
 
@@ -46,7 +45,7 @@ Full guide: **[English User Guide](../user-guide/USER_GUIDE.en.md)**.
 
 ## Verification and boundaries
 
-v0.10.0 release run #116 (commit `933a7bd`) passed Flutter analyze, **264 tests**, exact packaged Windows/macOS smoke including the release-contract capability list, Android release APK packaging, unsigned iOS packaging, START/source, checksums and legal notices.
+The completed feature head passed Flutter analyze, **314 tests**, exact packaged Windows/macOS smoke, Android release packaging, and unsigned iOS packaging. The v0.10.1 release workflow must reproduce these gates and publish START/source, checksums, and legal notices.
 
 Deferred: Android physical SAF persistence/revoke testing, signed iOS/device runtime validation, production signing/notarization/store distribution, installers and auto-update. These physical-device cases are not claimed as `RUNTIME VALIDATED`. Accrued interest and yields are indicative, not quotes or investment advice.
 

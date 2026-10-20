@@ -4,7 +4,7 @@
 
 ## Статус
 
-**ACTIVE — F4 lifecycle follow-up #153, branch `fix/lifecycle-key-cleanup-20261020`: create/restore/migration cancellation та dispose cleanup. F1/F2/F3/F4 primary/F6 інтегровані; main `73df0e71a90a0738cf307820dde155b338c97866`. Published v0.10.0 / 0.10.0+22. Exact state — WORKLOG + Issue #18.**
+**ACTIVE — release checkpoint v0.10.1 / 0.10.1+23. F1–F4 і F6 завершені; F5 private collections лишається draft PR #154 і не входить у реліз.**
 
 План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`. Незавершену роботу читати у WORKLOG активної гілки та Issue #18. Незлитий docs PR #148 — план аудиту; не вважати його інтегрованим у main.
 
@@ -32,10 +32,10 @@ Post-merge main verify run **#561 — SUCCESS**.
 - `WORKLOG.md` — активний slice і точна наступна дія.
 - GitHub Issue #18 — append-only development ledger.
 - `apps/native/pubspec.yaml` — machine source version/build.
-- `docs/releases/RELEASE_NOTES_v0_10_0.md` — останній опублікований реліз.
+- `docs/releases/RELEASE_NOTES_v0_10_1.md` — release checkpoint v0.10.1.
 - `docs/roadmap.md` — завершений scope і deferred backlog.
 
-## Що зафіксовано у v0.10.0
+## База v0.10.0 та зміни checkpoint v0.10.1
 
 Після відновлення розробки (01.10.2026, аудит коду) інтегровано PR #138–#142:
 - опційний пароль відновлення при відкритті портфеля;

@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+## [0.10.1] — 2026-10-20
+
+Patch checkpoint із посиленням захисту приватних даних після v0.10.0. Release notes: `docs/releases/RELEASE_NOTES_v0_10_1.md`.
+
+### Безпека та приватність
+- Перенесення приватних Planner-сценаріїв видаляє plaintext-джерело лише після перевірки канонічного вмісту зашифрованої копії та повторної перевірки актуального workspace/source. PR #149.
+- Приватний Planner очищується при lock; transient dialogs/date picker закриваються, а застарілі async completions не відновлюють приватний draft. PR #150.
+- Lock/background/dispose скасовують незавершені recovery/create/restore/migration operations і не дозволяють пізньому ключу повторно відкрити session або лишитися в попередньому store. PR #151, #153.
+- Перед CSV/ICS export приватного Planner потрібна явна згода на plaintext і показано точне призначення; cancel/lock/draft/workspace changes скасовують export. PR #152.
+
+### Сумісність і перевірка
+- Криптографічні primitives, KDF parameters і payload schema не змінено; private portfolio schema лишається v4, читання v1–v3 збережено.
+- Завершений feature head пройшов `flutter analyze`, 314 tests, Windows/macOS exact packaged ZIP smoke, Android release та iOS unsigned gates.
+- F5 private collections лишається окремим draft PR #154 і не входить у v0.10.1.
+
 ## [0.10.0] — 2026-10-02
 
 Перший етап після відновлення розробки (аудит коду 01.10.2026). Release notes: `docs/releases/RELEASE_NOTES_v0_10_0.md`.
