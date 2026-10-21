@@ -1,5 +1,9 @@
 # OVDP Hub v0.9.3 — Guía de usuario
 
+## Novedades v0.10.1
+
+Migración privada más segura, limpieza del Planner privado al bloquear, cancelación de operaciones vault incompletas y consentimiento explícito antes de exportar CSV/ICS en texto plano. Criptografía y esquema sin cambios (v4).
+
 ## Novedades de v0.10.0
 
 - **Contraseña al abrir la cartera** (Mi cartera → Recuperación y copia). Se elimina la clave del dispositivo; sin la contraseña de recuperación los datos no se pueden abrir.

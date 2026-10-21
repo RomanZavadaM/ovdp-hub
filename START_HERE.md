@@ -4,14 +4,14 @@
 
 ## Статус
 
-**ACTIVE — NEXT F5, branch `fix/private-collections-20261020`: дизайн підготовлено, код ще не змінено. F1–F4/F6 DONE, main `4440dd4175aa250d22f65c07866cb236b5c9d644`. Published v0.10.0 / 0.10.0+22. Exact state — WORKLOG + Issue #18.**
+**ACTIVE — release checkpoint v0.10.1 / 0.10.1+23. F1–F4 і F6 завершені; F5 private collections лишається draft PR #154 і не входить у реліз.**
 
 План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`. Незавершену роботу читати у WORKLOG активної гілки та Issue #18. Незлитий docs PR #148 — план аудиту; не вважати його інтегрованим у main.
 
-Останній опублікований checkpoint: **v0.10.0 / 0.10.0+22**.  
-Release/product checkpoint commit: **`933a7bd27e0f4babe47f44a32f8bf9214b4b18a4`**.  
-Release run **#116 — SUCCESS**.  
-Post-merge main verify run **#561 — SUCCESS**.
+Останній опублікований checkpoint: **v0.10.1 / 0.10.1+23**.  
+Release/product checkpoint commit: **`b2051ed7229b137a307ecfcf74b1cf332fdddd66`**.  
+Release run **#119 — SUCCESS**.  
+Post-release docs main `731e540b02ad85496bffc3b9e485b94c61cb8e46`.
 
 Не відновлювати старі work/feature branches як джерело коду і не повторювати merged slices.
 
@@ -32,10 +32,10 @@ Post-merge main verify run **#561 — SUCCESS**.
 - `WORKLOG.md` — активний slice і точна наступна дія.
 - GitHub Issue #18 — append-only development ledger.
 - `apps/native/pubspec.yaml` — machine source version/build.
-- `docs/releases/RELEASE_NOTES_v0_10_0.md` — останній опублікований реліз.
+- `docs/releases/RELEASE_NOTES_v0_10_1.md` — release checkpoint v0.10.1.
 - `docs/roadmap.md` — завершений scope і deferred backlog.
 
-## Що зафіксовано у v0.10.0
+## База v0.10.0 та зміни checkpoint v0.10.1
 
 Після відновлення розробки (01.10.2026, аудит коду) інтегровано PR #138–#142:
 - опційний пароль відновлення при відкритті портфеля;

@@ -2,24 +2,23 @@
 
 [🇺🇦 Українська](../../README.md) · [🇬🇧 English](README.en.md) · [🇫🇷 Français](README.fr.md) · [🇩🇪 Deutsch](README.de.md) · [🇪🇸 Español](README.es.md) · [🇰🇷 한국어](README.ko.md) · **🇯🇵 日本語**
 
-> **現在のテストリリース: [OVDP Hub v0.10.0](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.0) — 0.10.0+22**
+> **現在のテストリリース: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **開発状態: ACTIVE — 2026-10-01 に開発再開、2026-10-02 に v0.10.0 公開。**
+> **開発状態: ACTIVE — 2026-10-20 に v0.10.1 リリースチェックポイントを準備中。**
 >
-> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/OVDP-Hub-0.10.0-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.0/SHA256SUMS.txt)
+> [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
 ## 製品
 
 OVDP Hub はウクライナ国債 OVDP 向けの local-first Flutter/Dart アプリです。市場ソース確認、シナリオ計画、中立比較、事実ベースの暗号化個人ポートフォリオを提供します。
 
-## v0.10.0 の新機能
+## v0.10.1 の新機能
 
-- ポートフォリオを開くときの**復旧パスワード**（任意）;
-- 非公開金額を含む Planner シナリオは**暗号化ポートフォリオにのみ**保存;
-- 確認付きのローカルポートフォリオ削除と古いバックアップの復元;
-- **カタログ債券の計算機**（経過利息の目安、満期利回り）;
-- 12か月の**受取予定**と「未記録の可能性」の表示;
-- **プランの年利回り**、バックグラウンド Argon2id、数式安全な CSV、堅牢な NBU カタログ更新。
+- 暗号化コピーと現在のソースを再確認した後にのみ平文を削除する、より安全な非公開 Planner 移行;
+- ロック時に非公開 Planner を消去し、ダイアログ、日付選択、古い非同期完了をキャンセル;
+- lock/background/dispose が未完了の recovery/create/restore/migration を中止し、遅延した鍵を削除;
+- 非公開 CSV/ICS export は平文への明示的な同意を必要とし、正確な保存先を表示;
+- 暗号方式、KDF パラメータ、payload schema は変更なし。schema v4 を維持。
 
 ## 製品の範囲
 
@@ -45,7 +44,7 @@ Windows: ZIP 全体を展開して `ovdp_hub.exe` を実行します。macOS: `o
 
 ## 検証と境界
 
-v0.10.0 release run #116（commit `933a7bd`）は analyze、**264 tests**、capability 一覧を含む Windows/macOS exact packaged ZIP smoke、Android release packaging、unsigned iOS packaging、START/source、checksums、legal notices を通過しました。
+PR #155 の exact head は analyze、**314 tests**、Windows/macOS exact ZIP smoke、Android release、unsigned iOS packaging を通過しました。v0.10.1 release workflow はこれらを再実行し、START/source、checksums、legal notices を公開する必要があります。
 
 延期: Android 実機 SAF 検証、signed iOS 実機検証、production signing/notarization/store 配布、インストーラー、自動更新。経過利息と利回りは目安であり、投資助言ではありません。
 

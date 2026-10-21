@@ -107,11 +107,6 @@ class OvdpApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) =>
-              CollectionEditorCubit(context.read<HubRepository>()),
-          lazy: false,
-        ),
-        BlocProvider(
-          create: (context) =>
               CalculatorCubit(repository: context.read<HubRepository>()),
         ),
         BlocProvider(
@@ -152,6 +147,12 @@ class OvdpApp extends StatelessWidget {
             context.read<HubRepository>(),
             portfolioGateway ?? LocalEncryptedPortfolioGateway(),
           )..initialize(),
+          lazy: false,
+        ),
+        BlocProvider(
+          create: (context) => CollectionEditorCubit(
+            context.read<HubRepository>(), portfolio: context.read<PortfolioCubit>(),
+          ),
           lazy: false,
         ),
         BlocProvider(

@@ -1,6 +1,6 @@
 # WORKLOG — OVDP Hub
 
-Оновлено: **20.10.2026** (F1–F4/F6 DONE; NEXT F5)
+Оновлено: **20.10.2026** (release checkpoint v0.10.1)
 
 ## STATUS
 
@@ -8,7 +8,7 @@
 
 Scope: завершення аудиту F1–F10, далі продуктові інтеграції продавців за планом 20.10.2026.
 
-Базовий `main` для NEXT F5: `4440dd4175aa250d22f65c07866cb236b5c9d644`.
+Базовий `main` для релізу: `4440dd4175aa250d22f65c07866cb236b5c9d644`.
 
 ## Рішення власника (01.10.2026)
 
@@ -28,20 +28,16 @@ Scope: завершення аудиту F1–F10, далі продуктові
 
 ## NEXT
 
-F5 ACTIVE — приватні назви й нотатки collections. Branch `fix/private-collections-20261020`, база main `4440dd4175aa250d22f65c07866cb236b5c9d644`. Реалізовано перший фундамент: окремий `PrivateCollectionRecord`, payload schema v5, читання v1–v4, strict validation/limits/duplicate-id checks і перенесення `privateCollections` через наявні portfolio/migration writes. Додано окремі round-trip/compatibility regression tests. CI ще не перевірено; F5 не VERIFIED і не DONE.
+### 21.10.2026 — F5 ACTIVE
 
-План: [F5_PRIVATE_COLLECTIONS_PLAN.md](docs/F5_PRIVATE_COLLECTIONS_PLAN.md). Точна наступна дія: exact-head analyze/tests для schema block; після виправлення знахідок — підключити editor/save/lock, collections reopen та explicit verified legacy move. Приватні annotations не переводити у plaintext через UI-попередження.
+Actual main: `731e540b02ad85496bffc3b9e485b94c61cb8e46`; release v0.10.1 / 0.10.1+23 published, PR #155/#156 merged. PR #154 is the active F5 branch. Updated from main; preserved schema v5 and v1–v4 reads. Owner authorized full merge/release checkpoint and autonomous work, then source/product improvements informed by OVDP Shell.
 
-Завершено 20.10.2026:
-- F4 primary #151 → main 81639128557afc77777040b5d363b0d7d3701f7e, run 39416807438 SUCCESS (293 tests + усі platform gates).
-- F6 #152 → main 73df0e71a90a0738cf307820dde155b338c97866, run 39418461683 SUCCESS (305 tests, 12 нових UI tests + усі platform gates). Private CSV/ICS мають plaintext consent/destination; cancel/lock/draft/workspace change не запускають export.
-- F4 follow-up #153 → main `4440dd4175aa250d22f65c07866cb236b5c9d644`, tested head c5edd792aae9e6830c680391d5b72f4dd4bf9fd1, run 39421143980 SUCCESS: analyze, 314 tests (9 нових), Windows/macOS exact ZIP smoke, Android release APK, iOS unsigned. Original store cleanup після dispose; generation від початку create/restore/migration; окремі internal transient locks, які не маскують timer/user/background cancellation. Normal create/restore PASS.
-- Контрольовані red regressions: recovery-open run 39415913784 (284 pass + 1 fail), lifecycle run 39419555995 (294 pass + 2 fail). Це real-store/domain тести, не physical-device runtime.
-- Post-merge F4/F6 verify+START runs 39417929019 / 39419709164 SUCCESS. Post-merge final main run 39422596744 SUCCESS: verify (314 tests) + START/source.
+Implementation in progress: private editor save/edit, lock purge, public annotation-free ISIN lists, private collection listing/reopen, explicit full-copy verified legacy move. Not VERIFIED/DONE. Local Flutter unavailable; exact-head CI required. No deferred signing/devices/stores/installers/auto-update.
 
-Published release лишається v0.10.0 / 0.10.0+22; новий реліз не публікувався. F7–F10 та продуктові етапи — за DEVELOPMENT_PLAN; physical-device/signing/store backlog не активовано.
 
-Локальний checkout востаннє підтверджено clean на c5edd792. Після зміни середовища локальний exec заблокований помилкою Windows sandbox path URI file:///workspace; GitHub checkpoint є актуальним. Перед наступною локальною реалізацією синхронізувати цю гілку, не перезаписуючи можливі локальні зміни.
+Release checkpoint v0.10.1 / 0.10.1+23: F1/F2/F3/F4/F6 завершені; 314 tests і всі platform gates пройдені на feature head. Повний release workflow має повторити verify, Windows/macOS exact packaged smoke, Android, iOS unsigned, START/source, checksums і legal notices.
+
+F5 private collections — draft PR #154, schema foundation v5; користувацький editor/save/lock/move flow ще не завершений, тому F5 не входить у v0.10.1 і не зливається разом із релізом.
 
 ## Нещодавно завершено — F1/F2/F3 DONE
 

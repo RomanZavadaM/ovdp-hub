@@ -346,7 +346,7 @@ class CollectionsView extends StatelessWidget {
         ...state.sets.map(
           (s) => Card(
             child: ExpansionTile(
-              leading: s.scenario == null
+              leading: s.scenario == null && !s.storedInVault
                   ? null
                   : Icon(
                       s.storedInVault
@@ -357,7 +357,7 @@ class CollectionsView extends StatelessWidget {
               subtitle: Text(
                 [
                   '${s.bonds.length} ${strings.text('issuesWord')} · ${s.savedAt}',
-                  if (s.scenario != null)
+                  if (s.scenario != null || s.storedInVault)
                     strings.text(
                       s.storedInVault
                           ? 'collectionStoredInVault'
@@ -417,6 +417,37 @@ class CollectionsView extends StatelessWidget {
                           },
                     child: Text(strings.text('openPlan')),
                   ),
+                if (s.scenario == null && !s.storedInVault) ...[
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text('${strings.text('legacyCollectionLocation')}: ${workspace.path ?? ''}'),
+                  ),
+                  TextButton.icon(
+                    key: ValueKey('move-collection-${s.recordId}'),
+                    onPressed: busy || !portfolio.unlocked ? null : () async {
+                      final vault = context.read<PortfolioCubit>();
+                      final originalWorkspace = context.read<WorkspaceCubit>().state.path;
+                      final confirmed = await showDialog<bool>(context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: Text(strings.text('moveCollectionTitle')),
+                          content: Text(strings.text('moveCollectionBody')),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(dialogContext, false),
+                              child: Text(strings.text('cancel'))),
+                            FilledButton(onPressed: () => Navigator.pop(dialogContext, true),
+                              child: Text(strings.text('moveCollectionTitle'))),
+                          ],
+                        ));
+                      if (confirmed != true || !context.mounted || !vault.state.unlocked ||
+                          originalWorkspace != context.read<WorkspaceCubit>().state.path) return;
+                      try { await vault.movePlaintextCollectionToVault(s); } catch (_) {
+                        // PortfolioState exposes the safe error to ErrorNotice.
+                      }
+                    },
+                    icon: const Icon(Icons.enhanced_encryption_outlined),
+                    label: Text(strings.text('moveCollectionTitle')),
+                  ),
+                ],
                 if (s.scenario == null)
                   TextButton(
                     onPressed: busy
@@ -431,7 +462,7 @@ class CollectionsView extends StatelessWidget {
                             editor.variant(s);
                             navigation.select(0);
                           },
-                    child: Text(strings.text('newVariant')),
+                    child: Text(strings.text(s.storedInVault ? 'editPrivateCollection' : 'newVariant')),
                   ),
               ],
             ),

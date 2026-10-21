@@ -4,9 +4,9 @@
 
 ## Статус roadmap
 
-**ACTIVE — останній тестовий реліз v0.10.0 / 0.10.0+22 (02.10.2026).** Наступний scope визначає власник.
+**ACTIVE — release checkpoint v0.10.1 / 0.10.1+23 (20.10.2026).** Наступний scope визначає власник.
 
-Власник доручив продовжити розробку 20.10.2026. F1/F2 #149, F3 #150, F4 #151/#153 і F6 #152 інтегровані. Main `4440dd4175aa250d22f65c07866cb236b5c9d644`; 314 tests + Windows/macOS exact ZIP smoke + Android/iOS gates PASS. NEXT F5: приватні annotations collections, окремий [план](F5_PRIVATE_COLLECTIONS_PLAN.md), код ще не змінено. Далі — [план розвитку](DEVELOPMENT_PLAN_2026_10_20.md) і tracker [#147](https://github.com/RomanZavadaM/ovdp-hub/issues/147). Автокупівлю не включено.
+F1–F4 і F6 завершено та включено у v0.10.1: безпечне перенесення приватних сценаріїв, очищення private Planner при lock, vault lifecycle cancellation та явна згода перед plaintext export. F5 private collections лишається draft PR #154 і не входить у checkpoint. Автокупівлю не включено.
 
 ## Завершений scope
 

@@ -193,6 +193,93 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     ];
   }
 
+  List<SavedSet> get privateCollectionSets => [
+    for (final record in state.payload?.privateCollections ?? <PrivateCollectionRecord>[])
+      record.set.withStorage(recordId: record.id, storedInVault: true),
+  ];
+
+  PrivatePortfolioPayload _withCollections(
+    PrivatePortfolioPayload current, Iterable<PrivateCollectionRecord> records,
+  ) => PrivatePortfolioPayload(
+    portfolioId: current.portfolioId,
+    acquisitionLots: current.acquisitionLots,
+    cashEvents: current.cashEvents,
+    disposals: current.disposals,
+    legacyCollections: current.legacyCollections,
+    privateScenarios: current.privateScenarios,
+    privateCollections: records,
+  );
+
+  Future<void> savePrivateCollection(SavedSet set, {String? replaceId}) async {
+    final current = state.payload;
+    if (current == null || !gateway.unlocked) throw StateError('vault.session_locked');
+    if (state.busy) throw StateError('vault.session_busy');
+    if (replaceId != null && !current.privateCollections.any((r) => r.id == replaceId)) {
+      throw StateError('collection.invalid');
+    }
+    final record = PrivateCollectionRecord(
+      id: replaceId ?? 'collection-${Workspace.uniqueId()}', set: set.withStorage(),
+    );
+    final next = _withCollections(current, [
+      for (final r in current.privateCollections) if (r.id != replaceId) r,
+      record,
+    ]);
+    emit(state.copyWith(busy: true, clearError: true));
+    try {
+      await gateway.save(next);
+      if (isClosed || !gateway.unlocked || state.payload == null) {
+        throw StateError('vault.session_locked');
+      }
+      emit(state.copyWith(payload: next, busy: false, clearError: true));
+    } catch (error) {
+      if (!isClosed) emit(state.copyWith(busy: false, errorCode: _safeErrorCode(error)));
+      rethrow;
+    }
+  }
+
+  Future<void> movePlaintextCollectionToVault(SavedSet source) async {
+    final current = state.payload;
+    final workspace = hubRepository.current;
+    if (current == null || !gateway.unlocked) throw StateError('vault.session_locked');
+    if (state.busy) throw StateError('vault.session_busy');
+    if (source.storedInVault || source.scenario != null || source.recordId == null ||
+        workspace == null || !workspace.sets.any((s) =>
+          s.recordId == source.recordId && savedSetContentEquals(s, source))) {
+      throw StateError('portfolio.scenario_move_unverified');
+    }
+    final id = 'workspace-${source.recordId}';
+    final matches = current.privateCollections.where((r) => r.id == id).toList();
+    if (matches.isNotEmpty && !savedSetContentEquals(matches.single.set, source)) {
+      throw StateError('portfolio.scenario_move_unverified');
+    }
+    emit(state.copyWith(busy: true, clearError: true));
+    try {
+      if (matches.isEmpty) {
+        await gateway.save(_withCollections(current, [
+          ...current.privateCollections,
+          PrivateCollectionRecord(id: id, set: source.withStorage()),
+        ]));
+      }
+      if (isClosed || !gateway.unlocked || state.payload == null) {
+        throw StateError('vault.session_locked');
+      }
+      final verified = await gateway.open();
+      final copies = verified.privateCollections.where((r) => r.id == id).toList();
+      if (isClosed || !gateway.unlocked || state.payload == null ||
+          copies.length != 1 || !savedSetContentEquals(copies.single.set, source)) {
+        throw StateError('portfolio.scenario_move_unverified');
+      }
+      await hubRepository.deleteCollections([source.recordId!],
+        expectedWorkspace: workspace, expectedSets: [source]);
+      if (!isClosed && gateway.unlocked && state.payload != null) {
+        emit(state.copyWith(payload: verified, busy: false, clearError: true));
+      }
+    } catch (error) {
+      if (!isClosed) emit(state.copyWith(busy: false, errorCode: _safeErrorCode(error)));
+      rethrow;
+    }
+  }
+
   /// Saves a Planner scenario inside the encrypted vault. Throws when the
   /// portfolio is missing, locked or busy, so the caller can explain why.
   Future<void> savePrivateScenario(SavedSet set) async {
