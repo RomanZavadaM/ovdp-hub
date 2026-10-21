@@ -74,6 +74,10 @@ class CollectionEditorCubit extends Cubit<EditorState> {
   }
   void variant(SavedSet saved) {
     if (state.busy || state.locked || (saved.storedInVault && !privateAvailable)) return;
+    if (saved.storedInVault && !portfolio!.privateCollectionSets.any((current) =>
+        current.recordId == saved.recordId && savedSetContentEquals(current, saved))) {
+      return;
+    }
     _generation++;
     emit(EditorState(selected: {for (final b in saved.bonds) b.isin: b},
       name: privateAvailable ? saved.name : '', note: privateAvailable ? saved.note : '',

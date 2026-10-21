@@ -154,6 +154,19 @@ void main() {
     expect(editor.state.selected, hasLength(1));
     expect(await editor.save(), isTrue);
   });
+  test('stale private row cannot reopen changed content after lock and restore', () async {
+    draft(); await editor.save();
+    final stale = portfolio.privateCollectionSets.single;
+    await gateway.lock();
+    gateway.stored = PrivatePortfolioPayload(portfolioId: 'primary', privateCollections: [
+      PrivateCollectionRecord(id: stale.recordId!, set: collection('Restored version')),
+    ]);
+    await portfolio.open();
+    editor.variant(stale);
+    expect(editor.state.name, isEmpty);
+    editor.variant(portfolio.privateCollectionSets.single);
+    expect(editor.state.name, 'Restored version');
+  });
   test('move verifies full content and removes only matching source', () async {
     await hub.saveCollection(collection('Legacy'));
     final source = hub.current!.sets.single;
