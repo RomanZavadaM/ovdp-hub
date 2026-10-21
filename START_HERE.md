@@ -10,7 +10,7 @@
 
 Останній опублікований checkpoint: **v0.10.1 / 0.10.1+23**.  
 Release/product checkpoint commit: **`b2051ed7229b137a307ecfcf74b1cf332fdddd66`**.  
-Release run **#119 — SUCCESS**.  
+Published release **v0.10.1 — SUCCESS**.  
 Post-release docs main `731e540b02ad85496bffc3b9e485b94c61cb8e46`.
 
 Не відновлювати старі work/feature branches як джерело коду і не повторювати merged slices.

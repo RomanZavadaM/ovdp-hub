@@ -2,9 +2,9 @@
 
 Статус: **IMPLEMENTATION CONTRACT — PR #94**  
 Storage boundary: payload bytes live **inside** the existing encrypted vault envelope.  
-Backward compatibility: **schema v1 and schema v2 remain decode-supported**; new encode output is schema v3.
+Backward compatibility: **schema v1–v4 remain decode-supported**; explicit new saves encode schema v5.
 
-This document defines the factual private-portfolio domain before migration or UI.
+This is the implementation contract for factual records, private Planner scenarios (v4), and private collections (v5). Existing files are not rewritten merely by reading them.
 
 ## 1. Source-of-truth rule
 
@@ -24,9 +24,9 @@ Only recorded facts affect the balance.
 
 ## 2. Public vs private boundary
 
-Private payload contains user-specific facts only.
+Factual records reference public instruments by ISIN. Private scenario and collection records additionally retain the original SavedSet bond snapshots so reopening reproduces the saved context.
 
-It does not copy:
+The vault does not act as a cache for:
 - NBU instrument catalog;
 - MinFin auction/calendar data;
 - seller observations;
@@ -46,7 +46,7 @@ A legacy collection record contains only:
 - sorted unique selected ISIN references;
 - raw Planner scenario when present, recursively canonicalized by sorted object keys.
 
-Full public Bond snapshots are deliberately not copied into the private payload. Public NBU/MinFin/seller data remains outside the private payload.
+The metadata-only `legacyCollections` format does not include Bond snapshots. Separate `privateScenarios` and `privateCollections` keep the complete SavedSet, including its original bond snapshots. Public NBU/MinFin/seller caches remain outside the vault.
 
 A migrated legacy collection is **not** an acquisition lot, holding, cash event or disposal. Migration creates zero portfolio facts.
 
@@ -242,3 +242,11 @@ Before user-facing portfolio UI:
 - any automatic reconstruction of missing historical facts.
 
 No missing historical fact is invented from public data.
+
+## Private scenarios and collections (v4/v5)
+
+`privateScenarios` holds separate `{id, set}` records with a Planner scenario. `privateCollections` holds separate `{id, set}` records without a scenario; neither is a factual acquisition. Payload writes preserve all factual and private record categories. Crypto, KDF and recovery envelope formats are unchanged.
+
+Private collection names and notes are saved only through `PortfolioGateway`. Public workspace ISIN lists have a generated name and an empty note. Lock clears private editor state and removes vault entries from the merged collection list. Save failure keeps the unlocked draft; a completion from an older private session cannot restore it.
+
+Legacy full-copy move is explicit: save encrypted copy, reopen and compare canonical full SavedSet content, then delete only the same source record in the original workspace. The repository rechecks source content and current vault authorization inside its operation queue. Conflict, lock, changed workspace or deletion failure preserves the source. Metadata-only legacy migration is not proof of a full copy. Cloud history and backups may retain old plaintext; no secure-erasure claim is made.

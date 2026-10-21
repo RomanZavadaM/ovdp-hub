@@ -25,9 +25,7 @@ void main() {
         final hub = FakeRepository(catalog);
         final gateway = FakePortfolioGateway(stored: PrivatePortfolioPayload(portfolioId: 'primary'));
         final portfolio = PortfolioCubit(hub, gateway);
-        debugPrint('F5 UI ${language.code} $width: opening');
         await tester.runAsync(() => portfolio.open());
-        debugPrint('F5 UI: opened');
         final editor = CollectionEditorCubit(hub, portfolio: portfolio);
         editor.toggle(catalog.bonds.first, true);
         final workspace = WorkspaceCubit(hub, editor);
@@ -40,7 +38,6 @@ void main() {
           BlocProvider.value(value: navigation),
         ], child: const MaterialApp(home: Scaffold(body: SingleChildScrollView(child: CollectionEditorView())))));
         await tester.pumpAndSettle();
-        debugPrint('F5 UI: mounted');
         expect(strings.text('privateCollectionMode'), isNot('privateCollectionMode'));
         final name = find.widgetWithText(TextFormField, strings.text('collectionName'));
         final note = find.widgetWithText(TextFormField, strings.text('notesAssumptions'));
@@ -48,12 +45,10 @@ void main() {
         await tester.enterText(name, 'UI private title');
         await tester.ensureVisible(note);
         await tester.enterText(note, 'UI private note');
-        debugPrint('F5 UI: entered');
         final save = find.text(strings.text('savePrivateCollection'));
         await tester.ensureVisible(save);
         await tester.tap(save);
         await tester.pumpAndSettle();
-        debugPrint('F5 UI: saved');
         expect(gateway.stored!.privateCollections.single.set.note, 'UI private note');
         expect(hub.saves, 0);
         // Reopen the vault collection in the editor, then lock while visible.
@@ -67,12 +62,10 @@ void main() {
         expect(editor.state.selected, isEmpty);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
-        debugPrint('F5 UI: unmounted');
         await tester.runAsync(() async {
           await editor.close(); await workspace.close(); await locale.close();
           await navigation.close(); await portfolio.close(); await hub.dispose();
         });
-        debugPrint('F5 UI: closed');
       }, timeout: const Timeout(Duration(seconds: 20)));
     }
   }

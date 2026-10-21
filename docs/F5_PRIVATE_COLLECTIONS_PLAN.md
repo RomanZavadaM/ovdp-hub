@@ -1,6 +1,7 @@
 # F5 — приватні назви й нотатки collections
 
-Статус: підготовлений наступний slice, **код F5 ще не реалізовано**. Основа — F1–F4 та F6, tracker #147. Точний main/branch/run див. WORKLOG і останній запис Issue #18.
+Implementation checkpoint 21.10.2026: editor/save/edit/lock/reopen/verified move implemented in PR #154; baseline analyze + 349 tests PASS. Final exact-head platform gates and merge pending; F5 is not DONE. The design and acceptance criteria below remain authoritative.
+Статус: підготовлений наступний slice, **реалізація F5 у PR #154; фінальні gates і merge очікуються**. Основа — F1–F4 та F6, tracker #147. Точний main/branch/run див. WORKLOG і останній запис Issue #18.
 
 ## Проблема й межа даних
 

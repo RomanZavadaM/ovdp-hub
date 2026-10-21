@@ -113,3 +113,9 @@ Mobile external-folder support через Android SAF / iOS security-scoped book
 ## Recovery / development protocol
 
 Поточний стан відновлюється лише через `START_HERE.md` → `PROJECT_RULES.md` → `PROJECT_STATE.md` → `WORKLOG.md` → GitHub Issue #18. Старі branches не є джерелами коду.
+
+## Private collections — F5 implementation (21.10.2026)
+
+CollectionEditorCubit coordinates the destination and private-session lifecycle; widgets do not write files. PortfolioCubit owns private collection saves and verified legacy moves via PortfolioGateway. CollectionsCubit merges public workspace lists with unlocked vault scenarios and collections. Repository writes/deletions are serialized with workspace switches; guarded deletion checks the original snapshot, complete source content and live vault authorization.
+
+Payload schema v5 adds separate privateCollections while preserving v1–v4 reads. Lock purges private drafts and invalidates late completions. Public lists remain available without a portfolio and cannot persist custom title/note annotations. F5 verification/merge status is tracked in WORKLOG and Issue #18.
