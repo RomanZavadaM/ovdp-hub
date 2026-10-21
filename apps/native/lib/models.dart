@@ -231,6 +231,13 @@ class SavedSet {
   };
   factory SavedSet.parse(String content) {
     final j = jsonDecode(content) as Map<String, dynamic>;
+    final allowed = <String>{
+      'schemaVersion', 'name', 'note', 'savedAt', 'assets',
+      if (j['schemaVersion'] == 2) 'scenario',
+    };
+    if (j.keys.any((key) => !allowed.contains(key))) {
+      throw const FormatException('collection.invalid');
+    }
     if (!const [1, 2].contains(j['schemaVersion']) ||
         (j['schemaVersion'] == 2 && j['scenario'] is! Map) ||
         (j['name'] as String).trim().isEmpty ||

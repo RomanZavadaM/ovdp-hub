@@ -98,6 +98,10 @@ void main() {
     final withUnknownField = Map<String, dynamic>.from(valid)
       ..['unexpected'] = true;
 
+    final unknownSetField = Map<String, dynamic>.from(valid);
+    unknownSetField['set'] = {...collection('Watchlist').toJson(), 'privateExtraNote': 'preserve me'};
+    expect(() => PrivateCollectionRecord.fromJson(unknownSetField), throwsFormatException);
+
     expect(
       () => PrivateCollectionRecord.fromJson(withUnknownField),
       throwsFormatException,
