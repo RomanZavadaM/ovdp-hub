@@ -4,7 +4,7 @@
 
 > **Поточний тестовий реліз: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Статус розвитку: ACTIVE — release checkpoint v0.10.1 готується 20.10.2026.**
+ACTIVE — v0.10.1 опубліковано; наступний checkpoint проходить перевірку.
 >
 > **Завантаження:** [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -21,6 +21,16 @@
 - lock/background/dispose скасовують незавершені recovery/create/restore/migration operations і прибирають пізні ключі;
 - приватний CSV/ICS export потребує явної згоди на plaintext і показує точну папку призначення;
 - криптографія, KDF і payload schema не змінені; schema лишається v4.
+
+
+## Після v0.10.1 — кандидат наступного checkpoint
+
+- F5 вже інтегровано в `main`: приватні добірки з назвою й нотаткою зберігаються у зашифрованому портфелі, підтримують редагування та повторне відкриття; блокування очищує приватну чернетку.
+- Публічні списки ISIN працюють без портфеля й не містять приватних приміток.
+- Стару plaintext-добірку можна перенести лише явно. Джерело видаляється після перевірки повної зашифрованої копії та незмінності початкового файла; конфлікт, невідоме поле, lock або помилка зберігають оригінал.
+- Payload schema v5 читає v1–v4; криптографію та KDF не змінено.
+- PR #157 готує read-only порівняння публічних пропозицій Inzhur, UNIVER і ПриватБанку за ISIN, валютою та погашенням. Ціни, дохідність, кількість і час джерела не змішуються; невідомі значення не вигадуються.
+- Це ще не опублікований реліз: актуальним для завантаження залишається v0.10.1.
 
 ## Що входить у продукт
 

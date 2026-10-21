@@ -20,6 +20,16 @@ OVDP Hub is a local-first Flutter/Dart app for Ukrainian government bonds: marke
 - private CSV/ICS export requires explicit plaintext consent and shows the exact destination;
 - cryptography, KDF parameters, and payload schema are unchanged; schema remains v4.
 
+
+## After v0.10.1 — next-checkpoint candidate
+
+- F5 is merged into `main`: private collections with custom names and notes live in the encrypted portfolio, can be edited and reopened, and their draft is purged on lock.
+- Public ISIN lists work without a portfolio and carry no private annotations.
+- Moving a legacy plaintext collection is explicit. The source is deleted only after the complete encrypted copy and unchanged source are verified; conflicts, unknown fields, lock or failure preserve the original.
+- Payload schema v5 reads v1–v4; cryptography and KDF are unchanged.
+- PR #157 prepares read-only comparison of public Inzhur, UNIVER and PrivatBank offers by ISIN, currency and maturity. Price, yield, quantity and source time remain separate; unknown values are not invented.
+- This is not a published release yet; v0.10.1 remains the current download.
+
 ## Product scope
 
 - NBU / MinFin / seller layers with provenance and freshness;

@@ -4,7 +4,7 @@
 
 > **현재 테스트 릴리스: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **개발 상태: ACTIVE — 2026-10-20 v0.10.1 릴리스 체크포인트 준비 중.**
+ACTIVE — v0.10.1 is published; the next checkpoint is under verification.
 >
 > [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -18,7 +18,17 @@ OVDP Hub는 우크라이나 국채 OVDP용 local-first Flutter/Dart 앱입니다
 - 잠금 시 비공개 Planner를 지우고 대화상자, 날짜 선택기, 오래된 비동기 완료를 취소;
 - lock/background/dispose가 완료되지 않은 recovery/create/restore/migration을 취소하고 늦게 도착한 키를 제거;
 - 비공개 CSV/ICS 내보내기는 평문 저장에 대한 명시적 동의와 정확한 대상 경로를 표시;
-- 암호화, KDF 매개변수, payload schema는 변경되지 않았으며 schema v4 유지.
+- 암호화, KDF 매개변수, payload schema는 변경되지 않았으며 schema v5 유지.
+
+
+## v0.10.1 이후 — 다음 체크포인트 후보
+
+- F5는 `main`에 통합되었습니다. 이름과 메모가 있는 비공개 모음은 포트폴리오에 암호화되어 저장되고 편집·재열기가 가능하며, 잠그면 비공개 초안이 지워집니다.
+- 공개 ISIN 목록은 포트폴리오 없이 작동하며 비공개 메모를 포함하지 않습니다.
+- 기존 평문 모음의 이동은 명시적 작업입니다. 전체 암호화 사본과 변경되지 않은 원본을 검증한 뒤에만 원본을 삭제하며, 충돌·알 수 없는 필드·잠금·오류가 있으면 원본을 보존합니다.
+- Payload schema v5는 v1–v4를 읽으며 암호화 방식과 KDF는 변경되지 않았습니다.
+- PR #157은 Inzhur, UNIVER, PrivatBank의 공개 제안을 ISIN·통화·만기로 비교하는 읽기 전용 화면을 준비합니다. 가격·수익률·수량·출처 시간은 구분하며 모르는 값은 추정하지 않습니다.
+- 아직 게시된 릴리스가 아니며 현재 다운로드는 v0.10.1입니다.
 
 ## 제품 범위
 

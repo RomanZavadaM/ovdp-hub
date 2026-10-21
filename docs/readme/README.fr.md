@@ -20,6 +20,16 @@ OVDP Hub est une application Flutter/Dart local-first pour les OVDP ukrainiennes
 - l’export CSV/ICS privé exige un consentement explicite au plaintext et affiche la destination exacte ;
 - cryptographie, paramètres KDF et schéma payload inchangés ; le schéma reste v4.
 
+
+## Après v0.10.1 — candidat au prochain checkpoint
+
+- F5 est intégré à `main` : les collections privées avec nom et note sont chiffrées dans le portefeuille, modifiables et rouvrables ; le verrouillage efface le brouillon.
+- Les listes ISIN publiques fonctionnent sans portefeuille et sans annotation privée.
+- Le déplacement d’une ancienne collection en clair est explicite. La source n’est supprimée qu’après vérification de la copie chiffrée complète et de la source inchangée ; conflit, champ inconnu, verrouillage ou erreur préservent l’original.
+- Le schéma payload v5 lit v1–v4 ; cryptographie et KDF restent inchangés.
+- La PR #157 prépare une comparaison en lecture seule des offres publiques Inzhur, UNIVER et PrivatBank par ISIN, devise et échéance. Prix, rendement, quantité et heure de source restent distincts ; aucune valeur inconnue n’est inventée.
+- Ce n’est pas encore une version publiée ; v0.10.1 reste le téléchargement actuel.
+
 ## Périmètre du produit
 
 - couches NBU / MinFin / vendeurs avec provenance et freshness;

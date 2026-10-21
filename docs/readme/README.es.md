@@ -4,7 +4,7 @@
 
 > **Versión de prueba actual: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Estado: ACTIVE — el checkpoint v0.10.1 se prepara el 20.10.2026.**
+ACTIVE — v0.10.1 is published; the next checkpoint is under verification.
 >
 > [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -18,7 +18,17 @@ OVDP Hub es una aplicación Flutter/Dart local-first para bonos estatales ucrani
 - el bloqueo limpia el Planner privado y cancela diálogos, selectores de fecha y resultados asíncronos obsoletos;
 - lock/background/dispose cancelan recovery/create/restore/migration incompletos y eliminan claves tardías;
 - la exportación CSV/ICS privada exige consentimiento explícito para texto plano y muestra el destino exacto;
-- criptografía, parámetros KDF y esquema payload sin cambios; se mantiene schema v4.
+- criptografía, parámetros KDF y esquema payload sin cambios; se mantiene schema v5.
+
+
+## Después de v0.10.1 — candidato al próximo checkpoint
+
+- F5 está integrado en `main`: las colecciones privadas con nombre y nota se guardan cifradas en la cartera, pueden editarse y reabrirse, y el bloqueo borra el borrador.
+- Las listas ISIN públicas funcionan sin cartera y no contienen anotaciones privadas.
+- Mover una colección antigua en texto plano es una acción explícita. La fuente se elimina solo tras verificar la copia cifrada completa y que no cambió; un conflicto, campo desconocido, bloqueo o error conserva el original.
+- El esquema payload v5 lee v1–v4; criptografía y KDF no cambian.
+- La PR #157 prepara una comparación de solo lectura de ofertas públicas de Inzhur, UNIVER y PrivatBank por ISIN, moneda y vencimiento. Precio, rendimiento, cantidad y hora de fuente siguen separados; no se inventan valores desconocidos.
+- Todavía no es una versión publicada; v0.10.1 sigue siendo la descarga actual.
 
 ## Alcance del producto
 
