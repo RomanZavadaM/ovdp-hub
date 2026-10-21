@@ -394,6 +394,9 @@ class FileHubRepository implements HubRepository {
     final ids = recordIds.toSet();
     final expected = expectedSets?.toList(growable: false);
     return _exclusive(() async {
+        if (stillAuthorized != null && !stillAuthorized()) {
+          throw StateError('vault.session_locked');
+        }
         if (expectedWorkspace != null &&
             !identical(current, expectedWorkspace)) {
           throw StateError('portfolio.scenario_move_unverified');
@@ -415,6 +418,9 @@ class FileHubRepository implements HubRepository {
           }
         }
         for (final id in ids) {
+          if (stillAuthorized != null && !stillAuthorized()) {
+            throw StateError('vault.session_locked');
+          }
           final mobile = _mobileWorkspace;
           if (mobile != null) {
             await mobile.deleteSet(id);

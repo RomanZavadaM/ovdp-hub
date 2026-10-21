@@ -25,7 +25,7 @@ void main() {
         final hub = FakeRepository(catalog);
         final gateway = FakePortfolioGateway(stored: PrivatePortfolioPayload(portfolioId: 'primary'));
         final portfolio = PortfolioCubit(hub, gateway);
-        await portfolio.open();
+        await tester.runAsync(() => portfolio.open());
         final editor = CollectionEditorCubit(hub, portfolio: portfolio);
         editor.toggle(catalog.bonds.first, true);
         final workspace = WorkspaceCubit(hub, editor);
@@ -62,8 +62,10 @@ void main() {
         expect(editor.state.selected, isEmpty);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
-        await editor.close(); await workspace.close(); await locale.close();
-        await navigation.close(); await portfolio.close(); await hub.dispose();
+        await tester.runAsync(() async {
+          await editor.close(); await workspace.close(); await locale.close();
+          await navigation.close(); await portfolio.close(); await hub.dispose();
+        });
       }, timeout: const Timeout(Duration(seconds: 45)));
     }
   }
