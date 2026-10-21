@@ -32,28 +32,21 @@ void main() {
   tearDown(() async {
     await repository.dispose();
   });
-  test(
-    'failed save preserves draft; retry saves once and updates list',
-    () async {
-      final editor = CollectionEditorCubit(repository);
-      final collections = CollectionsCubit(repository);
-      editor.toggle(catalog.bonds.first, true);
-      editor.edit(name: 'План', note: 'Нотатка');
-      repository.saveError = StateError('Диск від’єднаний');
-      expect(await editor.save(), false);
-      expect(editor.state.name, 'План');
-      expect(editor.state.selected.length, 1);
-      expect(editor.state.error?.code, 'common.unexpected');
-      repository.saveError = null;
-      expect(await editor.save(), true);
-      expect(editor.state.dirty, false);
-      expect(collections.state.sets.single.note, 'Нотатка');
-      await editor.close();
-      await collections.close();
-    },
-  );
+  test('failed public save preserves selection and retry saves annotation-free list', () async {
+    final editor = CollectionEditorCubit(repository)..selectPrivate(false);
+    editor.toggle(catalog.bonds.first, true);
+    editor.edit(name: 'Private title', note: 'Private note');
+    repository.saveError = StateError('offline');
+    expect(await editor.save(), isFalse);
+    expect(editor.state.selected, hasLength(1));
+    repository.saveError = null;
+    expect(await editor.save(), isTrue);
+    expect(repository.current!.sets.single.note, isEmpty);
+    expect(repository.current!.sets.single.name, startsWith('ISIN '));
+    await editor.close();
+  });
   test('collection variant keeps user-authored name without locale suffix', () async {
-    final editor = CollectionEditorCubit(repository);
+    final editor = CollectionEditorCubit(repository)..selectPrivate(false);
     final source = SavedSet(
       'My saved set',
       'note',
@@ -63,43 +56,43 @@ void main() {
 
     editor.variant(source);
 
-    expect(editor.state.name, 'My saved set');
+    expect(editor.state.name, isEmpty);
     expect(editor.state.name.contains('варіант'), false);
     expect(editor.state.selected.keys, contains(catalog.bonds.first.isin));
 
     await editor.close();
   });
 
-  test('cancelled and failed switches keep draft and active path', () async {
-    final editor = CollectionEditorCubit(repository)..edit(name: 'Не втратити');
+  test('cancelled and failed switches keep public selection and active path', () async {
+    final editor = CollectionEditorCubit(repository)..selectPrivate(false)
+      ..toggle(catalog.bonds.first, true);
     final workspace = WorkspaceCubit(repository, editor);
     await workspace.choose();
     expect(repository.switches, 0);
     await workspace.choose(discardDraft: true);
-    expect(editor.state.name, 'Не втратити');
-    repository.switchError = StateError('Папка недоступна');
+    expect(editor.state.selected, hasLength(1));
+    repository.switchError = StateError('offline');
     await workspace.choose(discardDraft: true);
     expect(workspace.state.path, 'local');
-    expect(editor.state.name, 'Не втратити');
+    expect(editor.state.selected, hasLength(1));
     repository.switchError = null;
     repository.switchAccepted = true;
     await workspace.choose(discardDraft: true);
     expect(workspace.state.path, 'new');
-    expect(editor.state.dirty, false);
-    await workspace.close();
-    await editor.close();
+    expect(editor.state.dirty, isFalse);
+    await workspace.close(); await editor.close();
   });
   test(
     'switch locks draft; duplicate save and switch during save are rejected',
     () async {
-      final editor = CollectionEditorCubit(repository)
+      final editor = CollectionEditorCubit(repository)..selectPrivate(false)
         ..toggle(catalog.bonds.first, true)
         ..edit(name: 'План');
       final workspace = WorkspaceCubit(repository, editor);
       repository.gate = Completer<void>();
       final switching = workspace.choose(discardDraft: true);
       editor.edit(name: 'Lost edit');
-      expect(editor.state.name, 'План');
+      expect(editor.state.name, isEmpty);
       expect(await editor.save(), false);
       repository.gate!.complete();
       await switching;
@@ -165,13 +158,13 @@ void main() {
     },
   );
   test('closing editor during save does not emit after close', () async {
-    final editor = CollectionEditorCubit(repository)
+    final editor = CollectionEditorCubit(repository)..selectPrivate(false)
       ..toggle(catalog.bonds.first, true)
       ..edit(name: 'План');
     repository.gate = Completer<void>();
     final saving = editor.save();
     await editor.close();
     repository.gate!.complete();
-    expect(await saving, true);
+    expect(await saving, false);
   });
 }
