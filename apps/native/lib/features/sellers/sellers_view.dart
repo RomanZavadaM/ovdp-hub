@@ -5,6 +5,7 @@ import '../../l10n/hub_locale.dart';
 import '../../ui/components.dart';
 import 'seller_repository.dart';
 import 'sellers_cubit.dart';
+import 'public_offers_view.dart';
 
 class SellersView extends StatelessWidget {
   const SellersView({super.key});
@@ -24,6 +25,7 @@ class SellersView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const PublicOffersView(),
         SectionHeading(strings.text('sellerHeading')),
         Text(strings.text('sellerIntro')),
         const SizedBox(height: 12),

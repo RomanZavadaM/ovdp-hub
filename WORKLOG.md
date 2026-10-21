@@ -80,3 +80,9 @@ F5 private collections — draft PR #154, schema foundation v5; користув
 6. останні записи Issue #18.
 
 Не повторювати вже merged роботу; продовжувати з першої незавершеної дії активного slice.
+
+## Public broker sources — ACTIVE (21.10.2026)
+
+Separate dependent branch `feat/public-broker-offers-20261021` starts from final F5 PR #154 head. New independent Inzhur/UNIVER public HTML adapters, normalized observations, source-by-ISIN view, separate price/yield/quantity and explicit unknown timestamps. Existing PrivatBank observations join the view after loading. NBU matching checks ISIN/currency/maturity; rejected/unmatched counts and provider failures are visible. Last successful observations survive a failed refresh with an error marker. Seven-language copy and source fixtures/tests added. Public source verification/evidence: `docs/PUBLIC_BROKER_SOURCES_20261021.md`.
+
+Not VERIFIED/DONE. No broker authentication, execution, private endpoint use or third-party implementation copy. Native app inspection was unavailable; source review used preserved analysis files and live official public pages. F5 must pass final platform gates and merge first; then retarget this dependent PR onto actual main. Owner's release command remains authorized; prepare 0.11.0+24 after completed slices and all gates, without rewriting v0.10.1.
