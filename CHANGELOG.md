@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased] — 2026-10-21
+
+- F5 private collections merged: encrypted save/edit/reopen, lock purge, public annotation-free lists and verified fail-closed legacy move.
+- Payload schema v5 reads v1–v4; cryptography/KDF unchanged.
+- PR #157 prepares read-only public Inzhur/UNIVER offers and per-source ISIN comparison with PrivatBank; not merged or released yet.
+- README, user guides and handoff documentation synchronized in seven languages.
+
+
 Усі помітні зміни OVDP Hub фіксуються тут. Опубліковані GitHub Releases додатково мають незмінні release notes у `docs/releases/`.
 
 ## [Unreleased]

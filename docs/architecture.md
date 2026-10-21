@@ -1,121 +1,38 @@
 # Архітектура OVDP Hub — Flutter native
 
-Оновлено: **26.09.2026**  
-Актуальний checkpoint: **v0.9.3 / 0.9.3+20**
+Оновлено: **21.10.2026**
 
-## Межа продукту
+Єдиний активний продукт — `apps/native` для Windows, macOS, Android та iOS. OVDP Hub є local-first інформаційним, планувальним і factual-portfolio застосунком. Немає власного сервера приватного портфеля, KYC, broker credentials, виконання угод або tracking.
 
-Активний продукт один: `apps/native` на Flutter/Dart для Windows, macOS, Android та iOS. Web/PWA, Next.js, Expo і Tauri не є активними продуктовими лініями.
-
-OVDP Hub — local-first інформаційний, планувальний і factual-portfolio застосунок. Немає серверних акаунтів OVDP Hub, централізованого приватного портфеля, KYC, виконання угод або приватного relay-сервера.
-
-## Шари runtime
+## Шари
 
 ```text
 Flutter UI
-  ↓
-Cubit / immutable feature State
-  ↓
-feature repositories / HubRepository / PortfolioGateway
-  ↓
-public adapters + local workspace + encrypted vault
+  → Cubit / immutable state
+  → feature repository / HubRepository / PortfolioGateway
+  → public adapters + local workspace + encrypted vault
 ```
 
-Основні функціональні області:
+Widgets показують state і передають події. Cubit координують сценарії та stale-completion guards. Repository/gateway відповідають за I/O. Financial models і Decimal calculations не залежать від UI.
 
-- `catalog` — випуски НБУ, фільтри, графіки виплат;
-- `market/isin` — NBU / MinFin / seller observations із provenance/freshness;
-- `collections` — локальні добірки;
-- `calculator` — локальні фінансові розрахунки;
-- `workspace` — переносне локальне сховище public/scenario data;
-- `planner` — typed scenarios, needs, fees, tax, FX, exits, reserve floor, A/B/C;
-- `sellers` — дозволені публічні observations продавців;
-- `portfolio` — encrypted factual purchase/sale/coupon/redemption, holdings, ledger, cash summary;
-- `vault/security` — device keys, recovery, encrypted backup, locking, rollback/crash lifecycle;
-- `navigation/appearance/l10n` — shell, три appearance та UK/EN/FR/DE/ES/KO/JA.
+## Дані продукту
 
-UI widgets не повинні напряму виконувати файлові/мережеві операції. Cubit/feature state керує flow; repositories/gateways відповідають за I/O. Грошова арифметика використовує Decimal; Double допускається лише у явно обмежених і протестованих чисельних задачах.
+- Catalog/market: NBU, MinFin, provenance, freshness, status, ISIN card.
+- Sellers: public PrivatBank/Inzhur/UNIVER observations. Price, yield, quantity, source time та retrieval time — окремі поля; ISIN/currency/maturity перевіряються.
+- Planner: budget/reserve/horizon, fees/tax/FX, needs, early exit, neutral A/B/C, CSV/ICS.
+- Portfolio: factual purchase/sale/coupon/redemption, explicit lot allocation, ledger і per-currency cash summary.
+- Collections: public annotation-free lists у workspace; private named/noted collections у vault.
 
-## Ринкова модель
+## Encrypted vault
 
-Один ISIN може мати незалежні шари:
+Payload schema v5 читає v1–v4. V5 додає private collections поряд із private Planner scenarios та factual portfolio. Cryptography, KDF і recovery slots не змінені. Private UI state прив’язаний до session epoch: lock/background/dispose очищують state, а старі async completions не можуть його відновити.
 
-1. **Інструмент / контрактні платежі** — НБУ.
-2. **Первинний ринок** — календар, оголошення та результати Мінфіну.
-3. **Вторинний ринок** — публічні/дозволені seller observations.
-4. **Користувацький scenario** — price, quantity, fee/tax/FX/exit assumptions.
-5. **Фактичний private portfolio** — реальні user-recorded cash/position facts.
+Legacy private collection move є explicit verified full-copy migration. Source видаляється лише після canonical encrypted-copy verification, повторного читання незміненого source і чинної vault authorization. Unknown fields або conflicts блокують видалення.
 
-Шари не зливаються у «єдину правду». Кожне market observation має власне джерело, source date, retrieved time і data/freshness status.
+## Публічні джерела продавців
 
-## Planner
+Adapters читають лише загальнодоступні сторінки. Normalization не змішує quoted price, listed yield, available quantity, source timestamp і retrievedAt. Provider failure ізольований; retained observation позначається помилкою без підміни часу. Немає login/OTP/private endpoints/execution.
 
-Поточний Planner використовує typed scenario model зі збереженням сумісності старих schema через adapters без тихого переписування.
+## Storage і платформи
 
-Окремо моделюються:
-
-- positions та selected price observations;
-- purchase fee state, включно з unknown;
-- effective-dated tax assumptions;
-- FX assumptions;
-- per-position early exit;
-- one-off / recurring needs;
-- reserve floor;
-- settlement delay;
-- A/B/C strict comparability;
-- deterministic CSV/ICS exports.
-
-## Private portfolio / encrypted vault
-
-Private portfolio **вже user-facing у v0.9.3** і не зберігається як паралельний plaintext portfolio store.
-
-Vault layer включає:
-
-- authenticated encrypted envelope;
-- platform device-key adapters;
-- recovery material / wrapped key lifecycle;
-- portable encrypted backup/restore primitives;
-- atomic local replace/recovery;
-- rollback detection;
-- manual/inactivity/background locking;
-- serialized lifecycle controls.
-
-Device-key boundary:
-
-- Windows — app-owned DPAPI state;
-- Android / iOS — platform secure storage;
-- macOS — system Keychain через `flutter_secure_storage`, без Keychain Sharing для поточного unsigned/non-provisioned test-build (`usesDataProtectionKeychain: false`).
-
-macOS adapter не вважається доведеним через compile або mock. Перед user-facing enablement packaged macOS executable реально пройшов Keychain DEK/revision round-trip, encrypted vault create/open, session lock/reopen, encrypted backup/restore, recovery rotation, old-secret rejection і cleanup. Той самий packaged runtime smoke залишається CI gate після enablement.
-
-Factual portfolio domain включає acquisition lots, explicit disposal allocations, coupon/redemption cash events, derived holdings, closed positions, per-ISIN ledger та per-currency factual cash summary.
-
-Unknown acquisition/disposal fee не перетворюється на zero. Поточна market value відкритих позицій не входить у factual cash result.
-
-## Legacy migration
-
-Legacy user-specific workspace data може бути скопійоване у private encrypted payload explicit non-destructive wizard-ом. Після запису перевіряється encrypted copy. Source JSON автоматично не видаляється.
-
-Public Bond snapshots не перетворюються на private factual records і factual portfolio facts не синтезуються з відсутніх даних.
-
-## Platform storage boundary
-
-Desktop workspace може бути локальним або у user-selected/synchronized filesystem location.
-
-Encrypted Portfolio підтримує Windows, macOS, Android та iOS на рівні app-local encrypted vault/device key. Це **не** означає однаковий зовнішній file flow: portable user-facing encrypted backup/restore picker наразі Windows-only.
-
-Mobile external-folder support через Android SAF / iOS security-scoped bookmarks **ще deferred**; до окремого storage gate mobile використовує підтримуваний app-local storage contract. macOS user-facing external backup/file-picker flow також не вмикається автоматично лише через Keychain validation і лишається окремим platform UX contract.
-
-## Локалізація
-
-Канонічна мова — українська. User-facing UI: Українська, English, Français, Deutsch, Español, 한국어, 日本語. Persisted business/domain identifiers не повинні залежати від перекладеного display text.
-
-## Recovery / development protocol
-
-Поточний стан відновлюється лише через `START_HERE.md` → `PROJECT_RULES.md` → `PROJECT_STATE.md` → `WORKLOG.md` → GitHub Issue #18. Старі branches не є джерелами коду.
-
-## Private collections — F5 implementation (21.10.2026)
-
-CollectionEditorCubit coordinates the destination and private-session lifecycle; widgets do not write files. PortfolioCubit owns private collection saves and verified legacy moves via PortfolioGateway. CollectionsCubit merges public workspace lists with unlocked vault scenarios and collections. Repository writes/deletions are serialized with workspace switches; guarded deletion checks the original snapshot, complete source content and live vault authorization.
-
-Payload schema v5 adds separate privateCollections while preserving v1–v4 reads. Lock purges private drafts and invalidates late completions. Public lists remain available without a portfolio and cannot persist custom title/note annotations. F5 verification/merge status is tracked in WORKLOG and Issue #18.
+Desktop використовує локальний workspace; macOS device state — Keychain. Android SAF та iOS security-scoped access мають реалізований external-file transport і fail-closed permission handling. Physical-device validation, production signing, notarization, stores, installers та auto-update лишаються deferred.

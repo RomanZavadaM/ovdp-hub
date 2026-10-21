@@ -1,6 +1,6 @@
 # WORKLOG — OVDP Hub
 
-Оновлено: **20.10.2026** (release checkpoint v0.10.1)
+Оновлено: **21.10.2026**
 
 ## STATUS
 
@@ -25,6 +25,21 @@ Scope: завершення аудиту F1–F10, далі продуктові
 - Main verify **#561 — SUCCESS**. GitHub prerelease `v0.10.0` опубліковано 02.10.2026.
 - Інтегровано: S1 #138, S2 #139, S3 #140, S4 #141, S5 + B.1 + B.2 + B.1b + release metadata #142.
 - Docs-sync: README ×7, PROJECT_STATE, roadmap, START_HERE, user guides ×7 — PR `docs/v0-10-0-sync`.
+
+## 21.10.2026 — F5 DONE
+
+- PR #154 merged to `main` as `c6fcdecd4edfbe0ad681195b17bf48df77abfd52`.
+- Exact-head and post-merge gates passed: analyze/tests, Windows/macOS packaged ZIP smoke, Android release, iOS unsigned.
+- Private collections, lock purge/stale guards, public annotation-free ISIN lists and verified fail-closed legacy move are integrated.
+- Payload schema v5 reads v1–v4; crypto/KDF unchanged. Evidence recorded in Issue #18.
+
+## 21.10.2026 — public broker offers ACTIVE
+
+- PR #157 is cleanly based on merged F5 main.
+- Adds read-only Inzhur/UNIVER public adapters and per-source comparison with PrivatBank.
+- No login, private endpoints, execution or copied third-party implementation.
+- Documentation sync and final exact-head platform gates are required before merge.
+- Candidate v0.11.0+24 is not published yet.
 
 ## NEXT
 

@@ -1,92 +1,26 @@
-# Roadmap OVDP Hub
+# Roadmap — OVDP Hub
 
-Оновлено: **20.10.2026**
+Оновлено: **21.10.2026**
 
-## Статус roadmap
+## Завершено
 
-**ACTIVE — release checkpoint v0.10.1 / 0.10.1+23 (20.10.2026).** Наступний scope визначає власник.
+- v0.10.1 / 0.10.1+23 — опублікований test prerelease.
+- F1–F4, F6 — lifecycle, migration, export-consent і related hardening.
+- F5 — private collections у encrypted vault, public annotation-free lists, verified legacy move; merged у `main` як `c6fcdecd4edfbe0ad681195b17bf48df77abfd52`.
 
-F1–F4 і F6 завершено та включено у v0.10.1: безпечне перенесення приватних сценаріїв, очищення private Planner при lock, vault lifecycle cancellation та явна згода перед plaintext export. F5 private collections лишається draft PR #154 і не входить у checkpoint. Автокупівлю не включено.
+## Активно
 
-## Завершений scope
+- PR #157 — public Inzhur/UNIVER adapters і per-source comparison разом з PrivatBank.
+- docs-sync усіма сімома мовами.
+- exact-head Windows/macOS/Android/iOS gates.
+- після merge: main verification і підготовка immutable candidate v0.11.0+24.
 
-### Ринок
-- NBU instrument/contractual data;
-- MinFin calendar + placement/switch results;
-- seller observations;
-- provenance/freshness/status;
-- multiple price observations + explicit source priority.
+## Наступні продуктові напрями
 
-### Planner
-- budget/reserve/horizon;
-- fees/tax/FX assumptions;
-- recurring/one-off needs + reserve floor;
-- per-position early exit;
-- neutral A/B/C comparison;
-- deterministic CSV/ICS;
-- safe criteria/date editing.
+- продовження F7–F10 лише після окремого scope та acceptance criteria;
+- покращення auction analytics і factual reporting без інвестиційних рекомендацій;
+- подальше source coverage лише для стабільних публічних read-only сторінок із provenance.
 
-### UI / localization
-- Classic / Workbench / Light Dashboard;
-- UK / EN / FR / DE / ES / KO / JA;
-- persisted language/appearance;
-- shared locale-friendly date controls.
+## Не входить у поточний етап
 
-### Encrypted factual Portfolio
-- encrypted local vault and session lifecycle;
-- recovery confirmation/rotation;
-- factual purchase/sale/coupon/redemption;
-- explicit acquisition-lot allocation;
-- per-ISIN ledger + closed positions;
-- factual per-currency cash summary;
-- non-destructive legacy migration;
-- Windows portable encrypted backup/restore;
-- macOS Keychain runtime proof and Portfolio support.
-
-### Platform storage
-- Android SAF external-storage foundation;
-- iOS security-scoped bookmark foundation;
-- mobile external workspace and encrypted backup transport;
-- fail-closed permission semantics;
-- integrated two-phase terminate/relaunch runtime self-test;
-- Android/iOS compile/package gates.
-
-### Distribution checkpoint
-- **v0.9.4 / 0.9.4+21**;
-- release run #113 SUCCESS;
-- Windows/macOS exact packaged release smoke;
-- Android test APK;
-- unsigned iOS build;
-- START/source;
-- SHA256SUMS + legal notices;
-- GitHub prerelease/tag `v0.9.4`.
-
-## Deferred — лише якщо власник відновить проєкт
-
-- Android physical-device SAF persisted-access/revoke/provider-loss validation;
-- iOS development signing + physical-device security-scoped validation;
-- Windows Authenticode;
-- macOS Developer ID + notarization;
-- Android production keystore/store distribution;
-- iOS production signing/distribution;
-- installers / auto-update;
-- нові UX/domain/data-source slices.
-
-Deferred пункти не вважаються активним backlog і не блокують тестові релізи.
-
-## Незмінні межі
-
-Без окремого рішення власника не додаються централізований private portfolio server, KYC, private relay, embedded partner secrets або виконання угод. OVDP Hub лишається local-first інформаційно-аналітичним інструментом і не виконує купівлю/продаж.
-
-## v0.10.0 — завершено (02.10.2026)
-
-- Захист приватних даних за аудитом 01.10.2026: пароль відновлення при відкритті, сценарії у vault, керування локальним портфелем, KDF у фоні, formula-safe CSV.
-- B.1 калькулятор облігації з каталогу (НКД, YTM) + річна дохідність плану.
-- B.2 очікувані надходження портфеля + підказки «можливо, не записано».
-
-## Кандидати наступного scope (рішення власника)
-
-- B.3 симулятор реінвестування купонів і погашень;
-- B.4 локальний імпорт виписок брокера/банку з ручним підтвердженням;
-- B.5 аналітика аукціонів Мінфіну (історія ставок за строками);
-- B.6 річний звіт за фактичними даними (довідково, без податкових порад).
+Physical-device Android/iOS validation, production signing, notarization, stores, installers, auto-update, broker authentication, transaction execution, private endpoints і централізований private portfolio service.

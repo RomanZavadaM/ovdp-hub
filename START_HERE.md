@@ -1,72 +1,29 @@
-# START_HERE — OVDP Hub
+# START HERE — OVDP Hub
 
-> Перша точка входу для нового чату або відновлення після обриву.
+Оновлено: **21.10.2026**
 
-## Статус
+## Поточна точка
 
-**ACTIVE — release checkpoint v0.10.1 / 0.10.1+23. F1–F4 і F6 завершені; F5 private collections лишається draft PR #154 і не входить у реліз.**
+1. Останній опублікований prerelease: **v0.10.1 / 0.10.1+23**.
+2. `main` містить F5 private collections: `c6fcdecd4edfbe0ad681195b17bf48df77abfd52`.
+3. Активний PR #157: public Inzhur/UNIVER offers з per-source ISIN comparison.
+4. Кандидат **v0.11.0+24** ще не опублікований: спочатку фінальний docs-sync, exact-head platform gates, merge, post-merge gates і immutable release.
+5. Не повертати старі work/feature branches як джерело коду й не переписувати tag/release v0.10.1.
 
-План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`. Незавершену роботу читати у WORKLOG активної гілки та Issue #18. Незлитий docs PR #148 — план аудиту; не вважати його інтегрованим у main.
+## Порядок відновлення контексту
 
-Останній опублікований checkpoint: **v0.10.1 / 0.10.1+23**.  
-Release/product checkpoint commit: **`b2051ed7229b137a307ecfcf74b1cf332fdddd66`**.  
-Published release **v0.10.1 — SUCCESS**.  
-Post-release docs main `731e540b02ad85496bffc3b9e485b94c61cb8e46`.
+`PROJECT_RULES.md` → `PROJECT_STATE.md` → `WORKLOG.md` → фактичні GitHub `main`/open PR/latest release → Issue #18.
 
-Не відновлювати старі work/feature branches як джерело коду і не повторювати merged slices.
+## Незмінні правила
 
-## Startup protocol при майбутньому поверненні
+- local-first; без broker login/OTP, execution, private portfolio relay чи analytics tracking;
+- приватні суми/нотатки — лише encrypted vault;
+- невідоме не перетворювати на нуль або вигадане значення;
+- explicit consent для plaintext export і destructive migration;
+- повний platform gate перед merge/release;
+- crypto/KDF не змінювати без окремого плану;
+- deferred signing/devices/stores/installers/auto-update не оголошувати завершеними.
 
-1. Прочитати `PROJECT_RULES.md`.
-2. Прочитати `PROJECT_STATE.md`.
-3. Прочитати `WORKLOG.md`.
-4. Перевірити фактичний GitHub: `main` SHA, відкриті PR, останні workflow runs і latest release.
-5. Прочитати останні записи GitHub Issue **#18**.
-6. Якщо GitHub і текст суперечать одне одному — GitHub має пріоритет, після чого документацію синхронізувати.
-7. **Не починати відкладені роботи автоматично.** Новий етап починається лише після окремого рішення власника про відновлення OVDP Hub.
+## Наступна дія
 
-## Джерела істини
-
-- `PROJECT_RULES.md` — постійні правила.
-- `PROJECT_STATE.md` — підтверджений стан продукту.
-- `WORKLOG.md` — активний slice і точна наступна дія.
-- GitHub Issue #18 — append-only development ledger.
-- `apps/native/pubspec.yaml` — machine source version/build.
-- `docs/releases/RELEASE_NOTES_v0_10_1.md` — release checkpoint v0.10.1.
-- `docs/roadmap.md` — завершений scope і deferred backlog.
-
-## База v0.10.0 та зміни checkpoint v0.10.1
-
-Після відновлення розробки (01.10.2026, аудит коду) інтегровано PR #138–#142:
-- опційний пароль відновлення при відкритті портфеля;
-- сценарії Planner із приватними сумами лише в зашифрованому портфелі (payload schema v4) і перевірене перенесення старих plaintext-сценаріїв;
-- видалення локального портфеля, підтверджений restore старішої копії;
-- Argon2id у фоновому ізоляті, formula-safe CSV, толерантне оновлення каталогу НБУ, Android SAF I/O поза UI-потоком;
-- калькулятор облігації з каталогу (НКД, YTM), очікувані надходження портфеля, річна дохідність плану.
-
-Final gates release run #116: **264 tests**, Windows/macOS exact packaged ZIP smoke (з release-contract capabilities), Android release APK, iOS unsigned, START/source, SHA256SUMS і legal notices.
-
-## Deferred — не є активним NEXT
-
-Повернутися лише за окремим рішенням власника:
-- Android physical-device SAF persistence/revoke/provider-loss validation;
-- iOS development signing і physical-device bookmark/security-scope validation;
-- Windows production code signing;
-- macOS Developer ID + notarization;
-- Android/iOS production store signing/distribution;
-- installers / auto-update;
-- будь-які нові продуктові slices.
-
-Ці пункти **не блокують тестові релізи** і не дозволяють називати невиконані physical-device сценарії `RUNTIME VALIDATED`.
-
-## Команда власника «злити у main»
-
-Якщо розробку колись буде відновлено, **«злити у main / зливай у main»** знову означає повний test-release checkpoint: new version/build, green exact-head checks, merge, Windows/macOS/Android/iOS + START/source, packaged desktop smoke, checksums/legal, tag + GitHub prerelease, docs/ledger sync.
-
-## Для нового чату
-
-Достатньо фрази:
-
-> **Продовжуємо OVDP Hub. Відкрий у GitHub `START_HERE.md` і продовжуй строго за ним.**
-
-Після прочитання новий чат продовжує активний slice з `WORKLOG.md` (гілка/PR + остання дія в Issue #18). Відкладені пункти не брати без окремого рішення власника.
+Завершити PR #157 на його точному head: документація всіма сімома мовами, analyze/tests, Windows/macOS exact packaged smoke, Android release, iOS unsigned. Після green merge — повторити main verification, зафіксувати SHA/runs у `PROJECT_STATE.md`, `WORKLOG.md`, changelog, release notes та Issue #18.
