@@ -5,7 +5,6 @@ import 'package:ovdp_hub/models.dart';
 import 'package:ovdp_hub/features/navigation/navigation_cubit.dart';
 import 'package:ovdp_hub/features/catalog/catalog_cubit.dart';
 import 'package:ovdp_hub/features/collections/editor_cubit.dart';
-import 'package:ovdp_hub/features/collections/collections_cubit.dart';
 import 'package:ovdp_hub/features/workspace/workspace_cubit.dart';
 import 'package:ovdp_hub/features/calculator/calculator_cubit.dart';
 import 'support/fake_repository.dart';

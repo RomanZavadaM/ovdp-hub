@@ -439,7 +439,7 @@ class CollectionsView extends StatelessWidget {
                           ],
                         ));
                       if (confirmed != true || !context.mounted || !vault.state.unlocked ||
-                          originalWorkspace != context.read<WorkspaceCubit>().state.path) return;
+                          originalWorkspace != context.read<WorkspaceCubit>().state.path) { return; }
                       try { await vault.movePlaintextCollectionToVault(s); } catch (_) {
                         // PortfolioState exposes the safe error to ErrorNotice.
                       }
