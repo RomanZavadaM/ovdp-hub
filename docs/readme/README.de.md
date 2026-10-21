@@ -4,7 +4,7 @@
 
 > **Aktuelles Test-Release: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-ACTIVE — v0.10.1 is published; the next checkpoint is under verification.
+> **Status: ACTIVE — v0.10.1 ist veröffentlicht; der nächste Checkpoint wird geprüft.**
 >
 > [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -18,7 +18,7 @@ OVDP Hub ist eine Local-first-Flutter/Dart-Anwendung für ukrainische Staatsanle
 - Sperren leert den privaten Planner und beendet Dialoge, Datumsauswahl und veraltete asynchrone Ergebnisse;
 - Lock/Background/Dispose brechen unvollständige Recovery-, Create-, Restore- und Migration-Vorgänge ab und entfernen verspätete Schlüssel;
 - privater CSV/ICS-Export verlangt eine ausdrückliche Klartext-Zustimmung und zeigt das genaue Ziel;
-- Kryptografie, KDF-Parameter und Payload-Schema bleiben unverändert; Schema v5.
+- Kryptografie, KDF-Parameter und Payload-Schema bleiben unverändert; Schema v4.
 
 
 ## Nach v0.10.1 — Kandidat für den nächsten Checkpoint

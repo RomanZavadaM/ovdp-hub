@@ -4,7 +4,7 @@
 
 > **現在のテストリリース: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-ACTIVE — v0.10.1 is published; the next checkpoint is under verification.
+> **開発状態: ACTIVE — v0.10.1 は公開済みで、次のチェックポイントを検証中です。**
 >
 > [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -18,7 +18,7 @@ OVDP Hub はウクライナ国債 OVDP 向けの local-first Flutter/Dart アプ
 - ロック時に非公開 Planner を消去し、ダイアログ、日付選択、古い非同期完了をキャンセル;
 - lock/background/dispose が未完了の recovery/create/restore/migration を中止し、遅延した鍵を削除;
 - 非公開 CSV/ICS export は平文への明示的な同意を必要とし、正確な保存先を表示;
-- 暗号方式、KDF パラメータ、payload schema は変更なし。schema v5 を維持。
+- 暗号方式、KDF パラメータ、payload schema は変更なし。schema v4 を維持。
 
 
 ## v0.10.1 以降 — 次のチェックポイント候補

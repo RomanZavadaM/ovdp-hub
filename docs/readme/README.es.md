@@ -4,7 +4,7 @@
 
 > **Versión de prueba actual: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-ACTIVE — v0.10.1 is published; the next checkpoint is under verification.
+> **Estado: ACTIVE — v0.10.1 está publicada; el próximo checkpoint está en verificación.**
 >
 > [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -18,7 +18,7 @@ OVDP Hub es una aplicación Flutter/Dart local-first para bonos estatales ucrani
 - el bloqueo limpia el Planner privado y cancela diálogos, selectores de fecha y resultados asíncronos obsoletos;
 - lock/background/dispose cancelan recovery/create/restore/migration incompletos y eliminan claves tardías;
 - la exportación CSV/ICS privada exige consentimiento explícito para texto plano y muestra el destino exacto;
-- criptografía, parámetros KDF y esquema payload sin cambios; se mantiene schema v5.
+- criptografía, parámetros KDF y esquema payload sin cambios; se mantiene schema v4.
 
 
 ## Después de v0.10.1 — candidato al próximo checkpoint
