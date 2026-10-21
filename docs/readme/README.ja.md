@@ -4,7 +4,7 @@
 
 > **現在のテストリリース: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **開発状態: ACTIVE — 2026-10-20 に v0.10.1 リリースチェックポイントを準備中。**
+> **開発状態: ACTIVE — v0.10.1 は公開済みで、次のチェックポイントを検証中です。**
 >
 > [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -19,6 +19,16 @@ OVDP Hub はウクライナ国債 OVDP 向けの local-first Flutter/Dart アプ
 - lock/background/dispose が未完了の recovery/create/restore/migration を中止し、遅延した鍵を削除;
 - 非公開 CSV/ICS export は平文への明示的な同意を必要とし、正確な保存先を表示;
 - 暗号方式、KDF パラメータ、payload schema は変更なし。schema v4 を維持。
+
+
+## v0.10.1 以降 — 次のチェックポイント候補
+
+- F5 は `main` に統合済みです。名前とメモを持つ非公開コレクションはポートフォリオ内で暗号化され、編集・再表示でき、ロック時に下書きを消去します。
+- 公開 ISIN リストはポートフォリオなしで動作し、非公開メモを含みません。
+- 旧平文コレクションの移動は明示操作です。完全な暗号化コピーと変更されていない元データを検証した後だけ元データを削除し、競合・未知のフィールド・ロック・エラー時は元データを保持します。
+- Payload schema v5 は v1–v4 を読み取り、暗号方式と KDF は変更しません。
+- PR #157 は Inzhur、UNIVER、PrivatBank の公開情報を ISIN・通貨・償還日で比較する読み取り専用画面を準備します。価格・利回り・数量・情報源時刻は分離し、不明値を推測しません。
+- まだ公開リリースではなく、現在のダウンロードは v0.10.1 です。
 
 ## 製品の範囲
 

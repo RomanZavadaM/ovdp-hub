@@ -1,5 +1,16 @@
 # OVDP Hub v0.9.3 — User Guide
 
+## After v0.10.1 — next-checkpoint candidate
+
+Private collections with custom names and notes are stored in the encrypted portfolio. They can be edited and reopened; locking clears the private draft. Public ISIN lists work without a portfolio and contain no private annotations.
+
+In Sellers, “Refresh all public sources” prepares matching of Inzhur, UNIVER and PrivatBank by ISIN, currency and maturity. Price, yield, quantity and source time remain separate. Fees, total cost and execution are unverified; an unknown quote time stays unknown.
+
+Moving a legacy plaintext collection is explicit. The original JSON is deleted only after the complete encrypted copy and unchanged source are verified. Conflict, unknown field, lock or failure preserves the original; sync history and backups may retain old plaintext.
+
+Payload schema v5 reads v1–v4; cryptography/KDF are unchanged. This is not a published release yet; use v0.10.1 for downloads.
+
+
 ## What’s new in v0.10.1
 
 Safer private-scenario migration, private Planner clearing on lock, cancellation of unfinished vault operations, and explicit consent before plaintext CSV/ICS export. Cryptography and schema are unchanged (v4).

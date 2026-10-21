@@ -1,5 +1,16 @@
 # OVDP Hub v0.9.3 — Guía de usuario
 
+## Después de v0.10.1 — candidato al próximo checkpoint
+
+Las colecciones privadas con nombre y nota se guardan cifradas en la cartera, pueden editarse y reabrirse, y el bloqueo borra el borrador. Las listas ISIN públicas funcionan sin cartera ni anotaciones privadas.
+
+En Vendedores, «Actualizar todas las fuentes públicas» prepara la vinculación de Inzhur, UNIVER y PrivatBank por ISIN, moneda y vencimiento. Precio, rendimiento, cantidad y hora de fuente permanecen separados. Comisiones, coste total y ejecución no están verificados; una hora desconocida sigue siendo desconocida.
+
+Mover una colección antigua en texto plano es una acción explícita. El JSON original se elimina solo tras verificar la copia cifrada completa y que la fuente no cambió. Conflicto, campo desconocido, bloqueo o error conserva el original; historial de sincronización y copias pueden retener texto plano antiguo.
+
+El esquema payload v5 lee v1–v4; criptografía/KDF no cambian. Aún no es una versión publicada; use v0.10.1 para descargas.
+
+
 ## Novedades v0.10.1
 
 Migración privada más segura, limpieza del Planner privado al bloquear, cancelación de operaciones vault incompletas y consentimiento explícito antes de exportar CSV/ICS en texto plano. Criptografía y esquema sin cambios (v4).

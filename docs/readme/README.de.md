@@ -4,7 +4,7 @@
 
 > **Aktuelles Test-Release: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Status: ACTIVE — Release-Checkpoint v0.10.1 wird am 20.10.2026 vorbereitet.**
+> **Status: ACTIVE — v0.10.1 ist veröffentlicht; der nächste Checkpoint wird geprüft.**
 >
 > [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -19,6 +19,16 @@ OVDP Hub ist eine Local-first-Flutter/Dart-Anwendung für ukrainische Staatsanle
 - Lock/Background/Dispose brechen unvollständige Recovery-, Create-, Restore- und Migration-Vorgänge ab und entfernen verspätete Schlüssel;
 - privater CSV/ICS-Export verlangt eine ausdrückliche Klartext-Zustimmung und zeigt das genaue Ziel;
 - Kryptografie, KDF-Parameter und Payload-Schema bleiben unverändert; Schema v4.
+
+
+## Nach v0.10.1 — Kandidat für den nächsten Checkpoint
+
+- F5 ist in `main` integriert: private Sammlungen mit Name und Notiz liegen verschlüsselt im Portfolio, können bearbeitet und erneut geöffnet werden; beim Sperren wird der Entwurf gelöscht.
+- Öffentliche ISIN-Listen funktionieren ohne Portfolio und enthalten keine privaten Anmerkungen.
+- Das Verschieben einer alten Klartext-Sammlung ist ausdrücklich. Die Quelle wird erst nach Prüfung der vollständigen verschlüsselten Kopie und der unveränderten Quelle gelöscht; Konflikt, unbekanntes Feld, Sperre oder Fehler erhalten das Original.
+- Payload-Schema v5 liest v1–v4; Kryptografie und KDF bleiben unverändert.
+- PR #157 bereitet einen schreibgeschützten Vergleich öffentlicher Angebote von Inzhur, UNIVER und PrivatBank nach ISIN, Währung und Fälligkeit vor. Preis, Rendite, Menge und Quellenzeit bleiben getrennt; unbekannte Werte werden nicht erfunden.
+- Dies ist noch kein veröffentlichtes Release; v0.10.1 bleibt der aktuelle Download.
 
 ## Produktumfang
 

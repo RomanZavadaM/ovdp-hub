@@ -114,6 +114,7 @@ try {
     'portfolio.recoverySecretOnOpen',
     'portfolio.privatePlannerScenarios',
     'portfolio.privateCollections',
+    'market.publicBrokerOffers',
     'portfolio.localDeleteAndOlderRestore',
     'portfolio.expectedReceipts',
     'calculator.catalogBondAccruedYield',

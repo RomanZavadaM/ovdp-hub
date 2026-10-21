@@ -1,6 +1,6 @@
 # Нативний клієнт OVDP Hub
 
-Flutter 3.47.5 / Dart 3.13.4. Активний тестовий checkpoint: **v0.9.3 / 0.9.3+20**.
+Flutter 3.47.5 / Dart 3.13.4. Останній опублікований test checkpoint: **v0.10.1 / 0.10.1+23**. Наступний checkpoint проходить перевірку; непубліковані можливості див. у кореневих `PROJECT_STATE.md` та `WORKLOG.md`.
 
 Базові перевірки:
 
@@ -32,7 +32,7 @@ Windows/macOS release jobs обов’язково розпаковують **с
 
 ## Дані та encrypted portfolio
 
-v0.9.3 включає user-facing encrypted portfolio:
+Поточний продукт включає user-facing encrypted portfolio:
 - create/open/lock;
 - factual acquisition;
 - explicit sale/disposal lot allocation;
@@ -69,3 +69,8 @@ dart run tool/refresh_nbu.dart
 - `START_HERE.md`, `PROJECT_STATE.md`, `WORKLOG.md` — канонічний стан розробки.
 
 **Copyright © 2026 Roman Zavada (Роман Завада). All rights reserved.** OVDP Hub є proprietary software; див. кореневий `LICENSE.md`.
+
+
+## Private collections і public offers
+
+Private collections зберігаються у vault payload schema v5, який читає v1–v4; crypto/KDF не змінені. Public annotation-free ISIN lists працюють без портфеля. Наступний кандидат додає read-only comparison публічних Inzhur/UNIVER/PrivatBank observations; це не broker execution і не підтвердження ціни угоди.

@@ -4,7 +4,7 @@
 
 > **Current test release: [OVDP Hub v0.10.1](https://github.com/RomanZavadaM/ovdp-hub/releases/tag/v0.10.1) — 0.10.1+23**
 >
-> **Development status: ACTIVE — v0.10.1 release checkpoint is being prepared on 20.10.2026.**
+> **Development status: ACTIVE — v0.10.1 is published; the next checkpoint is under verification.**
 >
 > [Windows x64](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Windows-x64.zip) · [macOS](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-macOS.zip) · [Android test](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-Android-test.zip) · [iOS unsigned](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-iOS-unsigned.zip) · [START/source](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/OVDP-Hub-0.10.1-START.zip) · [SHA-256](https://github.com/RomanZavadaM/ovdp-hub/releases/download/v0.10.1/SHA256SUMS.txt)
 
@@ -19,6 +19,16 @@ OVDP Hub is a local-first Flutter/Dart app for Ukrainian government bonds: marke
 - lock/background/dispose cancel unfinished recovery, create, restore, and migration work and remove late keys;
 - private CSV/ICS export requires explicit plaintext consent and shows the exact destination;
 - cryptography, KDF parameters, and payload schema are unchanged; schema remains v4.
+
+
+## After v0.10.1 — next-checkpoint candidate
+
+- F5 is merged into `main`: private collections with custom names and notes live in the encrypted portfolio, can be edited and reopened, and their draft is purged on lock.
+- Public ISIN lists work without a portfolio and carry no private annotations.
+- Moving a legacy plaintext collection is explicit. The source is deleted only after the complete encrypted copy and unchanged source are verified; conflicts, unknown fields, lock or failure preserve the original.
+- Payload schema v5 reads v1–v4; cryptography and KDF are unchanged.
+- PR #157 prepares read-only comparison of public Inzhur, UNIVER and PrivatBank offers by ISIN, currency and maturity. Price, yield, quantity and source time remain separate; unknown values are not invented.
+- This is not a published release yet; v0.10.1 remains the current download.
 
 ## Product scope
 
