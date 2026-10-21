@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ovdp_hub/main.dart';
+import 'package:ovdp_hub/l10n/hub_locale.dart';
 import 'package:ovdp_hub/data/hub_repository.dart';
 import 'package:ovdp_hub/features/portfolio/private_portfolio.dart';
 import 'package:ovdp_hub/models.dart';
@@ -649,29 +650,27 @@ void main() {
     await repository.dispose();
   });
 
-  testWidgets('phone layout saves a collection through Cubit and reopens it', (
-    tester,
-  ) async {
+  testWidgets('phone layout saves a public ISIN list without portfolio', (tester) async {
     tester.view.physicalSize = const Size(430, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final repository = FakeRepository(catalog);
-    await tester.pumpWidget(OvdpApp(repository: repository));
+    await tester.pumpWidget(OvdpApp(repository: repository,
+      portfolioGateway: FakePortfolioGateway(supported: false)));
     await tester.pumpAndSettle();
     final checkbox = find.byType(Checkbox).first;
-    await tester.ensureVisible(checkbox);
-    await tester.tap(checkbox);
+    await tester.ensureVisible(checkbox); await tester.tap(checkbox);
     await tester.pumpAndSettle();
-    final name = find.widgetWithText(TextFormField, 'Назва добірки');
-    await tester.ensureVisible(name);
-    await tester.enterText(name, 'Мій сценарій');
-    final save = find.text('Зберегти в робочій папці');
-    await tester.ensureVisible(save);
-    await tester.tap(save);
+    final mode = find.byKey(const ValueKey('collection-private-mode'));
+    await tester.ensureVisible(mode); await tester.tap(mode);
     await tester.pumpAndSettle();
-    expect(find.text('Мій сценарій'), findsOneWidget);
-    expect(repository.current!.sets.single.name, 'Мій сценарій');
+    final save = find.text(HubStrings(AppLanguage.uk).text('savePublicCollection'));
+    await tester.ensureVisible(save); await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(repository.current!.sets.single.name, startsWith('ISIN '));
+    expect(repository.current!.sets.single.note, isEmpty);
+    expect(find.text(repository.current!.sets.single.name), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();

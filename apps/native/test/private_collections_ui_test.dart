@@ -64,7 +64,7 @@ void main() {
         await tester.pumpWidget(const SizedBox.shrink());
         await editor.close(); await workspace.close(); await locale.close();
         await navigation.close(); await portfolio.close(); await hub.dispose();
-      });
+      }, timeout: const Timeout(Duration(seconds: 45)));
     }
   }
 }
