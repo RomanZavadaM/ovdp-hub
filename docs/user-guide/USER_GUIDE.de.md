@@ -1,5 +1,16 @@
 # OVDP Hub v0.9.3 — Benutzerhandbuch
 
+## Nach v0.10.1 — Kandidat für den nächsten Checkpoint
+
+Private Sammlungen mit Name und Notiz werden verschlüsselt im Portfolio gespeichert, können bearbeitet und erneut geöffnet werden; beim Sperren wird der Entwurf gelöscht. Öffentliche ISIN-Listen funktionieren ohne Portfolio und ohne private Anmerkungen.
+
+Unter Anbieter bereitet „Alle öffentlichen Quellen aktualisieren“ die Zuordnung von Inzhur, UNIVER und PrivatBank nach ISIN, Währung und Fälligkeit vor. Preis, Rendite, Menge und Quellenzeit bleiben getrennt. Gebühren, Gesamtkosten und Ausführung sind ungeprüft; eine unbekannte Kurszeit bleibt unbekannt.
+
+Das Verschieben einer alten Klartext-Sammlung ist ausdrücklich. Die ursprüngliche JSON-Datei wird erst nach Prüfung der vollständigen verschlüsselten Kopie und der unveränderten Quelle gelöscht. Konflikt, unbekanntes Feld, Sperre oder Fehler erhalten das Original; Synchronisationsverlauf und Backups können alten Klartext enthalten.
+
+Payload-Schema v5 liest v1–v4; Kryptografie/KDF bleiben unverändert. Dies ist noch kein veröffentlichtes Release; für Downloads gilt v0.10.1.
+
+
 ## Neu in v0.10.1
 
 Sicherere private Migration, Leeren des privaten Planners beim Sperren, Abbruch unvollständiger Vault-Vorgänge und ausdrückliche Zustimmung vor CSV/ICS-Klartextexport. Kryptografie und Schema bleiben unverändert (v4).
