@@ -38,6 +38,7 @@ void main() {
       'export.formulaSafeCsv',
       'portfolio.recoverySecretOnOpen',
       'portfolio.privatePlannerScenarios',
+      'portfolio.privateCollections',
       'portfolio.localDeleteAndOlderRestore',
       'portfolio.expectedReceipts',
       'calculator.catalogBondAccruedYield',

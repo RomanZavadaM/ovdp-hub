@@ -417,7 +417,8 @@ class CollectionsView extends StatelessWidget {
                           },
                     child: Text(strings.text('openPlan')),
                   ),
-                if (s.scenario == null && !s.storedInVault) ...[
+                if (s.scenario == null && !s.storedInVault &&
+                    !(s.name == 'ISIN ${s.savedAt}' && s.note.isEmpty)) ...[
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text('${strings.text('legacyCollectionLocation')}: ${workspace.path ?? ''}'),

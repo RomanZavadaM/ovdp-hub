@@ -45,7 +45,7 @@ void main() {
         await tester.enterText(name, 'UI private title');
         await tester.ensureVisible(note);
         await tester.enterText(note, 'UI private note');
-        final save = find.widgetWithText(FilledButton, strings.text('savePrivateCollection'));
+        final save = find.text(strings.text('savePrivateCollection'));
         await tester.ensureVisible(save);
         await tester.tap(save);
         await tester.pumpAndSettle();

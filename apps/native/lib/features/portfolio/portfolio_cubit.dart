@@ -79,6 +79,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
   final PortfolioGateway gateway;
   final DateTime Function() clock;
   late final StreamSubscription<bool> _lockSubscription;
+  int _privacyGeneration = 0;
 
   PortfolioCubit(
     this.hubRepository,
@@ -92,6 +93,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
          ),
        ) {
     _lockSubscription = gateway.unlockChanges.listen((unlocked) {
+      if (!unlocked) _privacyGeneration++;
       if (!unlocked && !isClosed && state.payload != null) {
         emit(state.copyWith(clearPayload: true, clearMigrationReport: true));
       }
@@ -217,6 +219,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     if (replaceId != null && !current.privateCollections.any((r) => r.id == replaceId)) {
       throw StateError('collection.invalid');
     }
+    final generation = _privacyGeneration;
     final record = PrivateCollectionRecord(
       id: replaceId ?? 'collection-${Workspace.uniqueId()}', set: set.withStorage(),
     );
@@ -227,7 +230,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
     emit(state.copyWith(busy: true, clearError: true));
     try {
       await gateway.save(next);
-      if (isClosed || !gateway.unlocked || state.payload == null) {
+      if (isClosed || !gateway.unlocked || state.payload == null || generation != _privacyGeneration) {
         throw StateError('vault.session_locked');
       }
       emit(state.copyWith(payload: next, busy: false, clearError: true));
@@ -238,6 +241,15 @@ class PortfolioCubit extends Cubit<PortfolioState> {
   }
 
   Future<void> movePlaintextCollectionToVault(SavedSet source) async {
+    try {
+      await _movePlaintextCollectionToVault(source);
+    } catch (error) {
+      if (!isClosed) emit(state.copyWith(busy: false, errorCode: _safeErrorCode(error)));
+      rethrow;
+    }
+  }
+
+  Future<void> _movePlaintextCollectionToVault(SavedSet source) async {
     final current = state.payload;
     final workspace = hubRepository.current;
     if (current == null || !gateway.unlocked) throw StateError('vault.session_locked');
@@ -265,13 +277,15 @@ class PortfolioCubit extends Cubit<PortfolioState> {
       }
       final verified = await gateway.open();
       final copies = verified.privateCollections.where((r) => r.id == id).toList();
-      if (isClosed || !gateway.unlocked || state.payload == null ||
+      if (isClosed || !gateway.unlocked ||
           copies.length != 1 || !savedSetContentEquals(copies.single.set, source)) {
         throw StateError('portfolio.scenario_move_unverified');
       }
+      final verifiedGeneration = _privacyGeneration;
       await hubRepository.deleteCollections([source.recordId!],
-        expectedWorkspace: workspace, expectedSets: [source]);
-      if (!isClosed && gateway.unlocked && state.payload != null) {
+        expectedWorkspace: workspace, expectedSets: [source],
+        stillAuthorized: () => !isClosed && gateway.unlocked && verifiedGeneration == _privacyGeneration);
+      if (!isClosed && gateway.unlocked && verifiedGeneration == _privacyGeneration) {
         emit(state.copyWith(payload: verified, busy: false, clearError: true));
       }
     } catch (error) {

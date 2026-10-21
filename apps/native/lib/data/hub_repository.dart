@@ -48,6 +48,7 @@ abstract interface class HubRepository {
     Iterable<String> recordIds, {
     WorkspaceSnapshot? expectedWorkspace,
     Iterable<SavedSet>? expectedSets,
+    bool Function()? stillAuthorized,
   });
   Future<String> saveTextExport(String fileName, String content);
   Future<EconomicPulseSnapshot> loadEconomicPulse();
@@ -386,6 +387,7 @@ class FileHubRepository implements HubRepository {
     Iterable<String> recordIds, {
     WorkspaceSnapshot? expectedWorkspace,
     Iterable<SavedSet>? expectedSets,
+    bool Function()? stillAuthorized,
   }) {
     // Freeze arguments before joining the queue. Workspace selection and the
     // entire verify/delete sequence share this queue, including every await.

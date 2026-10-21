@@ -7,11 +7,22 @@ import 'package:ovdp_hub/features/collections/collections_cubit.dart';
 import 'package:ovdp_hub/features/collections/editor_cubit.dart';
 import 'package:ovdp_hub/features/portfolio/portfolio_cubit.dart';
 import 'package:ovdp_hub/features/portfolio/private_portfolio.dart';
+import 'package:ovdp_hub/features/portfolio/portfolio_gateway.dart';
+import 'package:ovdp_hub/security/vault_crypto.dart';
+import 'package:ovdp_hub/security/vault_session.dart';
+import 'package:ovdp_hub/security/vault_store.dart';
 import 'package:ovdp_hub/models.dart';
 import 'package:ovdp_hub/workspace.dart';
 import 'package:path/path.dart' as p;
 import 'support/fake_portfolio_gateway.dart';
 import 'support/fake_repository.dart';
+import 'vault_store_test.dart' show MemoryVaultDeviceKeyStore;
+
+class CollectionLocalGateway extends LocalEncryptedPortfolioGateway {
+  CollectionLocalGateway({required super.store, required super.session}) : super.forTesting();
+  @override
+  bool get supported => true;
+}
 
 class CollectionGateway extends FakePortfolioGateway {
   Completer<void>? entered, resume;
@@ -190,6 +201,18 @@ void main() {
     expect(hub.deletedRecordIds, isEmpty);
     expect(gateway.unlocked, isFalse);
   });
+  test('failed source deletion retains original and verified vault copy for retry', () async {
+    await hub.saveCollection(collection('Legacy'));
+    final source = hub.current!.sets.single;
+    hub.deleteError = StateError('workspace.write_failed');
+    await expectLater(portfolio.movePlaintextCollectionToVault(source), throwsStateError);
+    expect(hub.current!.sets.single.name, 'Legacy');
+    expect(gateway.stored!.privateCollections, hasLength(1));
+    hub.deleteError = null;
+    await portfolio.movePlaintextCollectionToVault(source);
+    expect(hub.current!.sets, isEmpty);
+    expect(gateway.stored!.privateCollections, hasLength(1));
+  });
   test('real workspace files never receive private editor annotations', () async {
     final root = await Directory.systemTemp.createTemp('ovdp-private-collections-');
     final ws = await Workspace.open(Directory(p.join(root.path, 'workspace')), create: true);
@@ -212,6 +235,45 @@ void main() {
     await privateEditor.close();
     await vault.close();
     await files.dispose();
+    await root.delete(recursive: true);
+  });
+
+  test('real encrypted vault move verifies complete copy before deleting real JSON', () async {
+    final root = await Directory.systemTemp.createTemp('ovdp-collection-vault-');
+    final ws = await Workspace.open(Directory(p.join(root.path, 'workspace')), create: true);
+    await ws.saveCatalog(catalog);
+    await ws.saveSet(collection('Real secret title'));
+    await File(p.join(root.path, 'workspace-path.json')).writeAsString(jsonEncode({'path': ws.directory.path}));
+    final files = FileHubRepository(supportDirectory: () async => root);
+    await files.initialize();
+    final crypto = await SodiumVaultCrypto.create();
+    final store = LocalVaultStore(directory: Directory(p.join(root.path, 'vault')),
+      crypto: crypto, deviceKeyStore: MemoryVaultDeviceKeyStore());
+    final bytes = PrivatePortfolioPayloadCodec.encode(PrivatePortfolioPayload(portfolioId: 'primary'));
+    final created = await store.create(vaultId: LocalEncryptedPortfolioGateway.vaultId,
+      plainText: bytes, recoverySecret: 'synthetic recovery secret',
+      recoveryParameters: VaultRecoveryKdfParameters.interactive);
+    created.plainText.fillRange(0, created.plainText.length, 0);
+    bytes.fillRange(0, bytes.length, 0);
+    final session = VaultSessionController(store: store, policy: VaultSessionPolicy(
+      inactivityTimeout: const Duration(minutes: 15), backgroundGrace: const Duration(seconds: 15)));
+    final realGateway = CollectionLocalGateway(store: store, session: session);
+    final vault = PortfolioCubit(files, realGateway);
+    await vault.open();
+    final source = files.current!.sets.single;
+    await vault.movePlaintextCollectionToVault(source);
+    expect(await ws.sets(), isEmpty);
+    expect(vault.privateCollectionSets.single.name, 'Real secret title');
+    await vault.lock();
+    expect(vault.privateCollectionSets, isEmpty);
+    for (final file in root.listSync(recursive: true).whereType<File>()) {
+      final content = await file.readAsString();
+      expect(content, isNot(contains('Real secret title')));
+      expect(content, isNot(contains('secret note')));
+    }
+    await vault.open();
+    expect(savedSetContentEquals(vault.privateCollectionSets.single, source), isTrue);
+    await vault.close(); await files.dispose();
     await root.delete(recursive: true);
   });
 }
