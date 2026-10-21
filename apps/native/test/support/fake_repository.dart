@@ -9,7 +9,7 @@ class FakeRepository implements HubRepository {
   WorkspaceSnapshot? current;
   @override
   bool supportsExternalFolders = true;
-  Object? saveError, refreshError, switchError, exportError;
+  Object? saveError, refreshError, switchError, exportError, deleteError;
   bool switchAccepted = false;
   int saves = 0, switches = 0, exports = 0;
   final Map<String, String> exportedFiles = {};
@@ -78,7 +78,12 @@ class FakeRepository implements HubRepository {
     Iterable<String> recordIds, {
     WorkspaceSnapshot? expectedWorkspace,
     Iterable<SavedSet>? expectedSets,
+    bool Function()? stillAuthorized,
   }) async {
+    if (stillAuthorized != null && !stillAuthorized()) {
+      throw StateError('vault.session_locked');
+    }
+    if (deleteError != null) throw deleteError!;
     final ids = recordIds.toSet();
     if (expectedWorkspace != null && !identical(current, expectedWorkspace)) {
       throw StateError('portfolio.scenario_move_unverified');

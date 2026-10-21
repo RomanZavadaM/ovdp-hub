@@ -8,10 +8,10 @@
 
 План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`. Незавершену роботу читати у WORKLOG активної гілки та Issue #18. Незлитий docs PR #148 — план аудиту; не вважати його інтегрованим у main.
 
-Останній опублікований checkpoint: **v0.10.0 / 0.10.0+22**.  
-Release/product checkpoint commit: **`933a7bd27e0f4babe47f44a32f8bf9214b4b18a4`**.  
-Release run **#116 — SUCCESS**.  
-Post-merge main verify run **#561 — SUCCESS**.
+Останній опублікований checkpoint: **v0.10.1 / 0.10.1+23**.  
+Release/product checkpoint commit: **`b2051ed7229b137a307ecfcf74b1cf332fdddd66`**.  
+Published release **v0.10.1 — SUCCESS**.  
+Post-release docs main `731e540b02ad85496bffc3b9e485b94c61cb8e46`.
 
 Не відновлювати старі work/feature branches як джерело коду і не повторювати merged slices.
 

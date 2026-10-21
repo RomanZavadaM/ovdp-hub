@@ -28,6 +28,19 @@ Scope: завершення аудиту F1–F10, далі продуктові
 
 ## NEXT
 
+### 21.10.2026 — F5 implementation checkpoint
+
+- Actual main: `731e540b02ad85496bffc3b9e485b94c61cb8e46`; published v0.10.1 / 0.10.1+23 unchanged.
+- Active PR #154, branch `fix/private-collections-20261020`; local working branch `work/f5-private-collections-20261021`.
+- Owner authorized «зливай у main» and autonomous development, then useful public sources informed by OVDP Shell. Full release checkpoint remains required after green gates.
+- Implemented private editor save/edit with stable identity, private draft purge on lock, stale-completion guards, vault list/reopen, annotation-free public lists without a portfolio, and explicit verified full-copy move. Repository queue checks workspace/content and live vault authorization before deletion.
+- VERIFIED baseline `b92e08c8a9641552efc1e321104b08839a4964e2`: analyze and **349 tests PASS**, including UK/EN/FR/DE/ES/KO/JA at 430/1280, real workspace inspection and real encrypted vault move/reopen. Latest head and follow-up move-control tests: Issue #18. Not DONE until exact-head platform gates and merge.
+- Local Git push failed due Windows credential store; connector publication verifies every uploaded blob against local Git SHA. Local Flutter unavailable; CI is the validation authority.
+- Public source research: official Inzhur `/offer/ovdp`, UNIVER `/products`, PrivatBank `/ovdp`. New adapters/UI are prepared locally as a separate next slice; not part of F5 verification. Do not copy third-party implementation code or use private cabinet/OTP endpoints.
+- Native computer-use invocation was rejected; no interaction with the installed Shell took place this session. Read-only source inspection continued.
+- Deferred signing/notarization/physical devices/stores/installers/auto-update remain untouched.
+
+
 Release checkpoint v0.10.1 / 0.10.1+23: F1/F2/F3/F4/F6 завершені; 314 tests і всі platform gates пройдені на feature head. Повний release workflow має повторити verify, Windows/macOS exact packaged smoke, Android, iOS unsigned, START/source, checksums і legal notices.
 
 F5 private collections — draft PR #154, schema foundation v5; користувацький editor/save/lock/move flow ще не завершений, тому F5 не входить у v0.10.1 і не зливається разом із релізом.

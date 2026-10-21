@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../l10n/hub_locale.dart';
 import '../../ui/components.dart';
 import '../navigation/navigation_cubit.dart';
+import '../portfolio/portfolio_cubit.dart';
 import '../workspace/workspace_cubit.dart';
 import 'editor_cubit.dart';
 
@@ -15,7 +16,9 @@ class CollectionEditorView extends StatelessWidget {
     final state = context.watch<CollectionEditorCubit>().state;
     final strings = HubStrings(context.watch<LocaleCubit>().state.language);
     final cubit = context.read<CollectionEditorCubit>();
-    final busy = state.busy || context.watch<WorkspaceCubit>().state.busy;
+    final portfolio = context.watch<PortfolioCubit>().state;
+    final busy = state.busy || state.locked || context.watch<WorkspaceCubit>().state.busy || portfolio.busy;
+    final annotationsEnabled = !busy && state.privateDraft && portfolio.unlocked;
 
     return Card(
       child: Padding(
@@ -27,7 +30,15 @@ class CollectionEditorView extends StatelessWidget {
               '${strings.text('editorTitle')} · ${state.selected.length}',
             ),
             ErrorNotice(state.error, cubit.dismissError),
-            Text(strings.text('editorDisclaimer')),
+            SwitchListTile(
+              key: const ValueKey('collection-private-mode'),
+              title: Text(strings.text('privateCollectionMode')),
+              subtitle: Text(strings.text(state.privateDraft ? 'privateCollectionInfo' : 'publicCollectionInfo')),
+              value: state.privateDraft,
+              onChanged: busy ? null : cubit.selectPrivate,
+            ),
+            if (state.privateDraft && !portfolio.unlocked)
+              Text(strings.text('collectionUnlockRequired')),
             Wrap(
               spacing: 8,
               children: state.selected.values
@@ -66,7 +77,7 @@ class CollectionEditorView extends StatelessWidget {
             TextFormField(
               key: ValueKey('name-${state.revision}'),
               initialValue: state.name,
-              enabled: !busy,
+              enabled: annotationsEnabled,
               decoration: InputDecoration(
                 labelText: strings.text('collectionName'),
               ),
@@ -76,7 +87,7 @@ class CollectionEditorView extends StatelessWidget {
             TextFormField(
               key: ValueKey('note-${state.revision}'),
               initialValue: state.note,
-              enabled: !busy,
+              enabled: annotationsEnabled,
               maxLines: 2,
               decoration: InputDecoration(
                 labelText: strings.text('notesAssumptions'),
@@ -94,7 +105,7 @@ class CollectionEditorView extends StatelessWidget {
                       }
                     },
               icon: const Icon(Icons.save_outlined),
-              label: Text(strings.text('saveWorkspace')),
+              label: Text(strings.text(state.privateDraft ? 'savePrivateCollection' : 'savePublicCollection')),
             ),
           ],
         ),

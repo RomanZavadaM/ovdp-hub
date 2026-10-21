@@ -58,7 +58,7 @@ class CollectionsCubit extends Cubit<CollectionsState> {
        super(
          CollectionsState(
            sets: _merge(
-             portfolio?.privateScenarioSets ?? const [],
+             [...?portfolio?.privateScenarioSets, ...?portfolio?.privateCollectionSets],
              repository.current?.sets ?? const [],
            ),
          ),
@@ -80,7 +80,7 @@ class CollectionsCubit extends Cubit<CollectionsState> {
 
   void _refresh() {
     final sets = _merge(
-      portfolio?.privateScenarioSets ?? const [],
+      [...?portfolio?.privateScenarioSets, ...?portfolio?.privateCollectionSets],
       repository.current?.sets ?? const [],
     );
     final available = sets.map(_comparisonKey).toSet();

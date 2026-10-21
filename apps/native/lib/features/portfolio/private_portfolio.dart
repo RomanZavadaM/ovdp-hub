@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 
 import '../../models.dart';
 
-const int privatePortfolioSchemaVersion = 4;
+const int privatePortfolioSchemaVersion = 5;
+const int privatePortfolioPrivateScenariosSchemaVersion = 4;
 const int privatePortfolioLegacyCollectionsSchemaVersion = 3;
 const int privatePortfolioDisposalSchemaVersion = 2;
 const int privatePortfolioLegacySchemaVersion = 1;
@@ -14,6 +15,7 @@ const int maxPrivateCashEvents = 50000;
 const int maxPrivateDisposals = 50000;
 const int maxPrivateLegacyCollections = 10000;
 const int maxPrivateScenarios = 2000;
+const int maxPrivateCollections = 10000;
 
 final RegExp _privateRecordId = RegExp(r'^[A-Za-z0-9._:-]{1,120}$');
 final RegExp _privateIsin = RegExp(r'^UA[A-Z0-9]{9}\d$');
@@ -594,6 +596,41 @@ class PrivateLegacyCollectionRecord {
   }
 }
 
+/// A collection saved privately inside the encrypted vault. Unlike a Planner
+/// scenario, it contains only the collection title, note and public bond
+/// snapshot; arbitrary annotations never need to be written to the workspace.
+@immutable
+class PrivateCollectionRecord {
+  final String id;
+  final SavedSet set;
+
+  PrivateCollectionRecord({required this.id, required this.set}) {
+    _validateId(id, 'portfolio.invalid_collection_id');
+    if (set.scenario != null) {
+      throw const FormatException('portfolio.collection_scenario_not_allowed');
+    }
+  }
+
+  Map<String, dynamic> toJson() => {'id': id, 'set': set.toJson()};
+
+  factory PrivateCollectionRecord.fromJson(Map<String, dynamic> json) {
+    _onlyKeys(json, const {'id', 'set'}, 'portfolio.invalid_collection_fields');
+    final rawSet = json['set'];
+    if (rawSet is! Map) {
+      throw const FormatException('portfolio.invalid_collection');
+    }
+    final SavedSet set;
+    try {
+      set = SavedSet.parse(jsonEncode(rawSet));
+    } on FormatException {
+      throw const FormatException('portfolio.invalid_collection');
+    } on TypeError {
+      throw const FormatException('portfolio.invalid_collection');
+    }
+    return PrivateCollectionRecord(id: json['id'] as String? ?? '', set: set);
+  }
+}
+
 /// A Planner scenario saved privately inside the encrypted vault instead of
 /// the (possibly synced) workspace folder. It keeps the complete [SavedSet],
 /// including the public bond snapshot the scenario was calculated with.
@@ -688,6 +725,7 @@ class PrivatePortfolioPayload {
   final List<PrivateDisposal> disposals;
   final List<PrivateLegacyCollectionRecord> legacyCollections;
   final List<PrivateScenarioRecord> privateScenarios;
+  final List<PrivateCollectionRecord> privateCollections;
 
   PrivatePortfolioPayload({
     required this.portfolioId,
@@ -696,6 +734,7 @@ class PrivatePortfolioPayload {
     Iterable<PrivateDisposal> disposals = const [],
     Iterable<PrivateLegacyCollectionRecord> legacyCollections = const [],
     Iterable<PrivateScenarioRecord> privateScenarios = const [],
+    Iterable<PrivateCollectionRecord> privateCollections = const [],
   }) : acquisitionLots = List.unmodifiable(
          acquisitionLots.toList()
            ..sort((a, b) {
@@ -734,19 +773,29 @@ class PrivatePortfolioPayload {
        ),
        privateScenarios = List.unmodifiable(
          privateScenarios.toList()..sort((a, b) => a.id.compareTo(b.id)),
+       ),
+       privateCollections = List.unmodifiable(
+         privateCollections.toList()..sort((a, b) => a.id.compareTo(b.id)),
        ) {
     _validateId(portfolioId, 'portfolio.invalid_portfolio_id');
     if (this.acquisitionLots.length > maxPrivateAcquisitionLots ||
         this.cashEvents.length > maxPrivateCashEvents ||
         this.disposals.length > maxPrivateDisposals ||
         this.legacyCollections.length > maxPrivateLegacyCollections ||
-        this.privateScenarios.length > maxPrivateScenarios) {
+        this.privateScenarios.length > maxPrivateScenarios ||
+        this.privateCollections.length > maxPrivateCollections) {
       throw const FormatException('portfolio.too_many_records');
     }
     final scenarioIds = <String>{};
     for (final record in this.privateScenarios) {
       if (!scenarioIds.add(record.id)) {
         throw const FormatException('portfolio.duplicate_scenario_id');
+      }
+    }
+    final collectionIds = <String>{};
+    for (final record in this.privateCollections) {
+      if (!collectionIds.add(record.id)) {
+        throw const FormatException('portfolio.duplicate_collection_id');
       }
     }
     _validateSemantics();
@@ -1069,6 +1118,8 @@ class PrivatePortfolioPayload {
     'legacyCollections': legacyCollections.map((record) => record.toJson()).toList(),
     'privateScenarios':
         privateScenarios.map((record) => record.toJson()).toList(),
+    'privateCollections':
+        privateCollections.map((record) => record.toJson()).toList(),
   };
 
   /// Returns a copy with replaced private scenario records; every other
@@ -1082,6 +1133,7 @@ class PrivatePortfolioPayload {
     disposals: disposals,
     legacyCollections: legacyCollections,
     privateScenarios: scenarios,
+    privateCollections: privateCollections,
   );
 
   factory PrivatePortfolioPayload.fromJson(Map<String, dynamic> json) {
@@ -1089,6 +1141,7 @@ class PrivatePortfolioPayload {
     if (schemaVersion != privatePortfolioLegacySchemaVersion &&
         schemaVersion != privatePortfolioDisposalSchemaVersion &&
         schemaVersion != privatePortfolioLegacyCollectionsSchemaVersion &&
+        schemaVersion != privatePortfolioPrivateScenariosSchemaVersion &&
         schemaVersion != privatePortfolioSchemaVersion) {
       throw const FormatException('portfolio.unsupported_schema');
     }
@@ -1118,6 +1171,16 @@ class PrivatePortfolioPayload {
         'disposals',
         'legacyCollections',
       }, 'portfolio.invalid_payload_fields');
+    } else if (schemaVersion == privatePortfolioPrivateScenariosSchemaVersion) {
+      _onlyKeys(json, const {
+        'schemaVersion',
+        'portfolioId',
+        'acquisitionLots',
+        'cashEvents',
+        'disposals',
+        'legacyCollections',
+        'privateScenarios',
+      }, 'portfolio.invalid_payload_fields');
     } else {
       _onlyKeys(json, const {
         'schemaVersion',
@@ -1127,6 +1190,7 @@ class PrivatePortfolioPayload {
         'disposals',
         'legacyCollections',
         'privateScenarios',
+        'privateCollections',
       }, 'portfolio.invalid_payload_fields');
     }
 
@@ -1137,17 +1201,24 @@ class PrivatePortfolioPayload {
         : json['disposals'];
     final rawLegacyCollections =
         schemaVersion == privatePortfolioLegacyCollectionsSchemaVersion ||
+            schemaVersion == privatePortfolioPrivateScenariosSchemaVersion ||
             schemaVersion == privatePortfolioSchemaVersion
         ? json['legacyCollections']
         : const <Object?>[];
-    final rawPrivateScenarios = schemaVersion == privatePortfolioSchemaVersion
+    final rawPrivateScenarios =
+        schemaVersion == privatePortfolioPrivateScenariosSchemaVersion ||
+            schemaVersion == privatePortfolioSchemaVersion
         ? json['privateScenarios']
+        : const <Object?>[];
+    final rawPrivateCollections = schemaVersion == privatePortfolioSchemaVersion
+        ? json['privateCollections']
         : const <Object?>[];
     if (rawLots is! List ||
         rawEvents is! List ||
         rawDisposals is! List ||
         rawLegacyCollections is! List ||
-        rawPrivateScenarios is! List) {
+        rawPrivateScenarios is! List ||
+        rawPrivateCollections is! List) {
       throw const FormatException('portfolio.invalid_payload');
     }
 
@@ -1190,6 +1261,14 @@ class PrivatePortfolioPayload {
           throw const FormatException('portfolio.invalid_scenario');
         }
         return PrivateScenarioRecord.fromJson(
+          Map<String, dynamic>.from(value),
+        );
+      }),
+      privateCollections: rawPrivateCollections.map((value) {
+        if (value is! Map) {
+          throw const FormatException('portfolio.invalid_collection');
+        }
+        return PrivateCollectionRecord.fromJson(
           Map<String, dynamic>.from(value),
         );
       }),

@@ -61,6 +61,25 @@ void main() {
     expect((await a.sets()).single.name, 'Changed');
   });
 
+  test('expired vault authorization leaves the real source file untouched', () async {
+    final source = repository.current!.sets.single;
+    await expectLater(repository.deleteCollections([source.recordId!],
+      expectedWorkspace: repository.current, expectedSets: [source],
+      stillAuthorized: () => false), throwsStateError);
+    expect((await a.sets()).single.name, 'Original');
+  });
+
+  test('unknown source fields cannot be silently discarded by verified deletion', () async {
+    final source = repository.current!.sets.single;
+    final file = (await a.records('sets')).single;
+    final extended = source.toJson()..['privateExtraNote'] = 'must survive';
+    await file.writeAsString(jsonEncode(extended));
+    await expectLater(repository.deleteCollections([source.recordId!],
+      expectedWorkspace: repository.current, expectedSets: [source]), throwsFormatException);
+    expect(await file.exists(), isTrue);
+    expect(await file.readAsString(), contains('must survive'));
+  });
+
   test('queued workspace switch cannot redirect deletion to same-id record', () async {
     final snapshot = repository.current!;
     final source = snapshot.sets.single;

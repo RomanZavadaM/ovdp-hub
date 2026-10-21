@@ -7,8 +7,8 @@
 - Статус розвитку: **ACTIVE** — розробку відновлено власником 01.10.2026.
 - Версія release checkpoint: **v0.10.1 / 0.10.1+23**.
 - Статус релізу: **test / prerelease**.
-- Release/product commit: **`933a7bd27e0f4babe47f44a32f8bf9214b4b18a4`** (release PR #142).
-- GitHub prerelease: **v0.10.0**, published 02.10.2026.
+- Release/product commit: **`b2051ed7229b137a307ecfcf74b1cf332fdddd66`** (release PR #155).
+- GitHub prerelease: **v0.10.1**, published 20.10.2026.
 - Release run **#116 — SUCCESS**; main verification **#561 — SUCCESS**.
 - Активний продукт: Flutter/Dart, `apps/native`.
 - Платформи: Windows / macOS / Android / iOS unsigned.

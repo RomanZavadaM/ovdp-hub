@@ -106,13 +106,14 @@ try {
     }
   }
 
-  if ([string]$contract.privatePortfolioSchemaVersion -ne '4') {
+  if ([string]$contract.privatePortfolioSchemaVersion -ne '5') {
     throw "Unexpected private portfolio schema version: $($contract.privatePortfolioSchemaVersion)"
   }
   $expectedCapabilities = @(
     'export.formulaSafeCsv',
     'portfolio.recoverySecretOnOpen',
     'portfolio.privatePlannerScenarios',
+    'portfolio.privateCollections',
     'portfolio.localDeleteAndOlderRestore',
     'portfolio.expectedReceipts',
     'calculator.catalogBondAccruedYield',
