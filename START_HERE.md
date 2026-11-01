@@ -4,9 +4,9 @@
 
 ## Статус
 
-**ACTIVE — release checkpoint v0.10.1 / 0.10.1+23. F1–F4 і F6 завершені; F5 private collections лишається draft PR #154 і не входить у реліз.**
+**ACTIVE — published release checkpoint v0.10.1 / 0.10.1+23; F5 private collections уже merged у `main` через PR #154. Поточний новий slice — PR #157 (публічні пропозиції Inzhur / UNIVER), окремий docs PR #148 лишається відкритим. Жодна з цих змін сама собою не означає новий опублікований release.**
 
-План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`. Незавершену роботу читати у WORKLOG активної гілки та Issue #18. Незлитий docs PR #148 — план аудиту; не вважати його інтегрованим у main.
+План: `docs/DEVELOPMENT_PLAN_2026_10_20.md`. Незавершену роботу читати у WORKLOG активної гілки та Issue #18; фактичні SHA/CI/next звіряти з live GitHub перед діями. Незлитий docs PR #148 — план аудиту; не вважати його інтегрованим у main. F5 завершено в `main` на `c6fcdecd4edfbe0ad681195b17bf48df77abfd52`; точні тести й merge — Issue #18.
 
 Останній опублікований checkpoint: **v0.10.1 / 0.10.1+23**.  
 Release/product checkpoint commit: **`b2051ed7229b137a307ecfcf74b1cf332fdddd66`**.  
