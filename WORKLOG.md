@@ -2,6 +2,15 @@
 
 Оновлено: **20.10.2026** (release checkpoint v0.10.1)
 
+## CURRENT — 01.11.2026 (docs reconciliation; non-release)
+
+- Read-only GitHub baseline before docs sync: main `c6fcdecd4edfbe0ad681195b17bf48df77abfd52`.
+- **F5 private collections — DONE / merged via PR #154.** Не повторювати F5; Issue #18 містить exact tested head, CI та merge checkpoint.
+- Активний наступний продуктовий slice — **PR #157** (публічні пропозиції Inzhur / UNIVER); окремий історичний docs PR #148 відкритий. Перед роботою з ними повторно звірити їхні head, CI, конфлікти та Issue #18.
+- Останній опублікований реліз із перевіреного стартового контуру — **v0.10.1 / 0.10.1+23**. Merge F5 не вважати автоматично новим релізом.
+- Нижче залишено історичні записи від 20–21.10 як докази на той час; їхні формулювання `F5 draft/not merged` **не є поточним станом**.
+- Ця зміна лише синхронізує документи; не запускає нових product slices і не змінює код.
+
 ## STATUS
 
 **ACTIVE — власник відновив розробку 01.10.2026.**
